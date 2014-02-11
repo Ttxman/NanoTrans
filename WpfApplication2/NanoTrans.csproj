@@ -233,6 +233,7 @@
     <Compile Include="ExceptionCatchWindow.xaml.cs">
       <DependentUpon>ExceptionCatchWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Extensions.cs" />
     <Compile Include="FindDialog.xaml.cs">
       <DependentUpon>FindDialog.xaml</DependentUpon>
     </Compile>

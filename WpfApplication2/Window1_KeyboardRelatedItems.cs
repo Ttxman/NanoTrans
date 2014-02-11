@@ -403,12 +403,28 @@ namespace NanoTrans
         private void CScrollDown(object sender, ExecutedRoutedEventArgs e)
         {
             VirtualizingListBox.gridscrollbar.Value += 0.7 * VirtualizingListBox.ActualHeight;
+            SetCursor();
+        }
 
+        private void SetCursor()
+        {
+            UpdateLayout();
+            HitTestResult res = VisualTreeHelper.HitTest(VirtualizingListBox, new Point(0,5));
+            if (res.VisualHit != null)
+            {
+                Element e = res.VisualHit.FindVisualParent<Element>();
+                if (e != null)
+                {
+                    e.editor.Focus();
+                    e.editor.CaretOffset = 0;
+                }
+            }
         }
 
         private void CScrollUP(object sender, ExecutedRoutedEventArgs e)
         {
             VirtualizingListBox.gridscrollbar.Value -= 0.7 * VirtualizingListBox.ActualHeight;
+
         }
 
         private void CSmallJumpRight(object sender, ExecutedRoutedEventArgs e)
