@@ -1625,11 +1625,18 @@ namespace NanoTrans
 
                                 while (reader.Name == "Text")
                                 {
-                                    reader.ReadStartElement("Text");//posun na content
-                                    ph.Text+= reader.Value;
-                                    while (reader.NodeType != XmlNodeType.EndElement)
+                                    reader.WhitespaceHandling = WhitespaceHandling.All;
+                                    if (!reader.IsEmptyElement)
+                                    {
                                         reader.Read();
-                                    reader.ReadEndElement();
+                                        while (reader.NodeType != XmlNodeType.EndElement && reader.NodeType!=XmlNodeType.Element)
+                                        {
+                                            ph.Text = reader.Value;
+                                            reader.Read();
+                                        }
+                                    }
+                                    reader.WhitespaceHandling = WhitespaceHandling.Significant;
+                                    reader.ReadEndElement();//text
                                 }
                                 p.Phrases.Add(ph);
                                 if (reader.Name != "Phrase") //text nebyl prazdny
