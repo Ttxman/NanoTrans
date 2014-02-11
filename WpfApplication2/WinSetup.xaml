@@ -2,7 +2,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:tk="http://schemas.microsoft.com/winfx/2006/xaml/presentation/toolkit/extended"
-    Title="Nastavení" Height="484" Width="674" Icon="/Prepisovac2.0;component/icons/iNastaveni.png">
+    Title="Nastavení" Height="484" Width="674" Icon="icons/iNastaveni.png">
     <Grid>
         <TabControl Margin="4,6,6,38" Name="tabControl1" SelectedIndex="3" Height="402" Width="642">
             <TabItem >
@@ -139,7 +139,7 @@
                             <TextBox Height="23" Margin="55,9,117,0" Name="tbCestaDatabazeMluvcich" VerticalAlignment="Top" Background="LightYellow" IsReadOnly="True" />
                             <Button HorizontalAlignment="Right" Width="92"  Margin="0,7,12,0" Height="27.723" VerticalAlignment="Top" Click="Button_Click">
                                 <StackPanel Orientation="Horizontal">
-                                    <Image Margin="0,0,5,0" Height="17" Source="/Prepisovac2.0;component/icons/iOtevrit.png" />
+                                    <Image Margin="0,0,5,0" Height="17" Source="icons/iOtevrit.png" />
                                     <TextBlock Text="Načíst..." Margin="2,0,0,0" VerticalAlignment="Center" />
                                 </StackPanel>
                             </Button>

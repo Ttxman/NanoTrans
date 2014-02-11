@@ -1,7 +1,7 @@
 ﻿<Window x:Class="NanoTrans.WinSpeakers"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Title="Správce mluvčích" Height="515" Width="656" Loaded="Window_Loaded" ForceCursor="False" PreviewKeyDown="Window_PreviewKeyDown" Icon="/Prepisovac2.0;component/icons/iMluvci1.png">
+    Title="Správce mluvčích" Height="515" Width="656" Loaded="Window_Loaded" ForceCursor="False" PreviewKeyDown="Window_PreviewKeyDown" Icon="icons/iMluvci1.png">
     <Grid>
         <Grid Margin="8,207,10,44" Name="grid1">
             <Grid.ColumnDefinitions>
