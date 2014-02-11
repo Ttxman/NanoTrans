@@ -173,7 +173,7 @@ namespace NanoTrans
 
 
             System.Windows.Interop.WindowInteropHelper wh = new System.Windows.Interop.WindowInteropHelper(Application.Current.MainWindow);
-            m_outputDevice.SetCooperativeLevel(wh.Handle, CooperativeLevel.Priority);
+            m_outputDevice.SetCooperativeLevel(wh.Handle, CooperativeLevel.Normal);
 
             m_buffDescription = new BufferDescription();
             m_buffDescription.ControlPositionNotify = true;

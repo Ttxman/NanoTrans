@@ -158,7 +158,7 @@
                     </TabItem.Header>
                     <Grid Grid.Column="1" Margin="1,0,1,1" Name="grid2" HorizontalAlignment="Stretch" Focusable="False">
                         <Grid Name="gVideoPouze" Margin="0,0,0,29" Background="Black">
-                            <MediaElement Name="meVideo" LoadedBehavior="Manual" Stretch="Uniform" />    
+                            <MediaElement Name="meVideo" LoadedBehavior="Manual" Stretch="Uniform" IsMuted="True" />    
                         </Grid>
                         
                         <Button Height="20" Margin="0,2,0,0" Name="btCloseVideo" VerticalAlignment="Top" Padding="0,0,1,1" Click="btCloseVideo_Click" HorizontalAlignment="Right" Width="20" Focusable="False" IsTabStop="False">X</Button>
