@@ -239,14 +239,16 @@ namespace NanoTrans
             OknoPozice = new Point(-1, -1);
             OknoVelikost = new Size(800, 600);
             OknoStav = WindowState.Normal;
-
+            ZpomalenePrehravaniRychlost = 0.8;
+            VlnaMalySkok  = 5;
             NerecoveUdalosti = new[] { "kasel", "ehm", "smich", "ticho", "nadech", "hluk", "hudba", "mlask" };
+            
         }
 
 
         public MySetup()
         {
-
+            
             NastavDefaultHodnoty();
             PriponaTitulku = ".trsx";
             PriponaDatabazeMluvcich = ".xml";

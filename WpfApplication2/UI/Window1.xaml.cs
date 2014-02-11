@@ -324,7 +324,14 @@ namespace NanoTrans
                 }
                 else
                 {
-                    myDatabazeMluvcich = myDatabazeMluvcich.Deserializovat(MySetup.Setup.CestaDatabazeMluvcich);
+                    if (File.Exists(MySetup.Setup.CestaDatabazeMluvcich))
+                    {
+                        myDatabazeMluvcich = myDatabazeMluvcich.Deserializovat(MySetup.Setup.CestaDatabazeMluvcich);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Databáze mluvčích je nedostupná, změňte cestu v nastavení","chyba",MessageBoxButton.OK,MessageBoxImage.Exclamation);
+                    }
                 }
 
 
@@ -1614,7 +1621,17 @@ namespace NanoTrans
                     }
                     else //neni to u me neresit prava
                     {
-                        myDatabazeMluvcich.Serialize_V1(MySetup.Setup.CestaDatabazeMluvcich, myDatabazeMluvcich);
+                        try
+                        {
+                            myDatabazeMluvcich.Serialize_V1(MySetup.Setup.CestaDatabazeMluvcich, myDatabazeMluvcich);
+                        }catch
+                        {
+                            if (MessageBox.Show("Cesta k databázi mluvčích je neplatná, mluvčí nebudou uloženi (v nastavní jde cesta změnit)", "chyba", MessageBoxButton.OKCancel) == MessageBoxResult.Cancel)
+                            {
+                                e.Cancel = true;
+                                return;
+                            }
+                        }
                     }
                 }
 
