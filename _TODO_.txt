@@ -11,7 +11,6 @@ X undo posledni/vice zmen - realizace pomoci savu kompletniho statusu trva u roz
 20110310
 
 + znemozneni vytvareni segmentu nulove delky
-X undo posledni/vice zmen
 + vygenerovat fake .xml prepis pro otestovani prace s rozsahlymi prepisy - nahrazeno skutecnymi dokumenty
 + online spell-checking
 + backspace rusi segmenty (bug)
@@ -24,14 +23,9 @@ X undo posledni/vice zmen
 
 + moznost pridani atributu pro segmenty - napr. narrowband (telephone), background_speech, background_noise, junk
 
-20110331 (bez schuzky)
-
-- zkontrolovat ukladani databaze mluvcich .. konflikty v ID
-
 20110406
 
 + cervena barva odstavcu pri nacteni souboru
-? zachovani casovych znacek jednotlivych slov v odstavci pri jeho editaci, zalozeni sekce, ... v nove vytvorenem prepisu se mi nepodarilo zreprodukovat
 + oznaceni celeho slova pri double-click
 + pohyb kurzoru v textu po slovech pri stisknutem CTRL
 + out-of-vocab vyhodnocovat bez non-alphanum znaku
@@ -46,7 +40,6 @@ X undo posledni/vice zmen
 20110426 (bez schuzky)
 
 + nova nerecova udalost: [MLASK] nebo [SMACK]
-- odstranit konverzi do wav souboru v pripade, ze je oteviran wav soubor
 + udelat soubory ukladane v adresari (Prevod/Temp) unikatni - jinak neni mozne pouzivat vice nez jednu instanci Nanotrans (generuje i maze se slozka a jeji obsah v %temp%)
 
 
@@ -58,21 +51,8 @@ X undo posledni/vice zmen
 + udelat seznam non-speech udalosti editovatelny v .xml (data\config.xml)
 + zrusit nabidku "Vlozit ruch" z menu
 + zkontrolovat funkcnost klavesovych zkratek z menu (ctrl+R odstranono . ctrl+M orpaveno)
-! GUID pro unikatni identifikaci mluvcich (Narocnejsi nez sem si myslel, ty ID jsou interne pouzivana pro indexaci poli)
-- rozumna synchronizace mluvcich - moznost zparovani shodnych mluvcich s ruznym GUID
 + nelze oznacovat text tahem mysi zprava doleva
 + opraveny nektere vizualni bugy.. zarovnani obdelniku attributu, volne misto v pripade nezobrazeni buttonu mluvciho
-
--------------------------------------------------------------------------------------------------------------------
-
-20110429 - nekompletni :
-
-- zkontrolovat ukladani databaze mluvcich .. konflikty v ID
-? zachovani casovych znacek jednotlivych slov v odstavci pri jeho editaci, zalozeni sekce, ... v nove vytvorenem prepisu se mi nepodarilo zreprodukovat
-- odstranit konverzi do wav souboru v pripade, ze je oteviran wav soubor
-! GUID pro unikatni identifikaci mluvcich (Narocnejsi nez sem si myslel, ty ID jsou interne pouzivana pro indexaci poli)
-- rozumna synchronizace mluvcich - moznost zparovani shodnych mluvcich s ruznym GUID
-X undo posledni/vice zmen - realizace pomoci savu kompletniho statusu trva u rozsahlich souboru nekolik sekund, nepouzitelne
 
 
 ---------------------------------------------------------------------------------------------------------------------------------------
@@ -86,12 +66,25 @@ X undo posledni/vice zmen - realizace pomoci savu kompletniho statusu trva u roz
 + v pripade prazdneho slovniku je spell-checking vypnut
 + atributy segmentu kryji text (v pripade, ze jsou odsunuty tlacitkem se jmenem mluvciho)
 
-FUTURE PLANS:
 
-- vyreseni problemu s prehravanim videa v urcitych formatech (napr. prednasky z mediasite)
-- ovladani prehravace pomoci pedalu
+20110712
++ vyreseni problemu s prehravanim videa v urcitych formatech (napr. prednasky z mediasite) -  vyzaduje WMP10, potom prehraje vsechno jako WMP.
++ ovladani prehravace pomoci pedalu
++ možnost pøehrát zvuk zpomalenì
++ problemova situace: jsem-li na segmentu, ktery neni posledni, vyberu cas v signalu za koncem posledniho segmentu a necham vytvorit hranici aktualniho (ne posledniho) segmentu, vytvori se segment v intervalu od pocatku aktualniho segmentu do vyznaceneho casu, soucasne vsak dojde k vytvoreni zombie segmentu, ktere se presunou na konec prepisu, s vyznacenim pocatecniho casu a zadneho koncoveho casu, na tyto segmenty nalze presunout kurzor (zniceni je mozne pouze z kontextoveho menu - pravym tlacitkem mysi na segmentu)
+
++ zachovani casovych znacek jednotlivych slov v odstavci pri jeho editaci, zalozeni sekce, ... v nove vytvorenem prepisu se mi nepodarilo zreprodukovat
+
+############################ TODO / not completed
+
+- odstranit konverzi do wav souboru v pripade, ze je oteviran wav soubor
 - na zaklade OOV pridavat slova do slovniku (kontrolovat stavajici slova na zaklade fon. prepisu a v pripade shody nahrazovat v textu ortho variantou)
 - keylogger (pro stanoveni RT faktoru prepisu)
-- øešit ovládání pedaly pøes 3rd party SW, který interpretuje ovládání pedály jako stisky klávesových zkratek
-- možnost pøehrát zvuk zpomalenì
-- problemova situace: jsem-li na segmentu, ktery neni posledni, vyberu cas v signalu za koncem posledniho segmentu a necham vytvorit hranici aktualniho (ne posledniho) segmentu, vytvori se segment v intervalu od pocatku aktualniho segmentu do vyznaceneho casu, soucasne vsak dojde k vytvoreni zombie segmentu, ktere se presunou na konec prepisu, s vyznacenim pocatecniho casu a zadneho koncoveho casu, na tyto segmenty nalze presunout kurzor (zniceni je mozne pouze z kontextoveho menu - pravym tlacitkem mysi na segmentu)
+
+
+MLUVCI
+- zkontrolovat ukladani databaze mluvcich .. konflikty v ID
+- odstranit konverzi do wav souboru v pripade, ze je oteviran wav soubor
+! GUID pro unikatni identifikaci mluvcich (Narocnejsi nez sem si myslel, ty ID jsou interne pouzivana pro indexaci poli)
+- rozumna synchronizace mluvcich - moznost zparovani shodnych mluvcich s ruznym GUID
+X undo posledni/vice zmen - realizace pomoci savu kompletniho statusu trva u rozsahlich souboru nekolik sekund, nepouzitelne
