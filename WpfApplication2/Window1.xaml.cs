@@ -22,6 +22,8 @@ using System.Windows.Threading;
 using System.Text.RegularExpressions;
 using USBHIDDRIVER;
 using dbg = System.Diagnostics.Debug;
+using System.Security.Permissions;
+using System.Security;
 
 
 namespace NanoTrans
@@ -42,8 +44,8 @@ namespace NanoTrans
             get { return m_mydatasource; }
             set
             {
-                if(m_mydatasource!=null)
-                    m_mydatasource.SubtitlesChanged-=m_mydatasource_SubtitlesChanged;
+                if (m_mydatasource != null)
+                    m_mydatasource.SubtitlesChanged -= m_mydatasource_SubtitlesChanged;
                 m_mydatasource = value;
                 if (m_mydatasource != null)
                     m_mydatasource.SubtitlesChanged += m_mydatasource_SubtitlesChanged;
@@ -53,7 +55,7 @@ namespace NanoTrans
             }
         }
 
-        void  m_mydatasource_SubtitlesChanged()
+        void m_mydatasource_SubtitlesChanged()
         {
             waveform1.InvalidateSpeakers();
         }
@@ -153,7 +155,7 @@ namespace NanoTrans
                     if (value)
                         meVideo.Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() => meVideo.Play()));
                     else
-                        meVideo.Dispatcher.Invoke(DispatcherPriority.Normal,(Action) (() =>meVideo.Pause()) );
+                        meVideo.Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() => meVideo.Pause()));
                 }
             }
         }
@@ -277,17 +279,36 @@ namespace NanoTrans
                     menu1.Items.RemoveAt(3);
 
                 }
-
+                string fname;
                 //nastaveni aplikace
                 MySetup.Setup = new MySetup(new FileInfo(Application.ResourceAssembly.Location).DirectoryName);
                 if (MySetup.Setup != null)
                 {
-                    MySetup.Setup = MySetup.Setup.Deserializovat(MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.KONFIGURACNI_SOUBOR);
-                    MySetup.Setup.Serializovat(MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.KONFIGURACNI_SOUBOR, MySetup.Setup);
-                   // NastavJazyk(MySetup.Setup.jazykRozhranni);
+                    fname = System.IO.Path.GetFullPath(MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.KONFIGURACNI_SOUBOR);
+
+                    if (CheckWritePermissions(fname))
+                    {
+                        if (File.Exists(fname))
+                            MySetup.Setup = MySetup.Setup.Deserializovat(fname);
+                        MySetup.Setup.Serializovat(fname, MySetup.Setup);
+                    }
+                    else
+                    {
+                        string fname2 = System.IO.Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\NanoTrans" + MyKONST.KONFIGURACNI_SOUBOR);
+                        if (File.Exists(fname2))
+                        {
+                            MySetup.Setup = MySetup.Setup.Deserializovat(fname2);
+                        }
+                        else
+                        {
+                            MySetup.Setup = MySetup.Setup.Deserializovat(fname);
+                            MySetup.Setup.Serializovat(fname2, MySetup.Setup);
+                        }
+                    }
+
                 }
 
-                /*
+
                 //nastaveni posledni pozice okna
                 if (MySetup.Setup.OknoPozice != null)
                 {
@@ -309,13 +330,37 @@ namespace NanoTrans
                 }
 
                 this.WindowState = MySetup.Setup.OknoStav;
-                */
+
 
                 ZobrazitOknoFonetickehoPrepisu(MySetup.Setup.ZobrazitFonetickyPrepis - 1 > 0);
 
                 //databaze mluvcich
                 myDatabazeMluvcich = new MySpeakers();
-                myDatabazeMluvcich = myDatabazeMluvcich.Deserializovat(MySetup.Setup.CestaDatabazeMluvcich);
+
+                fname = System.IO.Path.GetFullPath(MySetup.Setup.CestaDatabazeMluvcich);
+                if (fname.Contains(MySetup.Setup.absolutniCestaEXEprogramu))
+                {
+                    if (CheckWritePermissions(fname))
+                    {
+                        myDatabazeMluvcich = myDatabazeMluvcich.Deserializovat(MySetup.Setup.CestaDatabazeMluvcich);
+                    }
+                    else
+                    {
+                        string fname2 = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\NanoTrans" + fname.Substring(MySetup.Setup.absolutniCestaEXEprogramu.Length);
+                        if (File.Exists(fname2))
+                        {
+                            myDatabazeMluvcich = myDatabazeMluvcich.Deserializovat(fname2);
+                        }
+                        else if (File.Exists(MySetup.Setup.CestaDatabazeMluvcich))
+                        {
+                            myDatabazeMluvcich = myDatabazeMluvcich.Deserializovat(MySetup.Setup.CestaDatabazeMluvcich);
+                        }
+                    }
+                }
+                else
+                {
+                    myDatabazeMluvcich = myDatabazeMluvcich.Deserializovat(MySetup.Setup.CestaDatabazeMluvcich);
+                }
 
 
                 //vytvoreni kontext. menu pro oblast s textem
@@ -482,8 +527,8 @@ namespace NanoTrans
         /// <param name="e"></param>
         private void oWav_HaveFileNumber(object sender, EventArgs e)
         {
-                MyEventArgs2 e2 = (MyEventArgs2)e;
-                this.Dispatcher.Invoke(DispatcherPriority.Normal, new Action<MyEventArgs2>(ZobrazProgressPrevoduSouboru), e2);
+            MyEventArgs2 e2 = (MyEventArgs2)e;
+            this.Dispatcher.Invoke(DispatcherPriority.Normal, new Action<MyEventArgs2>(ZobrazProgressPrevoduSouboru), e2);
         }
 
         private void oWav_TemporaryWavesDone(object sender, EventArgs e)
@@ -543,36 +588,36 @@ namespace NanoTrans
         void oWav_HaveData(object sender, EventArgs e)
         {
 
-                MyEventArgs me = (MyEventArgs)e;
-                if (me.IDBufferu == MyKONST.ID_ZOBRAZOVACIHO_BUFFERU_VLNY)
+            MyEventArgs me = (MyEventArgs)e;
+            if (me.IDBufferu == MyKONST.ID_ZOBRAZOVACIHO_BUFFERU_VLNY)
+            {
+                waveform1.SetAudioData(me.data, TimeSpan.FromMilliseconds(me.pocatecniCasMS), TimeSpan.FromMilliseconds(me.koncovyCasMS));
+                if (me.pocatecniCasMS == 0)
                 {
-                    waveform1.SetAudioData(me.data, TimeSpan.FromMilliseconds(me.pocatecniCasMS), TimeSpan.FromMilliseconds(me.koncovyCasMS));
-                    if (me.pocatecniCasMS == 0)
+                    if (!timer1.IsEnabled) InitializeTimer();
+                    if (waveform1.WaveLength < TimeSpan.FromSeconds(30))
                     {
-                        if (!timer1.IsEnabled) InitializeTimer();
-                        if (waveform1.WaveLength < TimeSpan.FromSeconds(30))
-                        {
-                            waveform1.WaveLength = TimeSpan.FromSeconds(30);
-                        }
-                    }
-                    if (pAutomaticky)
-                    {
-                        pAutomaticky = false;
-                        menuItemNastrojeFonetickyPrepis_Click(null, new RoutedEventArgs());
-
+                        waveform1.WaveLength = TimeSpan.FromSeconds(30);
                     }
                 }
-                else if (me.IDBufferu == MyKONST.ID_BUFFERU_PREPISOVANEHO_ELEMENTU)
+                if (pAutomaticky)
                 {
-                    oPrepisovac.bufferProPrepsani = new MyBuffer16(me.koncovyCasMS - me.pocatecniCasMS);
-                    oPrepisovac.bufferProPrepsani.UlozDataDoBufferu(me.data, me.pocatecniCasMS, me.koncovyCasMS);
-                }
-                else if (me.IDBufferu == MyKONST.ID_BUFFERU_PREPISOVANEHO_ELEMENTU_FONETICKY_PREPIS)
-                {
-                    throw new NotImplementedException();
-                }
+                    pAutomaticky = false;
+                    menuItemNastrojeFonetickyPrepis_Click(null, new RoutedEventArgs());
 
-                waveform1.Invalidate();
+                }
+            }
+            else if (me.IDBufferu == MyKONST.ID_BUFFERU_PREPISOVANEHO_ELEMENTU)
+            {
+                oPrepisovac.bufferProPrepsani = new MyBuffer16(me.koncovyCasMS - me.pocatecniCasMS);
+                oPrepisovac.bufferProPrepsani.UlozDataDoBufferu(me.data, me.pocatecniCasMS, me.koncovyCasMS);
+            }
+            else if (me.IDBufferu == MyKONST.ID_BUFFERU_PREPISOVANEHO_ELEMENTU_FONETICKY_PREPIS)
+            {
+                throw new NotImplementedException();
+            }
+
+            waveform1.Invalidate();
 
         }
 
@@ -630,7 +675,7 @@ namespace NanoTrans
         //--------------------------------obsluha context menu pro gridy v listboxu--------------------------------------------------
         void menuItemX_Nastav_Mluvciho_Click(object sender, RoutedEventArgs e)
         {
-            CommandAssignSpeaker.Execute(null,null);
+            CommandAssignSpeaker.Execute(null, null);
         }
 
         void menuItemX2_Nova_Sekce_Click(object sender, RoutedEventArgs e)
@@ -645,7 +690,7 @@ namespace NanoTrans
 
         void menuItemX3_Nova_Kapitola_Click(object sender, RoutedEventArgs e)
         {
-            CommandNewChapter.Execute(null,null);
+            CommandNewChapter.Execute(null, null);
         }
 
         void menuItemX4_Smaz_Click(object sender, RoutedEventArgs e)
@@ -657,7 +702,7 @@ namespace NanoTrans
 
         void menuItemX7_Click(object sender, RoutedEventArgs e)
         {
-            CommandExportElement.Execute(null,null);
+            CommandExportElement.Execute(null, null);
 
         }
         #endregion
@@ -833,7 +878,7 @@ namespace NanoTrans
                                     FileInfo fi = new FileInfo(myDataSource.JmenoSouboru);
                                     pAudioFile = fi.Directory.FullName + "\\" + myDataSource.audioFileName;
                                 }
-                                if (pAudioFile.Split(new string[]{":\\"},StringSplitOptions.None).Length == 2)
+                                if (pAudioFile.Split(new string[] { ":\\" }, StringSplitOptions.None).Length == 2)
                                 {
                                     FileInfo fi2 = new FileInfo(pAudioFile);
                                     if (fi2.Exists)
@@ -873,7 +918,7 @@ namespace NanoTrans
                         }
 
                         this.Title = MyKONST.NAZEV_PROGRAMU + " [" + myDataSource.JmenoSouboru + "]";
-                        VirtualizingListBox.ActiveTransctiption = myDataSource.First(e=>e.IsParagraph) ?? myDataSource.First();
+                        VirtualizingListBox.ActiveTransctiption = myDataSource.First(e => e.IsParagraph) ?? myDataSource.First();
                         return true;
                     }
                     else
@@ -1018,7 +1063,6 @@ namespace NanoTrans
                 }
                 else
                 {
-                    Console.WriteLine(jmenoSouboru);
                     bool pStav = myDataSource.Serializovat(jmenoSouboru, myDataSource, MySetup.Setup.UkladatKompletnihoMluvciho);
                     if (pStav && lbDavkoveNacteni.Items.Count > 0)
                     {
@@ -1043,7 +1087,6 @@ namespace NanoTrans
             catch (Exception ex)
             {
                 MessageBox.Show("Chyba pri ukladani titulku: " + ex.Message, "Chyba");
-                Console.WriteLine(ex);
                 return false;
             }
         }
@@ -1112,7 +1155,7 @@ namespace NanoTrans
         private void VyberTextMeziCasovymiZnackami(TimeSpan aPoziceKurzoru)
         {
             VirtualizingListBox.HiglightedPostion = aPoziceKurzoru;
-            
+
             VyberFonetikuMeziCasovymiZnackami(aPoziceKurzoru);
         }
 
@@ -1136,7 +1179,7 @@ namespace NanoTrans
                     playpos = waveform1.SelectionBegin;
                 }
 
-                    waveform1.CaretPosition = playpos;
+                waveform1.CaretPosition = playpos;
             }
 
             pocetTikuTimeru++;
@@ -1545,25 +1588,27 @@ namespace NanoTrans
                     oWav.Dispose();
                 }
 
+
                 //ulozeni databaze mluvcich - i externi databaze
                 if (myDatabazeMluvcich != null)
                 {
-                    if (myDatabazeMluvcich.JmenoSouboru != null && myDatabazeMluvcich.JmenoSouboru != MySetup.Setup.CestaDatabazeMluvcich)
+                    string dirname = MySetup.Setup.absolutniCestaEXEprogramu;
+                    string fname = System.IO.Path.GetFullPath(MySetup.Setup.CestaDatabazeMluvcich);
+                    if (fname.StartsWith(dirname))//kdyz je to v adresari (program files..)
                     {
-                        myDatabazeMluvcich.Serializovat(myDatabazeMluvcich.JmenoSouboru, myDatabazeMluvcich);
-                    }
-                    else
-                    {
-                        if (new FileInfo(MySetup.Setup.CestaDatabazeMluvcich).Exists)
+                        if (CheckWritePermissions(fname)) //checkni jestli muzes zapisovat
                         {
-                            myDatabazeMluvcich.Serializovat(MySetup.Setup.CestaDatabazeMluvcich, myDatabazeMluvcich);
+                            myDatabazeMluvcich.Serializovat(fname, myDatabazeMluvcich);
                         }
                         else
                         {
-                            myDatabazeMluvcich.Serializovat(MySetup.Setup.absolutniCestaEXEprogramu + "\\data\\databazemluvcich.xml", myDatabazeMluvcich);
+                            myDatabazeMluvcich.Serializovat(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\NanoTrans" + fname.Substring(dirname.Length), myDatabazeMluvcich);
                         }
                     }
-
+                    else //neni to u me neresit prava
+                    {
+                        myDatabazeMluvcich.Serializovat(MySetup.Setup.CestaDatabazeMluvcich, myDatabazeMluvcich);
+                    }
                 }
 
                 //pokus o ulozeni nastaveni
@@ -1580,13 +1625,18 @@ namespace NanoTrans
                         MySetup.Setup.OknoStav = this.WindowState;
                     }
 
-                    MySetup.Setup.Serializovat(MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.KONFIGURACNI_SOUBOR, MySetup.Setup);
+                    string fname = MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.KONFIGURACNI_SOUBOR;
+
+                    if (CheckWritePermissions(fname))
+                    {
+                        MySetup.Setup.Serializovat(fname, MySetup.Setup);
+                    }
+                    else
+                    {
+                        MySetup.Setup.Serializovat(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\NanoTrans" + MyKONST.KONFIGURACNI_SOUBOR, MySetup.Setup);
+                    }
                 }
-
-
-
             }
-
 
             //smazani souboru...
 
@@ -1603,6 +1653,24 @@ namespace NanoTrans
 
         }
 
+        private bool CheckWritePermissions(string path)
+        {
+            /*
+            var set = new PermissionSet(PermissionState.None);
+            set.AddPermission(new FileIOPermission(FileIOPermissionAccess.AllAccess,System.IO.Path.GetDirectoryName(path)));
+            set.AddPermission(new FileIOPermission(FileIOPermissionAccess.AllAccess, path));
+             * 
+            return set.IsSubsetOf(AppDomain.CurrentDomain.PermissionSet);*/
+            try
+            {
+                File.AppendAllText(path, "");
+            }
+            catch
+            {
+                return false;
+            }
+            return true;
+        }
 
 
         //zavre okno s videem a video
@@ -1619,7 +1687,7 @@ namespace NanoTrans
         #region menu uprava
         private void MUpravy_Nova_Kapitola_Click(object sender, RoutedEventArgs e)
         {
-            CommandNewChapter.Execute(null,null);
+            CommandNewChapter.Execute(null, null);
         }
 
         private void MUpravy_Nova_Sekce_Click(object sender, RoutedEventArgs e)
@@ -1700,9 +1768,9 @@ namespace NanoTrans
                 OtevritTitulky(false, pCesta, false);
             }
 
-            VirtualizingListBox.RequestTimePosition += delegate(out TimeSpan value){value = waveform1.CaretPosition;};
+            VirtualizingListBox.RequestTimePosition += delegate(out TimeSpan value) { value = waveform1.CaretPosition; };
             VirtualizingListBox.RequestPlaying += delegate(out bool value) { value = Playing; };
-            VirtualizingListBox.RequestPlayPause += delegate() { CommandPlayPause.Execute(null,null); };
+            VirtualizingListBox.RequestPlayPause += delegate() { CommandPlayPause.Execute(null, null); };
         }
 
         void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
@@ -1789,7 +1857,7 @@ namespace NanoTrans
 
 
             //TODO:(x) rozpoznani elementu
-            MessageBox.Show("Automatické fonetické rozpoznáni není v této verzi podporováno","Oznámení",MessageBoxButton.OK,MessageBoxImage.Information);
+            MessageBox.Show("Automatické fonetické rozpoznáni není v této verzi podporováno", "Oznámení", MessageBoxButton.OK, MessageBoxImage.Information);
             return false;
             #region sbaleno
             /*
@@ -2184,7 +2252,7 @@ namespace NanoTrans
         /// <param name="e"></param>
         private void menuItemNastrojeFonetickyPrepis_Click(object sender, RoutedEventArgs e)
         {
-            
+
         }
 
         private void menuItemNastrojeAllignment_Click(object sender, RoutedEventArgs e)
@@ -2487,14 +2555,14 @@ namespace NanoTrans
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            if (VirtualizingListBox.ActiveElement !=null)
+            if (VirtualizingListBox.ActiveElement != null)
             {
                 Element focusedel = VirtualizingListBox.ActiveElement;
                 if (focusedel != null)
                 {
                     ICSharpCode.AvalonEdit.TextEditor focused = focusedel.editor;
                     string insert = "[" + ((Button)sender).Content + "]";
-                    focused.Document.Insert(focused.CaretOffset,insert);
+                    focused.Document.Insert(focused.CaretOffset, insert);
                 }
             }
         }
@@ -2628,7 +2696,7 @@ namespace NanoTrans
                     waveform1.SelectionEnd = new TimeSpan(-1);
                 }
             }
-            
+
 
             var list = m_mydatasource.VratElementDanehoCasu(e.Value);
             if (list != null && list.Count > 0)
@@ -2637,7 +2705,7 @@ namespace NanoTrans
                 {
                     VirtualizingListBox.ActiveTransctiption = list[0];
                     phoneticTranscription.ValueElement = list[0];
-                   
+
                 }
             }
         }
@@ -2665,7 +2733,7 @@ namespace NanoTrans
             {
                 if (VirtualizingListBox.ActiveTransctiption != list[0])
                     VirtualizingListBox.ActiveTransctiption = list[0];
-               
+
             }
             _pozicenastav = false;
             VyberTextMeziCasovymiZnackami(e.Value);
@@ -2724,7 +2792,7 @@ namespace NanoTrans
             if (Playing)
                 CommandPlayPause.Execute(null, null);
 
-            NastavPoziciKurzoru(obj,true, true);
+            NastavPoziciKurzoru(obj, true, true);
             VyberTextMeziCasovymiZnackami(obj);
         }
 
@@ -2739,8 +2807,8 @@ namespace NanoTrans
         }
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
-        { 
-            if(e.ChangedButton == MouseButton.XButton1 || e.ChangedButton== MouseButton.XButton2 || e.ChangedButton == MouseButton.Middle)
+        {
+            if (e.ChangedButton == MouseButton.XButton1 || e.ChangedButton == MouseButton.XButton2 || e.ChangedButton == MouseButton.Middle)
                 CommandPlayPause.Execute(null, null);
         }
     }

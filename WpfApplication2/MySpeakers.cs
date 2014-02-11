@@ -251,6 +251,9 @@ namespace NanoTrans
         {
             try
             {
+                if (!File.Exists(jmenoSouboru))
+                    Directory.CreateDirectory(Path.GetDirectoryName(jmenoSouboru));
+
                 XmlSerializer serializer = new XmlSerializer(typeof(MySpeakers));
                 TextWriter writer = new StreamWriter(jmenoSouboru);
                 //XmlTextWriter writer = new XmlTextWriter(jmenoSouboru, Encoding.UTF8);

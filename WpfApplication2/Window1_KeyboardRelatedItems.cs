@@ -635,6 +635,7 @@ namespace NanoTrans
             Right = 0x4,
             Invalid = 0xFF
         }
+        
         public void HIDhandler(object sender, System.EventArgs e)
         {
             USBHIDDRIVER.List.ListWithEvent ev = (USBHIDDRIVER.List.ListWithEvent)sender;
