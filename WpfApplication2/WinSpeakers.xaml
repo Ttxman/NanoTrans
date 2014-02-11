@@ -33,7 +33,7 @@
                 <ComboBox HorizontalAlignment="Left" FontWeight="normal" Margin="59,56.723,0,0" Name="cbMluvci" Width="216" Height="23" VerticalAlignment="Top" TabIndex="35" />
                 <Label HorizontalAlignment="Left" FontWeight="normal" Margin="0,55.447,0,0" Name="label5" Width="55" Height="24.276" VerticalAlignment="Top">Mluvčí:</Label>
                 <ComboBox FontWeight="normal" Margin="59,84.446,0,68.277" Name="cbJazykovyModel" TabIndex="40" HorizontalAlignment="Left" Width="216" />
-                <Label FontWeight="normal" HorizontalAlignment="Left" Margin="0,83.17,0,68.277" Name="label6" Width="55">Slovník:</Label>
+                <Label FontWeight="normal" HorizontalAlignment="Left" Margin="0,84,0,58" Name="label6" Width="55">Slovník:</Label>
                 <Image Margin="0,3.723,6,3" Name="imFotka" Stretch="Uniform" HorizontalAlignment="Right" Width="147" />
                 <Button  HorizontalAlignment="Right" Click="btNacistObrazek_Click"  Margin="0,0,180,3" Name="btNacistObrazek" VerticalAlignment="Bottom" ToolTip="Načte obrázek mluvčího (změny je nutno uložit!)" TabIndex="60">
                     <StackPanel Orientation="Horizontal">
