@@ -1236,7 +1236,8 @@ namespace NanoTrans
             foreach (Match m in matches)
             {
                 string s = text.Substring(m.Index, m.Length).ToLower();
-                if(CorrectionsGenerator.GetCorrections(s).Count() > 1)
+
+                if(CorrectionsGenerator.GetCorrections(s).Take(2).Count() > 1)
                 {
                     base.ChangeLinePart(
                             lineStartOffset + m.Index,

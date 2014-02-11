@@ -50,7 +50,7 @@ namespace NanoTrans
 
         public static IEnumerable<string>GetCorrections(string data)
         {
-              return GetCorrectionPermutations(data).Where(w=>SpellChecker.Checkword(w));
+              return GetCorrectionPermutations(data).Where(w=> w.Split(' ').All(one=>SpellChecker.Checkword(one)));
         }
 
 
