@@ -118,17 +118,28 @@ namespace NanoTrans
         {
             m_Updating = false;
             if (m_updated)
-                RecreateElements(gridscrollbar.Value);
+                RecreateElements(gridscrollbar.Value,true);
             m_updated = false;
         }
 
         void l_NewRequest(object sender, EventArgs e)
         {
+            BeginUpdate();
             Element el = (Element)sender; 
             MyParagraph p = new MyParagraph();
             p.Add(new MyPhrase());
             if (el.ValueElement is MyParagraph)
             {
+                TimeSpan pos;
+                RequestTimePosition(out pos);
+                el.ValueElement.End = pos;
+
+                if (el.ValueElement.Parent.End < pos)
+                    el.ValueElement.Parent.End = pos;
+
+                p.Begin = pos;
+
+
                 p.speakerID = ((MyParagraph)el.ValueElement).speakerID;
                 el.ValueElement.Parent.Insert(el.ValueElement.ParentIndex + 1, p);
             }
@@ -140,7 +151,9 @@ namespace NanoTrans
             {
                 el.ValueElement.Children[0].Insert(0, p);
             }
+
             ActiveTransctiption = p;
+            EndUpdate();
         }
 
         void l_MoveRightRequest(object sender, EventArgs e)
@@ -246,11 +259,18 @@ namespace NanoTrans
 
             if (t is MyParagraph && p is MyParagraph)
             {
-                p.End = t.End;
-                t.Children.ForEach(x => p.Children.Add(x));
+                if (!(t.Children.Count == 1 && string.IsNullOrEmpty(t.Children[0].Text)))
+                {
+                    p.End = t.End;
+                    t.Children.ForEach(x => p.Children.Add(x));
+                }
                 t.Parent.Remove(t);
             }
+            
+            ActiveTransctiption = p;
             EndUpdate();
+            var vis =  GetVisualForTransctiption(p);
+            vis.editor.CaretOffset = vis.editor.Text.Length;
         }
 
         void l_MergeWithnextRequest(object sender, EventArgs e)
@@ -277,6 +297,7 @@ namespace NanoTrans
                 BeginUpdate();
                 if (el.ValueElement is MyParagraph)
                 {
+
                     MyParagraph par = (MyParagraph)el.ValueElement;
                     int where = el.editor.CaretOffset;
 
@@ -291,7 +312,7 @@ namespace NanoTrans
 
 
                             TimeSpan length = p.End - p.Begin;
-
+                            TimeSpan end = p.End;
                             TimeSpan l1 = new TimeSpan((long)(ratio * length.Ticks));
 
                             MyPhrase p1 = new MyPhrase();
@@ -313,7 +334,7 @@ namespace NanoTrans
                             MyParagraph par2 = new MyParagraph();
                             par2.Add(p2);
                             par2.Begin = p2.Begin;
-                            par2.End = par.End;
+                            par2.End = end;
                             par.End = p1.End;
                             par.BeginUpdate();
                             i++;
@@ -326,7 +347,7 @@ namespace NanoTrans
                             }
                             par.EndUpdate();
 
-                            if (Keyboard.Modifiers.HasFlag(ModifierKeys.Control))
+                            if (!Keyboard.Modifiers.HasFlag(ModifierKeys.Control))
                             { 
                                 
                                 if (RequestTimePosition != null)

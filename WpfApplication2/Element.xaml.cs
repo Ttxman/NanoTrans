@@ -603,9 +603,6 @@ namespace NanoTrans
                 TimeSpan val = ValueElement.Begin;
                 
                     this.textbegin.Text = string.Format("{0}:{1:00}:{2:00},{3}", val.Hours, val.Minutes, val.Seconds, val.Milliseconds.ToString("00").Substring(0, 2));
-
-                    if (val < TimeSpan.Zero)
-                        this.textbegin.Text = "u" + this.textbegin.Text;
             }
         }
 
@@ -615,9 +612,6 @@ namespace NanoTrans
             {
                 TimeSpan val = ValueElement.End;
                 this.textend.Text = string.Format("{0}:{1:00}:{2:00},{3}", val.Hours, val.Minutes, val.Seconds, val.Milliseconds.ToString("00").Substring(0, 2));
-
-                if (val < TimeSpan.Zero)
-                    this.textend.Text = "u" + this.textend.Text;
             }
         }
 
@@ -939,7 +933,7 @@ namespace NanoTrans
 
             if (par.Text != editor.Text)
             {
-                editor.Background = Brushes.Red;
+              editor.Background = Brushes.Red;
             }
 
         }

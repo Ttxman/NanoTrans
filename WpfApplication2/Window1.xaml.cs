@@ -2604,6 +2604,13 @@ namespace NanoTrans
                 TimeSpan ts = e.Value;
                 pIndexBufferuVlnyProPrehrani = (int)ts.TotalMilliseconds;
                 if (jeVideo) meVideo.Position = ts;
+
+                if (!(waveform1.SelectionBegin <= e.Value && waveform1.SelectionEnd >= e.Value))
+                {
+                    waveform1.SelectionBegin = new TimeSpan(-1);
+                    waveform1.SelectionEnd = new TimeSpan(-1);
+                }
+
             }
         }
         private void waveform1_CarretPostionChanged(object sender, Waveform.TimeSpanEventArgs e)
@@ -2612,7 +2619,14 @@ namespace NanoTrans
             {
                 pIndexBufferuVlnyProPrehrani = (int)e.Value.TotalMilliseconds;
                 oldms = TimeSpan.Zero;
+
+                if (!(waveform1.SelectionBegin <= e.Value && waveform1.SelectionEnd >= e.Value))
+                {
+                    waveform1.SelectionBegin = new TimeSpan(-1);
+                    waveform1.SelectionEnd = new TimeSpan(-1);
+                }
             }
+            
 
             var list = m_mydatasource.VratElementDanehoCasu(e.Value);
             if (list != null && list.Count > 0)
