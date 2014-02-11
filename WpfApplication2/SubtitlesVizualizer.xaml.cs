@@ -89,7 +89,6 @@ namespace NanoTrans
             updating = true;
             gridscrollbar.Maximum = totalh - this.ActualHeight;
             gridscrollbar.LargeChange = this.ActualHeight;
-            gridscrollbar.SmallChange = 25;
             gridscrollbar.ViewportSize = gridscrollbar.LargeChange;
             updating = false;
         }
@@ -410,6 +409,7 @@ namespace NanoTrans
         private TranscriptionElement m_activeTranscription;
         private int m_activeTranscriptionOffset = -1;
         private int m_activetransctiptionSelectionLength = -1;
+        private int m_activetransctiptionSelectionStart = -1;
         public TranscriptionElement ActiveTransctiption
         {
             get 
@@ -448,8 +448,16 @@ namespace NanoTrans
         {
             if (el == null)
                 return null;
-            
-            
+            m_activetransctiptionSelectionLength = -1;
+            m_activetransctiptionSelectionStart = -1;
+
+            foreach (Element ee in gridstack.Children)
+            {
+                if (ee.ValueElement != el)
+                    ee.editor.Select(0, 0);
+            }
+
+
             Element e = GetVisualForTransctiption(el);
             
             if (e != null)
@@ -487,8 +495,11 @@ namespace NanoTrans
                     UpdateLayout();
                     e = GetVisualForTransctiption(t);
                 }
+
                 foreach (Element ee in gridstack.Children)
+                {
                     ee.SetCaretOffset(-1);
+                }
                 if(e!=null)
                     e.SetCaretOffset(0);
                 return e;
@@ -517,7 +528,8 @@ namespace NanoTrans
             e.SizeChanged -= l_SizeChanged;
             e.GotFocus -= l_GotFocus;
             e.LostFocus -= l_LostFocus;
-
+            e.editor.TextArea.SelectionChanged -= TextArea_SelectionChanged;
+            e.editor.TextArea.Caret.PositionChanged-=Caret_PositionChanged;
             e.ClearEvents();
             e.ClearBindings();
             e.ValueElement = null;
@@ -552,6 +564,8 @@ namespace NanoTrans
 
             TranscriptionElement te = ActiveTransctiption;
             int offset = m_activeTranscriptionOffset;
+            int sellength = m_activetransctiptionSelectionLength;
+            int selstart = m_activetransctiptionSelectionStart;
 
             List<Element> elms = new List<Element>();
             foreach (Element el in gridstack.Children)
@@ -602,6 +616,8 @@ namespace NanoTrans
                         l.ChangeSpeakerRequest += l_ChangeSpeakerRequest;
                         l.SetTimeRequest += l_SetTimeRequest;
                         l.ContentChanged += (X,Y) =>Subtitles.Ulozeno = false;
+                        l.editor.TextArea.SelectionChanged += new EventHandler(TextArea_SelectionChanged);
+                        l.editor.TextArea.Caret.PositionChanged += new EventHandler(Caret_PositionChanged);
                         gridstack.Children.Add(l);
                         
                     }
@@ -616,7 +632,10 @@ namespace NanoTrans
                 l.SizeChanged += l_SizeChanged;
                 if (l.ValueElement == ActiveTransctiption)
                 {
-                    l.SetCaretOffset((offset>0)?offset:0);
+                    if (sellength <= 0)
+                        l.SetCaretOffset((offset > 0) ? offset : 0);
+                    else
+                        l.SetSelection(selstart, sellength, (offset > 0) ? offset : 0);
                     l.HiglightedPostion = HiglightedPostion;
                     l.maingrid.Background = Brushes.Beige;
                 }
@@ -625,6 +644,27 @@ namespace NanoTrans
                     l.SetCaretOffset(-1);
                 }
             }
+        }
+
+        void l_PlayPauseRequest(object sender, EventArgs e)
+        {
+            PlayPauseRequest(this, null);
+        }
+
+        void Caret_PositionChanged(object sender, EventArgs e)
+        {
+            var l = sender as ICSharpCode.AvalonEdit.Editing.Caret;
+            m_activeTranscriptionOffset = l.Offset; 
+        }
+
+        void TextArea_SelectionChanged(object sender, EventArgs e)
+        {
+            var l = sender as ICSharpCode.AvalonEdit.Editing.TextArea;
+            m_activetransctiptionSelectionLength = l.Selection.Length;
+            if (l.Selection.Length > 0 && l.Selection.Segments.Count() >0)
+                m_activetransctiptionSelectionStart = l.Selection.Segments.First().Offset;
+            else
+                m_activetransctiptionSelectionStart = 0;
         }
 
         void l_SetTimeRequest(TimeSpan obj)
@@ -665,6 +705,7 @@ namespace NanoTrans
 
         public event EventHandler SelectedElementChanged;
         public event Action<TimeSpan> SetTimeRequest;
+        public event EventHandler PlayPauseRequest;
 
 
         private TimeSpan m_higlightedPostion = new TimeSpan(-1);
