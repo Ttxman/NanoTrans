@@ -3,14 +3,13 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Title="O programu" Height="364" Width="300" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Icon="icons/iTip.png">
     <Grid>
-        <Label Height="38" Margin="0,16,0,0" Name="label1" VerticalAlignment="Top" HorizontalContentAlignment="Center" Foreground="Red" FontSize="25">Přepisovač 1.0</Label>
+        <Label Height="38" Margin="0,16,0,0" Name="label1" VerticalAlignment="Top" HorizontalContentAlignment="Center" Foreground="Red" FontSize="25">NanoTrans(beta)</Label>
         <Button Height="26" Margin="76,0,65,13" Name="button1" VerticalAlignment="Bottom" Click="button1_Click" IsCancel="True" IsDefault="True">
             <StackPanel Orientation="Horizontal">
                 <Image Height="16" Margin="0,0,5,0" Source="/icons/iOK.png" />
                 <TextBlock FontWeight="Bold" Margin="3">OK</TextBlock>
             </StackPanel>
         </Button>
-        <Label Height="28" Margin="34,53,36,0" Name="label2" VerticalAlignment="Top" HorizontalContentAlignment="Center">Martin Čičkán (c) 2008 - 2010 </Label>
-        <TextBox Margin="19,80,19,48" Name="textBox1" Background="LightYellow" TextWrapping="Wrap" IsReadOnly="False" AcceptsReturn="True" TextDecorations="None" AcceptsTab="True" VerticalScrollBarVisibility="Auto">2.0.2b</TextBox>
+        <TextBox Margin="19,80,19,48" Name="textBox1" Background="LightYellow" TextWrapping="Wrap" IsReadOnly="False" AcceptsReturn="True" TextDecorations="None" AcceptsTab="True" VerticalScrollBarVisibility="Auto"></TextBox>
     </Grid>
 </Window>

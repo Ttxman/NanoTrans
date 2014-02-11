@@ -952,12 +952,30 @@ namespace NanoTrans
     public class MySubtitlesData : TranscriptionElement, IList<TranscriptionElement>
     {
         public double TotalHeigth;
-        public bool FindNext(ref TranscriptionElement paragraph,ref int TextOffset,string pattern, bool isregex, bool CaseSensitive)
+        public bool FindNext(ref TranscriptionElement paragraph, ref int TextOffset,out int length, string pattern, bool isregex, bool CaseSensitive, bool searchinspeakers)
         {
             TranscriptionElement par = paragraph;
-
+            length = 0;
             if (par == null)
                 return false;
+
+
+            if (searchinspeakers)
+            {
+                MyParagraph pr = paragraph.NextSibling() as MyParagraph;
+
+                while (pr!= null)
+                {
+                    if (GetSpeaker(pr.speakerID).FullName.ToLower().Contains(pattern.ToLower()))
+                    {
+                        paragraph = pr;
+                        TextOffset = 0;
+                        return true;
+                    }
+                    pr = pr.NextSibling() as MyParagraph;
+                }
+                return false;
+            }
 
             Regex r;
             if (isregex)
@@ -966,7 +984,7 @@ namespace NanoTrans
             }
             else
             {
-                r = new Regex(".*?"+pattern);
+                r = new Regex(pattern);
             }
 
             TranscriptionElement tag = paragraph;
@@ -980,7 +998,8 @@ namespace NanoTrans
 
                 if (m.Success)
                 {
-                    TextOffset += m.Length;
+                    TextOffset = m.Index;
+                    length = m.Length;
                     paragraph = tag;
                     return true;
                 }
@@ -996,7 +1015,19 @@ namespace NanoTrans
         }
 
         public string JmenoSouboru { get; set; }
-        public bool Ulozeno { get; set; }
+
+        private bool m_Ulozeno; 
+        public bool Ulozeno 
+        {
+            get 
+            {
+                return m_Ulozeno;
+            }
+            set
+            {
+                m_Ulozeno = value;
+            }
+        }
 
         /// <summary>
         /// datum a cas poradu, ktery je v transkripci zpracovan - napr. pocatecni cas audio souboru 
@@ -1528,7 +1559,7 @@ namespace NanoTrans
                                 val = reader.GetAttribute("begin");
                                 if (int.TryParse(val, out result))
                                     if (result < 0)
-                                        ph.Begin = new TimeSpan(result);
+                                        ph.Begin = p.Begin;
                                     else
                                         ph.Begin = TimeSpan.FromMilliseconds(result);
                                 else
@@ -1590,7 +1621,7 @@ namespace NanoTrans
                             val = reader.GetAttribute("begin");
                             if (int.TryParse(val, out result))
                                 if (result < 0)
-                                    p.Begin = new TimeSpan(result);
+                                    p.Begin = TimeSpan.Zero;
                                 else
                                     p.Begin = TimeSpan.FromMilliseconds(result);
                             else
@@ -1617,18 +1648,18 @@ namespace NanoTrans
                                 val = reader.GetAttribute("begin");
                                 if (int.TryParse(val, out result))
                                     if (result < 0)
-                                        p.Begin = new TimeSpan(result);
+                                        ph.Begin = p.Begin;
                                     else
-                                        p.Begin = TimeSpan.FromMilliseconds(result);
+                                        ph.Begin = TimeSpan.FromMilliseconds(result);
                                 else
                                     ph.Begin = XmlConvert.ToTimeSpan(val);
 
                                 val = reader.GetAttribute("end");
                                 if (int.TryParse(val, out result))
                                     if (result < 0)
-                                        p.End = new TimeSpan(result);
+                                        ph.End = new TimeSpan(result);
                                     else
-                                        p.End = TimeSpan.FromMilliseconds(result);
+                                        ph.End = TimeSpan.FromMilliseconds(result);
                                 else
                                     ph.End = XmlConvert.ToTimeSpan(val);
 
@@ -1665,16 +1696,42 @@ namespace NanoTrans
 
                             MyParagraph bestpar = null;
                             TimeSpan timeinboth = TimeSpan.Zero;
+
+                            if (p.Phrases.Count == 0)
+                                continue;
+
+
+                            TimeSpan minusone = new TimeSpan(-1);
+
                             foreach (MyParagraph v in s.Paragraphs)
                             {
-                                if (v.End < p.Begin)
+                                if (v.End < p.Begin && v.End!=minusone && p.Begin!=minusone)
                                     continue;
 
-                                if (v.Begin > p.End)
-                                    break;
+                                if (v.Begin > p.End && v.End != minusone && v.Begin != minusone)
+                                    continue;
+
                                 TimeSpan beg = v.Begin > p.Begin ? v.Begin : p.Begin;
-                                TimeSpan end = v.End < p.End ? v.End : p.End;
+                                TimeSpan end;
+
+                                if (v.End < p.End)
+                                {
+                                    end = v.End;
+                                    if (v.End == minusone)
+                                        end = p.End;
+                                }
+                                else
+                                {
+                                    end = p.End;
+                                    if (p.End == minusone)
+                                        end = v.End;
+                                }
+
                                 TimeSpan duration = end - beg;
+
+
+
+
 
                                 if (bestpar == null)
                                 {

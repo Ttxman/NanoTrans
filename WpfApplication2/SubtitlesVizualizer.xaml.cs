@@ -567,6 +567,7 @@ namespace NanoTrans
                         l.NewRequest += l_NewRequest;
                         l.ChangeSpeakerRequest += l_ChangeSpeakerRequest;
                         l.SetTimeRequest += l_SetTimeRequest;
+                        l.ContentChanged += (X,Y) =>Subtitles.Ulozeno = false;
                         gridstack.Children.Add(l);
                         
                     }

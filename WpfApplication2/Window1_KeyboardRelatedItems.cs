@@ -195,7 +195,7 @@ namespace NanoTrans
         }
         private void CAssignSpeaker(object sender, ExecutedRoutedEventArgs e)
         {
-            if (VirtualizingListBox.ActiveTransctiption == null)
+            if (VirtualizingListBox.ActiveTransctiption == null || !VirtualizingListBox.ActiveTransctiption.IsParagraph)
                 return;
             new WinSpeakers(VirtualizingListBox.ActiveTransctiption as MyParagraph, MySetup.Setup, this.myDatabazeMluvcich, myDataSource, null).ShowDialog();
             VirtualizingListBox.SubtitlesContentChanged();
@@ -468,7 +468,7 @@ namespace NanoTrans
         }
 
         int searchtextoffset = 0;
-        public void FindNext(string pattern, bool isregex, bool CaseSensitive)
+        public void FindNext(string pattern, bool isregex, bool CaseSensitive, bool searchinspeakers)
         {
             if (VirtualizingListBox.ActiveTransctiption == null)
                 return;
@@ -478,11 +478,18 @@ namespace NanoTrans
             if (pr == null)
                 tag = myDataSource.Chapters[0];
 
-            if (myDataSource.FindNext(ref tag, ref searchtextoffset, pattern, isregex, CaseSensitive))
+            int len;
+            if (myDataSource.FindNext(ref tag, ref searchtextoffset,out len, pattern, isregex, CaseSensitive, searchinspeakers))
             {
                 TranscriptionElement p = tag;
                 waveform1.CaretPosition = p.Begin;
                 VirtualizingListBox.ActiveTransctiption = p;
+
+                if (VirtualizingListBox.ActiveElement != null)
+                {
+                    VirtualizingListBox.ActiveElement.editor.Select(searchtextoffset, len);
+                    searchtextoffset += len;
+                }
             }
         }
 

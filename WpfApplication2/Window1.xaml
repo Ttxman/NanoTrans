@@ -3,7 +3,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Title="NanoTrans" Height="758" Width="867" Closing="Window_Closing"
     xmlns:local="clr-namespace:NanoTrans" ResizeMode="CanResizeWithGrip" Loaded="Window_Loaded" WindowStartupLocation="CenterScreen" PreviewKeyUp="Window_PreviewKeyUp" Icon="icons/pen.ico" IsEnabled="True" AllowDrop="True" Drop="Window_Drop"
-    Name = "MainWindow"
     xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase" >
     <Window.Resources>
         <!--ObjectDataProvider x:Key="MyStringData" 
@@ -17,7 +16,6 @@
             <RowDefinition Height="236" />
         </Grid.RowDefinitions>
         <GridSplitter Margin="0,0,0,0" Name="gridSplitter1" Height="5" VerticalAlignment="Bottom" Grid.Row="0" Focusable="False" IsTabStop="False" Grid.IsSharedSizeScope="False" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" ResizeBehavior="CurrentAndNext" ShowsPreview="True" />
-        <!--ListBox Name="theListBox" ItemsSource="{Binding Source={StaticResource MyStringData}}" Margin="283.75,25.804,330,0"  Height="31" VerticalAlignment="Top" /-->
         <Menu Name="menu1" Height="22.5" VerticalAlignment="Top" HorizontalAlignment="Stretch">
             <MenuItem Header="Soubor" Focusable="True" Tag="10" Name="menuSoubor">
                 <MenuItem Header="_Nový přepis" InputGestureText="Ctrl+N" Click="MSoubor_Novy_Click" Name="menuSouborNovyPrepis">
@@ -109,7 +107,7 @@
                 <ColumnDefinition Width="500.77*" />
                 <ColumnDefinition Width="300" />
             </Grid.ColumnDefinitions>
-            <local:SubtitlesVizualizer Margin="0,0,5,0" Grid.Column="0" x:Name="VirtualizingListBox" Background="#FF7DAF7D" ClipToBounds="False" Subtitles="{Binding ElementName=MainWindow, Path=myDataSource}" ChangeSpeaker="VirtualizingListBox_ChangeSpeaker" SelectedElementChanged="VirtualizingListBox_SelectedElementChanged" SetTimeRequest="VirtualizingListBox_SetTimeRequest" />
+            <local:SubtitlesVizualizer Margin="0,0,5,0" Grid.Column="0" x:Name="VirtualizingListBox" Background="#FF7DAF7D" ClipToBounds="False" Subtitles="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:Window1}},Path=myDataSource}" ChangeSpeaker="VirtualizingListBox_ChangeSpeaker" SelectedElementChanged="VirtualizingListBox_SelectedElementChanged" SetTimeRequest="VirtualizingListBox_SetTimeRequest" />
 
             <GridSplitter Grid.Column="0" Width="5" Focusable="False" IsTabStop="False" ShowsPreview="True" HorizontalAlignment="Right" />
             <!--ListBox Name="spSeznam" IsSynchronizedWithCurrentItem="True" SizeChanged="spSeznam_SizeChanged" SelectionMode="Extended" Margin="0,0,17.221,0" Focusable="False" Height="50" VerticalAlignment="Top">
@@ -311,7 +309,7 @@
                         CarretPostionChangedByUser="waveform1_CarretPostionChangedByUser" ParagraphClick="waveform1_ParagraphClick" 
                         ParagraphDoubleClick="waveform1_ParagraphDoubleClick" CarretPostionChanged="waveform1_CarretPostionChanged" 
                         ElementChanged="waveform1_ElementChanged" SelectionChanged="waveform1_SelectionChanged"
-                        Subtitles="{Binding ElementName=MainWindow, Path=myDataSource}" />
+                        Subtitles="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:Window1}},Path=myDataSource}" />
     </Grid>
     
     

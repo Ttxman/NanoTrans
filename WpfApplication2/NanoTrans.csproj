@@ -393,6 +393,7 @@
     <Resource Include="pen.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\Microsoft.VersionNumber.Targets"/>
   <PropertyGroup>
     <PostBuildEvent>
     </PostBuildEvent>

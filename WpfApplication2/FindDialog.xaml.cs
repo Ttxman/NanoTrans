@@ -36,7 +36,7 @@ namespace NanoTrans
 
         public void SearchNext()
         { 
-            m_parent.FindNext(textBox1.Text,checkBox1.IsChecked == true,checkBox1.IsChecked == true);
+            m_parent.FindNext(textBox1.Text,checkBox2.IsChecked == true,checkBox1.IsChecked == true, checkBox3.IsChecked == true);
             
         }
 

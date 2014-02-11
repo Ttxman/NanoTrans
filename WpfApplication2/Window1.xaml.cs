@@ -701,7 +701,6 @@ namespace NanoTrans
                         p.Phrases.Add(new MyPhrase());
 
                         myDataSource.Add(c);
-
                         return true;
                     }
 
@@ -810,6 +809,30 @@ namespace NanoTrans
         {
             try
             {
+                if (myDataSource != null && !myDataSource.Ulozeno)
+                {
+                    MessageBoxResult mbr = MessageBox.Show("Přepis není uložený. Chcete ho nyní uložit? ", "Upozornění:", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+                    if (mbr == MessageBoxResult.Cancel || mbr == MessageBoxResult.None)
+                    {
+                        return false;
+                    }
+                    else if (mbr == MessageBoxResult.Yes || mbr == MessageBoxResult.No)
+                    {
+                        if (mbr == MessageBoxResult.Yes)
+                        {
+                            if (myDataSource.JmenoSouboru != null)
+                            {
+                                if (!UlozitTitulky(false, myDataSource.JmenoSouboru)) return false;
+                            }
+                            else
+                            {
+                                if (!UlozitTitulky(true, myDataSource.JmenoSouboru)) return false;
+                            }
+                        }
+                    }
+                }
+
+
                 if (myDataSource == null) myDataSource = new MySubtitlesData();
                 if (pouzitOpenDialog)
                 {
@@ -897,7 +920,7 @@ namespace NanoTrans
                             myDataSource.Ulozeno = true;
 
                             //nacteni audio souboru pokud je k dispozici
-                            if (myDataSource.audioFileName != null && myDataSource.JmenoSouboru != null)
+                            if (!string.IsNullOrEmpty(myDataSource.audioFileName) && myDataSource.JmenoSouboru != null)
                             {
                                 FileInfo fiA = new FileInfo(myDataSource.audioFileName);
                                 string pAudioFile = null;
@@ -945,7 +968,7 @@ namespace NanoTrans
                             {
                             }
                         }
-                        VirtualizingListBox.Subtitles = myDataSource;
+
                         this.Title = MyKONST.NAZEV_PROGRAMU + " [" + myDataSource.JmenoSouboru + "]";
                         return true;
                     }
@@ -1600,7 +1623,7 @@ namespace NanoTrans
                 else if (mbr == MessageBoxResult.Cancel)
                 {
                     e.Cancel = true;
-
+                    return;
                 }
 
 

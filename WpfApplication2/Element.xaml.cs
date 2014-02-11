@@ -91,10 +91,7 @@ namespace NanoTrans
                 el.textend.Visibility = Visibility.Collapsed;
                 el.stackPanel1.Visibility = Visibility.Collapsed;
                 el.Background = Brushes.LightGreen;
-                if (s.Speaker > int.MinValue)
-                    el.button1.Visibility = Visibility.Visible;
-                else
-                    el.button1.Visibility = Visibility.Hidden;
+                el.button1.Visibility = Visibility.Collapsed;
                 el.checkBox1.Visibility = Visibility.Collapsed;
             }
             else if (t == typeof(MyChapter))
@@ -369,7 +366,6 @@ namespace NanoTrans
             static NHunspell.Hunspell spell= null;
             public static bool LoadVocabulary()
             {
-                //TODO: dosetupu
                 spell = new NHunspell.Hunspell(MySetup.Setup.absolutniCestaEXEprogramu + @"\data\cs_CZ.aff", MySetup.Setup.absolutniCestaEXEprogramu + @"\data\cs_CZ.dic");
 
                 return true;
@@ -793,6 +789,7 @@ namespace NanoTrans
         public event EventHandler NewRequest;
 
         public event EventHandler ChangeSpeakerRequest;
+        public event EventHandler ContentChanged;
         public event Action<TimeSpan> SetTimeRequest;
 
         public void ClearEvents()
@@ -810,6 +807,7 @@ namespace NanoTrans
             MoveDownRequest = null;
             ChangeSpeakerRequest = null;
             SetTimeRequest = null;
+            ContentChanged = null;
         }
 
         public void ClearBindings()
@@ -827,9 +825,12 @@ namespace NanoTrans
         {
             if (ValueElement == null || updating)
                 return;
+
+            if (ContentChanged != null)
+                ContentChanged(this, null);
+
             if (!(ValueElement is MyParagraph))
             {
-
                 ValueElement.Text = editor.Text;
                 return;
             }
