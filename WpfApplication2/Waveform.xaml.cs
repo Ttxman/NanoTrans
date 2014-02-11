@@ -123,9 +123,9 @@ namespace NanoTrans
                 InvalidateCarret();
                 InvalidateSelection();
 
-
-                if (CarretPostionChanged != null)
-                    CarretPostionChanged(this, new TimeSpanEventArgs(value));
+                if (m_updating == 0)
+                    if (CarretPostionChanged != null)
+                        CarretPostionChanged(this, new TimeSpanEventArgs(value));
             }
         }
 
@@ -415,19 +415,21 @@ namespace NanoTrans
         }
 
 
-        private bool m_updating = false;
+        private int m_updating = 0;
         public void BeginUpdate()
         {
             if (UpdateBegin != null)
                 UpdateBegin(this, new EventArgs());
-            m_updating = true;
+            m_updating++;
         }
 
         public void EndUpdate()
         {
             if (UpdateEnd != null)
                 UpdateEnd(this, new EventArgs());
-            m_updating = false;
+            m_updating--;
+            if (m_updating < 0)
+                m_updating = 0;
         }
 
 
@@ -1123,7 +1125,7 @@ namespace NanoTrans
             double pos = e.GetPosition(myImage).X;
             double relative = pos / myImage.ActualWidth;
             downtime = TimeSpan.FromTicks((long)((WaveEnd - WaveBegin).Ticks * relative + WaveBegin.Ticks));
-
+            System.Diagnostics.Debug.WriteLine("mousedown "+downtime);
         }
 
 
@@ -1134,11 +1136,14 @@ namespace NanoTrans
             {
                 BeginUpdate();
                 double relative = pos / myImage.ActualWidth;
-
-                this.CaretPosition = TimeSpan.FromTicks((long)((WaveEnd - WaveBegin).Ticks * relative + WaveBegin.Ticks));
+                
+                TimeSpan tpos =  TimeSpan.FromTicks((long)((WaveEnd - WaveBegin).Ticks * relative + WaveBegin.Ticks));
+                System.Diagnostics.Debug.WriteLine("mouseup0 " + tpos);
+                this.CaretPosition = tpos;
+                System.Diagnostics.Debug.WriteLine("mouseup " + this.CaretPosition);
                 if (CarretPostionChangedByUser != null)
                     CarretPostionChangedByUser(this, new TimeSpanEventArgs(this.CaretPosition));
-
+                System.Diagnostics.Debug.WriteLine("mouseup2 " + this.CaretPosition);
                 EndUpdate();
             }
         }
@@ -1181,7 +1186,7 @@ namespace NanoTrans
 
         public void slPoziceMedia_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-                bool updating = m_updating;
+                bool updating = m_updating > 0;
 
             if(!updating)
                 if (SliderPositionChanged != null)
@@ -1237,7 +1242,7 @@ namespace NanoTrans
 
         private void slPoziceMedia_PreviewMouseUp(object sender, MouseButtonEventArgs e)
         {
-            if (m_updating)
+            if (m_updating > 0)
                 EndUpdate();
             slPoziceMedia_ValueChanged(slPoziceMedia, new RoutedPropertyChangedEventArgs<double>(slPoziceMedia.Value, slPoziceMedia.Value));
         }

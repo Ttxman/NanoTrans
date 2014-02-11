@@ -1201,7 +1201,6 @@ namespace NanoTrans
         }
 
 
-
         private void VyberTextMeziCasovymiZnackami(TimeSpan aPoziceKurzoru)
         {
             VirtualizingListBox.HiglightedPostion = aPoziceKurzoru;
@@ -2712,6 +2711,21 @@ namespace NanoTrans
                 if (jeVideo) meVideo.Position = ts;
             }
         }
+        private void waveform1_CarretPostionChanged(object sender, Waveform.TimeSpanEventArgs e)
+        {
+            if (!Playing)
+            {
+                pIndexBufferuVlnyProPrehrani = (int)e.Value.TotalMilliseconds;
+                oldms = TimeSpan.Zero;
+            }
+
+            var list = m_mydatasource.VratElementDanehoCasu(e.Value);
+            if (list != null && list.Count > 0)
+            {
+                if (VirtualizingListBox.ActiveTransctiption != list[0])
+                    VirtualizingListBox.ActiveTransctiption = list[0];
+            }
+        }
 
         private void waveform1_CarretPostionChangedByUser(object sender, Waveform.TimeSpanEventArgs e)
         {
@@ -2722,6 +2736,14 @@ namespace NanoTrans
             pIndexBufferuVlnyProPrehrani = (int)waveform1.CaretPosition.TotalMilliseconds;
             List<MyParagraph> pl = myDataSource.VratElementDanehoCasu(waveform1.CaretPosition);
 
+            _pozicenastav = true;
+            var list = m_mydatasource.VratElementDanehoCasu(e.Value);
+            if (list != null && list.Count > 0)
+            {
+                if (VirtualizingListBox.ActiveTransctiption != list[0])
+                    VirtualizingListBox.ActiveTransctiption = list[0];
+            }
+            _pozicenastav = false;
             VyberTextMeziCasovymiZnackami(e.Value);
         }
 
@@ -2736,21 +2758,7 @@ namespace NanoTrans
             new WinSpeakers((MyParagraph)e.Value, MySetup.Setup, this.myDatabazeMluvcich, myDataSource, null).ShowDialog();
         }
 
-        private void waveform1_CarretPostionChanged(object sender, Waveform.TimeSpanEventArgs e)
-        {
-            if (!Playing)
-            {
-                pIndexBufferuVlnyProPrehrani = (int)e.Value.TotalMilliseconds;
-                oldms = TimeSpan.Zero;
-            }
 
-            var list = m_mydatasource.VratElementDanehoCasu(e.Value);
-            if (list != null && list.Count > 0)
-            {
-                if(VirtualizingListBox.ActiveTransctiption != list[0])
-                VirtualizingListBox.ActiveTransctiption = list[0];
-            }
-        }
 
         private void waveform1_ElementChanged(object sender, Waveform.MyTranscriptionElementEventArgs e)
         {

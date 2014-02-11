@@ -12,7 +12,7 @@
     </UserControl.Resources>
     
     <Grid SizeChanged="Grid_SizeChanged" Loaded="Grid_Loaded">
-        <Grid Margin="-1,29,1,0" Name="grid1" ShowGridLines="False" Background="AntiqueWhite" MouseDown="myImage_MouseLeftButtonDown" MouseUp="myImage_MouseUp" MouseMove="myImage_MouseMove" SizeChanged="grid1_SizeChanged" Unloaded="grid1_Unloaded">
+        <Grid Margin="-1,29,1,0" Name="grid1" ShowGridLines="False" Background="AntiqueWhite" MouseDown="myImage_MouseLeftButtonDown" SizeChanged="grid1_SizeChanged" Unloaded="grid1_Unloaded">
             <Grid Height="21" Margin="0,0,0,0" Name="gCasovaOsa" VerticalAlignment="Bottom" Background="LightGreen" Grid.ColumnSpan="2"></Grid>
             <Image Margin="0,22,0,19" Name="myImage" MouseDown="myImage_MouseLeftButtonDown" MouseUp="myImage_MouseUp" MouseMove="myImage_MouseMove" />
             <Rectangle Fill="DarkGreen" HorizontalAlignment="Left" Margin="0,0,0,0" Name="rectangle1" Stroke="Black" Width="2" Focusable="False" IsHitTestVisible="False" />

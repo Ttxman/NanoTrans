@@ -46,9 +46,20 @@ namespace NanoTrans
             vis.gridscrollbar.Value = 0;
             vis.RecalculateSizes();
 
-
-
             vis.SubtitlesContentChanged();
+        }
+
+        public MySubtitlesData Subtitles
+        {
+            get
+            {
+                return (MySubtitlesData)GetValue(SubtitlesProperty);
+            }
+            set
+            {
+                
+                SetValue(SubtitlesProperty, value);
+            }
         }
 
         public void RecalculateSizes()
@@ -86,18 +97,6 @@ namespace NanoTrans
         bool updating = false;
 
 
-        public MySubtitlesData Subtitles
-        {
-            get
-            {
-                return (MySubtitlesData)GetValue(SubtitlesProperty);
-            }
-            set
-            {
-                
-                SetValue(SubtitlesProperty, value);
-            }
-        }
 
         public double PanelWidth
         {

@@ -1452,10 +1452,11 @@ namespace NanoTrans
         //Deserializuje soubor             
         public MySubtitlesData Deserializovat(Stream datastream)
         {
+            System.Xml.XmlTextReader reader = null;
             try
             {
                 MySubtitlesData data = new MySubtitlesData();
-                System.Xml.XmlTextReader reader = new XmlTextReader(datastream);
+                reader = new XmlTextReader(datastream);
                 reader.WhitespaceHandling = WhitespaceHandling.Significant;
 
                 reader.Read(); //<?xml version ...
@@ -1535,7 +1536,10 @@ namespace NanoTrans
                             val = reader.GetAttribute("begin");
                             if (int.TryParse(val, out result))
                                 if (result < 0)
-                                    p.Begin = new TimeSpan(result);
+                                    if (result == -1 && s.Paragraphs.Count > 0)
+                                        p.Begin = s.Paragraphs[s.Paragraphs.Count - 1].End;
+                                    else
+                                        p.Begin = new TimeSpan(result);
                                 else
                                     p.Begin = TimeSpan.FromMilliseconds(result);
                             else
@@ -1551,7 +1555,7 @@ namespace NanoTrans
                                 p.End = XmlConvert.ToTimeSpan(val);
 
                             val = reader.GetAttribute("trainingElement");
-                            p.trainingElement = val==null?false:XmlConvert.ToBoolean(val);
+                            p.trainingElement = val == null ? false : XmlConvert.ToBoolean(val);
                             p.Attributes = reader.GetAttribute("Attributes");
 
                             reader.Read();
@@ -1634,7 +1638,12 @@ namespace NanoTrans
                             val = reader.GetAttribute("end");
                             if (int.TryParse(val, out result))
                                 if (result < 0)
-                                    p.End = new TimeSpan(result);
+                                    if (result == -1)
+                                    {
+                                        p.Begin = s.Paragraphs[s.Paragraphs.Count - 1].End;
+                                    }
+                                    else
+                                        p.End = TimeSpan.FromMilliseconds(result);
                                 else
                                     p.End = TimeSpan.FromMilliseconds(result);
                             else
@@ -1807,34 +1816,61 @@ namespace NanoTrans
                 reader.ReadStartElement("SpeakersDatabase");
                 reader.ReadStartElement("Speakers");
 
+
                 while (reader.Name == "Speaker")
                 {
-                    reader.ReadStartElement("Speaker");
+                    bool end = false;
+                    bool id = false;
                     MySpeaker sp = new MySpeaker();
-                    sp.ID = XmlConvert.ToInt32(reader.ReadElementString("ID"));
-
-                    if (reader.Name != "Surname")
+                    reader.ReadStartElement("Speaker");
+                    while (!end)
                     {
-                        if (reader.Name == "Firstname")
-                            sp.FirstName = reader.ReadElementString("Firstname");
-                        else
-                            sp.FirstName = reader.ReadElementString("FirstName");
-                    }
+                        switch (reader.Name)
+                        {
+                            case "ID":
+                                id = true;
+                                sp.ID = XmlConvert.ToInt32(reader.ReadElementString("ID"));
+                                break;
+                            case "Surname":
+                                sp.Surname = reader.ReadElementString("Surname");
+                                break;
+                            case "Firstname":
+                                sp.FirstName = reader.ReadElementString("Firstname");
+                                break;
+                            case "FirstName":
+                                sp.FirstName = reader.ReadElementString("FirstName");
+                                break;
+                            case "Sex":
+                                sp.Sex = reader.ReadElementString("Sex");
+                                break;
+                            case "Comment":
+                                sp.Comment = reader.ReadElementString("Comment");
+                                break;
+                            case "Speaker":
+                                if (reader.NodeType == XmlNodeType.EndElement)
+                                {
+                                    reader.ReadEndElement();
+                                    end = true;
+                                }
+                                else
+                                    goto default;
+                                break;
 
-                    sp.Surname = reader.ReadElementString("Surname");
-                    if(reader.Name == "Sex")
-                        sp.Sex = reader.ReadElementString("Sex");
-                    if (reader.Name == "Comment")
-                        sp.Comment = reader.ReadElementString("Comment");
-                    reader.ReadEndElement();//speaker
-                    data.SeznamMluvcich.Speakers.Add(sp);
+                            default:
+                                throw new Exception("neočekávaný formát speakera, tag="+reader.Name);
+                        }
+                        data.SeznamMluvcich.Speakers.Add(sp);
+                    }
                 }
 
                 return data;
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Chyba pri derializaci souboru: " + ex.Message);
+                if (reader != null)
+                    MessageBox.Show(string.Format("Chyba pri deserializaci souboru:(řádek:{0}, pozice:{1}) {2}",reader.LineNumber,reader.LinePosition, ex.Message));
+                else
+                    MessageBox.Show("Chyba pri deserializaci souboru: " + ex.Message);
                 return null;
             }
         }
