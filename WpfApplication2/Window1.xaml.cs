@@ -7645,6 +7645,8 @@ namespace NanoTrans
         /// <param name="e"></param>
         private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
         {
+            leftShift = Keyboard.IsKeyDown(Key.LeftShift);
+            leftCtrl = Keyboard.IsKeyDown(Key.LeftCtrl);
             Key syskey;
             Key key;
             bool repeat;
@@ -7754,6 +7756,10 @@ namespace NanoTrans
                                 if (oVlna.KurzorVyberPocatekMS > -1)
                                 {
                                     NastavPoziciKurzoru(oVlna.KurzorVyberPocatekMS, true, false);
+                                }
+                                else
+                                { 
+                                  
                                 }
                             }
                             if (jeVideo) meVideo.Play();
