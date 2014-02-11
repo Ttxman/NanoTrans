@@ -11,7 +11,7 @@ namespace NanoTrans.Core
     public class TranscriptionParagraph : TranscriptionElement
     {
 
-        
+
         public override bool IsParagraph
         {
             get
@@ -126,10 +126,16 @@ namespace NanoTrans.Core
         private int m_speakerID = Speaker.DefaultID;
         public int SpeakerID
         {
-            get { return (m_speaker ?? Speaker.DefaultSpeaker).ID; }
-            set 
+            get
             {
-                if (m_speaker != null && m_speakerID!=Speaker.DefaultID)
+                if (m_speaker == null)
+                    return m_speakerID;
+                else
+                    return m_speaker.ID;
+            }
+            set
+            {
+                if (m_speaker != null && m_speakerID != Speaker.DefaultID)
                     throw new ArgumentException("cannot set speaker ID while Speaker is set");
                 m_speakerID = value;
             }
@@ -138,12 +144,12 @@ namespace NanoTrans.Core
         Speaker m_speaker = null;
         public Speaker Speaker
         {
-            get 
+            get
             {
                 return m_speaker;
             }
-            set 
-            { 
+            set
+            {
                 m_speaker = value;
                 m_speakerID = value.ID;
             }
@@ -177,7 +183,7 @@ namespace NanoTrans.Core
         {
             Phrases = new VirtualTypeList<TranscriptionPhrase>(this);
             m_speakerID = int.Parse(e.Attribute(isStrict ? "speakerid" : "s").Value);
-            Attributes = (e.Attribute(isStrict ? "speakerid" : "s") ?? EmptyAttribute).Value;
+            Attributes = (e.Attribute(isStrict ? "attributes" : "a") ?? EmptyAttribute).Value;
 
             elements = e.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
             elements.Remove(isStrict ? "begin" : "b");

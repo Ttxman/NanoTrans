@@ -153,7 +153,7 @@ namespace NanoTrans.Core
         #region serializace nova
 
 
-        public static readonly List<string> Langs = new List<string>{"CZ","SK","RU","HR","PL","EN","DE"};
+        public static readonly List<string> Langs = new List<string>{"CZ","SK","RU","HR","PL","EN","DE","ES","--"};
         [XmlIgnore]
         public Dictionary<string, string> Elements = new Dictionary<string, string>();
         private static readonly XAttribute EmptyAttribute = new XAttribute("empty", "");
