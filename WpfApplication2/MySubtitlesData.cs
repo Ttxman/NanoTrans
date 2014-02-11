@@ -345,8 +345,28 @@ namespace NanoTrans
 
         public virtual void ChildrenCountChanged()
         {
-            if (Parent != null)
-                Parent.ChildrenCountChanged();
+            if (!m_Updating)
+            {
+                if (Parent != null)
+                    Parent.ChildrenCountChanged();
+            }
+            else
+                m_updated = true;
+        }
+
+        private bool m_Updating = false;
+        private bool m_updated = false;
+        public void BeginUpdate()
+        {
+            m_Updating = true;
+        }
+
+        public void EndUpdate()
+        {
+            m_Updating = false;
+            if (m_updated)
+                ChildrenCountChanged();
+            m_updated = false;
         }
     }
 

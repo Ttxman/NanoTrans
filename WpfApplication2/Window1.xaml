@@ -110,13 +110,14 @@
                 <ColumnDefinition Width="500.77*" />
                 <ColumnDefinition Width="300" />
             </Grid.ColumnDefinitions>
-            
-            <GridSplitter  Margin="0,0,0,7" Width="5" Focusable="False" IsTabStop="False" ShowsPreview="True" HorizontalAlignment="Right" />
+            <local:SubtitlesVizualizer Margin="0,0,5,0" Grid.Column="0" x:Name="VirtualizingListBox" Background="#FF7DAF7D" ClipToBounds="False" Subtitles="{Binding ElementName=MainWindow, Path=myDataSource}" ChangeSpeaker="VirtualizingListBox_ChangeSpeaker" SelectedElementChanged="VirtualizingListBox_SelectedElementChanged" SetTimeRequest="VirtualizingListBox_SetTimeRequest" />
+
+            <GridSplitter Grid.Column="0" Width="5" Focusable="False" IsTabStop="False" ShowsPreview="True" HorizontalAlignment="Right" />
             <!--ListBox Name="spSeznam" IsSynchronizedWithCurrentItem="True" SizeChanged="spSeznam_SizeChanged" SelectionMode="Extended" Margin="0,0,17.221,0" Focusable="False" Height="50" VerticalAlignment="Top">
                 
             </ListBox-->
             
-            <TabControl Grid.Column="1" Margin="5,5,5,5" Name="tabControl1" SelectedIndex="0" Focusable="False">
+            <TabControl Grid.Column="1"  Name="tabControl1" SelectedIndex="0" Focusable="False">
                 <TabItem Name="tiVideo">
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
@@ -188,11 +189,6 @@
                     </Grid>
                 </TabItem>
             </TabControl>
-            <!--StackPanel Margin="58.622,0,0,-68.868" Name="stackPanel1" Background="Cyan" Height="65.774" VerticalAlignment="Bottom" Grid.Column="1">
-                <Button Height="18.887" Name="button9" Width="83.325" Click="button9_Click">nova kapitola</Button>
-                <Button Height="18.887" Name="button11" Width="77.77" Click="button11_Click">nova sekce</Button>
-                <Button Height="19.998" Name="button14" Width="95.546" Click="button14_Click">novy odstavec</Button>
-            </StackPanel-->
         </Grid>
         <GroupBox Header="Audio: " Name="groupBox1" Grid.Row="2" Height="52" VerticalAlignment="Top">
             <Grid>
@@ -317,7 +313,6 @@
                         ParagraphDoubleClick="waveform1_ParagraphDoubleClick" CarretPostionChanged="waveform1_CarretPostionChanged" 
                         ElementChanged="waveform1_ElementChanged" SelectionChanged="waveform1_SelectionChanged"
                         Subtitles="{Binding ElementName=MainWindow, Path=myDataSource}" />
-        <local:SubtitlesVizualizer x:Name="VirtualizingListBox" Background="#FF7DAF7D" Margin="0,55,306,5" ClipToBounds="False" Subtitles="{Binding ElementName=MainWindow, Path=myDataSource}" ChangeSpeaker="VirtualizingListBox_ChangeSpeaker" SelectedElementChanged="VirtualizingListBox_SelectedElementChanged" SetTimeRequest="VirtualizingListBox_SetTimeRequest" />
     </Grid>
     
     

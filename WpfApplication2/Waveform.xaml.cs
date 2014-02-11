@@ -1118,7 +1118,6 @@ namespace NanoTrans
 
         private void myImage_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            return;
             double pos = e.GetPosition(myImage).X;
             if (Math.Abs(downpos - pos) < 1)
             {

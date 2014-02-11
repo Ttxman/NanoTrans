@@ -147,9 +147,9 @@ namespace NanoTrans
                 if (jeVideo)
                 {
                     if (value)
-                        meVideo.Play();
+                        meVideo.Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() => meVideo.Play()));
                     else
-                        meVideo.Stop();
+                        meVideo.Dispatcher.Invoke(DispatcherPriority.Normal,(Action) (() =>meVideo.Pause()) );
                 }
             }
         }

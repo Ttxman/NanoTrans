@@ -108,6 +108,20 @@ namespace NanoTrans
             InitializeComponent();
         }
 
+        private bool m_Updating = false;
+        private bool m_updated = false;
+        public void BeginUpdate()
+        {
+            m_Updating = true;
+        }
+
+        public void EndUpdate()
+        {
+            m_Updating = false;
+            if (m_updated)
+                RecreateElements(gridscrollbar.Value);
+            m_updated = false;
+        }
 
         void l_NewRequest(object sender, EventArgs e)
         {
@@ -226,6 +240,7 @@ namespace NanoTrans
 
         void l_MergeWithPreviousRequest(object sender, EventArgs e)
         {
+            BeginUpdate();
             Element el = (Element)sender;
             TranscriptionElement t = el.ValueElement;
             TranscriptionElement p = el.ValueElement.Previous();
@@ -236,10 +251,12 @@ namespace NanoTrans
                 t.Children.ForEach(x => p.Children.Add(x));
                 t.Parent.Remove(t);
             }
+            EndUpdate();
         }
 
         void l_MergeWithnextRequest(object sender, EventArgs e)
         {
+            BeginUpdate();
             Element el = (Element)sender;
             TranscriptionElement t = el.ValueElement;
             TranscriptionElement n = el.ValueElement.Next();
@@ -250,22 +267,26 @@ namespace NanoTrans
                 n.Children.ForEach(x => t.Children.Add(x));
                 n.Parent.Remove(n);
             }
+            EndUpdate();
         }
 
         void l_SplitRequest(object sender, EventArgs e)
         {
-            Element el = (Element)sender;
-            if (el.ValueElement is MyParagraph)
+            try
             {
-                MyParagraph par = (MyParagraph)el.ValueElement;
-                int where = el.editor.CaretOffset;
+                Element el = (Element)sender;
+                BeginUpdate();
+                if (el.ValueElement is MyParagraph)
+                {
+                    MyParagraph par = (MyParagraph)el.ValueElement;
+                    int where = el.editor.CaretOffset;
 
-                int sum = 0;
-                for (int i = 0; i < par.Phrases.Count; i++)
-                { 
-                    MyPhrase p = par.Phrases[i];
-                    if(sum < where && sum+p.Text.Length > where) //uvnitr fraze
+                    int sum = 0;
+                    for (int i = 0; i < par.Phrases.Count; i++)
                     {
+                        MyPhrase p = par.Phrases[i];
+                        if (sum <= where && sum + p.Text.Length > where) //uvnitr fraze
+                        {
                             int offs = where - sum;
                             double ratio = offs / (double)p.Text.Length;
 
@@ -275,7 +296,7 @@ namespace NanoTrans
                             TimeSpan l1 = new TimeSpan((long)(ratio * length.Ticks));
 
                             MyPhrase p1 = new MyPhrase();
-                            p1.Text = p.Text.Substring(0,offs);
+                            p1.Text = p.Text.Substring(0, offs);
 
                             p1.Begin = p.Begin;
                             p1.End = p1.Begin + l1;
@@ -294,21 +315,27 @@ namespace NanoTrans
                             par2.Begin = p2.Begin;
                             par2.End = par.End;
                             par.End = p1.End;
-
+                            par.BeginUpdate();
                             i++;
-                            while(par.Phrases.Count > i)
+                            par.BeginUpdate();
+                            while (par.Phrases.Count > i)
                             {
                                 MyPhrase ph = par.Phrases[i];
                                 par.RemoveAt(i);
                                 par2.Add(ph);
                             }
-
-                            par.Parent.Insert(par.ParentIndex+1,par2);
+                            par.EndUpdate();
+                            par.Parent.Insert(par.ParentIndex + 1, par2);
                             return;
                         }
+                        sum += p.Text.Length;
+                    }
 
                 }
-
+            }
+            finally
+            {
+                EndUpdate();
             }
         }
 
@@ -317,10 +344,6 @@ namespace NanoTrans
         {
             m_activeElement = null;
             (sender as Element).maingrid.Background = null;
-       /*     if (SelectedElementChanged != null)
-            {
-                SelectedElementChanged(this,new EventArgs());
-            }*/
         }
 
         void l_GotFocus(object sender, RoutedEventArgs e)
@@ -354,7 +377,7 @@ namespace NanoTrans
         private void UserControl_MouseWheel(object sender, MouseWheelEventArgs e)
         {
             double value = gridscrollbar.Value;
-            value -= e.Delta * gridscrollbar.SmallChange;
+            value -= (e.Delta > 0 ? 1 : -1) *gridscrollbar.SmallChange;
 
             if (value < gridscrollbar.Minimum)
                 value = gridscrollbar.Minimum;
@@ -480,6 +503,12 @@ namespace NanoTrans
             if (gridstack == null || Subtitles == null)
                 return;
             double maxh = this.ActualHeight;
+
+            if (m_Updating)
+            {
+                m_updated = true;
+                return;
+            }
 
             double pos = 0;
             bool ffound = false;

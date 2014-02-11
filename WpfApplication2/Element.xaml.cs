@@ -880,7 +880,16 @@ namespace NanoTrans
                         {
                             removedl -= len;
                             offset = pos + len;
-                            todelete.Add(p);
+                            if (addedl <= 0)
+                                todelete.Add(p);
+                            else //v pripade replace
+                            {
+                                if (EditPhonetics)
+                                    p.Phonetics = "";
+                                else
+                                    p.Text = "";
+                                offset -= etext.Length; ;
+                            }
                             break;
                         }
                         else//odmazani konci ve frazi
@@ -891,6 +900,7 @@ namespace NanoTrans
                             else
                                 p.Text = s;
                             break;
+                            
                         }
                     }
 
@@ -901,7 +911,8 @@ namespace NanoTrans
                     par.Children.Remove(v); //bezeventovy mazani; nedojde k prekresleni celeho seznamu elementu
 
             }
-            else if (addedl > 0)
+            
+            if (addedl > 0)
             {
                 int pos = 0;
                 foreach (MyPhrase p in par.Phrases)
