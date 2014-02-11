@@ -34,6 +34,35 @@ namespace NanoTrans
 
         public bool DisableAutomaticElementVisibilityChanges{get; set;}
         public bool EditPhonetics{get;set;}
+
+
+        public void RefreshSpeakerButton()
+        {
+            Element.RefreshSpeakerButton(this, this.ValueElement as MyParagraph);
+            var be = BindingOperations.GetBindingExpressionBase(button1, Button.ContentProperty);
+            if (be != null)
+                be.UpdateTarget();
+        }
+
+        private static void RefreshSpeakerButton(Element el, MyParagraph val)
+        {
+            if (val == null)
+                return;
+
+            el.button1.Visibility = Visibility.Visible;
+            if (val.PreviousSibling() != null)
+            {
+                if (val is MyParagraph)
+                {
+                    if (val.PreviousSibling() is MyParagraph && ((MyParagraph)val).speakerID == ((MyParagraph)val.PreviousSibling()).speakerID)
+                    {
+                        el.button1.Visibility = Visibility.Collapsed;
+                    }
+                }
+            }
+        }
+
+
         public static void OnValueElementChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
            
@@ -76,17 +105,7 @@ namespace NanoTrans
                 el.textend.Visibility = Visibility.Visible;
                 el.stackPanel1.Visibility = Visibility.Visible;
                 el.Background = MySetup.Setup.BarvaTextBoxuOdstavce;
-                el.button1.Visibility = Visibility.Visible;
-                if (val.PreviousSibling() != null)
-                {
-                    if (val is MyParagraph)
-                    {
-                        if (val.PreviousSibling() is MyParagraph && ((MyParagraph)val).speakerID == ((MyParagraph)val.PreviousSibling()).speakerID)
-                        {
-                            el.button1.Visibility = Visibility.Collapsed;
-                        }
-                    }
-                }
+                Element.RefreshSpeakerButton(el,p);
                 el.checkBox1.Visibility = Visibility.Visible;
                 el.checkBox1.IsChecked = ((MyParagraph)val).trainingElement;
             }

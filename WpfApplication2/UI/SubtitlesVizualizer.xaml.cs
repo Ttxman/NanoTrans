@@ -36,14 +36,14 @@ namespace NanoTrans
             SubtitlesVizualizer vis = (SubtitlesVizualizer)d;
 
             MySubtitlesData olddata = e.OldValue as MySubtitlesData;
-            if (olddata != null)
-            {
-                olddata.SubtitlesChanged -= vis.SubtitlesContentChanged;
-            }
-            if (data != null)
-            {
-                data.SubtitlesChanged += vis.SubtitlesContentChanged;
-            }
+            //if (olddata != null)
+            //{
+            //    olddata.SubtitlesChanged -= vis.SubtitlesContentChanged;
+            //}
+            //if (data != null)
+            //{
+            //    data.SubtitlesChanged += vis.SubtitlesContentChanged;
+            //}
         }
 
         public MySubtitlesData Subtitles
@@ -245,6 +245,7 @@ namespace NanoTrans
                     }
                 }
                 t.Parent.Remove(t);
+               
             }
 
             ActiveTransctiption = p;
@@ -294,6 +295,8 @@ namespace NanoTrans
                     TimeSpan end = par.End;
                     MyParagraph par2 = new MyParagraph();
                     MyParagraph par1 = new MyParagraph();
+
+                    par1.speakerID = par2.speakerID = par.speakerID;
 
                     par2.End = end;
                     int where = el.editor.CaretOffset;
@@ -551,11 +554,19 @@ namespace NanoTrans
             }
         }
 
-        public void SubtitlesContentChanged()
-        {
 
+        public void SpeakerChanged(Element e)
+        {
+            foreach (Element ee in listbox.VisualFindChildren<Element>())
+            {
+                ee.RefreshSpeakerButton();
+            }
         }
 
+        public void Reset()
+        {
+            listbox.ItemsSource = listbox.ItemsSource;
+        }
 
         public event EventHandler SelectedElementChanged;
         public event Action<TimeSpan> SetTimeRequest;

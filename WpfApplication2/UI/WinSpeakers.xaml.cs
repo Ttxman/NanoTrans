@@ -405,7 +405,7 @@ namespace NanoTrans
         private void btOK_Click(object sender, RoutedEventArgs e)
         {
             DialogResult = true;
-            if (bTag != null)
+            if (bTag != null && bSpeaker !=null)
                 bTag.speakerID = bSpeaker.ID;
             Close();
         }

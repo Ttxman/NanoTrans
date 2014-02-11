@@ -1616,8 +1616,12 @@ namespace NanoTrans
                         this.Dispatcher.Invoke(new Action(
                     delegate()
                     {
-                        VirtualizingListBox.SubtitlesContentChanged();
+                        //foreach (Element ee in VirtualizingListBox.listbox.VisualFindChildren<Element>())
+                        //{
+                        //    ee.editor.TextArea.TextView.LineTransformers.Remove();
+                        //    ee.editor.TextArea.TextView.LineTransformers.Add();
 
+                        //}
                     }
                     ));
                     }
@@ -2477,7 +2481,7 @@ namespace NanoTrans
 
         private void button4_Click(object sender, RoutedEventArgs e)
         {
-            VirtualizingListBox.SubtitlesContentChanged();
+            VirtualizingListBox.Reset();
         }
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)

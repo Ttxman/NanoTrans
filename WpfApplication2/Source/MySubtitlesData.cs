@@ -322,6 +322,7 @@ namespace NanoTrans
             }
             ElementInserted(data,data.m_ParentIndex);
             ChildrenCountChanged(NotifyCollectionChangedAction.Add);
+            ChildrenCountChanged(NotifyCollectionChangedAction.Replace);
 
         }
 

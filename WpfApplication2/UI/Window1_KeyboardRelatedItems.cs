@@ -353,8 +353,9 @@ namespace NanoTrans
         {
             if (VirtualizingListBox.ActiveTransctiption == null || !VirtualizingListBox.ActiveTransctiption.IsParagraph)
                 return;
+
             new WinSpeakers(VirtualizingListBox.ActiveTransctiption as MyParagraph, MySetup.Setup, this.myDatabazeMluvcich, myDataSource, null).ShowDialog();
-            VirtualizingListBox.SubtitlesContentChanged();
+            VirtualizingListBox.SpeakerChanged(VirtualizingListBox.ActiveElement);
         }
 
         private void CExportElement(object sender, ExecutedRoutedEventArgs e)
