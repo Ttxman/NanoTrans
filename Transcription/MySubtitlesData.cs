@@ -1,17 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Xml;
-using System.Xml.Serialization;
-using System.Runtime.Serialization;
-using System.IO;
-using System.Windows;
 using System.Collections;
-using System.ComponentModel;
-using System.Text.RegularExpressions;
-using System.Linq;
-using System.Xml.Linq;
+using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Windows;
+using System.Xml;
+using System.Xml.Linq;
+using System.Xml.Serialization;
 
 
 namespace NanoTrans.Core

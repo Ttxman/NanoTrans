@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using NanoTrans;
+﻿using NanoTrans.Core;
 using System.IO;
-using NanoTrans.Core;
 namespace TrsxV1Plugin
 {
     public class TrsxV1

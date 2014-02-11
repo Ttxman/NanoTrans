@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Xml.Serialization;
-using System.Xml;
 using System.IO;
-using System.Windows;
 using System.Linq;
+using System.Windows;
+using System.Xml;
 using System.Xml.Linq;
+using System.Xml.Serialization;
 
 namespace NanoTrans.Core
 {

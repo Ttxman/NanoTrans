@@ -1,11 +1,10 @@
-﻿using System;
+﻿using NanoTrans.Core;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using NanoTrans;
 using System.IO;
+using System.Linq;
 using System.Reflection;
-using NanoTrans.Core;
+using System.Text;
 
 namespace ExePlugin
 {

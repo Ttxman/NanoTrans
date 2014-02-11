@@ -1,12 +1,9 @@
-﻿using System;
+﻿using NanoTrans.Core;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using NanoTrans;
-using System.IO;
-using System.Reflection;
 using System.Globalization;
-using NanoTrans.Core;
+using System.IO;
+using System.Linq;
 
 namespace TrsxV1Plugin
 {

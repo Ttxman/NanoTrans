@@ -1,4 +1,4 @@
-﻿
+﻿using System;
 namespace NanoTrans.Core
 {
     /// <summary>
