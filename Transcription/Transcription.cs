@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Windows;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
@@ -288,20 +287,9 @@ namespace NanoTrans.Core
         /// <returns></returns>
         public bool AddSpeaker(Speaker aSpeaker)
         {
-            _speakers.AddSpeaker(aSpeaker);
+            _speakers.Add(aSpeaker);
             this.Saved = false;
             return true;
-        }
-
-
-        public Speaker GetSpeakerByID(int ID)
-        {
-            return this._speakers.GetSpeakerByID(ID);
-        }
-
-        public Speaker GetSpeakerByName(string fullname)
-        {
-            return this._speakers.GetSpeakerByName(fullname);
         }
 
         /// <summary>
@@ -468,7 +456,8 @@ namespace NanoTrans.Core
             chapters.Select(c => (TranscriptionElement)TranscriptionChapter.DeserializeV2(c, isStrict)).ToList().ForEach(c => data.Add(c));
 
             var speakers = transcription.Element(isStrict ? "speakers" : "sp");
-            data.Speakers.Speakers = new List<Speaker>(speakers.Elements(isStrict ? "speaker" : "s").Select(s => Speaker.DeserializeV2(s, isStrict)));
+            data.Speakers.Clear();
+            data.Speakers.AddRange(speakers.Elements(isStrict ? "speaker" : "s").Select(s => Speaker.DeserializeV2(s, isStrict)));
             storage.AssingSpeakersByID();
             data.EndUpdate();
         }
@@ -952,7 +941,7 @@ namespace NanoTrans.Core
                                 break;
                         }
                     }
-                    data._speakers.Speakers.Add(sp);
+                    data._speakers.Add(sp);
                     storage.AssingSpeakersByID();
                 }
             }
@@ -973,7 +962,7 @@ namespace NanoTrans.Core
         {
             foreach (var par in this.Where(e => e.IsParagraph).Cast<TranscriptionParagraph>())
             {
-                var sp = GetSpeakerByID(par.SpeakerID);
+                var sp = _speakers.FirstOrDefault(s => s.ID == par.SpeakerID);
                 if (sp != null)
                 {
                     par.Speaker = sp;

@@ -375,6 +375,7 @@ namespace NanoTrans
             if (mgr.ShowDialog() == true && mgr.SelectedSpeaker!=null)
             {
                 tpr.Speaker = mgr.SelectedSpeaker;
+                this.Transcription.Saved = false;
             }
 
             VirtualizingListBox.SpeakerChanged(VirtualizingListBox.ActiveElement);

@@ -337,10 +337,10 @@ namespace NanoTrans
 
         static List<string[]> customparams = new List<string[]>()
         {
-            new []{"channeltype", "mic",  "unknown", "tel", "other" },
-            new []{"sessiontype", "news",  "unknown", "prescribed", "interview", "other" },
-            new []{"quality", "good",  "unknown", "mediocre", "bad" },
-            new []{"conditions", "clean",  "unknown", "music", "babble", "tech", "xtalk", "other" }
+            new []{"channeltype", "mic", "tel", "other",  "unknown" },
+            new []{"sessiontype", "news", "prescribed", "interview","conversation", "other",  "unknown" },
+            new []{"quality", "good", "mediocre", "bad",  "unknown" },
+            new []{"conditions", "clean", "music", "babble", "tech", "xtalk", "other",  "unknown" }
 
         };
 
@@ -373,7 +373,7 @@ namespace NanoTrans
 
         private void UpdateCustomParamsFromSpeaker()
         {
-            if (customparams == null || customparams.Count == 0)
+            if (customparams == null || customparams.Count == 0 || ValueElement==null)
                 return;
 
             CustomParams.Children.Clear();

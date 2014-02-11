@@ -16,9 +16,10 @@ namespace NanoTrans
             return x;
         }
 
-        Dictionary<string, Speaker> _slist;
+        Dictionary<string, Speaker> _slist = new Dictionary<string,Speaker>();
         protected override void Initialize(XDocument doc)
         {
+            _slist.Clear();
             _slist = _Speakers.ToDictionary(s => s.DBID);
         }
 
@@ -44,6 +45,47 @@ namespace NanoTrans
 
 
             return null;
+        }
+
+
+        public override void Add(Speaker item)
+        {
+            _slist.Add(item.DBID, item);
+            base.Add(item);
+        }
+
+        public override void Clear()
+        {
+            _slist.Clear();
+            base.Clear();
+        }
+
+        public override void Insert(int index, Speaker item)
+        {
+            _slist.Add(item.DBID, item);
+            base.Insert(index, item);
+        }
+
+        public override void RemoveAt(int index)
+        {
+            _slist.Remove(base[index].DBID);
+            base.RemoveAt(index);
+        }
+
+        public override bool Remove(Speaker item)
+        {
+            _slist.Remove(item.DBID);
+            return base.Remove(item);
+        }
+
+        public override void AddRange(IEnumerable<Speaker> enumerable)
+        {
+            foreach (var itm in enumerable)
+            {
+                _slist.Add(itm.DBID, itm);    
+            }
+
+            base.AddRange(enumerable);
         }
     }
 }

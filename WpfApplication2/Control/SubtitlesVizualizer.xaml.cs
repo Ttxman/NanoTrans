@@ -99,6 +99,7 @@ namespace NanoTrans
                 el.ValueElement.Children[0].Insert(0, p);
             }
             ActiveTransctiption = p;
+            Transcription.Saved = false;
         }
 
         void l_MoveRightRequest(object sender, EventArgs e)
@@ -221,7 +222,7 @@ namespace NanoTrans
             TranscriptionElement t = el.ValueElement;
             TranscriptionElement p = el.ValueElement.Previous();
 
-            int len =  p.Text.Length;
+            int len = p.Text.Length;
             if (t is TranscriptionParagraph && p is TranscriptionParagraph)
             {
                 if (!(t.Children.Count == 1 && string.IsNullOrEmpty(t.Children[0].Text)))
@@ -237,13 +238,14 @@ namespace NanoTrans
                     }
                 }
                 t.Parent.Remove(t);
-               
+
             }
             SpeakerChanged();
             ActiveTransctiption = p;
             ScrollToItem(p);
             var vis = GetVisualForTransctiption(p);
             vis.editor.CaretOffset = len;
+            Transcription.Saved = false;
         }
 
         void l_MergeWithnextRequest(object sender, EventArgs e)
@@ -272,99 +274,94 @@ namespace NanoTrans
             ColorizeBackground(t);
             var vis = GetVisualForTransctiption(t);
             vis.editor.CaretOffset = len;
-            
+            Transcription.Saved = false;
         }
 
         void l_SplitRequest(object sender, EventArgs e)
         {
-            try
+
+            Element el = (Element)sender;
+            if (el.ValueElement is TranscriptionParagraph)
             {
-                Element el = (Element)sender;
-                if (el.ValueElement is TranscriptionParagraph)
+
+                TranscriptionParagraph par = (TranscriptionParagraph)el.ValueElement;
+                TimeSpan end = par.End;
+                TranscriptionParagraph par2 = new TranscriptionParagraph();
+                TranscriptionParagraph par1 = new TranscriptionParagraph();
+
+                par1.Speaker = par2.Speaker = par.Speaker;
+
+                par2.End = end;
+                int where = el.editor.CaretOffset;
+
+                int sum = 0;
+                for (int i = 0; i < par.Phrases.Count; i++)
                 {
+                    TranscriptionPhrase p = par.Phrases[i];
 
-                    TranscriptionParagraph par = (TranscriptionParagraph)el.ValueElement;
-                    TimeSpan end = par.End;
-                    TranscriptionParagraph par2 = new TranscriptionParagraph();
-                    TranscriptionParagraph par1 = new TranscriptionParagraph();
-
-                    par1.Speaker = par2.Speaker = par.Speaker;
-
-                    par2.End = end;
-                    int where = el.editor.CaretOffset;
-
-                    int sum = 0;
-                    for (int i = 0; i < par.Phrases.Count; i++)
+                    if (sum + p.Text.Length <= where) //patri do prvniho
                     {
-                        TranscriptionPhrase p = par.Phrases[i];
-
-                        if (sum + p.Text.Length <= where) //patri do prvniho
-                        {
-                            par1.Add(new TranscriptionPhrase(p));
-                        }
-                        else if (sum >= where)
-                        {
-                            par2.Add(new TranscriptionPhrase(p));
-                        }
-                        else if (sum <= where && sum + p.Text.Length > where) //uvnitr fraze
-                        {
-                            int offs = where - sum;
-                            double ratio = offs / (double)p.Text.Length;
-
-
-                            TimeSpan length = p.End - p.Begin;
-                            TimeSpan l1 = new TimeSpan((long)(ratio * length.Ticks));
-
-                            TranscriptionPhrase p1 = new TranscriptionPhrase();
-                            p1.Text = p.Text.Substring(0, offs);
-
-                            p1.Begin = p.Begin;
-                            p1.End = p1.Begin + l1;
-                            if (p1.End <= par.Begin)
-                                p1.End = par.Begin + TimeSpan.FromMilliseconds(100); //pojistka kvuli nezarovnanejm textum
-                            int idx = i;
-                            par1.Add(p1);
-
-                            TranscriptionPhrase p2 = new TranscriptionPhrase();
-                            p2.Text = p.Text.Substring(offs);
-                            p2.Begin = p1.End;
-                            p2.End = p.End;
-
-
-                            par2.Add(p2);
-                            par2.Begin = p2.Begin;
-
-                            par1.End = p1.End;
-
-                        }
-                        sum += p.Text.Length;
-                    }//for
-
-                    if (!Keyboard.Modifiers.HasFlag(ModifierKeys.Control))//TODO: hodit to nejak jinak do funkci... :P
+                        par1.Add(new TranscriptionPhrase(p));
+                    }
+                    else if (sum >= where)
                     {
+                        par2.Add(new TranscriptionPhrase(p));
+                    }
+                    else if (sum <= where && sum + p.Text.Length > where) //uvnitr fraze
+                    {
+                        int offs = where - sum;
+                        double ratio = offs / (double)p.Text.Length;
 
-                        if (RequestTimePosition != null)
-                        {
-                            TimeSpan pos;
-                            RequestTimePosition(out pos);
 
-                            par1.End = pos;
-                            par2.Begin = pos;
-                        }
+                        TimeSpan length = p.End - p.Begin;
+                        TimeSpan l1 = new TimeSpan((long)(ratio * length.Ticks));
+
+                        TranscriptionPhrase p1 = new TranscriptionPhrase();
+                        p1.Text = p.Text.Substring(0, offs);
+
+                        p1.Begin = p.Begin;
+                        p1.End = p1.Begin + l1;
+                        if (p1.End <= par.Begin)
+                            p1.End = par.Begin + TimeSpan.FromMilliseconds(100); //pojistka kvuli nezarovnanejm textum
+                        int idx = i;
+                        par1.Add(p1);
+
+                        TranscriptionPhrase p2 = new TranscriptionPhrase();
+                        p2.Text = p.Text.Substring(offs);
+                        p2.Begin = p1.End;
+                        p2.End = p.End;
+
+
+                        par2.Add(p2);
+                        par2.Begin = p2.Begin;
+
+                        par1.End = p1.End;
 
                     }
-                    SpeakerChanged();
-                    var parent = par.Parent;
-                    int indx = par.ParentIndex;
-                    parent.Remove(par);
-                    parent.Insert(indx, par2);
-                    parent.Insert(indx, par1);
-                    ActiveTransctiption = par2;
-                    return;
+                    sum += p.Text.Length;
+                }//for
+
+                if (!Keyboard.Modifiers.HasFlag(ModifierKeys.Control))//TODO: hodit to nejak jinak do funkci... :P
+                {
+
+                    if (RequestTimePosition != null)
+                    {
+                        TimeSpan pos;
+                        RequestTimePosition(out pos);
+
+                        par1.End = pos;
+                        par2.Begin = pos;
+                    }
+
                 }
-            }
-            finally
-            {
+                SpeakerChanged();
+                var parent = par.Parent;
+                int indx = par.ParentIndex;
+                parent.Remove(par);
+                parent.Insert(indx, par2);
+                parent.Insert(indx, par1);
+                ActiveTransctiption = par2;
+                Transcription.Saved = false;
             }
         }
 
@@ -540,6 +537,7 @@ namespace NanoTrans
             if (ChangeSpeaker != null)
             {
                 ChangeSpeaker(sender, e);
+                Transcription.Saved = false;
             }
         }
 
@@ -591,10 +589,16 @@ namespace NanoTrans
 
         private void listbox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            return;
             var elm = listbox.SelectedItem as TranscriptionElement;
             if (elm != null)
             {
                 var elem = listbox.ItemContainerGenerator.ContainerFromItem(elm).VisualFindChild<Element>();
+                var point = elem.TransformToAncestor(listbox).Transform(new Point(0, 0));
+                
+                //element is scrolled out
+                if (point.Y > listbox.ActualHeight + 2 * elem.ActualHeight || point.Y < -2 * elem.ActualHeight)
+                    return;
                 if (elem != null && !elem.editor.IsFocused)
                 {
                     elem.SetCaretOffset(0);
@@ -662,7 +666,7 @@ namespace NanoTrans
                 var value = ((Element)sender).ValueElement;
 
                 Transcription.ElementChanged(value);
-               if (listbox.SelectedItem == value)
+                if (listbox.SelectedItem == value)
                     ScrollToItem(value);
             }
         }

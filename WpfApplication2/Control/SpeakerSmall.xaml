@@ -34,8 +34,8 @@
                 <TextBlock Text=" " Visibility="{Binding SpeakerContainer.SurName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type my:SpeakerSmall}}, Converter={StaticResource collapseConverter}}"/>
                 <TextBlock FontWeight="Bold" Text="{Binding SpeakerContainer.FirstName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type my:SpeakerSmall}}}" />
                 <TextBlock Text=" " Visibility="{Binding SpeakerContainer.FirstName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type my:SpeakerSmall}}, Converter={StaticResource collapseConverter}}"/>
-                <TextBlock FontWeight="Bold" Text="{Binding SpeakerContainer.MiddleName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type my:SpeakerSmall}}}" />
-                <TextBlock Text=" " Visibility="{Binding SpeakerContainer.MiddleName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type my:SpeakerSmall}}, Converter={StaticResource collapseConverter}}"/>
+                <TextBlock FontWeight="Bold" Text="{Binding SpeakerContainer.SecondName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type my:SpeakerSmall}}}" />
+                <TextBlock Text=" " Visibility="{Binding SpeakerContainer.SecondName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type my:SpeakerSmall}}, Converter={StaticResource collapseConverter}}"/>
                 <TextBlock Text="{Binding SpeakerContainer.DegreeAfter, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type my:SpeakerSmall}}}"/>
             </StackPanel>
             <TextBlock Grid.Column="1" Text="{Binding SpeakerContainer.Language, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type my:SpeakerSmall}}}" />

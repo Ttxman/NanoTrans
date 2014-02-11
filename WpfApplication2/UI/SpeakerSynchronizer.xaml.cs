@@ -37,35 +37,32 @@ namespace NanoTrans
             this._transcription = Transcription;
             this._speakersDatabase = SpeakersDatabase;
 
-            _pairs = _transcription._speakers.Speakers
+
+            _pairs = _transcription._speakers
                 .OrderBy(s => s.Surname)
                 .ThenBy(s => s.FirstName)
                 .ThenBy(s => s.MiddleName)
                 .Select(s => new SpeakerPair { Speaker1 = new SpeakerContainer(s) { IsDocument = true } })
                 .ToList();
 
-
-            var first = _pairs.Join(_speakersDatabase.Speakers, p => p.Speaker1.Speaker.FullName.ToLower(), s => s.FullName.ToLower(), (sp, s) => new { document = sp, local = s })
+            //Join speakers from document with speakers from localDB by fullname and order pairs
+            var first = _pairs.Join(_speakersDatabase, p => p.Speaker1.Speaker.FullName.ToLower(), s => s.FullName.ToLower(), (sp, s) => new { document = sp, local = s })
                 .Distinct()
                 .OrderBy(s => s.local.Surname)
                 .ThenBy(s => s.local.FirstName)
                 .ThenBy(s => s.local.MiddleName);
 
-            var other = _speakersDatabase.Speakers.Except(first.Select(s => s.local).ToArray())
+            //get all speakers from local DB that was not joined
+            var other = _speakersDatabase.Except(first.Select(s => s.local).ToArray())
                 .OrderBy(s => s.Surname)
                 .ThenBy(s => s.FirstName)
                 .ThenBy(s => s.MiddleName);
 
-            listlocal.ItemsSource = _speakersDatabase.Speakers = first.Select(s => s.local).Concat(other).ToList();
+            //concat all speakers from local DB but ordered to match remaining speakers in document.
+            listlocal.ItemsSource = first.Select(s => s.local).Concat(other).ToList();
 
 
-
-
-
-
-
-
-
+            //add pairs with order matching to listlocal and concat speakers without matching name in local DB
             listdocument.ItemsSource = _pairs = first.Select(s => s.document)
                                                         .OrderBy(s => s.Speaker1.SurName)
                                                         .ThenBy(s => s.Speaker1.FirstName)
@@ -75,11 +72,6 @@ namespace NanoTrans
 
 
 
-
-        }
-
-        private void ButtonOK_Click(object sender, RoutedEventArgs e)
-        {
 
         }
 
@@ -131,7 +123,7 @@ namespace NanoTrans
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             var cleardicts = _pairs.Where(p => p.Speaker2 == null).Count();
-
+            _transcription.Saved = false;
             if (cleardicts > 0)
             {
                 if (MessageBox.Show("Chcete v lokální databázi vytvořit nové položky pro všechny nepřiřazené mluvčí?", "automatické vytváření mluvčích", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
@@ -140,7 +132,7 @@ namespace NanoTrans
                     {
                         var n = new SpeakerContainer(p.Speaker1.Speaker.Copy());
                         n.IsLocal = true;
-                        _speakersDatabase.AddSpeaker(n.Speaker);
+                        _speakersDatabase.Add(n.Speaker);
                         p.Speaker2 = n;
                     }
                 }
@@ -161,6 +153,8 @@ namespace NanoTrans
 
             this.DialogResult = true;
             Close();
+
+           
         }
 
         private void MenuItemClearPairing_Click(object sender, RoutedEventArgs e)

@@ -28,6 +28,7 @@ using System.Reflection;
 using Microsoft.Win32;
 using NanoTrans.Audio;
 using NanoTrans.Core;
+using System.Windows.Controls.Primitives;
 
 namespace NanoTrans
 {
@@ -739,7 +740,7 @@ namespace NanoTrans
         private void SynchronizeSpeakers()
         {
             var toremove = new List<Speaker>();
-            foreach (Speaker i in Transcription.Speakers.Speakers)
+            foreach (Speaker i in Transcription.Speakers)
             {
                 Speaker ss = SpeakersDatabase.SynchronizeSpeaker(i);
                 if (ss != null)
@@ -753,7 +754,7 @@ namespace NanoTrans
 
             foreach (var s in toremove)
             {
-                Transcription.Speakers.Speakers.Remove(s);
+                Transcription.Speakers.Remove(s);
             }
         }
 
@@ -1174,7 +1175,9 @@ namespace NanoTrans
         {
             try
             {
-                Button pButton = sender as Button;
+                TB5.IsChecked = TB10.IsChecked = TB20.IsChecked = TB30.IsChecked = TB60.IsChecked = TB120.IsChecked = TB180.IsChecked = false;
+                ToggleButton pButton = sender as ToggleButton;
+                pButton.IsChecked = true;
                 TimeSpan pDelka = TimeSpan.FromMilliseconds(long.Parse(pButton.Tag.ToString()));
                 TimeSpan pPocatek = waveform1.WaveBegin;
                 TimeSpan pKonec = waveform1.WaveBegin + pDelka;

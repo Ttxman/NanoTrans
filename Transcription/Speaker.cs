@@ -162,6 +162,10 @@ namespace NanoTrans.Core
         public static Speaker DeserializeV2(XElement s, bool isStrict)
         {
             Speaker sp = new Speaker();
+
+            if (!s.CheckRequiredAtributes("id", "surname"))
+                throw new ArgumentException("required attribute missing on v2format speaker  (id, surname)");
+
             sp._ID = int.Parse(s.Attribute("id").Value);
             sp.Surname = s.Attribute("surname").Value;
             sp.FirstName = (s.Attribute("firstname") ?? EmptyAttribute).Value;
@@ -410,7 +414,13 @@ namespace NanoTrans.Core
             }
             set
             {
-                _dbid = value;
+                if (string.IsNullOrWhiteSpace(_dbid))
+                    _dbid = value;
+                else if (DataBase == DBType.User)
+                    throw new ArgumentException("cannot change DBID when Dabase is User");
+                else
+                    _dbid = value;
+                
             }
         }
 

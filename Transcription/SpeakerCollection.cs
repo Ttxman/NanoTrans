@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Windows;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
@@ -13,7 +12,7 @@ namespace NanoTrans.Core
     /// BEWARE - SpeakerCollection is synchronized manually, It can contain different speakers than transcription
     /// </summary>
     /// <returns></returns>
-    public class SpeakerCollection
+    public class SpeakerCollection:IList<Speaker>
     {
         protected string _fileName;
         public string FileName
@@ -24,11 +23,6 @@ namespace NanoTrans.Core
 
         protected List<Speaker> _Speakers = new List<Speaker>();    //vsichni mluvci ve streamu
 
-        public List<Speaker> Speakers
-        {
-            get { return _Speakers; }
-            set { _Speakers = value; }
-        }
 
         protected Dictionary<string, string> elements = new Dictionary<string, string>();
         public SpeakerCollection(XElement e)
@@ -66,28 +60,6 @@ namespace NanoTrans.Core
         {
 
         }
-
-
-        /// <summary>
-        /// add speaker to collection
-        /// </summary>
-        /// <param name="speaker"></param>
-        public void AddSpeaker(Speaker speaker)
-        {
-            _Speakers.Add(speaker);
-        }
-
-
-        public Speaker GetSpeakerByID(int ID)
-        {
-            foreach (Speaker msp in this._Speakers)
-            {
-                if (msp.ID == ID) return msp;
-            }
-
-            return null;
-        }
-
         /// <summary>
         /// smazani speakera ze seznamu speakeru
         /// </summary>
@@ -154,10 +126,10 @@ namespace NanoTrans.Core
         /// <param name="store"></param>
         public static void Deserialize(string filename, SpeakerCollection store)
         {
-            //pokud neexistuje soubor, vrati prazdnou databazi
-            if (!new FileInfo(filename).Exists)
+            //if file do not exists, do not modify store
+            if (!File.Exists(filename))
             {
-                throw new FileNotFoundException();
+                return;
             }
             store._fileName = filename;
             XDocument doc = XDocument.Load(filename);
@@ -218,7 +190,7 @@ namespace NanoTrans.Core
                     {
                         speaker.DefaultLang = lang.Value ?? Speaker.Langs[0];
                     }
-                    store.AddSpeaker(speaker);
+                    store.Add(speaker);
                 }
                 #endregion
             }
@@ -243,5 +215,82 @@ namespace NanoTrans.Core
             SpeakerCollection.Deserialize(filename, this);
         }
 
+
+        public int IndexOf(Speaker item)
+        {
+            return _Speakers.IndexOf(item);
+        }
+
+        public virtual void Insert(int index, Speaker item)
+        {
+            _Speakers.Insert(index, item);
+        }
+
+        public virtual void RemoveAt(int index)
+        {
+            _Speakers.RemoveAt(index);
+        }
+
+        public Speaker this[int index]
+        {
+            get
+            {
+                return _Speakers[index];
+            }
+            set
+            {
+                _Speakers[index] = value;
+            }
+        }
+
+        public virtual void Add(Speaker item)
+        {
+            _Speakers.Add(item);
+        }
+
+        public virtual void Clear()
+        {
+            _Speakers.Clear();
+        }
+
+        public bool Contains(Speaker item)
+        {
+            return _Speakers.Contains(item);
+        }
+
+        public void CopyTo(Speaker[] array, int arrayIndex)
+        {
+            _Speakers.CopyTo(array, arrayIndex);
+        }
+
+        public int Count
+        {
+            get { return _Speakers.Count; }
+        }
+
+        public bool IsReadOnly
+        {
+            get { return false; }
+        }
+
+        public virtual bool Remove(Speaker item)
+        {
+            return _Speakers.Remove(item);
+        }
+
+        public IEnumerator<Speaker> GetEnumerator()
+        {
+            return _Speakers.GetEnumerator();
+        }
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        {
+            return _Speakers.GetEnumerator();
+        }
+
+        public virtual void AddRange(IEnumerable<Speaker> enumerable)
+        {
+            _Speakers.AddRange(enumerable);
+        }
     }
 }

@@ -68,10 +68,10 @@ namespace ExePlugin
                 FileInfo fi = new FileInfo(vystup);
                 string pNazev = fi.Name.ToUpper().Remove(fi.Name.Length - fi.Extension.Length);
                 string pHlavicka = "<" + pNazev + ";";
-                for (int i = 0; i < data.Speakers.Speakers.Count; i++)
+                for (int i = 0; i < data.Speakers.Count; i++)
                 {
                     if (i > 0) pHlavicka += ",";
-                    pHlavicka += " " + data.Speakers.Speakers[i].FirstName;
+                    pHlavicka += " " + data.Speakers[i].FirstName;
                 }
                 pHlavicka += ">";
                 sw.WriteLine(pHlavicka);

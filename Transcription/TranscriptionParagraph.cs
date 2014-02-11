@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
 
@@ -124,6 +123,10 @@ namespace NanoTrans.Core
         }
 
         private int _speakerID = Speaker.DefaultID;
+
+        /// <summary>
+        /// Used only for identification when serializing or deserializing, can change unexpectedly
+        /// </summary>
         public int SpeakerID
         {
             get

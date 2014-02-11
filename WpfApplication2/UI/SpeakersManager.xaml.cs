@@ -139,6 +139,7 @@ namespace NanoTrans
 
             if (sm2.ShowDialog() == true)
             {
+                _transcription.Saved = false;
                 var speakers = sm2.SpeakersBox.SelectedItems.Cast<SpeakerContainer>().Select(x => x.Speaker).ToList();
                 speakers.Remove(selectedSpeaker);
                 if (speakers.Count == 0)
@@ -222,6 +223,7 @@ namespace NanoTrans
 
         private void ButtonOK_Click(object sender, RoutedEventArgs e)
         {
+            _transcription.Saved = false;
             this.DialogResult = true;
             this.Close();
         }
@@ -229,6 +231,7 @@ namespace NanoTrans
         private void ButtonNewSpeaker_Click(object sender, RoutedEventArgs e)
         {
             MenuItem_NewSpeaker(null, null);
+            _transcription.Saved = false;
         }
 
         private void MenuItemReplaceSpeaker_Click(object sender, RoutedEventArgs e)
@@ -246,6 +249,7 @@ namespace NanoTrans
 
             if (sm2.ShowDialog() == true)
             {
+                _transcription.Saved = false;
                 var speaker = ((SpeakerContainer)sm2.SpeakersBox.SelectedValue).Speaker;
                 if (MessageBox.Show(string.Format("Opravdu chcete v prepisu nahradit mluvčího \"{0}\" mluvčím  \"{1}\"?", selectedSpeaker.FullName, speaker.FullName), "Nahrazení mluvčího", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                 {
@@ -261,6 +265,8 @@ namespace NanoTrans
         public Speaker SelectedSpeaker;
         private void SpeakersBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (SpeakersBox.SelectedItem == null)
+                return;
             SelectedSpeaker = ((SpeakerContainer)SpeakersBox.SelectedItem).Speaker;
         }
 
@@ -522,10 +528,10 @@ namespace NanoTrans
             _allSpeakers = new List<SpeakerContainer>();
 
             if (documentSpeakers != null)
-                _allSpeakers.AddRange(documentSpeakers.Speakers.Select(s => new SpeakerContainer(documentSpeakers, s) { IsDocument = true }));
+                _allSpeakers.AddRange(documentSpeakers.Select(s => new SpeakerContainer(documentSpeakers, s) { IsDocument = true }));
 
             if (localSpeakers != null)
-                _allSpeakers.AddRange(localSpeakers.Speakers.Select(s => new SpeakerContainer(documentSpeakers, s) { IsLocal = true }));
+                _allSpeakers.AddRange(localSpeakers.Select(s => new SpeakerContainer(documentSpeakers, s) { IsLocal = true }));
 
             _view = CollectionViewSource.GetDefaultView(_allSpeakers);
 
@@ -554,6 +560,11 @@ namespace NanoTrans
         public void RemoveSpeaker(Speaker s)
         {
             var cont = _allSpeakers.FirstOrDefault(sc => sc.Speaker == s);
+            if (s.DataBase == DBType.User)
+                _localSpeakers.Remove(s);
+            else if (s.DataBase == DBType.File)
+                _documentSpeakers.Remove(s);
+
             if (cont != null)
             {
                 _allSpeakers.Remove(cont);
@@ -569,7 +580,7 @@ namespace NanoTrans
 
         internal void AddLocalSpeaker(Speaker sp)
         {
-            _localSpeakers.AddSpeaker(sp);
+            _localSpeakers.Add(sp);
             _allSpeakers.Add(new SpeakerContainer(_documentSpeakers, sp) { IsLocal = true});
         }
     }

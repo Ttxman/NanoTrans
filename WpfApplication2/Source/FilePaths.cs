@@ -13,8 +13,9 @@ namespace NanoTrans
         public static Stream GetConfigFileReadStream()
         {
             string file = GetReadPath(ConfigFile);
-            if(File.Exists(file))
+            if (File.Exists(file))
                 return File.Open(file, FileMode.Open, FileAccess.Read);
+
             return null;
         }
 
@@ -23,39 +24,39 @@ namespace NanoTrans
             return File.Create(GetWritePath(ConfigFile));
         }
 
-        private static readonly string m_PluginsFile = "Plugins\\Plugins.xml";
-        private static readonly string m_PluginsPath= "Plugins\\";
+        private static readonly string _PluginsFile = "Plugins\\Plugins.xml";
+        private static readonly string _PluginsPath= "Plugins\\";
 
 
         private static readonly string ConfigFile = "Data\\config.xml";
 
-        private static readonly string m_PedalFile = "Pedals.exe";
-        private static readonly string m_FFmpegFile = "Prevod\\ffmpeg.exe";
+        private static readonly string _PedalFile = "Pedals.exe";
+        private static readonly string _FFmpegFile = "Prevod\\ffmpeg.exe";
 
-        private static string m_programDirectory;
-        private static bool m_writeToAppData;
+        private static string _programDirectory;
+        private static bool _writeToAppData;
 
 
 
-        private static string m_AppDataPath;
+        private static string _AppDataPath;
 
         public static string AppDataDirectory
         {
-            get { return FilePaths.m_AppDataPath; }
+            get { return FilePaths._AppDataPath; }
         }
 
         static FilePaths()
         {
-            m_programDirectory = new FileInfo(Application.ResourceAssembly.Location).DirectoryName;
-            m_writeToAppData = !CheckWritePermissions(Path.Combine(m_programDirectory,"writecheck.txt"));
-            m_AppDataPath = System.IO.Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\NanoTrans");
+            _programDirectory = new FileInfo(Application.ResourceAssembly.Location).DirectoryName;
+            _writeToAppData = !CheckWritePermissions(Path.Combine(_programDirectory,"writecheck.txt"));
+            _AppDataPath = System.IO.Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\NanoTrans");
 
             CreateTemp();
         }
 
 
         private static Mutex TempCheckMutex;
-        private static string m_TempPath;
+        private static string _TempPath;
         private static void CreateTemp()
         {
 
@@ -68,7 +69,7 @@ namespace NanoTrans
             Directory.CreateDirectory(temppath);
             TempCheckMutex = new Mutex(true, "NanoTransMutex_" + foldername);
 
-            m_TempPath = temppath + "\\";
+            _TempPath = temppath + "\\";
         }
 
         private static void DeleteUnusedTempFolders(string foldername)
@@ -105,10 +106,10 @@ namespace NanoTrans
         public static void DeleteTemp()
         {
 
-            foreach (string f in Directory.GetFiles(m_TempPath))
+            foreach (string f in Directory.GetFiles(_TempPath))
                 File.Delete(f);
 
-            Directory.Delete(m_TempPath);
+            Directory.Delete(_TempPath);
             TempCheckMutex.Close();
             TempCheckMutex = null;
         
@@ -116,20 +117,20 @@ namespace NanoTrans
 
         public static string TempDirectory
         {
-            get { return m_TempPath; }
+            get { return _TempPath; }
         }
 
 
         public static bool WriteToAppData
         {
-            get { return m_writeToAppData; }
+            get { return _writeToAppData; }
         }
 
         public static string ProgramDirectory
         {
             get 
             { 
-                return m_programDirectory; 
+                return _programDirectory; 
             }
         }
 
@@ -137,10 +138,10 @@ namespace NanoTrans
         {
             get
             {
-                if (m_writeToAppData)
-                    return m_AppDataPath;
+                if (_writeToAppData)
+                    return _AppDataPath;
                 else
-                    return m_programDirectory;
+                    return _programDirectory;
             }
         
         }
@@ -150,7 +151,7 @@ namespace NanoTrans
         {
             get
             {
-                return Path.Combine(m_programDirectory, m_PedalFile);
+                return Path.Combine(_programDirectory, _PedalFile);
             }
         }
 
@@ -158,18 +159,18 @@ namespace NanoTrans
         {
             get
             {
-                return Path.Combine(m_programDirectory, m_FFmpegFile);
+                return Path.Combine(_programDirectory, _FFmpegFile);
             }
         }
 
         public static string PluginsFile
         {
-            get { return FilePaths.m_PluginsFile; }
+            get { return FilePaths._PluginsFile; }
         }
 
         public static string PluginsPath
         {
-            get { return FilePaths.m_PluginsPath; }
+            get { return FilePaths._PluginsPath; }
         } 
 
 
@@ -177,14 +178,14 @@ namespace NanoTrans
 
         public static string GetReadPath(string relativePath)
         {
-            if (m_writeToAppData)
+            if (_writeToAppData)
             {
-                string apppath = Path.Combine(m_AppDataPath, relativePath);
+                string apppath = Path.Combine(_AppDataPath, relativePath);
                 if (File.Exists(apppath))
                     return apppath;
                 else
                 {
-                    string nearexepath = Path.Combine(m_programDirectory, relativePath);
+                    string nearexepath = Path.Combine(_programDirectory, relativePath);
                     if (File.Exists(nearexepath))
                         return nearexepath;
                     else
@@ -194,17 +195,17 @@ namespace NanoTrans
             }
             else
             {
-                return Path.Combine(m_programDirectory, relativePath);
+                return Path.Combine(_programDirectory, relativePath);
             }
         }
 
 
         public static string GetWritePath(string relativePath)
         {
-            if (m_writeToAppData)
-                return Path.Combine(m_AppDataPath, relativePath);
+            if (_writeToAppData)
+                return Path.Combine(_AppDataPath, relativePath);
             else
-                return Path.Combine(m_programDirectory, relativePath);
+                return Path.Combine(_programDirectory, relativePath);
         }
 
 

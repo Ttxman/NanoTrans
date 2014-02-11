@@ -213,13 +213,13 @@
                             </ToggleButton>
                         </ToolBar>
                         <ToolBar>
-                            <Button Name="Toolbar1Btn5" Click="Toolbar1Btn5_Click" Focusable="False" IsTabStop="False" Tag="5000">5s</Button>
-                            <Button Name="Toolbar1Btn10" Click="Toolbar1Btn5_Click" IsTabStop="False" Focusable="False" Tag="10000">10s</Button>
-                            <Button Name="Toolbar1Btn20" Click="Toolbar1Btn5_Click" Focusable="False" IsTabStop="False" Tag="20000">20s</Button>
-                            <Button Name="Toolbar1Btn30" Click="Toolbar1Btn5_Click" Focusable="False" IsTabStop="False" Tag="30000">30s</Button>
-                            <Button Name="Toolbar1Btn60" Click="Toolbar1Btn5_Click" Focusable="False" IsTabStop="False" Tag="60000">1m</Button>
-                            <Button Name="Toolbar1Btn120" Click="Toolbar1Btn5_Click" Focusable="False" IsTabStop="False" Tag="120000">2m</Button>
-                            <Button Name="Toolbar1Btn300" Click="Toolbar1Btn5_Click" Focusable="False" IsTabStop="False" Tag="180000">3m</Button>
+                            <ToggleButton Name="TB5" Click="Toolbar1Btn5_Click" Focusable="False" IsTabStop="False" Tag="5000">5s</ToggleButton>
+                            <ToggleButton Name="TB10" Click="Toolbar1Btn5_Click" IsTabStop="False" Focusable="False" Tag="10000">10s</ToggleButton>
+                            <ToggleButton Name="TB20" Click="Toolbar1Btn5_Click" Focusable="False" IsTabStop="False" Tag="20000">20s</ToggleButton>
+                            <ToggleButton Name="TB30" Click="Toolbar1Btn5_Click" Focusable="False" IsTabStop="False" Tag="30000" IsChecked="True">30s</ToggleButton>
+                            <ToggleButton Name="TB60" Click="Toolbar1Btn5_Click" Focusable="False" IsTabStop="False" Tag="60000">1m</ToggleButton>
+                            <ToggleButton Name="TB120" Click="Toolbar1Btn5_Click" Focusable="False" IsTabStop="False" Tag="120000">2m</ToggleButton>
+                            <ToggleButton Name="TB180" Click="Toolbar1Btn5_Click" Focusable="False" IsTabStop="False" Tag="180000">3m</ToggleButton>
                         </ToolBar>
                     </ToolBarTray>
                     <TextBox Name="tbAudioSoubor" Background="LightGoldenrodYellow" IsReadOnly="False" IsEnabled="True" Width="250" Focusable="True" IsTabStop="True"></TextBox>

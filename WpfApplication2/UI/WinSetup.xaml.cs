@@ -167,7 +167,7 @@ namespace NanoTrans
             {
                 if (File.Exists(fileDialog.FileName))
                 {
-                    _speakersDatabase.Speakers.Clear();
+                    _speakersDatabase.Clear();
                     SpeakerCollection.Deserialize(fileDialog.FileName, _speakersDatabase);
                 }
                 else
