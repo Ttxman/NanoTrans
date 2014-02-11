@@ -18,7 +18,7 @@ namespace UpdateBuilder
             string basedir = args[0];
             string list = args[1];
             string build = args[2];
-            string datastore = args[3]+ build;
+            string datastore = args[3]+build;
             string packageDir = Path.Combine("packages",build);
             if (Directory.Exists(packageDir))
             {
@@ -38,7 +38,7 @@ namespace UpdateBuilder
                 Console.WriteLine("Zipping "+f);
                 ZipFile zf = new ZipFile();
                 zf.CompressionLevel = Ionic.Zlib.CompressionLevel.BestCompression;
-                zf.AddFile(f);
+                zf.AddFile(f,".");
                 string fullpath = Path.Combine(packageDir, f.Substring(basedir.Length + 1)) + ".zip";
                 Directory.CreateDirectory(Path.GetDirectoryName(fullpath));
                 zf.Save(Path.Combine(packageDir, f.Substring(basedir.Length + 1)) + ".zip");
