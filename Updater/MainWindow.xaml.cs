@@ -148,11 +148,14 @@ namespace Updater
                         string file = App.ExeDir + "\\" + f.Attribute("FileName").Value;
                         if (File.Exists(file))
                         {
-                            string h = Convert.ToBase64String(sha.ComputeHash(File.OpenRead(file)));
-                            string h2 = f.Attribute("SHA1").Value;
-                            if (h != h2)
+                            using (var s = File.OpenRead(file))
                             {
-                                flist.Add(f);
+                                string h = Convert.ToBase64String(sha.ComputeHash(s));
+                                string h2 = f.Attribute("SHA1").Value;
+                                if (h != h2)
+                                {
+                                    flist.Add(f);
+                                }
                             }
                         }
                         else
