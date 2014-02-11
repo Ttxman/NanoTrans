@@ -128,8 +128,6 @@ namespace NanoTrans
         {
             get { return TimeSpan.FromMilliseconds((double)SamplesPlayedThisSession / m_soundBuffer.Frequency); }
         }
-
-
         
         public TimeSpan PlayPosition
         {
@@ -137,6 +135,9 @@ namespace NanoTrans
             {
                 lock (this)
                 {
+                    if (timestamp == null || timestamp.Count == 0)
+                        return TimeSpan.Zero;
+
                     int actual = 0;
                     int ppos = m_soundBuffer.PlayPosition;
                     int pos = (ppos / m_buffersize); // index casti bufferu
@@ -147,20 +148,17 @@ namespace NanoTrans
                         if (timestamp.Count == 0)
                             return TimeSpan.Zero;
                         if (pos != timestamp.Peek().Key)
+                        {
                             timestamp.Dequeue();
+                        }
                     }
 
                         int msplayed = 0;
 
-
-                        pos *= m_buffersize; //pozice casti bufferu v bytech
-
-                        int samplesPlayed = (ppos - pos)/2;
-
+                        int samplesPlayed = (ppos % m_buffersize) /2;
                         msplayed = (int)(1000.0 * samplesPlayed / m_soundBuffer.Frequency);
 
                         actual = timestamp.Peek().Value + msplayed;
-                   
 
                     return TimeSpan.FromMilliseconds(actual);
                 }
@@ -362,12 +360,9 @@ namespace NanoTrans
         System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
         private void RetrieveData()
         {
-          //  sw.Reset();
-          //  sw.Start();
             int timems;
             short[] data = m_requestproc.Invoke(out timems);
 
-            //System.Diagnostics.Debug.WriteLine(data.Length);
             if (data == null || data.Length == 0)
             {
                 Pause();
@@ -376,8 +371,6 @@ namespace NanoTrans
             {
                 WriteNextData(data, timems);
             }
-          //  sw.Stop();
-          //  System.Diagnostics.Debug.WriteLine("wav load time:"+sw.ElapsedMilliseconds);
 
         }
 

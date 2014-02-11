@@ -4060,8 +4060,30 @@ namespace NanoTrans
 
 
 
+        long oldms = 0;
         public void NastavPoziciKurzoru(long aMilisekundy, bool nastavitMedia, bool aNeskakatNaZacatekElementu)
         {
+
+
+   /*            StackTrace st = new StackTrace();
+     string trace = "";
+     foreach(var frame in  st.GetFrames())
+     {
+         trace+=frame.GetMethod().Name+">";
+     }*/
+
+     Debug.WriteLine(aMilisekundy);
+
+     if (aMilisekundy < oldms && Playing)
+     {
+         Debug.WriteLine("skok");
+
+         aMilisekundy = oldms;
+     }
+
+             oldms = aMilisekundy;
+
+
             try
             {
 
@@ -4077,8 +4099,6 @@ namespace NanoTrans
                 
                 double aLeft = aMilisekundy - oVlna.mSekundyVlnyZac;
                 aLeft = aLeft / oVlna.DelkaVlnyMS * myImage.ActualWidth;
-                //(double)((aMilisekundy - nastaveniAplikace.mSekundyVlnyZac) / nastaveniAplikace.mSekundyVlny) * myImage.ActualWidth;
-
 
                 rectangle1.Margin = new Thickness(aLeft - 2, rectangle1.Margin.Top, rectangle1.Margin.Right, rectangle1.Margin.Bottom);
 
@@ -4278,6 +4298,7 @@ namespace NanoTrans
                 {
 
                     celkMilisekundy = (int)MWP.PlayPosition.TotalMilliseconds;
+                    slPoziceMedia.Value = (int)MWP.PlayPosition.TotalMilliseconds;
                     if (prehratVyber && celkMilisekundy < oVlna.KurzorVyberPocatekMS)
                     {
                         celkMilisekundy = oVlna.KurzorVyberPocatekMS;
@@ -4288,8 +4309,6 @@ namespace NanoTrans
                 pocetTikuTimeru++;
                 if (pocetTikuTimeru > 0) //kazdy n ty tik dojde ke zmene pozice ctverce
                 {
-
-
                     if (pocetTikuTimeru > 2)
                     {
                         pocetTikuTimeru = 0;
@@ -4316,6 +4335,7 @@ namespace NanoTrans
                     else
                     {
                         NastavPoziciKurzoru(celkMilisekundy, false, true);
+                        slPoziceMedia.Value = celkMilisekundy;
                     }
 
                     if (Playing) VyberTextMeziCasovymiZnackami(celkMilisekundy);
@@ -4354,15 +4374,6 @@ namespace NanoTrans
                         mSekundyKonec = pKonec;
                         KresliVlnu(pPocatekMS, mSekundyKonec, oVlna.PouzeCasovaOsa);
 
-                        /*
-                        mSekundyKonec = celkMilisekundy + oVlna.MSekundyDelta;
-                        if (mSekundyKonec - rozdil < 0)
-                        {
-                            mSekundyKonec = rozdil;
-                            pPozadovanyPocatekVlny = 0;
-                        }
-                        KresliVlnu(mSekundyKonec - rozdil, mSekundyKonec, oVlna.PouzeCasovaOsa);
-                        */
                     }
 
                 }
@@ -5134,6 +5145,7 @@ namespace NanoTrans
             KresliVlnuB(pParametry);
             return true;
         }
+
 
         /// <summary>
         /// THREAD SAFE - nakresli vlnu do formulare
@@ -7752,7 +7764,11 @@ namespace NanoTrans
                             if (MWP != null)
                             {
                                 MWP.Pause();
+
+                                //TODO: proc enjsou tyhle 3 veci na jednom miste?
+                                slPoziceMedia.Value = MWP.PausedAt.TotalMilliseconds;
                                 oVlna.KurzorPoziceMS = (long)MWP.PausedAt.TotalMilliseconds;
+                                pIndexBufferuVlnyProPrehrani = (int)oVlna.KurzorPoziceMS;
                                 Playing = false;
                             }
                         }

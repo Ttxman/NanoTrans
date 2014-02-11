@@ -70,14 +70,7 @@ namespace NanoTrans
             } 
             set
             {
-           /*     StackTrace st = new StackTrace();
-                string trace = "";
-                foreach(var frame in  st.GetFrames())
-                {
-                    trace+=frame.GetMethod().Name+">";
-                }
 
-                Debug.WriteLine(trace);*/
                 _KurzorPozice = value; 
             } 
         }     //pozice kurzoru prehravani v ms
