@@ -2264,8 +2264,20 @@ namespace NanoTrans
 
         private void MSoubor_Exportovat_Click(object sender, RoutedEventArgs e)
         {
-            ExportovatDokument(myDataSource, null, 0);
+            ExportovatDokument(myDataSource, null, ExportType.TxtTimes);
         }
+
+        private void menuSouborExportovatText_Click(object sender, RoutedEventArgs e)
+        {
+            ExportovatDokument(myDataSource, null, ExportType.Txt);
+        }
+
+        private enum ExportType
+        {
+            Txt,
+            TxtTimes,
+        }
+
         /// <summary>
         /// exportuje dokument do vybraneho formatu - pokud je cesta null, zavola savedialog
         /// </summary>
@@ -2273,7 +2285,7 @@ namespace NanoTrans
         /// <param name="aCesta"></param>
         /// <param name="aFormat"></param>
         /// <returns></returns>
-        private int ExportovatDokument(MySubtitlesData aDokument, string aCesta, int aFormat)
+        private int ExportovatDokument(MySubtitlesData aDokument, string aCesta, ExportType aFormat)
         {
             try
             {
@@ -2290,39 +2302,62 @@ namespace NanoTrans
                     if (fileDialog.ShowDialog() == true)
                     {
                         aCesta = fileDialog.FileName;
-                        FileStream fs = new FileStream(aCesta, FileMode.Create);
-                        StreamWriter sw = new StreamWriter(fs, Encoding.GetEncoding("windows-1250"));
-                        FileInfo fi = new FileInfo(aCesta);
-                        string pNazev = fi.Name.ToUpper().Remove(fi.Name.Length - fi.Extension.Length);
-                        string pHlavicka = "<" + pNazev + ";";
-                        for (int i = 0; i < aDokument.SeznamMluvcich.Speakers.Count; i++)
+
+                        if (aFormat == ExportType.TxtTimes)
                         {
-                            if (i > 0) pHlavicka += ",";
-                            pHlavicka += " " + aDokument.SeznamMluvcich.Speakers[i].FirstName;
-                        }
-                        pHlavicka += ">";
-                        sw.WriteLine(pHlavicka);
-                        sw.WriteLine();
-                        for (int i = 0; i < aDokument.Chapters.Count; i++)
-                        {
-                            for (int j = 0; j < aDokument.Chapters[i].Sections.Count; j++)
+                            FileStream fs = new FileStream(aCesta, FileMode.Create);
+                            StreamWriter sw = new StreamWriter(fs, Encoding.GetEncoding("windows-1250"));
+                            FileInfo fi = new FileInfo(aCesta);
+                            string pNazev = fi.Name.ToUpper().Remove(fi.Name.Length - fi.Extension.Length);
+                            string pHlavicka = "<" + pNazev + ";";
+                            for (int i = 0; i < aDokument.SeznamMluvcich.Speakers.Count; i++)
                             {
-                                for (int k = 0; k < aDokument.Chapters[i].Sections[j].Paragraphs.Count; k++)
+                                if (i > 0) pHlavicka += ",";
+                                pHlavicka += " " + aDokument.SeznamMluvcich.Speakers[i].FirstName;
+                            }
+                            pHlavicka += ">";
+                            sw.WriteLine(pHlavicka);
+                            sw.WriteLine();
+                            for (int i = 0; i < aDokument.Chapters.Count; i++)
+                            {
+                                for (int j = 0; j < aDokument.Chapters[i].Sections.Count; j++)
                                 {
-                                    MyParagraph pP = aDokument.Chapters[i].Sections[j].Paragraphs[k];
-                                    //zapsani jednotlivych odstavcu
-                                    string pRadek = "<" + (pP.speakerID - 1).ToString() + "> ";
-                                    for (int l = 0; l < pP.Phrases.Count; l++)
+                                    for (int k = 0; k < aDokument.Chapters[i].Sections[j].Paragraphs.Count; k++)
                                     {
-                                        MyPhrase pFraze = pP.Phrases[l];
-                                        pRadek += "[" + (pFraze.Begin).ToString() + "]" + pFraze.Text;
+                                        MyParagraph pP = aDokument.Chapters[i].Sections[j].Paragraphs[k];
+                                        //zapsani jednotlivych odstavcu
+                                        string pRadek = "<" + (pP.speakerID - 1).ToString() + "> ";
+                                        for (int l = 0; l < pP.Phrases.Count; l++)
+                                        {
+                                            MyPhrase pFraze = pP.Phrases[l];
+                                            pRadek += "[" + (pFraze.Begin).ToString() + "]" + pFraze.Text;
+                                        }
+                                        sw.WriteLine(pRadek);
                                     }
-                                    sw.WriteLine(pRadek);
                                 }
                             }
-                        }
 
-                        sw.Close();
+                            sw.Close();
+                        }
+                        else if (aFormat == ExportType.Txt)
+                        {
+                            StringBuilder sb = new StringBuilder();
+                            if (myDataSource.Count > 0)
+                            {
+                                TranscriptionElement e = myDataSource[0];
+                                while (e != null)
+                                {
+                                    if (e.IsParagraph)
+                                    {
+                                        sb.AppendLine(e.Text);
+                                    }
+                                    e = e.Next();
+                                }
+                            }
+
+                            File.WriteAllText(aCesta, sb.ToString());
+
+                        }
                     }
                     else return -3;
                 }
@@ -2811,5 +2846,7 @@ namespace NanoTrans
             if (e.ChangedButton == MouseButton.XButton1 || e.ChangedButton == MouseButton.XButton2 || e.ChangedButton == MouseButton.Middle)
                 CommandPlayPause.Execute(null, null);
         }
+
+
     }
 }
