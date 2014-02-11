@@ -457,7 +457,6 @@ namespace NanoTrans
 
             }
         }
-
     }
 
     public class CollapseOnNullConverter : IValueConverter

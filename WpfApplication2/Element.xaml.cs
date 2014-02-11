@@ -187,6 +187,8 @@ namespace NanoTrans
 
         private void RepaintAttributes()
         {
+            if (m_IsPasiveElement)
+                return;
             if (this.stackPanel1.Children.Count != all.Length)
             {
                 this.stackPanel1.Children.Clear();
@@ -248,21 +250,28 @@ namespace NanoTrans
         { 
         
         }
+
+
+
+        private bool m_IsPasiveElement;
         /// <summary>
         /// 
         /// </summary>
         /// <param name="isPasiveElement"></param>
         public Element(bool isPasiveElement)
         {
+            m_IsPasiveElement = isPasiveElement;
             InitializeComponent();
-            RepaintAttributes();
+
+            if (!m_IsPasiveElement)
+                RepaintAttributes();
 
             
             editor.TextArea.TextView.ElementGenerators.Add(DefaultNonEditableBlockGenerator);
             editor.TextArea.IndentationStrategy = new NoIndentationStrategy() ;
             editor.Options.InheritWordWrapIndentation = false;
 
-            if (!isPasiveElement)
+            if (!m_IsPasiveElement)
             {
                 editor.TextArea.TextView.LineTransformers.Add(DefaultSpellchecker);
                 editor.TextArea.TextEntering += new TextCompositionEventHandler(TextArea_TextEntering);

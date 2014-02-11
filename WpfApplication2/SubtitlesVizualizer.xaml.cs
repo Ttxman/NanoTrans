@@ -17,6 +17,7 @@ using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Rendering;
 using System.Windows.Media.TextFormatting;
 using System.Collections;
+using System.Windows.Threading;
 
 namespace NanoTrans
 {
@@ -801,9 +802,27 @@ namespace NanoTrans
                 RecreateElements(e.NewValue);
         }
 
+        private DispatcherTimer m_resizeTimer;
         private void UserControl_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            SubtitlesContentChanged();
+            if (m_resizeTimer == null)
+            {
+                IsEnabled = false;
+                m_resizeTimer = new DispatcherTimer(TimeSpan.FromMilliseconds(333), DispatcherPriority.Normal, (_sender, _e) =>
+                                    {
+                                        SubtitlesContentChanged();
+                                        IsEnabled = true;
+                                        m_resizeTimer.Stop();
+                                        m_resizeTimer = null;
+                                    }, Dispatcher);
+            }
+            else
+            {
+                m_resizeTimer.Stop();
+                m_resizeTimer.Start();
+            }
+            
+            
         }
 
 
@@ -826,5 +845,6 @@ namespace NanoTrans
                     l.HiglightedPostion = value;
             }
         }
+
     }
 }
