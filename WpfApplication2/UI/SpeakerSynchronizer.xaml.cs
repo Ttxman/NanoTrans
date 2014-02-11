@@ -95,6 +95,22 @@ namespace NanoTrans
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
+            var cleardicts = _pairs.Where(p => p.Speaker2 == null).Count();
+
+            if (cleardicts > 0)
+            {
+                if (MessageBox.Show("Chcete v lokální databázi vytvořit nové položky pro všechny nepřiřazené mluvčí?", "automatické vytváření mluvčích", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                {
+                    foreach (var p in _pairs.Where(pa => pa.Speaker2 == null))
+                    {
+                        var n = new SpeakerContainer( p.Speaker1.Speaker.Copy());
+                        n.IsLocal = true;
+                        _speakersDatabase.AddSpeaker(n.Speaker);
+                        p.Speaker2 = n;
+                    }
+                }
+            }
+
             var pairdict = _pairs.Where(p => p.Speaker2 != null).ToDictionary(p => p.Speaker1.Speaker, p => (p.Speaker2 == null) ? null : p.Speaker2.Speaker);
             foreach (var par in _transcription.EnumerateParagraphs())
             {
@@ -111,6 +127,20 @@ namespace NanoTrans
             this.DialogResult = true;
             Close();
         }
+
+        private void MenuItemClearPairing_Click(object sender, RoutedEventArgs e)
+        {
+            if (listdocument.SelectedValue != null)
+            {
+                ((SpeakerPair)listdocument.SelectedValue).Speaker2 = null;
+            }
+        }
+
+        private void listdocument_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            MenuItemClearPairing_Click(null, null);
+        }
+
     }
 
     public class SpeakerPair : INotifyPropertyChanged

@@ -150,7 +150,8 @@ namespace NanoTrans.Core
         /// vytvori kopii objektu
         /// </summary>
         /// <param name="aKopie"></param>
-        public Transcription(Transcription aKopie):this()
+        public Transcription(Transcription aKopie)
+            : this()
         {
             this.source = aKopie.source;
             this.mediaURI = aKopie.mediaURI;
@@ -286,12 +287,9 @@ namespace NanoTrans.Core
         /// <returns></returns>
         public bool AddSpeaker(Speaker aSpeaker)
         {
-            if (_speakers.AddSpeaker(aSpeaker, false))
-            {
-                this.Saved = false;
-                return true;
-            }
-            return false;
+            _speakers.AddSpeaker(aSpeaker);
+            this.Saved = false;
+            return true;
         }
 
 
@@ -351,8 +349,8 @@ namespace NanoTrans.Core
                         SerializeSpeakers()
                     );
 
-            if(!string.IsNullOrWhiteSpace(this.DocumentID))
-                pars.Add(new XAttribute("documentid",this.DocumentID));
+            if (!string.IsNullOrWhiteSpace(this.DocumentID))
+                pars.Add(new XAttribute("documentid", this.DocumentID));
 
             XDocument xdoc =
                 new XDocument(new XDeclaration("1.0", "utf-8", "yes"),
@@ -365,7 +363,7 @@ namespace NanoTrans.Core
 
         private XElement SerializeSpeakers()
         {
-            return new SpeakerCollection(this.EnumerateParagraphs().Select(p => p.Speaker).Distinct()).Serialize();
+            return new SpeakerCollection(this.EnumerateParagraphs().Select(p => p.Speaker).Where(s => s != Speaker.DefaultSpeaker && s.ID != Speaker.DefaultID).Distinct()).Serialize();
         }
 
 
@@ -412,7 +410,7 @@ namespace NanoTrans.Core
                 {
                     DeserializeV3(reader, storage);
                 }
-                if (version == "2.0")
+                else if (version == "2.0")
                 {
                     DeserializeV2_0(reader, storage);
                 }
@@ -485,7 +483,7 @@ namespace NanoTrans.Core
             if (data.elements.TryGetValue("documentid", out did))
                 data.DocumentID = did;
             if (data.elements.TryGetValue("created", out did))
-                data.Created = XmlConvert.ToDateTime(did,XmlDateTimeSerializationMode.Unspecified);
+                data.Created = XmlConvert.ToDateTime(did, XmlDateTimeSerializationMode.Unspecified);
 
             data.elements = transcription.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
             data.elements.Remove("style");
@@ -493,7 +491,7 @@ namespace NanoTrans.Core
             data.elements.Remove("version");
             data.elements.Remove("documentid");
 
-            foreach(var c in chapters.Select(c => new TranscriptionChapter(c)))
+            foreach (var c in chapters.Select(c => new TranscriptionChapter(c)))
                 data.Add(c);
 
             data.Speakers = new SpeakerCollection(transcription.Element("sp"));
@@ -921,7 +919,7 @@ namespace NanoTrans.Core
                                 }
                                 break;
                             case "Comment":
-                                sp.Attributes.Add(new SpeakerAttribute("comment","comment",reader.ReadElementString("Comment")));
+                                sp.Attributes.Add(new SpeakerAttribute("comment", "comment", reader.ReadElementString("Comment")));
                                 break;
                             case "Speaker":
                                 if (reader.NodeType == XmlNodeType.EndElement)

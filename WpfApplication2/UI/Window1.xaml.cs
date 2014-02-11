@@ -662,27 +662,10 @@ namespace NanoTrans
                                 }
                             }
 
-
-                            //synchronizace mluvcich podle vnitrni databaze
-                            try
-                            {
-                                foreach (Speaker i in Transcription.Speakers.Speakers)
-                                {
-                                    Speaker ss = SpeakersDatabase.SynchronizeSpeaker(i);
-                                    if (ss != null)
-                                    {
-                                        foreach (var p in Transcription.EnumerateParagraphs().Where(p => p.Speaker == i))
-                                            p.Speaker = ss;
-
-                                        Transcription.Speakers.RemoveSpeaker(i);
-
-                                    }
-                                }
-                            }
-                            catch
-                            {
-                            }
                         }
+
+                        SynchronizeSpeakers();
+
 
                         this.Title = MyKONST.NAZEV_PROGRAMU + " [" + Transcription.FileName + "]";
                         VirtualizingListBox.ActiveTransctiption = Transcription.First(e => e.IsParagraph) ?? Transcription.First();
@@ -736,6 +719,7 @@ namespace NanoTrans
                                 LoadVideo(pVideoFile);
                             }
                         }
+                        SynchronizeSpeakers();
                         return true;
                     }
                     else
@@ -749,6 +733,27 @@ namespace NanoTrans
             {
                 MessageBox.Show(Properties.Strings.MessageBoxOpenTranscriptionError + ex.Message, Properties.Strings.MessageBoxErrorCaption, MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
+            }
+        }
+
+        private void SynchronizeSpeakers()
+        {
+            var toremove = new List<Speaker>();
+            foreach (Speaker i in Transcription.Speakers.Speakers)
+            {
+                Speaker ss = SpeakersDatabase.SynchronizeSpeaker(i);
+                if (ss != null)
+                {
+                    foreach (var p in Transcription.EnumerateParagraphs().Where(p => p.Speaker == i))
+                        p.Speaker = ss;
+
+                    toremove.Add(i);
+                }
+            }
+
+            foreach (var s in toremove)
+            {
+                Transcription.Speakers.Speakers.Remove(s);
             }
         }
 
@@ -2058,7 +2063,7 @@ namespace NanoTrans
         {
             new SpeakerSynchronizer(Transcription, SpeakersDatabase).ShowDialog();
             VirtualizingListBox.SpeakerChanged();
-            
+
         }
 
     }

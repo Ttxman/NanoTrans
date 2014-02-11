@@ -177,7 +177,7 @@ namespace NanoTrans.Core
 
 
         #region serializace nova
-        private Dictionary<string, string> elements = new Dictionary<string, string>();
+        public Dictionary<string, string> Elements = new Dictionary<string, string>();
         private static readonly XAttribute EmptyAttribute = new XAttribute("empty", "");
 
         /// <summary>
@@ -192,11 +192,11 @@ namespace NanoTrans.Core
             par._speakerID = int.Parse(e.Attribute(isStrict ? "speakerid" : "s").Value);
             par.Attributes = (e.Attribute(isStrict ? "attributes" : "a") ?? EmptyAttribute).Value;
 
-            par.elements = e.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
-            par.elements.Remove(isStrict ? "begin" : "b");
-            par.elements.Remove(isStrict ? "end" : "e");
-            par.elements.Remove(isStrict ? "attributes" : "a");
-            par.elements.Remove(isStrict ? "speakerid" : "s");
+            par.Elements = e.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
+            par.Elements.Remove(isStrict ? "begin" : "b");
+            par.Elements.Remove(isStrict ? "end" : "e");
+            par.Elements.Remove(isStrict ? "attributes" : "a");
+            par.Elements.Remove(isStrict ? "speakerid" : "s");
 
 
             e.Elements(isStrict ? "phrase" : "p").Select(p => (TranscriptionElement)TranscriptionPhrase.DeserializeV2(p, isStrict)).ToList().ForEach(p => par.Add(p)); ;
@@ -247,7 +247,7 @@ namespace NanoTrans.Core
             _speakerID = int.Parse(e.Attribute( "s").Value);
             Attributes = (e.Attribute( "a") ?? EmptyAttribute).Value;
 
-            elements = e.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
+            Elements = e.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
 
 
 
@@ -255,10 +255,10 @@ namespace NanoTrans.Core
                 Add(p);
 
             string bfr;
-            if (elements.TryGetValue("a", out bfr))
+            if (Elements.TryGetValue("a", out bfr))
                 this.Attributes = bfr;
 
-            if (elements.TryGetValue("b", out bfr))
+            if (Elements.TryGetValue("b", out bfr))
             {
                 int ms;
                 if (int.TryParse(bfr, out ms))
@@ -272,7 +272,7 @@ namespace NanoTrans.Core
                 Begin = ch == null ? TimeSpan.Zero : ch.Begin;
             }
 
-            if (elements.TryGetValue("e", out bfr))
+            if (Elements.TryGetValue("e", out bfr))
             {
                 int ms;
                 if (int.TryParse(bfr, out ms))
@@ -289,23 +289,23 @@ namespace NanoTrans.Core
 
 
             
-            if (elements.TryGetValue("l", out bfr))
+            if (Elements.TryGetValue("l", out bfr))
             {
                 Language = bfr;
             }
 
-            elements.Remove("b");
-            elements.Remove("e");
-            elements.Remove("s");
-            elements.Remove("a");
-            elements.Remove("l");
+            Elements.Remove("b");
+            Elements.Remove("e");
+            Elements.Remove("s");
+            Elements.Remove("a");
+            Elements.Remove("l");
 
         }
 
         public XElement Serialize()
         {
             XElement elm = new XElement("pa",
-                elements.Select(e => new XAttribute(e.Key, e.Value)).Union(new[] { 
+                Elements.Select(e => new XAttribute(e.Key, e.Value)).Union(new[] { 
                     new XAttribute("b", Begin), 
                     new XAttribute("e", End), 
                     new XAttribute("a", Attributes), 

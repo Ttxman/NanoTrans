@@ -71,28 +71,9 @@ namespace NanoTrans.Core
         /// add speaker to collection
         /// </summary>
         /// <param name="speaker"></param>
-        /// <param name="overwrite">ovewrite speaker with same fullname (if exists)</param>
-        /// <returns>false if, speaker with same fullname exists and ovewrite is false</returns>
-        /// <exception cref="ArgumentException">when speaker have null or empty fullname</exception>
-        public bool AddSpeaker(Speaker speaker, bool overwrite = true)
+        public void AddSpeaker(Speaker speaker)
         {
-            if (speaker.FullName != null && speaker.FullName != "")
-            {
-                for (int i = 0; i < _Speakers.Count; i++)
-                {
-                    if (((Speaker)_Speakers[i]).FullName == speaker.FullName)
-                        if (overwrite)
-                        {
-                            _Speakers.RemoveAt(i);
-                            break;
-                        }
-                        else
-                            return false;
-                }
-                this._Speakers.Add(speaker);
-                return true;
-            }
-            throw new ArgumentException("Spekear cannot have empty or null fullname");
+            _Speakers.Add(speaker);
         }
 
 

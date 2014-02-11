@@ -291,8 +291,7 @@ namespace NanoTrans
                 if (PropertyChanged != null)
                     PropertyChanged(this, new PropertyChangedEventArgs("ShowLocal"));
 
-                if (PropertyChanged != null)
-                    PropertyChanged(this, new PropertyChangedEventArgs("Filter"));
+                UpdateFilters();
             }
         }
 
@@ -399,13 +398,13 @@ namespace NanoTrans
             if (cont == null)
                 return false;
 
-            if (_showDocument && cont.SpeakerColletion == _documentSpeakers)
+            if (_showDocument && cont.IsDocument)
                 res = true;
 
-            if (_showLocal && cont.SpeakerColletion == _localSpeakers)
+            if (_showLocal && cont.IsLocal)
                 res = true;
 
-            if (_showOnline && cont.SpeakerColletion == _onlineSpeakers)
+            if (_showOnline && cont.IsOnline)
                 res = true;
 
             if (!string.IsNullOrWhiteSpace(_filterstring))
@@ -529,6 +528,8 @@ namespace NanoTrans
                 _view.Filter = FilterItems;
             }
 
+            if (PropertyChanged != null)
+                PropertyChanged(this, new PropertyChangedEventArgs("Filter"));
         }
 
 

@@ -110,7 +110,7 @@
             <ToolBarTray Name="toolBarTray2" Height="28" VerticalAlignment="Top">
                 <ToolBar Name="toolBar1" VerticalAlignment="Top" HorizontalAlignment="Left" Loaded="toolBar1_Loaded"></ToolBar>
                 <ToolBar>
-                    <Button Click="Button_Click_2">ZZZZ</Button>
+                    <Button Click="Button_Click_2" VerticalAlignment="Stretch">Sync</Button>
                 </ToolBar>
             </ToolBarTray>
         </StackPanel>

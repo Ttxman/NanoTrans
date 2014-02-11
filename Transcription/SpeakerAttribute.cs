@@ -13,6 +13,8 @@ namespace NanoTrans.Core
     /// </summary>
     public class SpeakerAttribute
     {
+        private SpeakerAttribute a;
+
         public string ID { get; set; }
         public string Name { get; set; }
         public string Value { get; set; }
@@ -30,6 +32,15 @@ namespace NanoTrans.Core
             this.Name = elm.Element("name").Value;
             this.Date = XmlConvert.ToDateTime(elm.Element("date").Value,XmlDateTimeSerializationMode.Unspecified);
             this.Value = elm.Value;
+        }
+
+        //copy constructor
+        public SpeakerAttribute(SpeakerAttribute a)
+        {
+            this.ID = a.ID;
+            this.Name = a.Name;
+            this.Value = a.Value;
+            this.Date = a.Date;
         }
 
         public XElement Serialize()

@@ -87,8 +87,32 @@ namespace NanoTrans.Core
 
         }
 
-        public string FirstName;
-        public string Surname;
+        private string _firstName = "";
+        public string FirstName
+        {
+            get
+            {
+                return _firstName;
+            }
+
+            set
+            {
+                _firstName = value ?? "";
+            }
+        }
+        private string _surName = "";
+        public string Surname
+        {
+            get
+            {
+                return _surName;
+            }
+
+            set
+            {
+                _surName = value ?? "";
+            }
+        }
         public Sexes Sex;
 
         public string ImgBase64;
@@ -230,6 +254,10 @@ namespace NanoTrans.Core
 
             }
 
+            if (Elements.TryGetValue("synchronized", out rem))
+                this.Synchronized = TimeZoneInfo.ConvertTimeFromUtc(DateTime.Parse(rem), TimeZoneInfo.Local);
+
+            
             if (Elements.TryGetValue("middlename", out rem))
                 this.MiddleName = rem;
 
@@ -306,19 +334,27 @@ namespace NanoTrans.Core
         #endregion
 
         /// <summary>
-        /// kopie
+        /// copy constructor - copies all info, but with new DBID, ID ....
         /// </summary>
-        /// <param name="aSpeaker"></param>
+        /// <param name="s"></param>
         private Speaker(Speaker aSpeaker)
         {
-
-            if (aSpeaker == null) aSpeaker = new Speaker();
             _ID = speakersIndexCounter++;
-            FirstName = aSpeaker.FirstName;
+            DataBase = aSpeaker.DataBase;
             Surname = aSpeaker.Surname;
+            FirstName = aSpeaker.FirstName;
+            MiddleName = aSpeaker.MiddleName;
+            DegreeBefore = aSpeaker.DegreeBefore;
+            DegreeAfter = aSpeaker.DegreeAfter;
+            DefaultLang = aSpeaker.DefaultLang;
             Sex = aSpeaker.Sex;
             ImgBase64 = aSpeaker.ImgBase64;
-            DefaultLang = aSpeaker.DefaultLang;
+
+            foreach(var a in aSpeaker.Attributes)
+            {
+                Attributes.Add(new SpeakerAttribute(a));
+            }
+            
         }
 
         public Speaker(string aSpeakerFirstname, string aSpeakerSurname, Sexes aPohlavi, string aSpeakerFotoBase64) //constructor ktery vytvori speakera
@@ -330,6 +366,7 @@ namespace NanoTrans.Core
             ImgBase64 = aSpeakerFotoBase64;
         }
 
+       
         public override string ToString()
         {
             return FullName + " (" + DefaultLang + ")";
@@ -338,18 +375,32 @@ namespace NanoTrans.Core
         public static readonly int DefaultID = int.MinValue;
         public static readonly Speaker DefaultSpeaker = new Speaker() { _ID = DefaultID };
 
+        /// <summary>
+        /// copies all info, and generates new DBI and ID .... (deep copy)
+        /// </summary>
+        /// <param name="s"></param>
         public Speaker Copy()
         {
             return new Speaker(this);
         }
 
         string _dbid = null;
+        
+        /// <summary>
+        /// if not set, GUID is automatically generated on first access (when database is not API based)
+        /// if Database is Type and not set - returns null
+        /// </summary>
         public string DBID 
         {
             get 
             {
                 if (_dbid == null)
-                    _dbid = Guid.NewGuid().ToString();
+                {
+                    if (DataBase == DBType.Api)
+                        return null;
+                    else
+                        _dbid = Guid.NewGuid().ToString();
+                }
 
                 return _dbid;
             }

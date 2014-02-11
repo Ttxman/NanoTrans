@@ -39,9 +39,9 @@ namespace NanoTrans
 
         public string ElementLanguage
         {
-            get 
+            get
             {
-                if (ValueElement!=null && ValueElement.IsParagraph)
+                if (ValueElement != null && ValueElement.IsParagraph)
                 {
                     return ((TranscriptionParagraph)ValueElement).Language;
                 }
@@ -49,7 +49,7 @@ namespace NanoTrans
                     return "";
             }
 
-            set 
+            set
             {
                 if (ValueElement.IsParagraph)
                 {
@@ -79,7 +79,7 @@ namespace NanoTrans
             var currentvis = el.buttonSpeaker.Visibility;
             var setvis = Visibility.Visible;
             var previous = val.PreviousSibling() as TranscriptionParagraph;
-            if (previous != null && val!= null)
+            if (previous != null && val != null)
                 if (val.Speaker == previous.Speaker && val.Language == previous.Language)
                     setvis = Visibility.Collapsed;
 
@@ -182,6 +182,7 @@ namespace NanoTrans
                 el.RepaintAttributes();
             }
 
+            el.UpdateCustomParamsFromSpeaker();
             el.updating = false;
         }
 
@@ -305,7 +306,7 @@ namespace NanoTrans
 
         private bool _IsPasiveElement;
         /// <summary>
-        /// 
+        /// creates element, 
         /// </summary>
         /// <param name="isPasiveElement"></param>
         public Element(bool isPasiveElement)
@@ -330,6 +331,60 @@ namespace NanoTrans
 
                 editor.TextArea.TextView.MouseLeftButtonDown += new MouseButtonEventHandler(TextView_MouseLeftButtonDown);
                 editor.TextArea.TextView.MouseDown += TextView_MouseDown;
+                
+            }
+        }
+
+        static List<string[]> customparams = new List<string[]>()
+        {
+            new []{"channeltype", "mic",  "unknown", "tel", "other" },
+            new []{"sessiontype", "news",  "unknown", "prescribed", "interview", "other" },
+            new []{"quality", "good",  "unknown", "mediocre", "bad" },
+            new []{"conditions", "clean",  "unknown", "music", "babble", "tech", "xtalk", "other" }
+
+        };
+
+        private void AddCustomParams()
+        {
+            foreach (var item in customparams)
+            {
+                var cb = new ComboBox();
+                cb.ItemsSource = item.Skip(1).ToArray();
+                cb.SelectedIndex = 0;
+                CustomParams.Children.Add(cb);
+                cb.SelectionChanged += cb_SelectionChanged;
+                cb.ToolTip = item[0];
+                cb.Width = 65;
+                var par = (ValueElement as TranscriptionParagraph);
+                if (par != null)
+                {
+                    string outval;
+                    if(par.Elements.TryGetValue(item[0],out outval))
+                        cb.SelectedItem = outval;
+                    else
+                        par.Elements.Add(item[0],item[1]);
+                }
+            }
+        }
+
+        private void UpdateCustomParamsFromSpeaker()
+        {
+            if (customparams == null || customparams.Count == 0)
+                return;
+
+            CustomParams.Children.Clear();
+            if (!ValueElement.IsParagraph)
+                return;
+            AddCustomParams();
+            
+        }
+
+        void cb_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var cb = sender as ComboBox;
+            if (cb != null && ValueElement.IsParagraph)
+            {
+                ((TranscriptionParagraph)ValueElement).Elements[(string)cb.ToolTip] = (string)cb.SelectedItem;
             }
         }
 
@@ -1125,9 +1180,9 @@ namespace NanoTrans
         {
             return base.ToString() + ":" + this.Text;
         }
-    
-public event PropertyChangedEventHandler PropertyChanged;
-}
+
+        public event PropertyChangedEventHandler PropertyChanged;
+    }
     public class SpellChecker : DocumentColorizingTransformer
     {
         static TextDecorationCollection defaultdecoration;
@@ -1213,28 +1268,28 @@ public event PropertyChangedEventHandler PropertyChanged;
                 context.Close();
             }
 
-             p = new System.Windows.Shapes.Path() { Data = g, Stroke = Brushes.Green, StrokeThickness = 0.5, StrokeEndLineCap = PenLineCap.Square, StrokeStartLineCap = PenLineCap.Square };
+            p = new System.Windows.Shapes.Path() { Data = g, Stroke = Brushes.Green, StrokeThickness = 0.5, StrokeEndLineCap = PenLineCap.Square, StrokeStartLineCap = PenLineCap.Square };
 
-             vb = new VisualBrush(p)
-            {
-                Viewbox = new Rect(0, 0, 6, 4),
-                ViewboxUnits = BrushMappingMode.Absolute,
-                Viewport = new Rect(0, 0, 6, 4),
-                ViewportUnits = BrushMappingMode.Absolute,
-                TileMode = TileMode.Tile
+            vb = new VisualBrush(p)
+           {
+               Viewbox = new Rect(0, 0, 6, 4),
+               ViewboxUnits = BrushMappingMode.Absolute,
+               Viewport = new Rect(0, 0, 6, 4),
+               ViewportUnits = BrushMappingMode.Absolute,
+               TileMode = TileMode.Tile
 
-            };
+           };
 
 
 
-             td = new TextDecoration()
-            {
-                Location = TextDecorationLocation.Underline,
-                Pen = new Pen(vb, 3),
-                PenThicknessUnit = TextDecorationUnit.Pixel,
-                PenOffsetUnit = TextDecorationUnit.Pixel
+            td = new TextDecoration()
+           {
+               Location = TextDecorationLocation.Underline,
+               Pen = new Pen(vb, 3),
+               PenThicknessUnit = TextDecorationUnit.Pixel,
+               PenOffsetUnit = TextDecorationUnit.Pixel
 
-            };
+           };
             tdc.Add(td);
 
             defaultdecorationSuggestion = tdc;
@@ -1265,7 +1320,7 @@ public event PropertyChangedEventHandler PropertyChanged;
             {
                 string s = text.Substring(m.Index, m.Length).ToLower();
 
-                if(CorrectionsGenerator.GetCorrections(s).Take(2).Count() > 1)
+                if (CorrectionsGenerator.GetCorrections(s).Take(2).Count() > 1)
                 {
                     base.ChangeLinePart(
                             lineStartOffset + m.Index,
@@ -1297,8 +1352,8 @@ public event PropertyChangedEventHandler PropertyChanged;
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            if(value is TranscriptionParagraph)
-                return (((TranscriptionParagraph)value).Speaker??Speaker.DefaultSpeaker).FullName;
+            if (value is TranscriptionParagraph)
+                return (((TranscriptionParagraph)value).Speaker ?? Speaker.DefaultSpeaker).FullName;
 
             return "";
         }

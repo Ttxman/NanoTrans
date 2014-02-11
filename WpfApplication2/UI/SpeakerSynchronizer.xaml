@@ -22,32 +22,40 @@
             <ColumnDefinition Width="1*"/>
             <ColumnDefinition Width="1*"/>
         </Grid.ColumnDefinitions>
-        
+
         <my:SpeakerControl x:Name="speakerControl" IsEnabled="False" Grid.Column="2"/>
         <DockPanel Grid.Column="0" LastChildFill="True">
             <TextBlock Text="Mluvčí v dokumentu:" DockPanel.Dock="Top"/>
             <Button DockPanel.Dock="Bottom" Click="Button_Click">OK</Button>
-            <ListBox x:Name="listdocument" Grid.Column="0" Grid.RowSpan="2" DockPanel.Dock="Bottom">
-            <ListBox.Resources>
-                <DataTemplate DataType="{x:Type my:SpeakerPair}">
-                    <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="auto"/>
-                                <RowDefinition Height="auto"/>
-                            </Grid.RowDefinitions>
+            <ListBox x:Name="listdocument" Grid.Column="0" Grid.RowSpan="2" DockPanel.Dock="Bottom" PreviewKeyDown="listdocument_PreviewKeyDown" HorizontalContentAlignment="Stretch">
+                <ListBox.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Odstraň přiřazení" Click="MenuItemClearPairing_Click"/>
+                    </ContextMenu>
+                </ListBox.ContextMenu>
+                <ListBox.Resources>
+
+                    <DataTemplate DataType="{x:Type my:SpeakerPair}">
+                        <Border BorderBrush="Navy" BorderThickness="1" HorizontalAlignment="Stretch">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto"/>
+                                    <RowDefinition Height="auto"/>
+                                </Grid.RowDefinitions>
                                 <my:SpeakerSmall Grid.Row="0" MiniatureVisible="True" SpeakerContainer="{Binding Path=Speaker1}" MouseDown="SpeakerSmall_MouseDown"/>
 
-                            <Grid Margin="30,0,0,0" Background="#FFB451D1"  Grid.Column="1" Grid.Row="1" MinWidth="100" MinHeight="50" AllowDrop="True" Drop="SpeakerSmall_Drop" DragOver="SpeakerSmall_DragOver">
-                                <my:SpeakerSmall Visibility="{Binding Path=Speaker2,Converter={StaticResource nullvisconverter}}" MiniatureVisible="True" SpeakerContainer="{Binding Path=Speaker2}" MouseDown="SpeakerSmall_MouseDown" />
+                                <Grid Margin="30,0,0,0" Background="#FFB451D1"  Grid.Column="1" Grid.Row="1" MinWidth="100" MinHeight="50" AllowDrop="True" Drop="SpeakerSmall_Drop" DragOver="SpeakerSmall_DragOver">
+                                    <my:SpeakerSmall Visibility="{Binding Path=Speaker2,Converter={StaticResource nullvisconverter}}" MiniatureVisible="True" SpeakerContainer="{Binding Path=Speaker2}" MouseDown="SpeakerSmall_MouseDown" />
+                                </Grid>
                             </Grid>
-                        </Grid>
-                </DataTemplate>
-            </ListBox.Resources>
-        </ListBox>
+                        </Border>
+                    </DataTemplate>
+                </ListBox.Resources>
+            </ListBox>
         </DockPanel>
         <DockPanel Grid.Column="1" LastChildFill="True">
             <TextBlock Text="Mluvčí uživatele" DockPanel.Dock="Top"/>
-            <ListBox x:Name="listlocal" Grid.Column="0" Grid.RowSpan="2" DockPanel.Dock="Bottom">
+            <ListBox x:Name="listlocal" Grid.Column="0" Grid.RowSpan="2" DockPanel.Dock="Bottom" HorizontalContentAlignment="Stretch">
                 <ListBox.Resources>
                     <DataTemplate DataType="{x:Type core:Speaker}">
                         <my:SpeakerSmall SpeakerContainer="{Binding Converter={StaticResource speakerWrapper}}" MiniatureVisible="True" MouseMove="SpeakerSmall_MouseMove" MouseDown="SpeakerSmall_MouseDown"/>
