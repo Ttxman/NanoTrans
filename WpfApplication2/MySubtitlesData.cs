@@ -69,7 +69,7 @@ namespace NanoTrans
         }
         #region serializace nova
         private Dictionary<string, string> elements = new Dictionary<string, string>();
-        private static readonly XAttribute EmptyAttribute = new XAttribute("", "");
+        private static readonly XAttribute EmptyAttribute = new XAttribute("empty", "");
         public MySpeaker(XElement s)
         {
             ID = int.Parse(s.Attribute("id").Value);
@@ -497,7 +497,7 @@ namespace NanoTrans
         
         #region serializace nova
         private Dictionary<string, string> elements = new Dictionary<string, string>();
-        private static readonly XAttribute EmptyAttribute = new XAttribute("", "");
+        private static readonly XAttribute EmptyAttribute = new XAttribute("empty", "");
         public MyPhrase(XElement e)
         {
             elements = e.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
@@ -898,7 +898,7 @@ namespace NanoTrans
 
         #region serializace nova
         private Dictionary<string, string> elements = new Dictionary<string, string>();
-        private static readonly XAttribute EmptyAttribute = new XAttribute("", "");
+        private static readonly XAttribute EmptyAttribute = new XAttribute("empty", "");
         public MyParagraph(XElement e)
         {
             
@@ -1060,7 +1060,7 @@ namespace NanoTrans
 
         #region serializace nova
         private Dictionary<string, string> elements = new Dictionary<string, string>();
-        private static readonly XAttribute EmptyAttribute = new XAttribute("", "");
+        private static readonly XAttribute EmptyAttribute = new XAttribute("empty", "");
         public MySection(XElement e)
         {
             name = e.Attribute("name").Value;
@@ -1170,7 +1170,7 @@ namespace NanoTrans
 
         #region serializace nova
         private Dictionary<string, string> elements = new Dictionary<string, string>();
-        private static readonly XAttribute EmptyAttribute = new XAttribute("", "");
+        private static readonly XAttribute EmptyAttribute = new XAttribute("empty", "");
         public MyChapter(XElement c)
         {
             name = c.Attribute("name").Value;

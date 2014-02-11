@@ -220,7 +220,7 @@ namespace NanoTrans
 
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
 
-        #endregion
+        #endregion 
 
         static MySetup()
         {
