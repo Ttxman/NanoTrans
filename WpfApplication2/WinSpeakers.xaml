@@ -3,14 +3,14 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Title="Správce mluvčích" Height="515" Width="656" Loaded="Window_Loaded" ForceCursor="False" PreviewKeyDown="Window_PreviewKeyDown" Icon="icons/iMluvci1.png">
     <Grid>
-        <Grid Margin="8,207,10,44" Name="grid1">
+        <Grid Name="grid1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="333*" />
                 <ColumnDefinition Width="244*" />
             </Grid.ColumnDefinitions>
             <ListBox Margin="0,22,18,14" Name="lbSeznamMluvcich" GotFocus="lbSeznamMluvcich_GotFocus" PreviewMouseLeftButtonDown="lbSeznamMluvcich_PreviewMouseLeftButtonDown" SelectionChanged="lbDatabazeMluvcich_SelectionChanged" SelectionMode="Single" KeyDown="listBox1_KeyDown" TabIndex="20" Grid.Column="1" />
             <Label Height="23" Margin="0,0,52,0" Name="label1" VerticalAlignment="Top" Grid.Column="1">Seznam mluvčích přepisu:</Label>
-            <ListBox Margin="11,22,108,40" GotFocus="lbDatabazeMluvcich_GotFocus" PreviewMouseLeftButtonDown="lbDatabazeMluvcich_MouseLeftButtonDown" Name="lbDatabazeMluvcich" SelectionChanged="lbDatabazeMluvcich_SelectionChanged" MouseDoubleClick="lbDatabazeMluvcich_MouseDoubleClick" PreviewKeyDown="lbDatabazeMluvcich_PreviewKeyDown" KeyDown="lbDatabazeMluvcich_KeyDown" SelectionMode="Single" TabIndex="22" />
+            <ListBox Margin="11,22,108,40" GotFocus="lbDatabazeMluvcich_GotFocus" PreviewMouseLeftButtonDown="lbDatabazeMluvcich_MouseLeftButtonDown" Name="lbDatabazeMluvcich" SelectionChanged="lbDatabazeMluvcich_SelectionChanged" MouseDoubleClick="lbDatabazeMluvcich_MouseDoubleClick" SelectionMode="Single" TabIndex="22" />
             <Label Height="23" Margin="11,0,40,0" Name="label4" VerticalAlignment="Top">Databáze mluvčích:</Label>
             <Button HorizontalAlignment="Right" Margin="0,0,8,40" Name="btSmazSpeakera" Width="90" Click="btSmazSpeakera_Click" Height="29" VerticalAlignment="Bottom" ToolTip="Smaže vybraného mluvčího" IsTabStop="False">Smazat (Del)</Button>
             <Button Height="29" HorizontalAlignment="Right" Margin="0,22,8,0" Name="btNovyMluvci" ToolTip="Vytvoří nového mluvčího" VerticalAlignment="Top" Width="90" Click="btNovyMluvci_Click" Focusable="True" IsTabStop="False">Nový mluvčí (F2)</Button>
@@ -19,62 +19,5 @@
             <Button Height="29" IsTabStop="False" Margin="142,0,0,5" Name="btExterniDatabazeUlozit" ToolTip="Uloží databázi mluvčích do zvoleného souboru" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="105.508" Click="btExterniDatabazeUlozit_Click">Uložit ext. databázi</Button>
             <Button Focusable="True" HorizontalAlignment="Right" IsTabStop="False" Margin="0,102,8,0" Name="btSynchronizovat" ToolTip="Přidá mluvčí z přepisu do interní databáze" Width="90" Click="btSynchronizovat_Click" Height="29" VerticalAlignment="Top">Synchronizovat</Button>
         </Grid>
-        <GroupBox Header="Vybraný mluvčí" Height="195" Margin="13,8,9,0" Name="groupBox1" VerticalAlignment="Top" FontWeight="bold">
-            <Grid>
-                <TextBox Margin="48,1,0,0" Name="tbPridejMluvciho" KeyDown="tbPridejMluvciho_KeyDown" TabIndex="30" Height="23" VerticalAlignment="Top" HorizontalAlignment="Left" Width="171" />
-                <Button Margin="59,0,0,3" Name="btPridejMluvciho" Click="btPridejMluvciho_Click" TabIndex="50" ToolTip="Uloží změny" Height="26.723" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="119">
-                    <StackPanel Orientation="Horizontal">
-                        <Image Source="/icons/iUlozit.png" Height="16" />
-                        <TextBlock Margin="3">Uložit změny</TextBlock>
-                    </StackPanel>
-                 </Button>
-                <Label Name="label3" Height="25.723" VerticalAlignment="Top" HorizontalAlignment="Left" Width="53">Jméno:</Label>
-                
-                <ComboBox HorizontalAlignment="Left" FontWeight="normal" Margin="59,56.723,0,0" Name="cbMluvci" Width="216" Height="23" VerticalAlignment="Top" TabIndex="35" />
-                <Label HorizontalAlignment="Left" FontWeight="normal" Margin="0,55.447,0,0" Name="label5" Width="55" Height="24.276" VerticalAlignment="Top">Mluvčí:</Label>
-                <ComboBox FontWeight="normal" Margin="59,84.446,0,68.277" Name="cbJazykovyModel" TabIndex="40" HorizontalAlignment="Left" Width="216" />
-                <Label FontWeight="normal" HorizontalAlignment="Left" Margin="0,84,0,58" Name="label6" Width="55">Slovník:</Label>
-                <Image Margin="0,3.723,6,3" Name="imFotka" Stretch="Uniform" HorizontalAlignment="Right" Width="147" />
-                <Button  HorizontalAlignment="Right" Click="btNacistObrazek_Click"  Margin="0,0,180,3" Name="btNacistObrazek" VerticalAlignment="Bottom" ToolTip="Načte obrázek mluvčího (změny je nutno uložit!)" TabIndex="60">
-                    <StackPanel Orientation="Horizontal">
-                        <Image Source="/icons/iOtevrit.png" Height="16" />
-                        <TextBlock FontWeight="Normal" Margin="3">Obrázek</TextBlock>
-                    </StackPanel>
-                </Button>
-                <Button  HorizontalAlignment="Right" Margin="0,0,155,4.361" Name="btSmazatObrazek" VerticalAlignment="Bottom" Height="24" Width="24" TabIndex="70" ToolTip="Odstraní původní obrázek pro zobrazení nového (změny je nutno uložit!)" Click="btSmazatObrazek_Click">
-                    <StackPanel Orientation="Horizontal">
-                        <Image Source="/icons/iStorno.png" Height="16" />
-                    </StackPanel>
-                </Button>
-                <Label FontWeight="Normal" Height="24.276" HorizontalAlignment="Left" Margin="-2,0,0,40" Name="label2" VerticalAlignment="Bottom" Width="55">Přep. pr:</Label>
-                <ComboBox FontWeight="Normal" Height="23" HorizontalAlignment="Left" Margin="59,0,0,40" Name="cbPrepisovaciPravidla" TabIndex="40" VerticalAlignment="Bottom" Width="216" />
-                <Label FontWeight="Normal" Margin="211.79,30.001,0,0" Name="label7" VerticalAlignment="Top" Height="23.277" HorizontalAlignment="Left" Width="63.21">Poznámka:</Label>
-                <TextBox Margin="281,30.001,159,40" Name="tbVek" TabIndex="42" TextWrapping="Wrap" FontWeight="Normal" />
-                <TextBox Height="23" Margin="281,2,159,0" Name="tbPrijmeni" TabIndex="31" VerticalAlignment="Top" />
-                <Label FontWeight="Normal" Height="24.276" HorizontalAlignment="Left" Margin="0,30.001,0,0" Name="label8" VerticalAlignment="Top" Width="55">Pohlaví:</Label>
-                <ComboBox FontWeight="Normal" Height="23" HorizontalAlignment="Left" Margin="59,30.001,0,0" Name="cbPohlavi" TabIndex="33" VerticalAlignment="Top" Width="114">
-                    <ComboBoxItem>-</ComboBoxItem>
-                    <ComboBoxItem>male</ComboBoxItem>
-                    <ComboBoxItem>female</ComboBoxItem>
-                </ComboBox>
-                <Label Content="Příjmení:" Height="25.723" HorizontalAlignment="Left" Margin="222,-1,0,0" Name="label9" VerticalAlignment="Top" Width="68" />
-            </Grid>
-        </GroupBox>
-            
-        <Button Height="27" Margin="0,0,294,8" FontWeight="bold" Name="btOK" VerticalAlignment="Bottom" Click="btOK_Click" TabIndex="15" IsDefault="False" HorizontalAlignment="Right" Width="129">
-            <StackPanel Orientation="Horizontal">
-                <Image Source="/icons/iOK.png" Height="16" />
-                <TextBlock Margin="3">OK</TextBlock>
-                <TextBlock Margin="3" FontWeight="Normal">(Ctrl+Enter)</TextBlock>
-            </StackPanel>
-        </Button>
-        <Button HorizontalAlignment="Right" Margin="0,0,152,8" Name="btZadnyMluvci" Width="128" Click="button1_Click" Height="27" VerticalAlignment="Bottom" IsTabStop="False">Žádný mluvčí</Button>
-        <Button Height="27" HorizontalAlignment="Right" Margin="0,0,28,8" Name="btStorno" VerticalAlignment="Bottom" Width="104" IsCancel="True" IsTabStop="False">
-            <StackPanel Orientation="Horizontal">
-                <Image Source="/icons/iStorno.png" Height="16" />
-                <TextBlock Margin="3">Storno (Esc)</TextBlock>
-            </StackPanel>
-        </Button>
-        <TextBox Height="26" Margin="13,0,442,8" Name="tbHledani" VerticalAlignment="Bottom" TextChanged="tbHledani_TextChanged"  PreviewKeyDown="tbHledani_PreviewKeyDown"/>
     </Grid>
 </Window>

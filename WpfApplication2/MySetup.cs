@@ -334,7 +334,22 @@ namespace NanoTrans
 
         public string PriponaTitulku { get; set; } //property pripona titulku
         public string PriponaDatabazeMluvcich { get; set; }
-        public string CestaDatabazeMluvcich { get; set; }
+
+        private string m_CestaDatabazeMluvcich;
+        public string CestaDatabazeMluvcich 
+        { 
+            get
+            {
+                if (!Path.IsPathRooted(m_CestaDatabazeMluvcich))
+                    return Path.Combine(absolutniCestaEXEprogramu + "/" + m_CestaDatabazeMluvcich);
+                else
+                    return m_CestaDatabazeMluvcich;
+            }
+            set
+            {
+                m_CestaDatabazeMluvcich = value;
+            }
+        }
 
         /// <summary>
         /// info zda je k prepisu ukladan komplet mluvci vcetne obrazku

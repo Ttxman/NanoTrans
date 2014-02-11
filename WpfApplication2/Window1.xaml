@@ -120,7 +120,6 @@
             <!--ListBox Name="spSeznam" IsSynchronizedWithCurrentItem="True" SizeChanged="spSeznam_SizeChanged" SelectionMode="Extended" Margin="0,0,17.221,0" Focusable="False" Height="50" VerticalAlignment="Top">
                 
             </ListBox-->
-            
             <TabControl Grid.Column="1"  Name="tabControl1" SelectedIndex="0" Focusable="False">
                 <TabItem Name="tiVideo">
                     <TabItem.Header>
@@ -316,12 +315,9 @@
                         SliderPositionChanged="waveform1_SliderPositionChanged"
                         CarretPostionChangedByUser="waveform1_CarretPostionChangedByUser" ParagraphClick="waveform1_ParagraphClick" 
                         ParagraphDoubleClick="waveform1_ParagraphDoubleClick" CarretPostionChanged="waveform1_CarretPostionChanged" 
-                        ElementChanged="waveform1_ElementChanged" SelectionChanged="waveform1_SelectionChanged"
+                        ElementChanged="waveform1_ElementChanged"
                         Subtitles="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:Window1}},Path=myDataSource}" />
         <Button Visibility="Hidden" Content="Obnovit zobrazení" Foreground="Black" Height="23" HorizontalAlignment="Right" Margin="0,26,89,0" Name="button4" VerticalAlignment="Top" Width="80" Click="button4_Click" />
     </Grid>
-    
-    
-    
     
 </Window>

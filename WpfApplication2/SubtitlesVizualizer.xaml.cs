@@ -140,10 +140,15 @@ namespace NanoTrans
                 RequestTimePosition(out pos);
                 el.ValueElement.End = pos;
 
-                if (el.ValueElement.Parent.End < pos)
-                    el.ValueElement.Parent.End = pos;
+                if ((el.ValueElement.End - el.ValueElement.Begin) < TimeSpan.FromMilliseconds(100))
+                {
+                    el.ValueElement.End = el.ValueElement.Begin + TimeSpan.FromMilliseconds(100);
+                }
 
-                p.Begin = pos;
+                if (el.ValueElement.Parent.End < el.ValueElement.End)
+                    el.ValueElement.Parent.End = el.ValueElement.End;
+
+                p.Begin = el.ValueElement.Parent.End;
 
 
                 p.speakerID = ((MyParagraph)el.ValueElement).speakerID;

@@ -147,7 +147,7 @@ namespace NanoTrans
                 {
                     if (!pCesta.Contains(":"))
                     {
-                        pCesta = aNastaveni.absolutniCestaEXEprogramu + "/" + aNastaveni.CestaDatabazeMluvcich;
+                        pCesta = aNastaveni.CestaDatabazeMluvcich;
                     }
                     //pCesta = new FileInfo(aNastaveni.CestaDatabazeMluvcich).FullName;
                     pCesta = new FileInfo(pCesta).FullName;

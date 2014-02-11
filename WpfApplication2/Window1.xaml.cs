@@ -2865,11 +2865,6 @@ namespace NanoTrans
             VirtualizingListBox.RecreateElements(VirtualizingListBox.gridscrollbar.Value);
         }
 
-        private void waveform1_SelectionChanged(object sender, EventArgs e)
-        {
-            ZobrazInformaceVyberu();
-        }
-
         private void waveform1_PlayPauseClick(object sender, RoutedEventArgs e)
         {
             CommandPlayPause.Execute(null, this);

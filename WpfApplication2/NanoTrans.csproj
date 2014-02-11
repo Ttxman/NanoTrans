@@ -162,6 +162,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="EditSpeaker.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Element.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -239,6 +243,9 @@
     </Compile>
     <Compile Include="DownloadOneFileWindow.xaml.cs">
       <DependentUpon>DownloadOneFileWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="EditSpeaker.xaml.cs">
+      <DependentUpon>EditSpeaker.xaml</DependentUpon>
     </Compile>
     <Compile Include="Element.xaml.cs">
       <DependentUpon>Element.xaml</DependentUpon>

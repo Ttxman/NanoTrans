@@ -316,7 +316,7 @@ namespace NanoTrans
         public event EventHandler UpdateBegin;
         public event EventHandler UpdateEnd;
 
-        public event EventHandler SelectionChanged;
+
         public event EventHandler<TimeSpanEventArgs> CarretPostionChangedByUser;
         public event EventHandler<TimeSpanEventArgs> CarretPostionChanged;
         public event EventHandler<MyTranscriptionElementEventArgs> ParagraphClick;
