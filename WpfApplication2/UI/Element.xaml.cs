@@ -383,6 +383,9 @@ namespace NanoTrans
                 completionWindow.LostKeyboardFocus +=
                 (sender, e) =>
                 {
+                    if (completionWindow == null)
+                        return;
+
                     if (!completionWindow.IsKeyboardFocusWithin && !closenotcorrect && completionWindow != null && completionWindow.CompletionList.SelectedItem != null)
                     {
                         completionWindow.RaiseEvent(
