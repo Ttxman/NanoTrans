@@ -942,6 +942,10 @@ namespace NanoTrans
 
         private void internal_setCarretOffset(int offset, int length)
         {
+            if (offset < 0)
+                return;
+            if (offset > editor.Text.Length)
+                offset = editor.Text.Length;
             editor.CaretOffset = offset;
             if (length > 0 && length+offset < editor.Text.Length)
             { 

@@ -302,7 +302,7 @@
             <CheckBox Height="16" Margin="0,0,231,11" Name="chbPrehravatRozpoznane" VerticalAlignment="Bottom" HorizontalAlignment="Right" Checked="chbPrehravatRozpoznane_Checked" Focusable="False" IsTabStop="False">Přehrávat rozpoznané</CheckBox>
         </Grid>
         <GridSplitter Grid.Row="1" Margin="0,0,0,-3" Name="gridSplitter3" Height="5" VerticalAlignment="Bottom" Focusable="False" IsTabStop="False" Grid.IsSharedSizeScope="False" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" ResizeBehavior="PreviousAndNext" ShowsPreview="True" />
-        <Button Grid.Row="2" Height="23" HorizontalAlignment="Left" Margin="280,0,0,2" Name="btPriraditVyber" VerticalAlignment="Bottom" Click="btPriraditVyber_Click" Focusable="False" IsTabStop="False">Přiřadit výběr k elementu</Button>
+        <Button Visibility="Hidden" Grid.Row="2" Height="23" HorizontalAlignment="Left" Margin="280,0,0,2" Name="btPriraditVyber" VerticalAlignment="Bottom" Click="btPriraditVyber_Click" Focusable="False" IsTabStop="False">Přiřadit výběr k elementu</Button>
         <ToolBarTray Margin="0,26,0,0" Name="toolBarTray2" Height="28" VerticalAlignment="Top">
             <ToolBar Height="26" Margin="0,0,0,0" Name="toolBar1" VerticalAlignment="Top" HorizontalAlignment="Left" Loaded="toolBar1_Loaded"></ToolBar>
         </ToolBarTray>
@@ -314,7 +314,7 @@
                         ParagraphDoubleClick="waveform1_ParagraphDoubleClick" CarretPostionChanged="waveform1_CarretPostionChanged" 
                         ElementChanged="waveform1_ElementChanged" SelectionChanged="waveform1_SelectionChanged"
                         Subtitles="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:Window1}},Path=myDataSource}" />
-        <Button Content="Obnovit zobrazení" Foreground="Black" Height="23" HorizontalAlignment="Right" Margin="0,26,89,0" Name="button4" VerticalAlignment="Top" Width="80" Click="button4_Click" />
+        <Button Visibility="Hidden" Content="Obnovit zobrazení" Foreground="Black" Height="23" HorizontalAlignment="Right" Margin="0,26,89,0" Name="button4" VerticalAlignment="Top" Width="80" Click="button4_Click" />
     </Grid>
     
     

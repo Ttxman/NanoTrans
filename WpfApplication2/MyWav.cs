@@ -857,7 +857,6 @@ namespace NanoTrans
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
         public short[] NactiRamecBufferu(TimeSpan begin, TimeSpan end)
         {
-            BinaryReader input = null;
             short[] data = null;
             try
             {
@@ -901,9 +900,7 @@ namespace NanoTrans
                         long pPocetNactenych = 0;
                         while (!hotovo)
                         {
-                            input = new BinaryReader(new FileStream(docasneZvukoveSoubory[pIndexDocasneho], FileMode.Open, FileAccess.Read, FileShare.Read));
-
-                            if (input != null)
+                            using (BinaryReader input = new BinaryReader(new FileStream(docasneZvukoveSoubory[pIndexDocasneho], FileMode.Open, FileAccess.Read, FileShare.Read)))
                             {
 
                                 pIndexDocasneho++;
@@ -914,8 +911,6 @@ namespace NanoTrans
 
                                 pPocetNactenych += input.Read(pBuffer, 0, pCount);
                                 input.Close();
-                                input = null;
-
 
                                 //prevod do pole nacitanych dat
 
@@ -948,8 +943,6 @@ namespace NanoTrans
                                     hotovo = true;
 
                                 }
-
-
                             }
                         }
                     }
@@ -963,9 +956,6 @@ namespace NanoTrans
             }
             finally 
             { 
-                
-                if (input != null)
-                    input.Close();
                 this._NacitaniBufferu = false;
             }
             return data;

@@ -75,14 +75,8 @@ namespace NanoTrans
                 Element lm = new Element(true);
                 foreach (TranscriptionElement tr in Subtitles)
                 {
-                    
-                    lm.editor.InvalidateMeasure();
-                    lm.editor.InvalidateArrange();
-                    lm.maingrid.InvalidateMeasure();
-                    lm.maingrid.InvalidateArrange();
-                    lm.InvalidateMeasure();
-                    lm.InvalidateArrange();
                     lm.ValueElement = tr;
+                    lm.editor.TextArea.TextView.EnsureVisualLines();
                     lm.maingrid.Measure(new Size(gridstack.ActualWidth, double.MaxValue));
                     lm.maingrid.Arrange(new Rect(0, 0, gridstack.ActualWidth, lm.maingrid.DesiredSize.Height));
                     lm.maingrid.UpdateLayout();
@@ -617,13 +611,12 @@ namespace NanoTrans
             }
 
 
-           // gridstack.UpdateLayout();
             foreach (Element l in gridstack.Children)
             {
                 l.SizeChanged += l_SizeChanged;
                 if (l.ValueElement == ActiveTransctiption)
                 {
-                    l.SetCaretOffset(offset);
+                    l.SetCaretOffset((offset>0)?offset:0);
                     l.HiglightedPostion = HiglightedPostion;
                     l.maingrid.Background = Brushes.Beige;
                 }

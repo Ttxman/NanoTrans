@@ -1889,8 +1889,8 @@ namespace NanoTrans
                             default:
                                 throw new Exception("neočekávaný formát speakera, tag="+reader.Name);
                         }
-                        data.SeznamMluvcich.Speakers.Add(sp);
                     }
+                    data.SeznamMluvcich.Speakers.Add(sp);
                 }
 
                 return data;

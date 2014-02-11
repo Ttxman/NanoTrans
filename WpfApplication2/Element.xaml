@@ -46,7 +46,7 @@
             </sd:TextEditor.Style>
         </sd:TextEditor>
 
-        <StackPanel Grid.Column="1" Grid.RowSpan="4" Name="stackPanel1" Background="LightBlue" Width="16"/>
+        <StackPanel SnapsToDevicePixels="True" Grid.Column="1" Grid.RowSpan="4" Name="stackPanel1" Background="LightBlue" Width="16"/>
         <TextBlock Grid.Row="1" Name="textbegin" VerticalAlignment="Top" HorizontalAlignment="Left" Visibility="Collapsed"  MaxHeight="26" Foreground="Green" 
                FontSize="{Binding Source={StaticResource provider}, Path=Setup.SetupOthersFontSize}" Margin="0,0,10,0">
         </TextBlock>
