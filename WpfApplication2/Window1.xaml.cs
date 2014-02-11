@@ -5508,23 +5508,6 @@ namespace NanoTrans
         private void slPoziceMedia_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
 
-            /*if (mouseDown)
-            {
-                mediaElement1.Pause();
-                if (jeVideo) meVideo.Pause();
-                int SliderValue = (int)slPoziceMedia.Value;
-                TimeSpan ts = new TimeSpan(0, 0, 0, 0, SliderValue);
-                oVlna.Kurzor = (long)slPoziceMedia.Value;
-                mediaElement1.Position = ts;
-                if (jeVideo) meVideo.Position = ts;
-                if (playing)
-                {
-                    mediaElement1.Play();
-                    if (jeVideo) meVideo.Play();
-                }
-            }*/
-
-
             if (mouseDown)
             {
                 if (jeVideo) meVideo.Pause();

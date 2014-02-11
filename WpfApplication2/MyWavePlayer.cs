@@ -192,12 +192,12 @@ namespace NanoTrans
             BufferPositionNotify[] nots = new BufferPositionNotify[2];
 
             BufferPositionNotify not = new BufferPositionNotify();
-            not.Offset = BufferByteSize - 300;
+            not.Offset = 100;
             not.EventNotifyHandle = m_synchronizer.SafeWaitHandle.DangerousGetHandle();
             nots[0] = not;
 
             not = new BufferPositionNotify();
-            not.Offset = BufferByteSize + BufferByteSize - 300;
+            not.Offset = BufferByteSize + 100;
             not.EventNotifyHandle = m_synchronizer.SafeWaitHandle.DangerousGetHandle();
             nots[1] = not;
             m_notify = new Notify(m_soundBuffer);
@@ -207,9 +207,6 @@ namespace NanoTrans
             m_waitThread = new Thread(new ThreadStart(DataRequestThread));
             m_waitThread.Start();
         }
-
-        List<object> garbagecollecionblocker = new List<object>();
-
 
         ~MyWavePlayer()
         {
