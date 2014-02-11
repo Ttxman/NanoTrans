@@ -4,15 +4,24 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
+             Height="600" Width="800" SizeToContent="WidthAndHeight" Loaded="Window_Loaded" PreviewKeyDown="textBox1_PreviewKeyDown">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
             <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
-        <ListBox Name="box" Grid.Row="0" MouseDoubleClick="box_MouseDoubleClick" KeyDown="box_KeyDown" />
+        <ListBox Name="box" MouseDoubleClick="box_MouseDoubleClick" KeyDown="box_KeyDown" />
         <StackPanel Grid.Row="1">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Label Grid.Column="0" Content="Filtr:" Name="label1" VerticalAlignment="Top" HorizontalAlignment="Left" />
+                <TextBox Grid.Column="1" Name="textBox1" TextChanged="textBox1_TextChanged" HorizontalAlignment="Stretch" KeyDown="textBox1_KeyDown" />
+            </Grid>
             <Button Click="Button_Click">OK</Button>
         </StackPanel>
+        
     </Grid>
 </Window>

@@ -19,10 +19,11 @@ namespace NanoTrans
     /// </summary>
     public partial class PickOneDialog : Window
     {
+        List<string> m_data;
         public PickOneDialog(List<string> data, string title)
         {
             InitializeComponent();
-            box.ItemsSource = data;
+            box.ItemsSource = m_data = data;
             this.Title = title;
         }
 
@@ -35,8 +36,8 @@ namespace NanoTrans
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            m_line = box.SelectedIndex;
-            
+            m_line = m_data.IndexOf(box.SelectedItem.ToString());
+
             this.DialogResult = true;
             Close();
         }
@@ -48,8 +49,63 @@ namespace NanoTrans
 
         private void box_KeyDown(object sender, KeyEventArgs e)
         {
-           if( e.Key == Key.Return)
-               Button_Click(null, null);
+            if (e.Key == Key.Return)
+                Button_Click(null, null);
+        }
+
+
+        private void textBox1_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(textBox1.Text))
+            {
+                box.ItemsSource = m_data;
+            }
+            else
+            {
+                box.ItemsSource = m_data.Where(s => s.Contains(textBox1.Text));
+            }
+        }
+
+        private void textBox1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Return)
+                Button_Click(null, null);
+            else if (e.Key == Key.Up)
+            {
+                int val = box.SelectedIndex - 1;
+                box.SelectedIndex = (val >= 0) ? val : 0;
+            }
+            else if (e.Key == Key.Down)
+            {
+                int val = box.SelectedIndex + 1;
+                box.SelectedIndex = (val < box.Items.Count) ? val : box.Items.Count - 1;
+            }
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (box.Items.Count > 0)
+                box.SelectedIndex = 0;
+
+            textBox1.Focus();
+        }
+
+        private void textBox1_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Up)
+            {
+                int val = box.SelectedIndex - 1;
+                box.SelectedIndex = (val >= 0) ? val : 0;
+                box.ScrollIntoView(box.SelectedItem);
+                e.Handled = true;
+            }
+            else if (e.Key == Key.Down)
+            {
+                int val = box.SelectedIndex + 1;
+                box.SelectedIndex = (val < box.Items.Count) ? val : box.Items.Count - 1;
+                box.ScrollIntoView(box.SelectedItem);
+                e.Handled = true;
+            }
         }
     }
 }
