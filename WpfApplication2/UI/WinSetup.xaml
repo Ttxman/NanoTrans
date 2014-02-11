@@ -3,7 +3,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:tk="http://schemas.microsoft.com/winfx/2006/xaml/presentation/toolkit/extended"
     xmlns:local="clr-namespace:NanoTrans"
-    Title="Nastavení" Height="484" Width="674" Icon="icons/iNastaveni.png">
+    Title="Nastavení" Height="484" Width="674" Icon="/NanoTrans;component/icons/iNastaveni.png">
     <Window.Resources>
         <local:CollapseOnNullConverter x:Key="CollapseOnNullConverter" />
         <local:CollapseOnNotNullConverter x:Key="CollapseOnNotNullConverter" />

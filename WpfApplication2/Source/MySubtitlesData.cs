@@ -2142,33 +2142,35 @@ namespace NanoTrans
                                 }
                             }
 
-                            if (p.Phrases.Count == bestpar.Phrases.Count)
+                            if (bestpar != null)
                             {
-                                for (int i = 0; i < p.Phrases.Count; i++)
+                                if (p.Phrases.Count == bestpar.Phrases.Count)
                                 {
-                                    bestpar.Phrases[i].Phonetics = p.Phrases[i].Text;
-                                }
-                            }
-                            else
-                            {
-                                int i = 0;
-                                int j = 0;
-
-                                TimeSpan actual = p.Phrases[i].Begin;
-                                while (i < p.Phrases.Count && j < bestpar.Phrases.Count)
-                                {
-                                    MyPhrase to = p.Phrases[i];
-                                    MyPhrase from = bestpar.Phrases[j];
-                                    if (true)
+                                    for (int i = 0; i < p.Phrases.Count; i++)
                                     {
-
+                                        bestpar.Phrases[i].Phonetics = p.Phrases[i].Text;
                                     }
-                                    i++;
                                 }
+                                else
+                                {
+                                    int i = 0;
+                                    int j = 0;
+
+                                    TimeSpan actual = p.Phrases[i].Begin;
+                                    while (i < p.Phrases.Count && j < bestpar.Phrases.Count)
+                                    {
+                                        MyPhrase to = p.Phrases[i];
+                                        MyPhrase from = bestpar.Phrases[j];
+                                        if (true)
+                                        {
+
+                                        }
+                                        i++;
+                                    }
+                                }
+
                             }
-
                         }
-
                         if (reader.Name == "PhoneticParagraphs" && reader.NodeType == XmlNodeType.EndElement)
                             reader.ReadEndElement();
 

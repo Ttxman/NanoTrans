@@ -1,8 +1,7 @@
 ﻿<Window x:Class="NanoTrans.WinHelp"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Title="Nápověda" Height="300" Width="300" AllowsTransparency="False" ResizeMode="CanResizeWithGrip" IsEnabled="True" WindowStartupLocation="CenterOwner" 
-    Icon="icons/iTip.png">
+    Title="Nápověda" Height="300" Width="300" AllowsTransparency="False" ResizeMode="CanResizeWithGrip" IsEnabled="True" WindowStartupLocation="CenterOwner" Icon="/NanoTrans;component/icons/iTip.png" >
     <Grid>
         <Button Height="31" Margin="86,0,94,15" Name="button1" VerticalAlignment="Bottom" Click="button1_Click" IsCancel="True">
             <StackPanel Orientation="Horizontal">

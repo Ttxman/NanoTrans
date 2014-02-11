@@ -665,13 +665,6 @@ namespace NanoTrans
                     return;
             }
 
-            if (!(ValueElement is MyParagraph) && ValueElement !=null)
-            {
-                throw new Exception("zapis textu primo do paragrafu");
-                ValueElement.Text = editor.Text;
-                return;
-            }
-
 
             if (e.Key == Key.Back && editor.SelectionLength == 0)
             {

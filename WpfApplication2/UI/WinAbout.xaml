@@ -1,7 +1,7 @@
 ﻿<Window x:Class="NanoTrans.WinOProgramu"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Title="O programu" Height="364" Width="300" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Icon="icons/iTip.png">
+    Title="O programu" Height="364" Width="300" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Icon="/NanoTrans;component/icons/iTip.png">
     <Grid>
         <Label Height="38" Margin="0,16,0,0" Name="label1" VerticalAlignment="Top" HorizontalContentAlignment="Center" Foreground="Red" FontSize="25">NanoTrans(beta)</Label>
         <Button Height="26" Margin="76,0,65,13" Name="button1" VerticalAlignment="Bottom" Click="button1_Click" IsCancel="True" IsDefault="True">
