@@ -4347,7 +4347,7 @@ namespace NanoTrans
                         NastavPoziciKurzoru(oVlna.KurzorVyberPocatekMS, true, true);
                         celkMilisekundy = oVlna.KurzorPoziceMS;
                         if (MWP != null)
-                            MWP.Play();
+                            MWP.Play(MWP.PlaySpeed);
 
                     }
                     else
