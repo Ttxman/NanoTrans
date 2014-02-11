@@ -1100,7 +1100,7 @@ namespace NanoTrans
 
         private void VyberFonetikuMeziCasovymiZnackami(TimeSpan aPoziceKurzoru)
         {
-            fonetickyPrepis.HiglightedPostion = aPoziceKurzoru;
+            phoneticTranscription.HiglightedPostion = aPoziceKurzoru;
         }
 
 
@@ -1656,18 +1656,18 @@ namespace NanoTrans
                 ) { Name = "Spellchecking_Load" };
             t.Start();
 
-            fonetickyPrepis.Text = "";
-            fonetickyPrepis.button1.Visibility = Visibility.Collapsed;
-            fonetickyPrepis.checkBox1.Visibility = Visibility.Collapsed;
-            fonetickyPrepis.stackPanel1.Visibility = Visibility.Collapsed;
-            fonetickyPrepis.textbegin.Visibility = Visibility.Collapsed;
-            fonetickyPrepis.textend.Visibility = Visibility.Collapsed;
-            fonetickyPrepis.DisableAutomaticElementVisibilityChanges = true;
-            fonetickyPrepis.EditPhonetics = true;
-            fonetickyPrepis.editor.VerticalScrollBarVisibility = ScrollBarVisibility.Visible;
-            fonetickyPrepis.editor.Style = null;
-            fonetickyPrepis.editor.OverridesDefaultStyle = false;
-            fonetickyPrepis.editor.TextArea.TextView.LineTransformers.Remove(Element.DefaultSpellchecker);
+            phoneticTranscription.Text = "";
+            phoneticTranscription.button1.Visibility = Visibility.Collapsed;
+            phoneticTranscription.checkBox1.Visibility = Visibility.Collapsed;
+            phoneticTranscription.stackPanel1.Visibility = Visibility.Collapsed;
+            phoneticTranscription.textbegin.Visibility = Visibility.Collapsed;
+            phoneticTranscription.textend.Visibility = Visibility.Collapsed;
+            phoneticTranscription.DisableAutomaticElementVisibilityChanges = true;
+            phoneticTranscription.EditPhonetics = true;
+            phoneticTranscription.editor.VerticalScrollBarVisibility = ScrollBarVisibility.Visible;
+            phoneticTranscription.editor.Style = null;
+            phoneticTranscription.editor.OverridesDefaultStyle = false;
+            phoneticTranscription.editor.TextArea.TextView.LineTransformers.Remove(Element.DefaultSpellchecker);
 
             HidInit();
 
@@ -2044,7 +2044,7 @@ namespace NanoTrans
             try
             {
                 MyFonetic mf = new MyFonetic(MySetup.Setup.absolutniCestaEXEprogramu);
-                tbFonetickyPrepis.Text = mf.VratFonetickyPrepis(VirtualizingListBox.ActiveTransctiption.Text);
+                tbphoneticTranscription.Text = mf.VratFonetickyPrepis(VirtualizingListBox.ActiveTransctiption.Text);
             }
             catch
             {
@@ -2351,7 +2351,7 @@ namespace NanoTrans
             if (!pAutomaticky && (bool)chbAutomatickyRozpoznat.IsChecked)
             {
                 ZobrazitOknoFonetickehoPrepisu(true);
-                fonetickyPrepis.Focus();
+                phoneticTranscription.Focus();
             }
         }
 
@@ -2614,7 +2614,11 @@ namespace NanoTrans
             if (list != null && list.Count > 0)
             {
                 if (VirtualizingListBox.ActiveTransctiption != list[0])
+                {
                     VirtualizingListBox.ActiveTransctiption = list[0];
+                    phoneticTranscription.ValueElement = list[0];
+                   
+                }
             }
         }
 
@@ -2682,8 +2686,8 @@ namespace NanoTrans
         {
             if (VirtualizingListBox.ActiveTransctiption == null)
                 return;
-            fonetickyPrepis.ValueElement = VirtualizingListBox.ActiveTransctiption;
-            fonetickyPrepis.IsEnabled = true;
+            phoneticTranscription.ValueElement = VirtualizingListBox.ActiveTransctiption;
+            phoneticTranscription.IsEnabled = true;
             NastavPoziciKurzoru(VirtualizingListBox.ActiveTransctiption.Begin, true, true);
         }
 

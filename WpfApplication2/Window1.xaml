@@ -3,7 +3,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Title="NanoTrans" Height="758" Width="867" Closing="Window_Closing"
     xmlns:local="clr-namespace:NanoTrans" ResizeMode="CanResizeWithGrip" Loaded="Window_Loaded" WindowStartupLocation="CenterScreen" PreviewKeyUp="Window_PreviewKeyUp" Icon="icons/pen.ico" IsEnabled="True" AllowDrop="True" Drop="Window_Drop"
-    xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase" >
+    xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase" MouseDown="Window_MouseDown">
     <Window.Resources>
         <!--ObjectDataProvider x:Key="MyStringData" 
                         ObjectType="{x:Type local:MyStrings}" /-->
@@ -276,7 +276,7 @@
         </StatusBar>
         <Grid Name="gFonetickyPrepis" Grid.Row="1" Margin="0,0,0,8">
             <Border Margin="0,0,206,30" BorderThickness="1" BorderBrush="LightBlue" >
-                    <local:Element x:Name="fonetickyPrepis" Margin="1,1,1,1" IsEnabled="False" />
+                    <local:Element x:Name="phoneticTranscription" Margin="1,1,1,1" IsEnabled="False" />
             </Border>
             <Button Focusable="False" Height="20" IsTabStop="False" Padding="0,0,1,1" Width="20" HorizontalAlignment="Right" Margin="0,10.573,1.337,0" Grid.Row="1" VerticalAlignment="Top" Name="btZavritFonPrepis" Click="btZavritFonPrepis_Click">X</Button>
             <Button Focusable="False" HorizontalAlignment="Right" IsTabStop="False" Name="btOdstranitNefonemy" ToolTip="Odstraní znaky z fonetického přepisu, které nejsou fonémy" Click="btOdstranitNefonemy_Click" VerticalAlignment="Bottom" Margin="0,0,592,5.724" Height="21.277">Odstr. nefonémy (F11)</Button>

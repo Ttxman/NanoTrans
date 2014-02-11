@@ -16,6 +16,7 @@ using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Rendering;
 using System.Windows.Media.TextFormatting;
+using System.Collections;
 
 namespace NanoTrans
 {
@@ -567,15 +568,9 @@ namespace NanoTrans
             int sellength = m_activetransctiptionSelectionLength;
             int selstart = m_activetransctiptionSelectionStart;
 
-            List<Element> elms = new List<Element>();
-            foreach (Element el in gridstack.Children)
-                elms.Add(el);
-            gridstack.Children.Clear();
-
-            foreach (Element el in elms)
-                RecycleElement(el);
-
-
+            List<Element> before = new List<Element>();
+            List<Element> present = new List<Element>();
+            List<Element> after = new List<Element>();
 
             if (Subtitles != null)
             {
@@ -583,47 +578,93 @@ namespace NanoTrans
                 foreach (TranscriptionElement el in Subtitles)
                 {
                     Element l = null;
+                    bool recycling = false;
                     if (pos + el.height >= newpos && !ffound)
                     {
-                        move = pos - newpos;
-                        l = GetElement();
-                        l.ValueElement = el;
 
+                        move = pos - newpos;
+                        foreach (Element ll in gridstack.Children)
+                            if (ll.ValueElement == el)
+                            {
+                                l = ll;
+                                recycling = true;
+                                break;
+                            }
+
+                        if (l == null)
+                        {
+                            l = GetElement();
+                            l.ValueElement = el;
+                        }
                         gridstack.Margin = new Thickness(0, move, 0, 0);
                         ffound = true;
                     }
                     else if (ffound && pos < newpos + maxh - move + el.height)
                     {
-                        l = GetElement();
-                        l.ValueElement = el;
+                        foreach (Element ll in gridstack.Children)
+                            if (ll.ValueElement == el)
+                            {
+                                l = ll;
+                                recycling = true;
+                                break;
+                            }
+
+                        if (l == null)
+                        {
+                            l = GetElement();
+                            l.ValueElement = el;
+                        }
 
                     }
 
 
                     if (l != null)
                     {
-                        l.GotFocus += l_GotFocus;
-                        l.LostFocus += l_LostFocus;
+                        if (!recycling)
+                        {
+                            l.GotFocus += l_GotFocus;
+                            l.LostFocus += l_LostFocus;
 
-                        l.MergeWithnextRequest += l_MergeWithnextRequest;
-                        l.MergeWithPreviousRequest +=l_MergeWithPreviousRequest;
-                        l.MoveDownRequest += l_MoveDownRequest;
-                        l.MoveUpRequest += l_MoveUpRequest;
-                        l.MoveLeftRequest += l_MoveLeftRequest;
-                        l.MoveRightRequest += l_MoveRightRequest;
-                        l.SplitRequest += l_SplitRequest;
-                        l.NewRequest += l_NewRequest;
-                        l.ChangeSpeakerRequest += l_ChangeSpeakerRequest;
-                        l.SetTimeRequest += l_SetTimeRequest;
-                        l.ContentChanged += (X,Y) =>Subtitles.Ulozeno = false;
-                        l.editor.TextArea.SelectionChanged += new EventHandler(TextArea_SelectionChanged);
-                        l.editor.TextArea.Caret.PositionChanged += new EventHandler(Caret_PositionChanged);
-                        gridstack.Children.Add(l);
-                        
+                            l.MergeWithnextRequest += l_MergeWithnextRequest;
+                            l.MergeWithPreviousRequest += l_MergeWithPreviousRequest;
+                            l.MoveDownRequest += l_MoveDownRequest;
+                            l.MoveUpRequest += l_MoveUpRequest;
+                            l.MoveLeftRequest += l_MoveLeftRequest;
+                            l.MoveRightRequest += l_MoveRightRequest;
+                            l.SplitRequest += l_SplitRequest;
+                            l.NewRequest += l_NewRequest;
+                            l.ChangeSpeakerRequest += l_ChangeSpeakerRequest;
+                            l.SetTimeRequest += l_SetTimeRequest;
+                            l.ContentChanged += (X, Y) => Subtitles.Ulozeno = false;
+                            l.editor.TextArea.SelectionChanged += new EventHandler(TextArea_SelectionChanged);
+                            l.editor.TextArea.Caret.PositionChanged += new EventHandler(Caret_PositionChanged);
+                        }
+
+                        if (recycling)
+                            present.Add(l);
+                        else if (present.Count > 0)
+                            after.Add(l);
+                        else
+                            before.Add(l);
                     }
 
                     pos += el.height;
                 }
+
+
+                List<Element> elms = new List<Element>();
+                foreach (Element el in gridstack.Children)
+                    if (!present.Contains(el))
+                        elms.Add(el);
+
+                elms.ForEach(e => { gridstack.Children.Remove(e); RecycleElement(e); });
+
+                before.Reverse();
+                before.ForEach(e => gridstack.Children.Insert(0, e));
+                after.ForEach(e => gridstack.Children.Add(e));
+
+
+
             }
 
 
