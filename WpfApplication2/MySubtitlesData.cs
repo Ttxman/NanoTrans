@@ -1905,7 +1905,7 @@ namespace NanoTrans
 
         public MyTag UpravCasZobraz(MyTag aTag, long aBegin, long aEnd)
         {
-            return UpravCasZobraz(aTag, aBegin, aEnd, false);
+            return UpravCasZobraz(aTag, aBegin, aEnd,false);
         }
 
         /// <summary>
@@ -1966,6 +1966,8 @@ namespace NanoTrans
                         {
                             MessageBoxResult mbr = MessageBoxResult.Yes;
                             bool pZobrazitHlasku = pKonecPredchoziho <= pZacatekSoucasneho;
+                         
+                            //TODO: proc jsou z tychle funkce volany messageboxy
                             if (!aIgnorovatPrekryv && pZobrazitHlasku) mbr = MessageBox.Show("Mluvčí se bude překrývat s předchozím, chcete toto povolit?", "Varování", MessageBoxButton.YesNoCancel);
                             if (mbr != MessageBoxResult.Yes)
                             {

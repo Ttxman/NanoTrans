@@ -92,11 +92,11 @@ namespace NanoTrans
 
                 TimeSpan ts = value;
 
-                if(ts< WaveBegin || ts>WaveEnd)
+                if (ts < WaveBegin || ts > WaveEnd)
                 {
                     SliderPostion = ts;
                     return;
-                    
+
                 }
 
                 string label = ts.Hours.ToString() + ":" + ts.Minutes.ToString("D2") + ":" + ts.Seconds.ToString("D2") + "," + ((int)ts.Milliseconds / 10).ToString("D2");
@@ -1161,6 +1161,7 @@ namespace NanoTrans
                         //upraveni nasl. elementu
                         if ((pNasledujici.begin == pAktualni.end && !rozhrani) || pNasledujici.begin < oVlna.KurzorVyberKonecMS)
                         {
+
                             m_subtitlesData.UpravCasZobraz(pNasledujiciTag, oVlna.KurzorVyberKonecMS, -2, !leftShift);
                             if (ElementChanged != null)
                                 ElementChanged(this, new MyTagEventArgs(pNasledujiciTag));
@@ -1352,7 +1353,7 @@ namespace NanoTrans
                     SelectionBegin = x;
                     if (r2dragelement != null)
                     {
-                       // m_subtitlesData.UpravCasZobraz(r2dragelement, (long)x.TotalMilliseconds, m_subtitlesData.VratCasElementuKonec(r2dragelement));
+                        // m_subtitlesData.UpravCasZobraz(r2dragelement, (long)x.TotalMilliseconds, m_subtitlesData.VratCasElementuKonec(r2dragelement));
                         InvalidateSpeakers();
                     }
                 }
@@ -1361,7 +1362,7 @@ namespace NanoTrans
                     SelectionEnd = x;
                     if (r2dragelement != null)
                     {
-                       // m_subtitlesData.UpravCasZobraz(r2dragelement, m_subtitlesData.VratCasElementuPocatek(r2dragelement), (long)x.TotalMilliseconds);
+                        // m_subtitlesData.UpravCasZobraz(r2dragelement, m_subtitlesData.VratCasElementuPocatek(r2dragelement), (long)x.TotalMilliseconds);
                         InvalidateSpeakers();
                     }
                 }
@@ -1386,8 +1387,8 @@ namespace NanoTrans
             else if (p.X >= rectangle2.Width - 4)
             {
                 r2drag = true;
-                r2dragLeft = false;  
-                Mouse.Capture(rectangle2, CaptureMode.Element);                
+                r2dragLeft = false;
+                Mouse.Capture(rectangle2, CaptureMode.Element);
             }
 
 
@@ -1411,7 +1412,7 @@ namespace NanoTrans
 
         private void rectangle2_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            
+
             if (r2drag)
                 Mouse.Capture(null);
             r2drag = false;
@@ -1430,72 +1431,92 @@ namespace NanoTrans
                     sekcepred = pPredchoziTag.tSekce;
 
                 int sekceza = -1;
-                if(pNasledujiciTag!=null)
+                if (pNasledujiciTag != null)
                     sekceza = pNasledujiciTag.tSekce;
 
                 if (pAktualni != null)
                 {
                     long actualb = m_subtitlesData.VratCasElementuPocatek(r2dragelement);
                     long actuale = m_subtitlesData.VratCasElementuKonec(r2dragelement);
-                        long pNovyPocatek = oVlna.KurzorVyberPocatekMS;
-                        long pNovyKonec = oVlna.KurzorVyberKonecMS;
-                        if (leftShift)
+                    long pNovyPocatek = oVlna.KurzorVyberPocatekMS;
+                    long pNovyKonec = oVlna.KurzorVyberKonecMS;
+                    if (leftShift)
+                    {
+                        if (!r2dragLeft)
+                            pNovyPocatek = -2;
+                        else
+                            pNovyKonec = -2;
+                    }
+
+                    m_subtitlesData.UpravCasZobraz(r2dragelement, pNovyPocatek, pNovyKonec, leftShift);
+
+                    //musi to tu byt dvakrat ta funkce si vnitne meni hodnoty...
+                    oVlna.KurzorVyberPocatekMS = m_subtitlesData.VratCasElementuPocatek(r2dragelement);
+                    oVlna.KurzorVyberKonecMS = m_subtitlesData.VratCasElementuKonec(r2dragelement);
+                    pNovyPocatek = oVlna.KurzorVyberPocatekMS;
+                    pNovyKonec = oVlna.KurzorVyberKonecMS;
+
+
+                    pPredchozi = m_subtitlesData[pPredchoziTag];
+                    pAktualni = m_subtitlesData[r2dragelement];
+                    pNasledujici = m_subtitlesData[pNasledujiciTag];
+
+                    //TODO: nejak to prefiltrovat do jedny funkce...
+                    //pokud se z messageboxu povolil prekryv, musime ho povolit i tady... :/
+                    if (r2dragLeft && pPredchozi != null)
+                    {
+                        if (pPredchozi.end > pAktualni.begin)
+                            leftShift = true;
+                    }
+                    else if (!r2dragLeft && pNasledujici != null)
+                    {
+                        if (pAktualni.end > pNasledujici.begin)
+                            leftShift = true;
+                    }
+
+                    if (leftShift)
+                    {
+                        if (!r2dragLeft)
+                            pNovyPocatek = -2;
+                        else
+                            pNovyKonec = -2;
+                    }
+
+                    if (r2dragLeft && pPredchozi != null && (!leftShift || sekcepred != sekce))
+                    {
+                        bool rozhrani = false;
+                        if (sekcepred != sekce) //rozhrani sekci
                         {
-                            if (!r2dragLeft)
-                                pNovyPocatek = -2;
-                            else
-                                pNovyKonec = -2;
+                            leftShift = false;
+                            rozhrani = true;
                         }
 
-                        m_subtitlesData.UpravCasZobraz(r2dragelement, pNovyPocatek, pNovyKonec, leftShift);
-                        oVlna.KurzorVyberPocatekMS = m_subtitlesData.VratCasElementuPocatek(r2dragelement);
-                        oVlna.KurzorVyberKonecMS = m_subtitlesData.VratCasElementuKonec(r2dragelement);
-                        pNovyPocatek = oVlna.KurzorVyberPocatekMS;
-                        pNovyKonec = oVlna.KurzorVyberKonecMS;
-
-                        if (leftShift)
+                        if ((pPredchozi.end == actualb && !rozhrani) || pNasledujici.begin < oVlna.KurzorVyberKonecMS)
                         {
-                            if (!r2dragLeft)
-                                pNovyPocatek = -2;
-                            else
-                                pNovyKonec = -2;
+                            m_subtitlesData.UpravCasZobraz(pPredchoziTag, -2, pNovyPocatek, leftShift);
                         }
 
-                        if (r2dragLeft && pPredchozi != null && (!leftShift || sekcepred != sekce))
+                    }
+                    if (!r2dragLeft && pNasledujici != null && (!leftShift || sekceza != sekce))
+                    {
+                        bool rozhrani = false;
+                        if (sekceza != sekce)//rozhrani sekci
                         {
-                            bool rozhrani = false;
-                            if (sekcepred != sekce) //rozhrani sekci
-                            {
-                                leftShift = false;
-                                rozhrani = true;
-                            }
-
-                            if ((pPredchozi.end == actualb && !rozhrani) || pNasledujici.begin < oVlna.KurzorVyberKonecMS)
-                            {
-                                m_subtitlesData.UpravCasZobraz(pPredchoziTag, -2, pNovyPocatek, leftShift);
-                            }
-
-                        }
-                        if (!r2dragLeft && pNasledujici != null && (!leftShift || sekceza != sekce))
-                        {
-                            bool rozhrani = false;
-                            if (sekceza != sekce)//rozhrani sekci
-                            {
-                                rozhrani = true;
-                                leftShift = false;
-                            }
-
-                            //upraveni nasl. elementu
-                            if ((pNasledujici.begin == actuale && !rozhrani) || pNasledujici.begin < oVlna.KurzorVyberKonecMS)
-                            {
-                                m_subtitlesData.UpravCasZobraz(pNasledujiciTag, pNovyKonec, -2, leftShift);
-                            }
+                            rozhrani = true;
+                            leftShift = false;
                         }
 
+                        //upraveni nasl. elementu
+                        if ((pNasledujici.begin == actuale && !rozhrani) || pNasledujici.begin < oVlna.KurzorVyberKonecMS)
+                        {
+                            m_subtitlesData.UpravCasZobraz(pNasledujiciTag, pNovyKonec, -2, leftShift);
+                        }
+                    }
 
 
-                    if(SelectionChanged!=null)
-                        SelectionChanged(this,new EventArgs());
+
+                    if (SelectionChanged != null)
+                        SelectionChanged(this, new EventArgs());
 
                     iInvalidateSpeakers();
 
