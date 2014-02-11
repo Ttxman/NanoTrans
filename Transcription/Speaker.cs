@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 using System.Xml.Serialization;
@@ -6,14 +7,99 @@ using System.Xml.Serialization;
 
 namespace NanoTrans.Core
 {
-    //mluvci
     public class Speaker
     {
-        //Dovymyslet co se bude ukladat o mluvcim -- jmeno, pohlavi, obrazek, popis, atd...
-        public int ID;
-        /// <summary>
-        /// GET vraci cele jmeno slozene z krestniho+prijmeni
-        /// </summary>
+        public static int speakersIndexCounter = 0;
+
+        #region equality overriding
+        //TODO: what about other fields?
+        public override int GetHashCode()
+        {
+            return this.FullName.GetHashCode() ^ this.m_ID.GetHashCode();
+        }
+
+
+        public bool Equals(Speaker s)
+        { 
+           if (s == null)
+                return false;
+
+           if (s.m_ID == this.m_ID && s.FullName == this.FullName)
+               return true;
+
+           return false;
+        }
+
+        public override bool Equals(object obj)
+        {
+            Speaker s = obj as Speaker;
+            return Equals(s);
+        }
+
+        public static bool operator ==(Speaker a, Speaker b)
+        {
+            // If both are null, or both are same instance, return true.
+            if (System.Object.ReferenceEquals(a, b))
+            {
+                return true;
+            }
+
+            // If one is null, but not both, return false.
+            if (((object)a == null) || ((object)b == null))
+            {
+                return false;
+            }
+
+            // Return true if the fields match:
+            return a.Equals(b);
+        }
+
+        public static bool operator !=(Speaker a, Speaker b)
+        {
+            return !(a == b);
+        }
+        #endregion
+
+        private int m_ID;
+        private bool m_IDFixed = false;
+        public bool IDFixed
+        {
+            get { return m_IDFixed; }
+            set 
+            {
+                if (value)
+                { 
+                    m_IDFixed = true;
+                }
+                else if (m_IDFixed)
+                {
+                    
+                }
+            }
+        }
+        public void FixID()
+        {
+            m_IDFixed = true;
+        }
+        public int ID
+        {
+            get { return m_ID; }
+            set
+            {
+                if (m_IDFixed)
+                {
+
+                    throw new ArgumentException("cannot chabge fixed speaker ID");
+                }
+
+                if (value >= speakersIndexCounter)
+                {
+                    speakersIndexCounter = value + 1;
+                }
+                m_ID = value;
+            }
+        }
+        
         [XmlIgnore]
         public string FullName
         {
@@ -46,9 +132,7 @@ namespace NanoTrans.Core
         public string FirstName;
         public string Surname;
         public Sexes Sex;
-        public string RozpoznavacMluvci;
-        public string RozpoznavacJazykovyModel;
-        public string RozpoznavacPrepisovaciPravidla;
+
         public string FotoJPGBase64;
         public string Comment;
         public int DefaultLang = 0;
@@ -58,13 +142,10 @@ namespace NanoTrans.Core
         public Speaker()
         {
 
-            ID = Speaker.DefaultID;
+            m_ID = speakersIndexCounter++;
             FirstName = null;
             Surname = null;
             Sex = Sexes.X;
-            RozpoznavacMluvci = null;
-            RozpoznavacJazykovyModel = null;
-            RozpoznavacPrepisovaciPravidla = null;
             FotoJPGBase64 = null;
             Comment = null;
             DefaultLang = 0;
@@ -78,7 +159,7 @@ namespace NanoTrans.Core
         private static readonly XAttribute EmptyAttribute = new XAttribute("empty", "");
         public Speaker(XElement s, bool isStrict)
         {
-            ID = int.Parse(s.Attribute("id").Value);
+            m_ID = int.Parse(s.Attribute("id").Value);
             Surname = s.Attribute("surname").Value;
             FirstName = (s.Attribute("firstname") ?? EmptyAttribute).Value;
 
@@ -124,7 +205,7 @@ namespace NanoTrans.Core
                 Elements.Select(e =>
                     new XAttribute(e.Key, e.Value))
                     .Union(new[]{ 
-                    new XAttribute("id", ID.ToString()),
+                    new XAttribute("id", m_ID.ToString()),
                     new XAttribute("surname",Surname),
                     new XAttribute("firstname",FirstName),
                     new XAttribute("sex",(Sex==Sexes.Male)?"M":(Sex==Sexes.Female)?"F":"X")
@@ -147,31 +228,25 @@ namespace NanoTrans.Core
         /// kopie
         /// </summary>
         /// <param name="aSpeaker"></param>
-        public Speaker(Speaker aSpeaker)
+        private Speaker(Speaker aSpeaker)
         {
 
             if (aSpeaker == null) aSpeaker = new Speaker();
-            ID = aSpeaker.ID;
+            m_ID = speakersIndexCounter++;
             FirstName = aSpeaker.FirstName;
             Surname = aSpeaker.Surname;
             Sex = aSpeaker.Sex;
-            RozpoznavacMluvci = aSpeaker.RozpoznavacMluvci;
-            RozpoznavacJazykovyModel = aSpeaker.RozpoznavacJazykovyModel;
-            RozpoznavacPrepisovaciPravidla = aSpeaker.RozpoznavacPrepisovaciPravidla;
             FotoJPGBase64 = aSpeaker.FotoJPGBase64;
             Comment = aSpeaker.Comment;
             DefaultLang = aSpeaker.DefaultLang;
         }
 
-        public Speaker(string aSpeakerFirstname, string aSpeakerSurname, Sexes aPohlavi, string aRozpoznavacMluvci, string aRozpoznavacJazykovyModel, string aRozpoznavacPrepisovaciPravidla, string aSpeakerFotoBase64, string aPoznamka) //constructor ktery vytvori speakera
+        public Speaker(string aSpeakerFirstname, string aSpeakerSurname, Sexes aPohlavi, string aSpeakerFotoBase64, string aPoznamka) //constructor ktery vytvori speakera
         {
-            ID = -1;
+            m_ID = speakersIndexCounter++;
             FirstName = aSpeakerFirstname;
             Surname = aSpeakerSurname;
             Sex = aPohlavi;
-            RozpoznavacMluvci = aRozpoznavacMluvci;
-            RozpoznavacJazykovyModel = aRozpoznavacJazykovyModel;
-            RozpoznavacPrepisovaciPravidla = aRozpoznavacPrepisovaciPravidla;
             FotoJPGBase64 = aSpeakerFotoBase64;
             Comment = aPoznamka;
         }
@@ -182,6 +257,11 @@ namespace NanoTrans.Core
         }
 
         public static readonly int DefaultID = int.MinValue;
+        public static readonly Speaker DefaultSpeaker = new Speaker() { m_ID = DefaultID};
 
+        public Speaker Copy()
+        {
+            return new Speaker(this);
+        }
     }
 }

@@ -1,8 +1,9 @@
 ﻿<Window x:Class="NanoTrans.Window1"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:NanoTrans"
     Title="NanoTrans" Height="758" Width="867" Closing="Window_Closing"
-    xmlns:local="clr-namespace:NanoTrans" ResizeMode="CanResizeWithGrip" Loaded="Window_Loaded" WindowStartupLocation="CenterScreen" PreviewKeyUp="Window_PreviewKeyUp" Icon="../icons/pen.ico" IsEnabled="True" AllowDrop="True" Drop="Window_Drop"
+    ResizeMode="CanResizeWithGrip" Loaded="Window_Loaded" WindowStartupLocation="CenterScreen" PreviewKeyUp="Window_PreviewKeyUp" Icon="../icons/pen.ico" IsEnabled="True" AllowDrop="True" Drop="Window_Drop"
     xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase" MouseDown="Window_MouseDown">
     <Window.Resources>
         <!--ObjectDataProvider x:Key="MyStringData" 

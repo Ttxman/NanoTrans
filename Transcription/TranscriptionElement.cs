@@ -156,7 +156,7 @@ namespace NanoTrans.Core
             m_children.Add(data);
             data.m_Parent = this;
             data.m_ParentIndex = m_children.Count - 1;
-            ChildrenCountChanged(NotifyCollectionChangedAction.Add);
+            ChildrenCountChanged(ChangedAction.Add);
         }
 
         public virtual void Insert(int index, TranscriptionElement data)
@@ -171,8 +171,8 @@ namespace NanoTrans.Core
                 m_children[i].m_ParentIndex = i;
             }
             ElementInserted(data, data.m_ParentIndex);
-            ChildrenCountChanged(NotifyCollectionChangedAction.Add);
-            ChildrenCountChanged(NotifyCollectionChangedAction.Replace);
+            ChildrenCountChanged(ChangedAction.Add);
+            ChildrenCountChanged(ChangedAction.Replace);
 
         }
 
@@ -204,7 +204,7 @@ namespace NanoTrans.Core
                 m_children[i].m_ParentIndex = i;
             }
             ElementRemoved(element, index);
-            ChildrenCountChanged(NotifyCollectionChangedAction.Remove);
+            ChildrenCountChanged(ChangedAction.Remove);
 
         }
 
@@ -227,7 +227,7 @@ namespace NanoTrans.Core
             {
                 m_children[index] = newelement;
 
-                ChildrenCountChanged(NotifyCollectionChangedAction.Replace);
+                ChildrenCountChanged(ChangedAction.Replace);
                 return true;
             }
             return false;
@@ -388,7 +388,7 @@ namespace NanoTrans.Core
             return c;
         }
 
-        public virtual void ChildrenCountChanged(NotifyCollectionChangedAction action)
+        public virtual void ChildrenCountChanged(ChangedAction action)
         {
             if (!m_Updating)
             {
@@ -410,7 +410,7 @@ namespace NanoTrans.Core
         {
             m_Updating = false;
             if (m_updated)
-                ChildrenCountChanged(NotifyCollectionChangedAction.Reset);
+                ChildrenCountChanged(ChangedAction.Reset);
             m_updated = false;
         }
     }

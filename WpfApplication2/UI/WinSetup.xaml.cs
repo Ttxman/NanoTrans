@@ -98,47 +98,7 @@ namespace NanoTrans
 
                 checkBoxSaveShortened.IsChecked = aNastaveni.SaveInShortFormat;
             }
-        }
-
-        private void VyplnTextHlasovehoOvladani(TextBox aTbMluvciHlasovehoOvladani, Speaker aSpeaker)
-        {
-            if (aSpeaker == null || aSpeaker.FullName == null)
-            {
-                aTbMluvciHlasovehoOvladani.Text = MyKONST.TEXT_VYCHOZI_NASTAVENI_ROZPOZNAVACE;
-            }
-            else
-            {
-                aTbMluvciHlasovehoOvladani.Text = "Jméno: " + aSpeaker.FullName + "\n";
-                aTbMluvciHlasovehoOvladani.Text += "Typ mluvčího: ";
-                if (aSpeaker.RozpoznavacMluvci != null)
-                {
-                    aTbMluvciHlasovehoOvladani.Text += aSpeaker.RozpoznavacMluvci + "\n";
-                }
-                else
-                {
-                    aTbMluvciHlasovehoOvladani.Text += MyKONST.TEXT_VYCHOZI_NASTAVENI_ROZPOZNAVACE + "\n";
-                }
-                aTbMluvciHlasovehoOvladani.Text += "Jazykový model: ";
-                if (aSpeaker.RozpoznavacJazykovyModel != null)
-                {
-                    aTbMluvciHlasovehoOvladani.Text += aSpeaker.RozpoznavacJazykovyModel + "\n";
-                }
-                else
-                {
-                    aTbMluvciHlasovehoOvladani.Text += MyKONST.TEXT_VYCHOZI_NASTAVENI_ROZPOZNAVACE + "\n";
-                }
-                aTbMluvciHlasovehoOvladani.Text += "Přepisovací pravidla: ";
-                if (aSpeaker.RozpoznavacPrepisovaciPravidla != null)
-                {
-                    aTbMluvciHlasovehoOvladani.Text += aSpeaker.RozpoznavacPrepisovaciPravidla + "\n";
-                }
-                else
-                {
-                    aTbMluvciHlasovehoOvladani.Text += MyKONST.TEXT_VYCHOZI_NASTAVENI_ROZPOZNAVACE + "\n";
-                }
-
-            }
-
+        
         }
 
 
@@ -211,7 +171,7 @@ namespace NanoTrans
             if (fileDialog.ShowDialog() == true)
             {
                 MySpeakers ms = new MySpeakers();
-                ms = ms.Deserializovat(fileDialog.FileName);
+                ms = ms.Deserialize(fileDialog.FileName);
                 if (ms != null && ms.Ulozeno)
                 {
                     tbCestaDatabazeMluvcich.Text = ms.JmenoSouboru;

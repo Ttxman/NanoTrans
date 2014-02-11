@@ -29,7 +29,6 @@ namespace NanoTrans.Core
             get { return m_Speakers; }
             set { m_Speakers = value; }
         }
-        public int speakersIndexCounter = 0;                  //ohlidani vzdy vetsiho ID vsech mluvcich
 
         private Dictionary<string, string> elements = new Dictionary<string, string>();
         public MySpeakers(XElement e, bool isStrict)
@@ -50,13 +49,12 @@ namespace NanoTrans.Core
             {
                 this._JmenoSouboru = aSpeakers._JmenoSouboru;
                 this._Ulozeno = aSpeakers._Ulozeno;
-                this.speakersIndexCounter = aSpeakers.speakersIndexCounter;
                 if (aSpeakers.m_Speakers != null)
                 {
                     this.m_Speakers = new List<Speaker>();
                     for (int i = 0; i < aSpeakers.m_Speakers.Count; i++)
                     {
-                        this.m_Speakers.Add(new Speaker(aSpeakers.m_Speakers[i]));
+                        this.m_Speakers.Add(aSpeakers.m_Speakers[i].Copy());
                     }
                 }
             }
@@ -64,67 +62,47 @@ namespace NanoTrans.Core
 
         public MySpeakers()
         {
-            
+
         }
 
 
         /// <summary>
-        /// prida mluvciho do seznamu, vraci jeho ID ze seznamu
+        /// add speaker to collection
         /// </summary>
-        /// <param name="aSpeaker"></param>
-        /// <returns></returns>
-        public int NovySpeaker(Speaker aSpeaker)
+        /// <param name="speaker"></param>
+        /// <param name="overwrite">ovewrite speaker with same fullname (if exists)</param>
+        /// <returns>false if, speaker with same fullname exists and ovewrite is false</returns>
+        /// <exception cref="ArgumentException">when speaker have null or empty fullname</exception>
+        public bool AddSpeaker(Speaker speaker, bool overwrite=true)
         {
-            try
+            if (speaker.FullName != null && speaker.FullName != "")
             {
-                if (aSpeaker.FullName != null && aSpeaker.FullName != "")
+                for (int i = 0; i < m_Speakers.Count; i++)
                 {
-                    for (int i = 0; i < m_Speakers.Count; i++)
-                    {
-                        if (((Speaker)m_Speakers[i]).FullName == aSpeaker.FullName)
+                    if (((Speaker)m_Speakers[i]).FullName == speaker.FullName)
+                        if (overwrite)
                         {
-                            System.Windows.
-                            MessageBox.Show("Mluvčí s tímto jménem již existuje!", "Upozornění:", MessageBoxButton.OK, MessageBoxImage.Exclamation);
-                            return int.MinValue;
+                            m_Speakers.RemoveAt(i);
+                            break;
                         }
-
-                    }
-                    this.speakersIndexCounter = m_Speakers.Count > 0 ? m_Speakers.Max(s => s.ID) + 1:1;
-                    aSpeaker.ID = speakersIndexCounter;
-                    this.m_Speakers.Add(new Speaker(aSpeaker));
-                    return speakersIndexCounter;
-
-
+                        else
+                            return false;
                 }
-                else return int.MinValue;
+                this.m_Speakers.Add(speaker);
+                return true;
             }
-            catch// (Exception ex)
-            {
-                return int.MinValue;
-            }
+            throw new ArgumentException("Spekear cannot have empty or null fullname");
         }
 
-        /// <summary>
-        /// vraci speakera podle ID pokud existuje, jinak prazdneho speakera
-        /// </summary>
-        /// <param name="aIDSpeakera"></param>
-        /// <returns></returns>
-        public Speaker VratSpeakera(int aIDSpeakera)
+
+        public Speaker GetSpeakerByID(int ID)
         {
-            try
+            foreach (Speaker msp in this.m_Speakers)
             {
-                foreach (Speaker msp in this.m_Speakers)
-                {
-                    if (msp.ID == aIDSpeakera) return msp;
-                }
-                return new Speaker();
-
-            }
-            catch// (Exception ex)
-            {
-                return new Speaker();
+                if (msp.ID == ID) return msp;
             }
 
+            return null;
         }
 
         /// <summary>
@@ -132,7 +110,7 @@ namespace NanoTrans.Core
         /// </summary>
         /// <param name="aSpeaker"></param>
         /// <returns></returns>
-        public bool OdstranSpeakera(Speaker aSpeaker)
+        public bool RemoveSpeaker(Speaker aSpeaker)
         {
             try
             {
@@ -160,111 +138,25 @@ namespace NanoTrans.Core
         }
 
 
-        /// <summary>
-        /// vraci ID speakera podle stringu jmena
-        /// </summary>
-        /// <param name="aJmeno"></param>
-        /// <returns></returns>
-        public int NajdiSpeakeraID(string aJmeno)
+        public Speaker GetSpeakerByName(string fullname)
         {
-            try
+            Speaker aSpeaker = new Speaker();
+            for (int i = 0; i < this.m_Speakers.Count; i++)
             {
-                Speaker aSpeaker = new Speaker();
-                for (int i = 0; i < this.m_Speakers.Count; i++)
+                if (((Speaker)m_Speakers[i]).FullName == fullname)
                 {
-                    if (((Speaker)m_Speakers[i]).FullName == aJmeno)
-                    {
-                        aSpeaker = ((Speaker)m_Speakers[i]);
-                        break;
-                    }
+                    aSpeaker = ((Speaker)m_Speakers[i]);
+                    return aSpeaker;
                 }
-                return aSpeaker.ID;
-
             }
-            catch// (Exception ex)
-            {
-                return new Speaker().ID;
-            }
+            return null;
         }
-
-        /// <summary>
-        /// vraci speakera podle stringu jmena
-        /// </summary>
-        /// <param name="aJmeno"></param>
-        /// <returns></returns>
-        public Speaker NajdiSpeakeraSpeaker(string aJmeno)
-        {
-            try
-            {
-                Speaker aSpeaker = new Speaker();
-                for (int i = 0; i < this.m_Speakers.Count; i++)
-                {
-                    if (((Speaker)m_Speakers[i]).FullName == aJmeno)
-                    {
-                        aSpeaker = ((Speaker)m_Speakers[i]);
-                        break;
-                    }
-                }
-                return aSpeaker;
-
-            }
-            catch// (Exception ex)
-            {
-                return new Speaker();
-            }
-
-        }
-
-        public bool UpdatujSpeakera(string aJmeno, Speaker aSpeaker)
-        {
-            try
-            {
-                
-                for (int i = 0; i < m_Speakers.Count; i++)
-                {
-                    if (((Speaker)m_Speakers[i]).FullName == aSpeaker.FullName)
-                    {
-                        //return false;
-                    }
-
-                }
-                
-                if (aSpeaker == null || aSpeaker.FullName == null || aSpeaker.FullName == "" || NajdiSpeakeraID(aJmeno) < 0) return false;
-                if (NajdiSpeakeraID(aJmeno) != NajdiSpeakeraID(aSpeaker.FullName) && NajdiSpeakeraID(aSpeaker.FullName)>-1)
-                {
-                    MessageBox.Show("Mluvčí s tímto jménem již existuje!", "Upozornění:", MessageBoxButton.OK, MessageBoxImage.Exclamation);
-                    return false; //mluvci s timto jmenem jiz existuje
-                }
-                Speaker pSpeaker;
-                for (int i = 0; i < this.m_Speakers.Count; i++)
-                {
-                    if (((Speaker)m_Speakers[i]).FullName == aJmeno)
-                    {
-                        pSpeaker = ((Speaker)m_Speakers[i]);
-                        aSpeaker.ID = pSpeaker.ID;
-                        m_Speakers[i] = new Speaker(aSpeaker);
-                        
-                        
-
-                        return true;
-                    }
-                }
-                return false;
-            }
-            catch// (Exception ex)
-            {
-                return false;
-            }
-
-        }
-
-
 
         public XElement Serialize(bool strict)
         {
             XElement elm = new XElement(strict ? "speakers" : "sp",
-                elements.Select(e =>new XAttribute(e.Key, e.Value)),
-                m_Speakers.Select(s=>s.Serialize(strict))
+                elements.Select(e => new XAttribute(e.Key, e.Value)),
+                m_Speakers.Select(s => s.Serialize(strict))
             );
 
             return elm;
@@ -293,41 +185,32 @@ namespace NanoTrans.Core
                 this._Ulozeno = true;
                 return true;
             }
-            catch (Exception ex)
+            catch
             {
-                MessageBox.Show("Chyba pri serializaci souboru s nastavením: " + ex.Message,"Varování!");
                 return false;
             }
         }
 
         //Deserializuje soubor             
-        public MySpeakers Deserializovat(String jmenoSouboru)
+        public MySpeakers Deserialize(String filename)
         {
-            try
+            //pokud neexistuje soubor, vrati prazdnou databazi
+            if (!new FileInfo(filename).Exists)
             {
-                //pokud neexistuje soubor, vrati prazdnou databazi
-                if (!new FileInfo(jmenoSouboru).Exists)
-                {
-                    return new MySpeakers();
-                }
-                                
-                XmlSerializer serializer = new XmlSerializer(typeof(MySpeakers));
-                //FileStream reader = new FileStream(jmenoSouboru, FileMode.Open);
-                //TextReader reader = new StreamReader("e:\\MySubtitlesDataXml.txt");
-                MySpeakers md;// = new MySubtitlesData();
+                return new MySpeakers();
+            }
 
-                XmlTextReader xreader = new XmlTextReader(jmenoSouboru);
-                md = (MySpeakers)serializer.Deserialize(xreader);
-                xreader.Close();
-                md._JmenoSouboru = jmenoSouboru;
-                md._Ulozeno = true;
-                return md;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Chyba při načítání databáze mluvčích - nepodporovaný formát souboru: " + ex.Message);
-                return null;
-            }
+            XmlSerializer serializer = new XmlSerializer(typeof(MySpeakers));
+            //FileStream reader = new FileStream(jmenoSouboru, FileMode.Open);
+            //TextReader reader = new StreamReader("e:\\MySubtitlesDataXml.txt");
+            MySpeakers md;// = new MySubtitlesData();
+
+            XmlTextReader xreader = new XmlTextReader(filename);
+            md = (MySpeakers)serializer.Deserialize(xreader);
+            xreader.Close();
+            md._JmenoSouboru = filename;
+            md._Ulozeno = true;
+            return md;
 
         }
 

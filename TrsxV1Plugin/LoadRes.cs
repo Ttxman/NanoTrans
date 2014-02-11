@@ -80,8 +80,15 @@ namespace TrsxV1Plugin
 
         public Transcription GetTranscription(bool useOrtoTP, bool removeNonPhonemes)
         {
+            Transcription tr = new Transcription();
+            GetTranscription(useOrtoTP, removeNonPhonemes, tr);
+            return tr;
+        }
 
-            Transcription data = new Transcription();
+        public void GetTranscription(bool useOrtoTP, bool removeNonPhonemes, Transcription storage)
+        {
+
+            Transcription data = storage;
             List<TranscriptionPhrase> phrazes = new List<TranscriptionPhrase>();
 
             string[] orto = useOrtoTP ? ORTOTP : ORTOT;
@@ -208,7 +215,6 @@ namespace TrsxV1Plugin
             }
 
             data.mediaURI = FileName;
-            return data;
         }
 
 
@@ -218,7 +224,7 @@ namespace TrsxV1Plugin
 
 
 
-        public static Transcription Import(Stream input)
+        public static bool Import(Stream input, Transcription storage)
         {
             ResContainer rc = new ResContainer(input);
             List<string> files = rc.Files.Select(f => f.FileName).ToList();
@@ -231,9 +237,10 @@ namespace TrsxV1Plugin
             if (files.Count == 1 || sf.ShowDialog() == true)
             {
                 var ResFile = rc.Files[sf.line];
-                return ResFile.GetTranscription(sf.RemoveNonPhonemes, sf.RemoveNonPhonemes);
+                ResFile.GetTranscription(sf.RemoveNonPhonemes, sf.RemoveNonPhonemes, storage);
+                return true;
             }
-            return null;
+            return false;
         }
 
         public static IEnumerable<T[]> SplitLines<T>(this IEnumerable<T> source, Func<T, bool> IsFirst)

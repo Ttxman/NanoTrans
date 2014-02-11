@@ -55,7 +55,7 @@ namespace NanoTrans
             {
                 if (val is TranscriptionParagraph)
                 {
-                    if (val.PreviousSibling() is TranscriptionParagraph && ((TranscriptionParagraph)val).speakerID == ((TranscriptionParagraph)val.PreviousSibling()).speakerID)
+                    if (val.PreviousSibling() is TranscriptionParagraph && ((TranscriptionParagraph)val).Speaker == ((TranscriptionParagraph)val.PreviousSibling()).Speaker)
                     {
                         el.button1.Visibility = Visibility.Collapsed;
                     }
@@ -1286,7 +1286,7 @@ namespace NanoTrans
                 if (te.GetType() == typeof(TranscriptionParagraph))
                 {
                     TranscriptionParagraph par = (TranscriptionParagraph)te;
-                    id = par.speakerID;
+                    id = par.SpeakerID;
                 }
                 else if (te.GetType() == typeof(TranscriptionSection))
                 {
@@ -1295,13 +1295,13 @@ namespace NanoTrans
                 }
             }
 
-            return sd.GetSpeaker(id);
+            return sd.GetSpeakerByID(id);
         }
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             if (value == null)
                 return "";
-            return GetSpeaker((TranscriptionElement)value).FullName;
+            return (GetSpeaker((TranscriptionElement)value)??Speaker.DefaultSpeaker).FullName;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)

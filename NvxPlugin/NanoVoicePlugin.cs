@@ -12,7 +12,7 @@ namespace NvxPlugin
 {
     public class NanoVoicePlugin
     {
-        public static Transcription Import(Stream input)
+        public static bool Import(Stream input, Transcription storage)
         {
             XDocument doc = XDocument.Load(input);
             var root = doc.Element("NanovoidSegmentation");
@@ -28,7 +28,7 @@ namespace NvxPlugin
                 {
                     medium = mediums[sf.SelectedIndex];
                 }
-                else return null;
+                else return false;
             }
             else
                 medium = mediums.First();
@@ -45,7 +45,7 @@ namespace NvxPlugin
                 {
                     segmentation = segmentations[sf.SelectedIndex];
                 }
-                else return null;
+                else return false;
             }
             else
                 segmentation = segmentations.First();
@@ -53,7 +53,7 @@ namespace NvxPlugin
             TimeSpan unitlen = new TimeSpan((long)(TimeSpan.FromSeconds(1).Ticks * XmlConvert.ToDouble(segmentation.Attribute("tres").Value)));
             segmentations.Elements("Segment");
 
-            Transcription tr = new Transcription();
+            Transcription tr = storage;
             TranscriptionChapter ch = new TranscriptionChapter();
             ch.Text = segmentation.Attribute("type").Value;
 
@@ -84,8 +84,8 @@ namespace NvxPlugin
             tr.Add(ch);
 
 
-
-            return tr;
+            tr.AssingSpeakersByID();
+            return true;
         }
 
 
@@ -110,7 +110,7 @@ namespace NvxPlugin
                 var idel = e.Element("Id");
                 if (idel != null)
                 {
-                    p.speakerID = XmlConvert.ToInt32(idel.Attribute("id").Value);
+                    p.SpeakerID = XmlConvert.ToInt32(idel.Attribute("id").Value);
                     ph.Text = "score: "+idel.Attribute("score").Value; 
                 }
                 p.Phrases.Add(ph);

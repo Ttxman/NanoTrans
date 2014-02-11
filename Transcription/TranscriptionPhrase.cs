@@ -147,7 +147,7 @@ namespace NanoTrans.Core
             return 0;
         }
 
-        public override void ChildrenCountChanged(NotifyCollectionChangedAction action)
+        public override void ChildrenCountChanged(ChangedAction action)
         {
 
         }

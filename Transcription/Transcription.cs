@@ -15,7 +15,7 @@ using System.Xml.Serialization;
 namespace NanoTrans.Core
 {
     //hlavni trida s titulky a se vsemi potrebnymi metodami pro serializaci
-    public class Transcription : TranscriptionElement, IList<TranscriptionElement>, INotifyCollectionChanged
+    public class Transcription : TranscriptionElement, IList<TranscriptionElement>
     {
         public double TotalHeigth;
         public bool FindNext(ref TranscriptionElement paragraph, ref int TextOffset, out int length, string pattern, bool isregex, bool CaseSensitive, bool searchinspeakers)
@@ -32,7 +32,7 @@ namespace NanoTrans.Core
                 while (prs != null)
                 {
                     TranscriptionParagraph pr = prs as TranscriptionParagraph;
-                    if (pr != null && GetSpeaker(pr.speakerID).FullName.ToLower().Contains(pattern.ToLower()))
+                    if (pr != null && GetSpeakerByID(pr.SpeakerID).FullName.ToLower().Contains(pattern.ToLower()))
                     {
                         paragraph = pr;
                         TextOffset = 0;
@@ -241,13 +241,13 @@ namespace NanoTrans.Core
         }
 
         //smazani speakera ze seznamu speakeru a odstraneni speakera v pouzitych odstavcich
-        public bool OdstranSpeakera(Speaker aSpeaker)
+        public bool RemoveSpeaker(Speaker aSpeaker)
         {
             try
             {
                 if (aSpeaker.FullName != null && aSpeaker.FullName != "")
                 {
-                    if (this.m_speakers.OdstranSpeakera(aSpeaker))
+                    if (this.m_speakers.RemoveSpeaker(aSpeaker))
                     {
                         Saved = false;
                         for (int k = 0; k < Chapters.Count; k++)
@@ -256,9 +256,9 @@ namespace NanoTrans.Core
                             {
                                 for (int m = 0; m < ((TranscriptionSection)((TranscriptionChapter)Chapters[k]).Sections[l]).Paragraphs.Count; m++)
                                 {
-                                    if (Chapters[k].Sections[l].Paragraphs[m].speakerID == aSpeaker.ID)
+                                    if (Chapters[k].Sections[l].Paragraphs[m].Speaker == aSpeaker)
                                     {
-                                        Chapters[k].Sections[l].Paragraphs[m].speakerID = new Speaker().ID;
+                                        Chapters[k].Sections[l].Paragraphs[m].Speaker = Speaker.DefaultSpeaker;
                                     }
                                 }
 
@@ -285,40 +285,26 @@ namespace NanoTrans.Core
         /// </summary>
         /// <param name="aSpeaker"></param>
         /// <returns></returns>
-        public int NovySpeaker(Speaker aSpeaker)
+        public bool AddSpeaker(Speaker aSpeaker)
         {
-            int i = this.m_speakers.NovySpeaker(aSpeaker);
-            if (i != Speaker.DefaultID)
+            if(m_speakers.AddSpeaker(aSpeaker,false))
+            {
                 this.Saved = false;
-            return i;
+                return true;
+            }
+            return false;
         }
 
 
-        public Speaker VratSpeakera(int aIDSpeakera)
+        public Speaker GetSpeakerByID(int ID)
         {
-            return this.m_speakers.VratSpeakera(aIDSpeakera);
+            return this.m_speakers.GetSpeakerByID(ID);
         }
 
-        /// <summary>
-        /// vraci ID speakera podle stringu jmena
-        /// </summary>
-        /// <param name="aJmeno"></param>
-        /// <returns></returns>
-        public int GetSpeaker(string aJmeno)
+        public Speaker GetSpeakerByName(string fullname)
         {
-            return this.m_speakers.NajdiSpeakeraID(aJmeno);
+            return this.m_speakers.GetSpeakerByName(fullname);
         }
-
-        /// <summary>
-        /// vraci ID speakera podle stringu jmena
-        /// </summary>
-        /// <param name="aJmeno"></param>
-        /// <returns></returns>
-        public Speaker GetSpeaker(int id)
-        {
-            return this.m_speakers.VratSpeakera(id);
-        }
-
 
         /// <summary>
         /// Serializuje tuto tridu a ulozi data do xml souboru - muze ulozit mluvci bez fotky
@@ -348,12 +334,20 @@ namespace NanoTrans.Core
         }
 
 
-        public bool SerializeV1(Stream datastream, Transcription co, bool aUkladatKompletMluvci)
+        /// <summary>
+        /// serialize data to txsx v1 format
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="co"></param>
+        /// <param name="SaveSpeakersInCompleteFormat"></param>
+        /// <returns></returns>
+        /// <exception cref="NanoTransSerializationException">when writing failed</exception>
+        public static void SerializeV1(Stream stream, Transcription co, bool SaveSpeakersInCompleteFormat)
         {
             try
             {
                 MySpeakers pKopieMluvcich = new MySpeakers(co.m_speakers);
-                if (!aUkladatKompletMluvci)
+                if (!SaveSpeakersInCompleteFormat)
                 {
                     if (co != null && co.m_speakers != null)
                     {
@@ -366,7 +360,7 @@ namespace NanoTrans.Core
 
                 Transcription pCopy = new Transcription(co);
 
-                System.Xml.XmlTextWriter writer = new XmlTextWriter(datastream, Encoding.UTF8);
+                System.Xml.XmlTextWriter writer = new XmlTextWriter(stream, Encoding.UTF8);
                 writer.Formatting = Formatting.Indented;
                 writer.WriteStartDocument(); //<?xml version ...
 
@@ -417,7 +411,7 @@ namespace NanoTrans.Core
 
 
                             writer.WriteEndElement();//Phrases
-                            writer.WriteElementString("speakerID", XmlConvert.ToString(p.speakerID));
+                            writer.WriteElementString("speakerID", XmlConvert.ToString(p.SpeakerID));
                             writer.WriteEndElement();//Paragraph
                         }
 
@@ -448,7 +442,7 @@ namespace NanoTrans.Core
 
 
                             writer.WriteEndElement();//Phrases
-                            writer.WriteElementString("speakerID", XmlConvert.ToString(p.speakerID));
+                            writer.WriteElementString("speakerID", XmlConvert.ToString(p.SpeakerID));
                             writer.WriteEndElement();//Paragraph
                         }
 
@@ -490,7 +484,7 @@ namespace NanoTrans.Core
 
                 writer.Close();
 
-                if (!aUkladatKompletMluvci)
+                if (!SaveSpeakersInCompleteFormat)
                 {
                     if (co != null)
                     {
@@ -499,13 +493,10 @@ namespace NanoTrans.Core
 
                 }
 
-
-                return true;
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Chyba pri serializaci souboru: " + ex.Message);
-                return false;
+                throw new NanoTransSerializationException(ex.Message,ex);
             }
         }
         /// <summary>
@@ -585,8 +576,12 @@ namespace NanoTrans.Core
         private static readonly XElement EmptyMeta = new XElement("Meta");
         private Dictionary<string, string> elements = new Dictionary<string, string>();
 
-
-        private static Transcription DeserializeV2_0(XmlTextReader reader, Transcription storage)
+        /// <summary>
+        /// deserialize transcription in v2 format
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <param name="storage">data will be deserialized into this object, useful for overrides </param>
+        private static void DeserializeV2_0(XmlTextReader reader, Transcription storage)
         {
 
             Transcription data = storage;
@@ -612,13 +607,18 @@ namespace NanoTrans.Core
 
             var speakers = transcription.Element(isStrict ? "speakers" : "sp");
             data.Speakers.Speakers = new List<Speaker>(speakers.Elements(isStrict ? "speaker" : "s").Select(s => new Speaker(s, isStrict)));
+            storage.AssingSpeakersByID();
             data.EndUpdate();
-
-            return data;
         }
 
-
-        public static Transcription DeserializeV1(XmlTextReader reader, Transcription storage)
+        /// <summary>
+        /// read old transcription format (v1)
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <param name="storage">deserializes into this transcription (useful for overrides)</param>
+        /// <returns>deserialized transcription</returns>
+        /// <exception cref="NanotransSerializationException"></exception>
+        public static void DeserializeV1(XmlTextReader reader, Transcription storage)
         {
             try
             {
@@ -779,9 +779,9 @@ namespace NanoTrans.Core
                             if (reader.Name != "speakerID")
                                 reader.ReadEndElement();//Phrases - muze byt emptyelement a ten nema end..
 
-                            p.speakerID = XmlConvert.ToInt32(reader.ReadElementString());
-                            if (p.speakerID == -1)
-                                p.speakerID = Speaker.DefaultID;
+                            p.SpeakerID = XmlConvert.ToInt32(reader.ReadElementString());
+                            if (p.SpeakerID == -1)
+                                p.SpeakerID = Speaker.DefaultID;
 
                             reader.ReadEndElement();//paragraph
                             s.Paragraphs.Add(p);
@@ -869,9 +869,9 @@ namespace NanoTrans.Core
                             if (reader.Name != "speakerID")
                                 reader.ReadEndElement();//Phrases - muze byt emptyelement a ten nema end..
 
-                            p.speakerID = XmlConvert.ToInt32(reader.ReadElementString());
-                            if (p.speakerID == -1)
-                                p.speakerID = Speaker.DefaultID;
+                            p.SpeakerID = XmlConvert.ToInt32(reader.ReadElementString());
+                            if (p.SpeakerID == -1)
+                                p.SpeakerID = Speaker.DefaultID;
 
                             reader.ReadEndElement();//paragraph
 
@@ -1052,21 +1052,36 @@ namespace NanoTrans.Core
                         }
                     }
                     data.m_speakers.Speakers.Add(sp);
+                    storage.AssingSpeakersByID();
                 }
-
-
-
-                return data;
             }
             catch (Exception ex)
             {
                 if (reader != null)
-                    MessageBox.Show(string.Format("Chyba pri deserializaci souboru:(řádek:{0}, pozice:{1}) {2}", reader.LineNumber, reader.LinePosition, ex.Message));
+                    throw new NanoTransSerializationException(string.Format("Chyba pri deserializaci souboru:(řádek:{0}, pozice:{1}) {2}", reader.LineNumber, reader.LinePosition, ex.Message), ex);
                 else
-                    MessageBox.Show("Chyba pri deserializaci souboru: " + ex.Message);
-                return null;
+                    throw new NanoTransSerializationException("Chyba pri deserializaci souboru: " + ex.Message, ex);
             }
 
+        }
+
+        /// <summary>
+        /// Assigns Speaker (from internal Speaker pool Transcription.Speakers) to all paragraphs in Transcription by ID. Default speaker (Speaker.DefaultSpeaker) is assgned when no speaker si found
+        /// </summary>
+        public void AssingSpeakersByID()
+        {
+            foreach(var par in this.Where(e=>e.IsParagraph).Cast<TranscriptionParagraph>())
+            {
+                var sp = GetSpeakerByID(par.SpeakerID);
+                if (sp != null)
+                {
+                    par.Speaker = sp;
+                }
+                else
+                {
+                    par.Speaker = Speaker.DefaultSpeaker;
+                }
+            }
         }
 
 
@@ -1140,7 +1155,7 @@ namespace NanoTrans.Core
             if (item is TranscriptionChapter)
             {
                 base.Add(item);
-                this.ChildrenCountChanged(NotifyCollectionChangedAction.Add);
+                this.ChildrenCountChanged(ChangedAction.Add);
             }
             else if (item is TranscriptionSection)
             {
@@ -1234,7 +1249,7 @@ namespace NanoTrans.Core
         public event Action SubtitlesChanged;
 
 
-        public override void ChildrenCountChanged(NotifyCollectionChangedAction action)
+        public override void ChildrenCountChanged(ChangedAction action)
         {
             if (SubtitlesChanged != null)
                 SubtitlesChanged();
@@ -1266,7 +1281,6 @@ namespace NanoTrans.Core
             }
         }
 
-        public event NotifyCollectionChangedEventHandler CollectionChanged;
 
         public override void ElementChanged(TranscriptionElement element)
         {
@@ -1275,20 +1289,17 @@ namespace NanoTrans.Core
 
         public override void ElementReplaced(TranscriptionElement oldelement, TranscriptionElement newelement)
         {
-            if (CollectionChanged != null)
-                CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, oldelement, newelement));
+           
         }
 
         public override void ElementInserted(TranscriptionElement element, int index)
         {
-            if (CollectionChanged != null)
-                CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, element, index));
+            
         }
 
         public override void ElementRemoved(TranscriptionElement element, int index)
         {
-            if (CollectionChanged != null)
-                CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, element, index));
+            
         }
     }
 }

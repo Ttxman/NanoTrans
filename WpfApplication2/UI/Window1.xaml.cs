@@ -41,8 +41,8 @@ namespace NanoTrans
         private DispatcherTimer timer1 = new DispatcherTimer();
         private DispatcherTimer timerRozpoznavace = new DispatcherTimer();
 
-        private Transcription m_mydatasource;
-        public Transcription myDataSource
+        private WPFTranscription m_mydatasource;
+        public WPFTranscription myDataSource
         {
             get { return m_mydatasource; }
             set
@@ -304,18 +304,18 @@ namespace NanoTrans
                 {
                     if (!FilePaths.WriteToAppData)
                     {
-                        myDatabazeMluvcich = myDatabazeMluvcich.Deserializovat(MySetup.Setup.CestaDatabazeMluvcich);
+                        myDatabazeMluvcich = myDatabazeMluvcich.Deserialize(MySetup.Setup.CestaDatabazeMluvcich);
                     }
                     else
                     {
                         string fname2 = System.IO.Path.Combine(FilePaths.AppDataDirectory, fname.Substring(FilePaths.ProgramDirectory.Length));
                         if (File.Exists(fname2))
                         {
-                            myDatabazeMluvcich = myDatabazeMluvcich.Deserializovat(fname2);
+                            myDatabazeMluvcich = myDatabazeMluvcich.Deserialize(fname2);
                         }
                         else if (File.Exists(MySetup.Setup.CestaDatabazeMluvcich))
                         {
-                            myDatabazeMluvcich = myDatabazeMluvcich.Deserializovat(MySetup.Setup.CestaDatabazeMluvcich);
+                            myDatabazeMluvcich = myDatabazeMluvcich.Deserialize(MySetup.Setup.CestaDatabazeMluvcich);
                         }
                     }
                 }
@@ -323,11 +323,11 @@ namespace NanoTrans
                 {
                     if (File.Exists(MySetup.Setup.CestaDatabazeMluvcich))
                     {
-                        myDatabazeMluvcich = myDatabazeMluvcich.Deserializovat(MySetup.Setup.CestaDatabazeMluvcich);
+                        myDatabazeMluvcich = myDatabazeMluvcich.Deserialize(MySetup.Setup.CestaDatabazeMluvcich);
                     }
                     else
                     {
-                        MessageBox.Show("Databáze mluvčích je nedostupná, změňte cestu v nastavení","chyba",MessageBoxButton.OK,MessageBoxImage.Exclamation);
+                        MessageBox.Show("Databáze mluvčích je nedostupná, změňte cestu v nastavení", "chyba", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                     }
                 }
 
@@ -758,42 +758,23 @@ namespace NanoTrans
                                 if (!UlozitTitulky(true, myDataSource.FileName)) return false;
                             }
                         }
-                        myDataSource = new Transcription();
-
-                        this.Title = MyKONST.NAZEV_PROGRAMU + " [novy]";
-
-                        var c = new TranscriptionChapter();
-                        var s = new TranscriptionSection();
-                        var p = new TranscriptionParagraph();
-                        c.Add(s);
-                        s.Add(p);
-                        p.Phrases.Add(new TranscriptionPhrase());
-
-                        myDataSource.Add(c);
-
-                        VirtualizingListBox.ActiveTransctiption = p;
-                        return true;
                     }
-
-
                 }
-                else
-                {
-                    var source = new Transcription();
-                    this.Title = MyKONST.NAZEV_PROGRAMU + " [novy]";
-                    var c = new TranscriptionChapter("Kapitola 0");
-                    var s = new TranscriptionSection("Sekce 0");
-                    var p = new TranscriptionParagraph();
-                    p.Add(new TranscriptionPhrase());
-                    c.Add(s);
-                    s.Add(p);
-                    source.Add(c);
-                    source.Saved = true;
-                    myDataSource = source;
-                    VirtualizingListBox.ActiveTransctiption = p;
-                    return true;
-                }
+
+                var source = new WPFTranscription();
+                this.Title = MyKONST.NAZEV_PROGRAMU + " [novy]";
+                var c = new TranscriptionChapter("Kapitola 0");
+                var s = new TranscriptionSection("Sekce 0");
+                var p = new TranscriptionParagraph();
+                p.Add(new TranscriptionPhrase());
+                c.Add(s);
+                s.Add(p);
+                source.Add(c);
+                source.Saved = true;
+                myDataSource = source;
+                VirtualizingListBox.ActiveTransctiption = p;
                 return true;
+
             }
             catch (Exception ex)
             {
@@ -833,7 +814,7 @@ namespace NanoTrans
                 }
 
 
-                if (myDataSource == null) myDataSource = new Transcription();
+                if (myDataSource == null) myDataSource = new WPFTranscription();
                 if (pouzitOpenDialog)
                 {
                     Microsoft.Win32.OpenFileDialog fileDialog = new Microsoft.Win32.OpenFileDialog();
@@ -876,15 +857,11 @@ namespace NanoTrans
                             }
                         }
 
-                        Transcription pDataSource = new Transcription(fileDialog.FileName);
-                        
-                        //pDataSource = Transcription.Deserialize(fileDialog.FileName);
-
+                        WPFTranscription pDataSource = new WPFTranscription(fileDialog.FileName);
 
                         if (pDataSource == null)
                         {
                             NoveTitulky();
-                            //pDataSource = new MySubtitlesData();                            
                         }
                         else
                         {
@@ -934,7 +911,7 @@ namespace NanoTrans
                             {
                                 foreach (Speaker i in myDataSource.Speakers.Speakers)
                                 {
-                                    Speaker pSp = myDatabazeMluvcich.NajdiSpeakeraSpeaker(i.FullName);
+                                    Speaker pSp = myDatabazeMluvcich.GetSpeakerByName(i.FullName);
                                     if (i.FullName == pSp.FullName && i.FotoJPGBase64 == null)
                                     {
                                         i.FotoJPGBase64 = pSp.FotoJPGBase64;
@@ -961,7 +938,7 @@ namespace NanoTrans
                     {
                         try
                         {
-                            Transcription pDataSource = null;
+                            WPFTranscription pDataSource = null;
                             FileInfo fi = new FileInfo(jmenoSouboru);
                             if (fi != null && fi.Exists)
                             {
@@ -970,13 +947,13 @@ namespace NanoTrans
                                 {
                                     if (files[i].Name.ToUpper() == fi.Name.ToUpper().Replace(".TXT", "_PHONETIC.XML"))
                                     {
-                                        pDataSource = Transcription.Deserialize(files[i].FullName);
+                                        pDataSource = WPFTranscription.Deserialize(files[i].FullName);
                                         break;
                                     }
                                 }
                                 if (pDataSource == null)
                                 {
-                                    pDataSource = new Transcription();
+                                    pDataSource = new WPFTranscription();
                                     FileStream fs = new FileStream(fi.FullName, FileMode.Open);
                                     StreamReader sr = new StreamReader(fs, Encoding.GetEncoding("windows-1250"));
                                     string pText = sr.ReadToEnd();
@@ -1008,7 +985,7 @@ namespace NanoTrans
                     }
                     else
                     {
-                        myDataSource = Transcription.Deserialize(jmenoSouboru);
+                        myDataSource = WPFTranscription.Deserialize(jmenoSouboru);
                     }
                     if (myDataSource != null)
                     {
@@ -1059,7 +1036,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Chyba pri nacitani titulku: " + ex.Message, "Chyba");
+                MessageBox.Show("Chyba pri otevirani prepisu: " + ex.Message, "Chyba");
                 return false;
             }
         }
@@ -1511,7 +1488,7 @@ namespace NanoTrans
                 Pedalthread.Abort();
             if (myDataSource != null && !myDataSource.Saved)
             {
-                    MessageBoxResult mbr = MessageBox.Show("Přepis není uložený. Chcete ho nyní uložit? ", "Varování", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+                MessageBoxResult mbr = MessageBox.Show("Přepis není uložený. Chcete ho nyní uložit? ", "Varování", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
                 if (mbr == MessageBoxResult.Yes || mbr == MessageBoxResult.No)
                 {
                     if (mbr == MessageBoxResult.Yes)
@@ -1581,7 +1558,8 @@ namespace NanoTrans
                         try
                         {
                             myDatabazeMluvcich.Serialize_V1(MySetup.Setup.CestaDatabazeMluvcich, myDatabazeMluvcich);
-                        }catch
+                        }
+                        catch
                         {
                             if (MessageBox.Show("Cesta k databázi mluvčích je neplatná, mluvčí nebudou uloženi (v nastavní jde cesta změnit)", "chyba", MessageBoxButton.OKCancel) == MessageBoxResult.Cancel)
                             {
@@ -1740,7 +1718,7 @@ namespace NanoTrans
             p.ExecuteExport(myDataSource);
         }
 
-        private void LoadSubtitlesData(Transcription data)
+        private void LoadSubtitlesData(WPFTranscription data)
         {
             if (data == null)
                 return;
@@ -1787,7 +1765,7 @@ namespace NanoTrans
         {
 
             Plugin p = (Plugin)((MenuItem)sender).Tag;
-            Transcription data = p.ExecuteImport();
+            WPFTranscription data = p.ExecuteImport();
             LoadSubtitlesData(data);
         }
 
@@ -2353,7 +2331,8 @@ namespace NanoTrans
             try
             {
                 MemoryStream ms = new MemoryStream(state);
-                myDataSource = Transcription.Deserialize(ms);
+
+                myDataSource = WPFTranscription.Deserialize(ms);
                 if (myDataSource != null)
                 {
                     this.Title = MyKONST.NAZEV_PROGRAMU + " [" + myDataSource.FileName + "]";
@@ -2574,7 +2553,7 @@ namespace NanoTrans
                     Assembly a = Assembly.LoadFrom(System.IO.Path.Combine(path, imp.Attribute("File").Value));
                     Type ptype = a.GetType(imp.Attribute("Class").Value);
                     MethodInfo mi = ptype.GetMethod("Import", BindingFlags.Static | BindingFlags.Public);
-                    Func<Stream, Transcription> act = (Func<Stream, Transcription>)Delegate.CreateDelegate(typeof(Func<Stream, Transcription>), mi);
+                    Func<Stream, Transcription, bool> act = (Func<Stream, Transcription, bool>)Delegate.CreateDelegate(typeof(Func<Stream, Transcription, bool>), mi);
 
                     m_ImportPlugins.Add(new Plugin(true, true, imp.Attribute("Mask").Value, null, imp.Attribute("Name").Value, act, null, null));
                 }
@@ -2621,10 +2600,10 @@ namespace NanoTrans
                             {
                                 p.RemoveAt(i);
                             }
-                            else 
+                            else
                             {
                                 var ms = Element.ignoredGroup.Matches(p.Phrases[i].Text).Cast<Match>().ToArray();
-                                if(ms.Length >0)
+                                if (ms.Length > 0)
                                 {
                                     int from = 0;
                                     string s = "";

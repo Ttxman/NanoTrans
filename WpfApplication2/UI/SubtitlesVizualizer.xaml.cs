@@ -96,7 +96,7 @@ namespace NanoTrans
                 p.Begin = el.ValueElement.Parent.End;
 
 
-                p.speakerID = ((TranscriptionParagraph)el.ValueElement).speakerID;
+                p.Speaker = ((TranscriptionParagraph)el.ValueElement).Speaker;
                 el.ValueElement.Parent.Insert(el.ValueElement.ParentIndex + 1, p);
             }
             else if (el.ValueElement is TranscriptionSection)
@@ -248,7 +248,7 @@ namespace NanoTrans
                 t.Parent.Remove(t);
                
             }
-
+            SpeakerChanged();
             ActiveTransctiption = p;
             ScrollToItem(p);
             var vis = GetVisualForTransctiption(p);
@@ -275,7 +275,7 @@ namespace NanoTrans
 
                 n.Parent.Remove(n);
             }
-
+            SpeakerChanged();
             ActiveTransctiption = t;
             ScrollToItem(t);
             ColorizeBackground(t);
@@ -297,7 +297,7 @@ namespace NanoTrans
                     TranscriptionParagraph par2 = new TranscriptionParagraph();
                     TranscriptionParagraph par1 = new TranscriptionParagraph();
 
-                    par1.speakerID = par2.speakerID = par.speakerID;
+                    par1.Speaker = par2.Speaker = par.Speaker;
 
                     par2.End = end;
                     int where = el.editor.CaretOffset;
@@ -362,7 +362,7 @@ namespace NanoTrans
                         }
 
                     }
-
+                    SpeakerChanged();
                     var parent = par.Parent;
                     int indx = par.ParentIndex;
                     parent.Remove(par);

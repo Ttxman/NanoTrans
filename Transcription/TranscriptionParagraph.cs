@@ -11,6 +11,7 @@ namespace NanoTrans.Core
     public class TranscriptionParagraph : TranscriptionElement
     {
 
+        
         public override bool IsParagraph
         {
             get
@@ -122,7 +123,31 @@ namespace NanoTrans.Core
             EndUpdate();
         }
 
-        public int speakerID = Speaker.DefaultID;
+        private int m_speakerID = Speaker.DefaultID;
+        public int SpeakerID
+        {
+            get { return (m_speaker ?? Speaker.DefaultSpeaker).ID; }
+            set 
+            {
+                if (m_speaker != null && m_speakerID!=Speaker.DefaultID)
+                    throw new ArgumentException("cannot set speaker ID while Speaker is set");
+                m_speakerID = value;
+            }
+        }
+
+        Speaker m_speaker = null;
+        public Speaker Speaker
+        {
+            get 
+            {
+                return m_speaker;
+            }
+            set 
+            { 
+                m_speaker = value;
+                m_speakerID = value.ID;
+            }
+        }
 
         /// <summary>
         /// informace zda je dany element zahrnut pro trenovani dat 
@@ -151,7 +176,7 @@ namespace NanoTrans.Core
         public TranscriptionParagraph(XElement e, bool isStrict)
         {
             Phrases = new VirtualTypeList<TranscriptionPhrase>(this);
-            speakerID = int.Parse(e.Attribute(isStrict ? "speakerid" : "s").Value);
+            m_speakerID = int.Parse(e.Attribute(isStrict ? "speakerid" : "s").Value);
             Attributes = (e.Attribute(isStrict ? "speakerid" : "s") ?? EmptyAttribute).Value;
 
             elements = e.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
@@ -209,7 +234,7 @@ namespace NanoTrans.Core
         public XElement Serialize(bool strict)
         {
             XElement elm = new XElement(strict ? "paragraph" : "pa",
-                elements.Select(e => new XAttribute(e.Key, e.Value)).Union(new[] { new XAttribute(strict ? "begin" : "b", Begin), new XAttribute(strict ? "end" : "e", End), new XAttribute(strict ? "attributes" : "a", Attributes), new XAttribute(strict ? "speakerid" : "s", speakerID), }),
+                elements.Select(e => new XAttribute(e.Key, e.Value)).Union(new[] { new XAttribute(strict ? "begin" : "b", Begin), new XAttribute(strict ? "end" : "e", End), new XAttribute(strict ? "attributes" : "a", Attributes), new XAttribute(strict ? "speakerid" : "s", m_speakerID), }),
                 Phrases.Select(p => p.Serialize(strict))
             );
 
@@ -237,7 +262,7 @@ namespace NanoTrans.Core
                     this.Phrases.Add(new TranscriptionPhrase(aKopie.Phrases[i]));
                 }
             }
-            this.speakerID = aKopie.speakerID;
+            this.m_speakerID = aKopie.m_speakerID;
         }
 
         public TranscriptionParagraph(List<TranscriptionPhrase> phrases)
@@ -259,7 +284,7 @@ namespace NanoTrans.Core
             this.Begin = new TimeSpan(-1);
             this.End = new TimeSpan(-1);
             this.trainingElement = false;
-            this.speakerID = Speaker.DefaultID;
+            this.Speaker = Speaker.DefaultSpeaker;
         }
 
         //when phraze is removed...

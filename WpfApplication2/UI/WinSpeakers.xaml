@@ -28,7 +28,7 @@
             </StackPanel>
             
             <Button Focusable="True" HorizontalAlignment="Right" IsTabStop="False" Margin="0,80,8,0" Name="btSynchronizovat" ToolTip="Přidá mluvčí z přepisu do interní databáze" Width="90" Click="btSynchronizovat_Click" Height="29" VerticalAlignment="Top" Grid.Column="2" Grid.Row="1">Synchronizovat</Button>
-            <Button Height="29" HorizontalAlignment="Right" Margin="0,0,8,0" Name="btNovyMluvci" ToolTip="Vytvoří nového mluvčího" VerticalAlignment="Top" Width="90" Click="btNovyMluvci_Click" Focusable="True" IsTabStop="False" Grid.Column="2" Grid.Row="1">Nový mluvčí (F2)</Button>
+            <Button Height="29" HorizontalAlignment="Right" Name="btNovyMluvci" ToolTip="Vytvoří nového mluvčího" VerticalAlignment="Top" Width="90" Click="btNovyMluvci_Click" Focusable="True" IsTabStop="False" Grid.Column="2" Grid.Row="1" Margin="0,0,8,0">Nový mluvčí (F2)</Button>
             <Button Focusable="True" Height="29" HorizontalAlignment="Right" IsTabStop="False" Margin="0,36,8,0" Name="btEditace" ToolTip="Edituje vybraného mluvčího" VerticalAlignment="Top" Width="90" Click="btEditace_Click" Grid.Column="2" Grid.Row="1">Editace ml. (F3)</Button>
             <Button HorizontalAlignment="Right" Margin="0,0,8,0" Name="btSmazSpeakera" Width="90" Click="btSmazSpeakera_Click" Height="29" VerticalAlignment="Bottom" ToolTip="Smaže vybraného mluvčího" IsTabStop="False" Grid.Column="2" Grid.Row="1">Smazat (Del)</Button>
 

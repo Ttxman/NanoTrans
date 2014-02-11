@@ -46,14 +46,15 @@ namespace NanoTrans
         private void btPridejMluvciho_Click(object sender, RoutedEventArgs e)
         {   
             this.DialogResult = true;
-            string pMluvci = null;
-            string pJazykovyModel = null;
-            string pPrepisovaciPravidla = null;
 
             Speaker.Sexes pPohlavi = (Speaker.Sexes)cbPohlavi.SelectedIndex;
             if (cbPohlavi.SelectedIndex <= 0) pPohlavi = Speaker.Sexes.X;
 
-            bSpeaker = new Speaker(tbJmeno.Text, tbPrijmeni.Text, pPohlavi, pMluvci, pJazykovyModel, pPrepisovaciPravidla, this.bStringBase64FotoInterni, tbRemark.Text);
+            bSpeaker.FirstName = tbJmeno.Text;
+            bSpeaker.Surname = tbPrijmeni.Text;
+            bSpeaker.Sex =  pPohlavi;
+            bSpeaker.FotoJPGBase64 = bStringBase64FotoInterni;
+            bSpeaker.Comment = tbRemark.Text;
 
             bSpeaker.DefaultLang = cbLanguage.SelectedIndex;
 

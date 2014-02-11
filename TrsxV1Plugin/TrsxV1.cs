@@ -4,14 +4,25 @@ namespace TrsxV1Plugin
 {
     public class TrsxV1
     {
-        public static Transcription Import(Stream input)
+        public static bool Import(Stream input,Transcription storage)
         {
-            return Transcription.Deserialize(input);
+            Transcription.Deserialize(input,storage);
+            return true;
         }
 
         public static bool Export(Transcription data, Stream output)
         {
-            return data.SerializeV1(output, data, false);
+            bool exc = true;
+            try
+            {
+                Transcription.SerializeV1(output, data, false);
+            }
+            catch
+            {
+                exc = false;
+            }
+
+            return exc;
         }
 
     }

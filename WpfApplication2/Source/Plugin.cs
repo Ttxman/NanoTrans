@@ -49,9 +49,9 @@ namespace NanoTrans
             set { m_parameters = value; }
         }
 
-        Func<Stream, Transcription> m_importDelegate;
+        Func<Stream, Transcription, bool> m_importDelegate;
 
-        public Func<Stream, Transcription> ImportDelegate
+        public Func<Stream, Transcription, bool> ImportDelegate
         {
             get { return m_importDelegate; }
             set { m_importDelegate = value; }
@@ -73,7 +73,7 @@ namespace NanoTrans
             set { m_name = value; }
         }
 
-        public Plugin(bool input, bool isassembly, string mask, string parameters, string name, Func<Stream, Transcription> importDelegate, Func<Transcription, Stream, bool> exportDelegate, string filename)
+        public Plugin(bool input, bool isassembly, string mask, string parameters, string name, Func<Stream, Transcription, bool> importDelegate, Func<Transcription, Stream, bool> exportDelegate, string filename)
         {
             m_input = input;
             m_isassembly = isassembly;
@@ -86,7 +86,7 @@ namespace NanoTrans
         }
 
 
-        public Transcription ExecuteImport(string sourcefile = null)
+        public WPFTranscription ExecuteImport(string sourcefile = null)
         {
             if (sourcefile == null)
             {
@@ -107,8 +107,12 @@ namespace NanoTrans
                     {
                         using (var f = File.OpenRead(sourcefile))
                         {
-                            Transcription imp = m_importDelegate.Invoke(f);
+                            var imp = new WPFTranscription();
+                            if (!m_importDelegate.Invoke(f, imp))
+                                throw new Exception();
+                            
                             imp.FileName = sourcefile;
+                            
                             return imp;
                         }
                     }
@@ -129,8 +133,7 @@ namespace NanoTrans
                         p.Start();
                         p.WaitForExit();
 
-                        var data = Transcription.Deserialize(tempFile);
-
+                        var data = WPFTranscription.Deserialize(tempFile);
                         return data;
 
                     }

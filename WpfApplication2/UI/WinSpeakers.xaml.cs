@@ -52,10 +52,15 @@ namespace NanoTrans
 
         private void Updatebindings()
         {
+            var bfr = lbDatabazeMluvcich.SelectedItem;
             lbDatabazeMluvcich.ItemsSource = null;
             lbDatabazeMluvcich.ItemsSource = bDatabazeMluvcich.Speakers;
+            lbDatabazeMluvcich.SelectedItem = bfr;
+
+            bfr = lbSeznamMluvcich.SelectedItem;
             lbSeznamMluvcich.ItemsSource = null;
             lbSeznamMluvcich.ItemsSource = myDataSource.Speakers.Speakers;
+            lbSeznamMluvcich.SelectedItem = bfr;
         }
         
         public WinSpeakers(TranscriptionParagraph aTag, MySetup aNastaveniProgramu, MySpeakers aDatabazeMluvcich, Transcription aDataTitulky)
@@ -84,7 +89,7 @@ namespace NanoTrans
                 {
                     if (MessageBox.Show("Opravdu chcete smazat vybraného mluvčího z příslušného seznamu i datové struktury, pokud je v ní přítomen?", "Upozornění:", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                     {
-                        if (myDataSource.OdstranSpeakera(lbSeznamMluvcich.SelectedItem as Speaker))
+                        if (myDataSource.RemoveSpeaker(lbSeznamMluvcich.SelectedItem as Speaker))
                         {
                             lbSeznamMluvcich.Focus();
                             Updatebindings();
@@ -97,7 +102,7 @@ namespace NanoTrans
                     {
                         if (lbDatabazeMluvcich.SelectedItem != null)
                         {
-                            if (this.bDatabazeMluvcich.OdstranSpeakera(lbSeznamMluvcich.SelectedItem as Speaker))
+                            if (this.bDatabazeMluvcich.RemoveSpeaker(lbSeznamMluvcich.SelectedItem as Speaker))
                             {
                                 lbDatabazeMluvcich.Focus();
                                 Updatebindings();
@@ -112,7 +117,7 @@ namespace NanoTrans
         private void button1_Click(object sender, RoutedEventArgs e)
         {
             bSpeaker = null;
-            bTag.speakerID = new Speaker().ID;
+            bTag.Speaker = Speaker.DefaultSpeaker;
             this.DialogResult = true;
             this.Close();
         }
@@ -126,7 +131,7 @@ namespace NanoTrans
                     e.Handled = true;
                     if (lbSeznamMluvcich.SelectedItem != null)
                     {
-                        bSpeaker = myDataSource.VratSpeakera(myDataSource.GetSpeaker(((string)lbSeznamMluvcich.SelectedItem)));
+                        bSpeaker = myDataSource.GetSpeakerByName(((string)lbSeznamMluvcich.SelectedItem));
 
                     }
                 }
@@ -139,7 +144,7 @@ namespace NanoTrans
 
         private void lbDatabazeMluvcich_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            if (myDataSource.NovySpeaker(this.bDatabazeMluvcich.NajdiSpeakeraSpeaker(((Speaker)lbDatabazeMluvcich.SelectedItem).FullName)) >= 0)
+            if (myDataSource.AddSpeaker(this.bDatabazeMluvcich.GetSpeakerByName(((Speaker)lbDatabazeMluvcich.SelectedItem).FullName)))
             {
                 Updatebindings();
             }
@@ -156,13 +161,13 @@ namespace NanoTrans
                     Speaker pSpeaker;
                     if (plb.Name == lbDatabazeMluvcich.Name)
                     {
-                        pSpeaker = this.bDatabazeMluvcich.NajdiSpeakeraSpeaker(plb.SelectedItem.ToString());
+                        pSpeaker = this.bDatabazeMluvcich.GetSpeakerByName((plb.SelectedItem as Speaker).FullName);
                     }
                     else
                     {
-                        pSpeaker = myDataSource.Speakers.NajdiSpeakeraSpeaker(plb.SelectedItem.ToString());
+                        pSpeaker = myDataSource.Speakers.GetSpeakerByName((plb.SelectedItem as Speaker).FullName);
                     }
-                    bSpeaker = new Speaker(pSpeaker);
+                    bSpeaker = pSpeaker;
                 }
             }
             catch
@@ -197,8 +202,8 @@ namespace NanoTrans
             EditSpeakerWindow ew = new EditSpeakerWindow(myDataSource, new Speaker());
             if (ew.ShowDialog() == true)
             {
-                myDataSource.Speakers.NovySpeaker(new Speaker(ew.Speaker));
-                bDatabazeMluvcich.NovySpeaker(new Speaker(ew.Speaker));
+                myDataSource.Speakers.AddSpeaker(ew.Speaker,true);
+                bDatabazeMluvcich.AddSpeaker(ew.Speaker,true);
                 Updatebindings();
             }
         }
@@ -237,40 +242,7 @@ namespace NanoTrans
             if (win.ShowDialog() == false)
                 return;
 
-            Speaker pSpeaker = win.Speaker;
-            Speaker pkopieSpeaker = new Speaker(bSpeaker);
-            if (bSpeaker != null && pkopieSpeaker != null && pkopieSpeaker.FullName != null && pkopieSpeaker.FullName != "" && pSpeaker != null)
-            {
-                Speaker pSp = myDataSource.Speakers.NajdiSpeakeraSpeaker(pkopieSpeaker.FullName);
-                if (pSp != null && pSp.ID != int.MinValue)
-                {
-                    if (myDataSource.Speakers.UpdatujSpeakera(pkopieSpeaker.FullName, pSpeaker))
-                    {
-                        bSpeaker = myDataSource.Speakers.NajdiSpeakeraSpeaker(pSpeaker.FullName);
-                        Updatebindings();
-                        lbSeznamMluvcich.SelectedItem = bSpeaker;
-                    }
-                }
-                pSp = this.bDatabazeMluvcich.NajdiSpeakeraSpeaker(pkopieSpeaker.FullName);
-                if (pSp != null && pSp.ID >= 0)
-                {
-                    if (this.bDatabazeMluvcich.UpdatujSpeakera(pkopieSpeaker.FullName, pSpeaker))
-                    {
-                        bSpeaker = this.bDatabazeMluvcich.NajdiSpeakeraSpeaker(pSpeaker.FullName);
-                        Updatebindings();
-                        lbDatabazeMluvcich.SelectedItem = bSpeaker;
-                    }
-                }
-            }
-            else
-            {
-
-                if (this.bDatabazeMluvcich.NovySpeaker(pSpeaker) > -1)
-                {
-                    bSpeaker = myDataSource.VratSpeakera(myDataSource.GetSpeaker(pSpeaker.FullName));
-                    Updatebindings();
-                }
-            }
+            Updatebindings();
         }
 
         private void btExterniDatabaze_Click(object sender, RoutedEventArgs e)
@@ -292,7 +264,7 @@ namespace NanoTrans
                 fileDialog.RestoreDirectory = true;
                 if (fileDialog.ShowDialog() == true)
                 {
-                    MySpeakers ms = this.bDatabazeMluvcich.Deserializovat(fileDialog.FileName);
+                    MySpeakers ms = this.bDatabazeMluvcich.Deserialize(fileDialog.FileName);
                     if (ms != null && ms.Ulozeno)
                     {
                         this.bDatabazeMluvcich = ms;
@@ -310,7 +282,7 @@ namespace NanoTrans
 
 
         /// <summary>
-        /// zavola okno s editaci mluvcich a vrati vybraneho a nastaveneho mluvciho, referencneovlivni databazi mluvcich programu
+        /// zavola okno s editaci mluvcich a vrati vybraneho a nastaveneho mluvciho, reference neovlivni databazi mluvcich programu
         /// </summary>
         /// <returns></returns>
         public static Speaker ZiskejMluvciho(MySpeakers aDatabazeMluvcich, Speaker aPuvodniMluvci, string aFotkaBase64)
@@ -318,7 +290,7 @@ namespace NanoTrans
             return ZiskejMluvciho(MySetup.Setup, aDatabazeMluvcich, aPuvodniMluvci, aFotkaBase64);
         }
         /// <summary>
-        /// zavola okno s editaci mluvcich a vrati vybraneho a nastaveneho mluvciho, referencneovlivni databazi mluvcich programu
+        /// zavola okno s editaci mluvcich a vrati vybraneho a nastaveneho mluvciho, reference neovlivni databazi mluvcich programu
         /// </summary>
         /// <returns></returns>
         public static Speaker ZiskejMluvciho(MySetup aNastaveniProgramu, MySpeakers aDatabazeMluvcich, Speaker aPuvodniMluvci, string aFotkaBase64)
@@ -328,7 +300,7 @@ namespace NanoTrans
                 
                 Speaker ret = aPuvodniMluvci;
                 Transcription ps = new Transcription();
-                ps.NovySpeaker(aPuvodniMluvci);
+
                 WinSpeakers ws = new WinSpeakers(new TranscriptionParagraph(), aNastaveniProgramu, aDatabazeMluvcich, ps, aPuvodniMluvci);
                 ws.ShowDialog(); 
                 if (ws.DialogResult == true)
@@ -381,8 +353,8 @@ namespace NanoTrans
             {
                 foreach (Speaker i in myDataSource.Speakers.Speakers)
                 {
-                    if (bDatabazeMluvcich.NajdiSpeakeraID(i.FullName) < 0)
-                        bDatabazeMluvcich.NovySpeaker(i);
+                    if (bDatabazeMluvcich.GetSpeakerByName(i.FullName).ID < 0)
+                        bDatabazeMluvcich.AddSpeaker(i,true);
                 }
                 Updatebindings();
             }
@@ -409,7 +381,7 @@ namespace NanoTrans
         {
             DialogResult = true;
             if (bTag != null && bSpeaker !=null)
-                bTag.speakerID = bSpeaker.ID;
+                bTag.Speaker = bSpeaker;
             Close();
         }
 
@@ -441,9 +413,9 @@ namespace NanoTrans
                             if (elm.IsParagraph)
                             {
                                 TranscriptionParagraph p = (TranscriptionParagraph)elm;
-                                if (myDataSource.Speakers.VratSpeakera(p.speakerID).ID == Speaker.DefaultID)
+                                if (myDataSource.Speakers.GetSpeakerByID(p.SpeakerID).ID == Speaker.DefaultID)
                                 {
-                                    p.speakerID = w.To.ID;
+                                    p.Speaker = w.To;
                                 }
                             }
                             elm = elm.Next();
@@ -458,9 +430,9 @@ namespace NanoTrans
                             if (elm.IsParagraph)
                             {
                                 TranscriptionParagraph p = (TranscriptionParagraph)elm;
-                                if (p.speakerID == w.From.ID)
+                                if (p.SpeakerID == w.From.ID)
                                 {
-                                    p.speakerID = w.To.ID;
+                                    p.Speaker = w.To;
                                 }
                             }
                             elm = elm.Next();
