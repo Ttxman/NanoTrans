@@ -960,6 +960,7 @@ namespace NanoTrans
                                     }
                                     else
                                     {
+                                        oldms = TimeSpan.Zero;
                                         int lastc = myDataSource.Chapters.Count - 1;
                                         int lasts = myDataSource.Chapters[lastc].Sections.Count - 1;
                                         int lastp = myDataSource.Chapters[lastc].Sections[lasts].Paragraphs.Count - 1;

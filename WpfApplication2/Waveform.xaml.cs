@@ -11,6 +11,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Threading;
 
 namespace NanoTrans
 {
@@ -89,28 +90,23 @@ namespace NanoTrans
                 double aLeft = (CarretPosition - WaveBegin).TotalMilliseconds;
                 aLeft = aLeft / WaveLength.TotalMilliseconds * myImage.ActualWidth;
 
-                rectangle1.Margin = new Thickness(aLeft - 2, rectangle1.Margin.Top, rectangle1.Margin.Right, rectangle1.Margin.Bottom);
+                rectangle1.Margin = new Thickness(aLeft + rectangle1.Width / 2, rectangle1.Margin.Top, rectangle1.Margin.Right, rectangle1.Margin.Bottom);
 
                 InvalidateSelection();
-
-               if(CarretPostionChanged!=null)
-                   CarretPostionChanged(this,new TimeSpanEventArgs(ts));
             }
         }
 
-
         public TimeSpan SliderPostion
         {
-            get 
-            { 
-                return TimeSpan.FromMilliseconds(slPoziceMedia.Value); 
+            get
+            {
+                return TimeSpan.FromMilliseconds(slPoziceMedia.Value);
             }
-            set 
+            set
             {
                 slPoziceMedia.Value = value.TotalMilliseconds;
             }
         }
-
 
         public TimeSpan AudioLength
         {
@@ -125,8 +121,8 @@ namespace NanoTrans
         public TimeSpan SmallJump
         {
             get { return TimeSpan.FromMilliseconds(oVlna.mSekundyMalySkok); }
-            set 
-            { 
+            set
+            {
                 oVlna.mSekundyMalySkok = (long)value.TotalMilliseconds;
                 InvalidateWaveform();
             }
@@ -156,27 +152,31 @@ namespace NanoTrans
         public TimeSpan ProgressHighlightBegin
         {
             get { return TimeSpan.FromMilliseconds(slPoziceMedia.SelectionStart); }
-            set 
+            set
             {
                 if (!m_autohighlight)
-                    slPoziceMedia.SelectionStart = value.TotalMilliseconds; 
+                    slPoziceMedia.SelectionStart = value.TotalMilliseconds;
             }
         }
 
         public TimeSpan ProgressHighlightEnd
         {
             get { return TimeSpan.FromMilliseconds(slPoziceMedia.SelectionEnd); }
-            set 
-            { 
-                if(!m_autohighlight)
-                slPoziceMedia.SelectionEnd = value.TotalMilliseconds; 
+            set
+            {
+                if (!m_autohighlight)
+                    slPoziceMedia.SelectionEnd = value.TotalMilliseconds;
             }
         }
 
-        public MyBuffer16 AudioBuffer
+        public TimeSpan AudioBufferBegin
         {
-            get { return oVlna.bufferPrehravaniZvuku; }
-            set { oVlna.bufferPrehravaniZvuku = value; }
+            get { return TimeSpan.FromMilliseconds(oVlna.bufferPrehravaniZvuku.PocatekMS); }
+        }
+
+        public TimeSpan AudioBufferEnd
+        {
+            get { return TimeSpan.FromMilliseconds(oVlna.bufferPrehravaniZvuku.KonecMS); }
         }
 
 
@@ -184,7 +184,12 @@ namespace NanoTrans
         public bool AutomaticProgressHighlight
         {
             get { return m_autohighlight; }
-            set { m_autohighlight = value;  }
+            set
+            {
+                m_autohighlight = value;
+                slPoziceMedia.SelectionStart = oVlna.mSekundyVlnyZac;
+                slPoziceMedia.SelectionEnd = oVlna.mSekundyVlnyKon;
+            }
         }
 
 
@@ -229,10 +234,10 @@ namespace NanoTrans
         }
 
         private MySubtitlesData m_subtitlesData;
-        public  MySubtitlesData SubtitlesData
+        public MySubtitlesData SubtitlesData
         {
-            get { return m_subtitlesData;}
-            set { m_subtitlesData  = value;}
+            get { return m_subtitlesData; }
+            set { m_subtitlesData = value; }
         }
 
 
@@ -248,7 +253,7 @@ namespace NanoTrans
         public event EventHandler<TimeSpanEventArgs> SliderPositionChanged;
         public event EventHandler UpdateBegin;
         public event EventHandler UpdateEnd;
-        public event EventHandler<TimeSpanEventArgs> CarretPostionChanged;
+        public event EventHandler<TimeSpanEventArgs> CarretPostionChangedByUser;
 
 
         public class TimeSpanEventArgs : EventArgs
@@ -260,10 +265,54 @@ namespace NanoTrans
             }
         }
 
+
+        private bool invalidate_waveform = true;
+        private bool invalidate_speakers = true;
+        private bool invalidate_selection = true;
+
+        private Thread Invalidator;
         public Waveform()
         {
 
             InitializeComponent();
+            Invalidator = new Thread(ProcessInvalidates);
+
+            Invalidator.Start();
+        }
+
+        /// <summary>
+        /// prekresluje interface z vlastniho vlakna (omezeni poctu prekresleni pri caste zmene hodnot - jako tahnuti mysi)
+        /// </summary>
+        private void ProcessInvalidates()   
+        {
+            try
+            {
+                while (true)
+                {
+                    Thread.Sleep(20);
+
+                    if (invalidate_waveform)
+                    {
+                        this.Dispatcher.Invoke(new Action(iInvalidateWaveform));
+                    }
+
+                    if (invalidate_speakers)
+                    {
+                        this.Dispatcher.Invoke(new Action(iInvalidateSpeakers));
+                    }
+
+                    if (invalidate_selection)
+                    {
+                        this.Dispatcher.Invoke(new Action(iInvalidateSelection));
+                    }
+
+
+                    invalidate_waveform = false;
+                    invalidate_speakers = false;
+                    invalidate_selection = false;
+                }
+            }
+            catch (ThreadInterruptedException) { }
         }
 
 
@@ -283,35 +332,15 @@ namespace NanoTrans
         }
 
 
-
-        private void slPoziceMedia_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            if (!slPoziceMedia_mouseDown)
-            {
-                if (SliderPositionChanged != null)
-                    SliderPositionChanged(this, new TimeSpanEventArgs(TimeSpan.FromMilliseconds(slPoziceMedia.Value)));
-            }
-
-
-            WaveBegin = TimeSpan.FromMilliseconds(e.NewValue-oVlna.DelkaVlnyMS / 2);
-            WaveEnd = TimeSpan.FromMilliseconds(e.NewValue + oVlna.DelkaVlnyMS / 2);
-        }
-
-        private void btPrehratZastavit_Click(object sender, RoutedEventArgs e)
-        {
-
-            if (PlayPauseClick != null)
-                PlayPauseClick(this, new RoutedEventArgs(Button.ClickEvent));
-        }
-
-
-
-
         /// <summary>
-        /// THREAD SAFE - nakresli vlnu do formulare
+        /// nakresli vlnu do formulare
         /// </summary>
-        /// <param name="aParametry"></param>
         public void InvalidateWaveform()
+        {
+            invalidate_waveform = true;
+        }
+
+        private void iInvalidateWaveform()
         {
 
             double zacatek = oVlna.mSekundyVlnyZac;
@@ -496,8 +525,13 @@ namespace NanoTrans
 
         }
 
+
+        private void InvalidateSelection()
+        {
+            invalidate_selection = true;
+        }
         //nakresli vyber 
-        private void InvalidateSelection()//long zacatek, long konec, long kurzor)
+        private void iInvalidateSelection()//long zacatek, long konec, long kurzor)
         {
             long zacatek = oVlna.KurzorVyberPocatekMS;
             long konec = oVlna.KurzorVyberKonecMS;
@@ -667,11 +701,18 @@ namespace NanoTrans
             }
         }
 
+
         public void InvalidateSpeakers()
+        {
+            invalidate_speakers = true;
+        }
+
+
+        private void iInvalidateSpeakers()
         {
             MySubtitlesData aDokument = m_subtitlesData;
             MyVlna aZobrazenaVlna = oVlna;
-           // throw new NotImplementedException();
+            // throw new NotImplementedException();
             /* try
              {
 
@@ -824,8 +865,42 @@ namespace NanoTrans
         }
 
 
+        private void slPoziceMedia_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (!slPoziceMedia_mouseDown)
+            {
+                if (SliderPositionChanged != null)
+                    SliderPositionChanged(this, new TimeSpanEventArgs(TimeSpan.FromMilliseconds(slPoziceMedia.Value)));
+            }
 
-        private delegate void DelegateKresliVlnuAOstatni(DrawingImage aImage);
+
+
+            BeginUpdate();
+
+
+
+            WaveBegin = TimeSpan.FromMilliseconds(e.NewValue - oVlna.DelkaVlnyMS / 2);
+            WaveEnd = TimeSpan.FromMilliseconds(e.NewValue + oVlna.DelkaVlnyMS / 2);
+
+            CarretPosition = TimeSpan.FromMilliseconds(e.NewValue);
+
+            if (CarretPostionChangedByUser != null)
+                CarretPostionChangedByUser(this, new TimeSpanEventArgs(this.CarretPosition));
+            InvalidateWaveform();
+
+
+            EndUpdate();
+        }
+
+        private void btPrehratZastavit_Click(object sender, RoutedEventArgs e)
+        {
+
+            if (PlayPauseClick != null)
+                PlayPauseClick(this, new RoutedEventArgs(Button.ClickEvent));
+        }
+
+
+
 
 
         /// <summary>
@@ -837,7 +912,7 @@ namespace NanoTrans
             if (this.Dispatcher.Thread != System.Threading.Thread.CurrentThread)
             {
                 //this.Dispatcher.Invoke(new DelegatKresliVlnu(KresliVlnuB), new object[] { aParametry });
-                this.Dispatcher.Invoke(new DelegateKresliVlnuAOstatni(KresliVlnuAOstatni), new object[] { aImage });
+                this.Dispatcher.Invoke(new Action<DrawingImage>(KresliVlnuAOstatni), new object[] { aImage });
                 return;
             }
             if (aImage != null)
@@ -863,12 +938,19 @@ namespace NanoTrans
             BeginUpdate();
 
             oVlna.mSekundyVlnyZac -= oVlna.DelkaVlnyMS / 10;
-            oVlna.mSekundyVlnyKon = oVlna.mSekundyVlnyZac + oVlna.DelkaVlnyMS;
+
 
             if (oVlna.mSekundyVlnyZac < 0)
                 oVlna.mSekundyVlnyZac = 0;
 
-            this.CarretPosition = TimeSpan.FromMilliseconds(CarretPosition.TotalMilliseconds - oVlna.DelkaVlnyMS / 10);
+            oVlna.mSekundyVlnyKon = oVlna.mSekundyVlnyZac + oVlna.DelkaVlnyMS;
+
+            double caretpos = CarretPosition.TotalMilliseconds - oVlna.DelkaVlnyMS / 10;
+            if (caretpos < 0)
+                caretpos = 0;
+            this.CarretPosition = TimeSpan.FromMilliseconds(caretpos);
+            if (CarretPostionChangedByUser != null)
+                CarretPostionChangedByUser(this, new TimeSpanEventArgs(this.CarretPosition));
             InvalidateWaveform();
 
             EndUpdate();
@@ -880,11 +962,13 @@ namespace NanoTrans
 
             oVlna.mSekundyVlnyKon = oVlna.mSekundyVlnyKon + oVlna.DelkaVlnyMS / 10;
 
-            if (AudioLength.TotalMilliseconds < oVlna.mSekundyVlnyKon) 
+            if (AudioLength.TotalMilliseconds < oVlna.mSekundyVlnyKon)
                 oVlna.mSekundyVlnyKon = (long)AudioLength.TotalMilliseconds;
             oVlna.mSekundyVlnyZac = oVlna.mSekundyVlnyKon - oVlna.DelkaVlnyMS;
 
             this.CarretPosition = TimeSpan.FromMilliseconds(CarretPosition.TotalMilliseconds + oVlna.DelkaVlnyMS / 10);
+            if (CarretPostionChangedByUser != null)
+                CarretPostionChangedByUser(this, new TimeSpanEventArgs(this.CarretPosition));
 
             InvalidateWaveform();
 
@@ -893,87 +977,34 @@ namespace NanoTrans
         }
 
 
+        double downpos = 0;
+        TimeSpan downtime = TimeSpan.Zero;
         //posun prehravaneho zvuku na danou pozici
         private void myImage_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            BeginUpdate();
-            
-            this.CarretPosition = this.SelectionBegin = TimeSpan.FromTicks((long)((WaveEnd - WaveBegin).Ticks * (e.GetPosition(this).X / this.ActualWidth)));
+            downpos = e.GetPosition(myImage).X;
+            double pos = e.GetPosition(myImage).X;
+            double relative = pos / myImage.ActualWidth;
+            downtime = TimeSpan.FromTicks((long)((WaveEnd - WaveBegin).Ticks * relative + WaveBegin.Ticks));
 
-            /*try
-            {
-                Point position;
-                if (sender.GetType() == grid1.GetType())
-                {
-                    position = e.GetPosition((Grid)sender);
-                }
-                else
-                {
-                    position = e.GetPosition((Image)sender);
-                    return;
-                }
-                double pX = position.X;
-                double pY = position.Y;
-
-                if (e.LeftButton == MouseButtonState.Pressed)
-                {
-                        MyParagraph pp = m_subtitlesData.VratOdstavec(nastaveniAplikace.RichTag);
-                        if (pp != null)
-                        {
-                            if (Math.Abs(pX - rectangle2.Margin.Left) < 7)
-                            {
-                                oVlna.MouseLeftDown = true;
-                                if (pp.begin == oVlna.KurzorVyberPocatekMS && pp.end == oVlna.KurzorVyberKonecMS)
-                                {
-                                    ukladatCasy = true;
-                                }
-                            }
-                            if (Math.Abs(pX - (rectangle2.Margin.Left + rectangle2.Width)) < 7)
-                            {
-                                oVlna.MouseLeftDown = true;
-                                if (pp.begin == oVlna.KurzorVyberPocatekMS && pp.end == oVlna.KurzorVyberKonecMS)
-                                {
-                                    ukladatCasy = true;
-                                }
-                            }
-                        }
-
-
-
-                    long celkMilisekundy = (long)(oVlna.mSekundyVlnyZac + pX / myImage.ActualWidth * (oVlna.DelkaVlnyMS));
-
-                    if ((!posouvatL && !posouvatP) || !oVlna.MouseLeftDown)
-                    {
-
-                        oVlna.KurzorPoziceMS = celkMilisekundy;
-
-
-                        NastavPoziciKurzoru(celkMilisekundy, true, true);
-                        if (nastaveniAplikace.SetupSkocitZastavit)
-                        {
-
-                            //mediaElement1.Pause();
-                            if (jeVideo) meVideo.Pause();
-                            Playing = false;
-                            prehratVyber = false;
-
-                        }
-
-                        oVlna.MouseLeftDown = true;
-
-                    }
-                }
-
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-            }*/
-            EndUpdate();
         }
 
         private void myImage_MouseUp(object sender, MouseButtonEventArgs e)
         {
+
+            double pos = e.GetPosition(myImage).X;
+            if (Math.Abs(downpos - pos) < 1)
+            {
+                BeginUpdate();
+                double relative = pos / myImage.ActualWidth;
+
+                this.CarretPosition = TimeSpan.FromTicks((long)((WaveEnd - WaveBegin).Ticks * relative + WaveBegin.Ticks));
+                if (CarretPostionChangedByUser != null)
+                    CarretPostionChangedByUser(this, new TimeSpanEventArgs(this.CarretPosition));
+
+                EndUpdate();
+            }
+
             /*
             try
             {
@@ -1085,219 +1116,26 @@ namespace NanoTrans
 
         private void myImage_MouseMove(object sender, MouseEventArgs e)
         {
-            BeginUpdate();
-            if (e.LeftButton == MouseButtonState.Pressed)
+            double pos = e.GetPosition(myImage).X;
+            if (Math.Abs(downpos - pos) > 1 && e.LeftButton == MouseButtonState.Pressed)
             {
-                this.SelectionEnd = TimeSpan.FromTicks((long)((WaveEnd - WaveBegin).Ticks * (e.GetPosition(this).X / this.ActualWidth)));
-                InvalidateSelection();
-            
-            }
-            EndUpdate();
-            /* 
-            try
-            {
-                Point position;
-                if (sender.GetType() == grid1.GetType())
+                double relative = pos / myImage.ActualWidth;
+                //double relative2 = downpos / myImage.ActualWidth;
+
+                TimeSpan ts1 = TimeSpan.FromTicks((long)((WaveEnd - WaveBegin).Ticks * relative + WaveBegin.Ticks));
+                TimeSpan ts2 = downtime;
+                System.Diagnostics.Debug.WriteLine("pos "+ts1+" ... "+ts2);
+                if (ts1 < ts2)
                 {
-                    position = e.GetPosition((Grid)sender);
+                    SelectionBegin = ts1;
+                    SelectionEnd = ts2;
                 }
                 else
                 {
-                    position = e.GetPosition((Image)sender);
+                    SelectionBegin = ts2;
+                    SelectionEnd = ts1;
                 }
-                double pX = position.X;
-
-                if (oVlna.MouseLeftDown && e.LeftButton == MouseButtonState.Pressed)
-                {
-                    long celkMilisekundy = (long)(oVlna.mSekundyVlnyZac + pX / myImage.ActualWidth * (oVlna.DelkaVlnyMS));
-
-                    MyTag ptNasledujici = null;
-                    MyTag ptPredchozi = null;
-                    MyParagraph pPredchozi = null;
-                    MyParagraph pAktualni = null;
-                    MyParagraph pNasledujici = null;
-                    if (nastaveniAplikace.RichTag.JeOdstavec)
-                    {
-                        ptPredchozi = myDataSource.VratOdstavecPredchoziTag(nastaveniAplikace.RichTag);
-                        ptNasledujici = myDataSource.VratOdstavecNasledujiciTag(nastaveniAplikace.RichTag);
-                        pPredchozi = myDataSource.VratOdstavec(ptPredchozi);
-                        pAktualni = myDataSource.VratOdstavec(nastaveniAplikace.RichTag);
-                        pNasledujici = myDataSource.VratOdstavec(ptNasledujici);
-                    }
-                    if (!posouvatL && !posouvatP && oVlna.KurzorPoziceMS != oVlna.KurzorVyberPocatekMS)
-                    {
-                        oVlna.KurzorVyberPocatekMS = oVlna.KurzorPoziceMS;
-                    }
-
-                    if (posouvatL)
-                    {
-                        if (pPredchozi != null && pAktualni != null)
-                        {
-                            double pXLevo = (pPredchozi.end - oVlna.mSekundyVlnyZac) * myImage.ActualWidth / oVlna.DelkaVlnyMS;
-                            if (Math.Abs(pX - pXLevo) < 7)
-                            {
-                                celkMilisekundy = pPredchozi.end;
-                                //long celkMilisekundy = (long)(oVlna.mSekundyVlnyZac + pX / myImage.ActualWidth * (oVlna.DelkaVlnyMS));
-
-                            }
-                        }
-
-                        oVlna.KurzorVyberPocatekMS = celkMilisekundy;
-                    }
-                    else
-                    {
-                        if (pNasledujici != null && pAktualni != null)
-                        {
-                            double pXPravo = (pNasledujici.begin - oVlna.mSekundyVlnyZac) * myImage.ActualWidth / oVlna.DelkaVlnyMS;
-                            if (Math.Abs(pX - pXPravo) < 7)
-                            {
-                                celkMilisekundy = pNasledujici.begin;
-                            }
-                        }
-
-
-                        oVlna.KurzorVyberKonecMS = celkMilisekundy;
-                    }
-
-
-
-                    //zarazky predchozich a nasledujicich odstavcu
-                    if (posouvatL && ukladatCasy)
-                    {
-
-                        if (oVlna.KurzorVyberPocatekMS >= oVlna.KurzorVyberKonecMS)
-                        {
-                            oVlna.KurzorVyberPocatekMS = oVlna.KurzorVyberKonecMS - 1;
-                        }
-
-                        if (nastaveniAplikace.RichTag.JeOdstavec)
-                        {
-                            if (pPredchozi != null)
-                            {
-                                if (pPredchozi.begin > oVlna.KurzorVyberPocatekMS)
-                                {
-                                    oVlna.KurzorVyberPocatekMS = pPredchozi.begin;
-                                }
-                            }
-
-                        }
-
-                        pX = (oVlna.KurzorVyberPocatekMS - oVlna.mSekundyVlnyZac) * myImage.ActualWidth / (oVlna.DelkaVlnyMS);
-                    }
-
-
-                    if (posouvatP && ukladatCasy)
-                    {
-                        if (oVlna.KurzorVyberKonecMS <= oVlna.KurzorVyberPocatekMS)
-                        {
-                            oVlna.KurzorVyberKonecMS = oVlna.KurzorVyberPocatekMS + 1;
-                        }
-
-                        if (nastaveniAplikace.RichTag.JeOdstavec)
-                        {
-                            if (ptNasledujici != null)
-                            {
-                                if (pNasledujici.end < oVlna.KurzorVyberKonecMS)
-                                {
-                                    if (pNasledujici.end >= 0)
-                                    {
-                                        oVlna.KurzorVyberKonecMS = pNasledujici.end;
-                                    }
-                                }
-                            }
-                        }
-                        pX = (oVlna.KurzorVyberKonecMS - oVlna.mSekundyVlnyZac) * myImage.ActualWidth / (oVlna.DelkaVlnyMS);
-
-                    }
-
-                    double pSirka = pX - (oVlna.KurzorVyberPocatekMS - oVlna.mSekundyVlnyZac) * myImage.ActualWidth / oVlna.DelkaVlnyMS;
-                    if (posouvatL)
-                    {
-                        pSirka = -((oVlna.KurzorVyberKonecMS - oVlna.mSekundyVlnyZac) * myImage.ActualWidth / oVlna.DelkaVlnyMS - pX);
-
-                    }
-
-
-                    if (pSirka < 0)
-                    {
-                        rectangle2.Margin = new Thickness(pX, rectangle2.Margin.Top, rectangle2.Margin.Right, rectangle2.Margin.Bottom);
-
-                    }
-                    else
-                    {
-                        if (oVlna.KurzorVyberPocatekMS <= oVlna.KurzorVyberKonecMS)
-                        {
-                            pX = (oVlna.KurzorVyberPocatekMS - oVlna.mSekundyVlnyZac) * myImage.ActualWidth / oVlna.DelkaVlnyMS;
-                        }
-                        else
-                        {
-                            pX = (oVlna.KurzorVyberPocatekMS - oVlna.mSekundyVlnyZac) * myImage.ActualWidth / oVlna.DelkaVlnyMS - pSirka;
-                        }
-                        rectangle2.Margin = new Thickness(pX, rectangle2.Margin.Top, rectangle2.Margin.Right, rectangle2.Margin.Bottom);
-
-                    }
-                    rectangle2.Width = Math.Abs(pSirka);
-                    rectangle2.Visibility = Visibility.Visible;
-                    ZobrazInformaceVyberu();
-                }
-                else ////////if (leftCtrl || leftShift)
-                {
-                    if ((Math.Abs(pX - rectangle2.Margin.Left) < 7 || Math.Abs(pX - (rectangle2.Margin.Left + rectangle2.Width)) < 7) && oVlna.KurzorVyberKonecMS - oVlna.KurzorVyberPocatekMS > 1)
-                    {
-
-                        /////if (leftCtrl)
-                        {
-                            rectangle2.Cursor = Cursors.ScrollWE;
-                            grid1.Cursor = Cursors.ScrollWE;
-                        }
-
-
-                        if (Math.Abs(pX - rectangle2.Margin.Left) < 7)
-                        {
-                            posouvatL = true;
-                            posouvatP = false;
-                        }
-                        else if (Math.Abs(pX - (rectangle2.Margin.Left + rectangle2.Width)) < 7)
-                        {
-                            posouvatP = true;
-                            posouvatL = false;
-                        }
-
-                        if (leftShift)
-                        {
-                            if (posouvatL)
-                            {
-                                rectangle2.Cursor = Cursors.ScrollW;
-                                grid1.Cursor = Cursors.ScrollW;
-                            }
-                            if (posouvatP)
-                            {
-                                rectangle2.Cursor = Cursors.ScrollE;
-                                grid1.Cursor = Cursors.ScrollE;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        rectangle2.Cursor = Cursors.IBeam;
-                        grid1.Cursor = Cursors.IBeam;
-                        posouvatL = false;
-                        posouvatP = false;
-
-                    }
-
-                }
-                //////else
-                //////{
-                //////    rectangle2.Cursor = Cursors.Arrow;
-                //////    grid1.Cursor = Cursors.Arrow;
-                //////}
             }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-            }
-             * */
         }
 
 
@@ -1316,7 +1154,7 @@ namespace NanoTrans
         {
             BeginUpdate();
             slPoziceMedia_mouseDown = true;
-            
+
             /*
             if (e.LeftButton == MouseButtonState.Pressed)
             {
@@ -1350,7 +1188,7 @@ namespace NanoTrans
                 EndUpdate();
             slPoziceMedia_mouseDown = false;
 
-            slPoziceMedia_ValueChanged(slPoziceMedia, new RoutedPropertyChangedEventArgs<double>(slPoziceMedia.Value,slPoziceMedia.Value));
+            slPoziceMedia_ValueChanged(slPoziceMedia, new RoutedPropertyChangedEventArgs<double>(slPoziceMedia.Value, slPoziceMedia.Value));
         }
 
         private void UserControl_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -1358,5 +1196,25 @@ namespace NanoTrans
             InvalidateWaveform();
         }
 
+        public int SetAudioData(short[] data, TimeSpan begin, TimeSpan end)
+        {
+
+            int val = oVlna.bufferPrehravaniZvuku.UlozDataDoBufferu(data, (long)begin.TotalMilliseconds, (long)end.TotalMilliseconds);
+            InvalidateWaveform();
+            return val;
+        }
+
+        public short[] GetAudioData(TimeSpan from, TimeSpan to, TimeSpan max)
+        {
+            return oVlna.bufferPrehravaniZvuku.VratDataBufferuShort(from, to, max);
+        }
+
+        private void UserControl_Unloaded(object sender, RoutedEventArgs e)
+        {
+            if (Invalidator != null && Invalidator.ThreadState == ThreadState.Running)
+                Invalidator.Interrupt();
+
+            Invalidator = null;
+        }
     }
 }

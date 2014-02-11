@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
-             d:DesignHeight="164" d:DesignWidth="970" SizeChanged="UserControl_SizeChanged">
+             d:DesignHeight="164" d:DesignWidth="970" SizeChanged="UserControl_SizeChanged" Unloaded="UserControl_Unloaded">
     <Grid>
         <Grid Margin="-1,29,1,0" Name="grid1" ShowGridLines="False" Background="AntiqueWhite" MouseDown="myImage_MouseLeftButtonDown" MouseUp="myImage_MouseUp" MouseMove="myImage_MouseMove" SizeChanged="grid1_SizeChanged">
             <Grid Height="21" Margin="0,0,0,0" Name="gCasovaOsa" VerticalAlignment="Bottom" Background="LightGreen" Grid.ColumnSpan="2"></Grid>

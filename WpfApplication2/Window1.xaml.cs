@@ -137,7 +137,7 @@ namespace NanoTrans
         /// trida pro prehravani audio dat
         /// </summary>
         private MyWavePlayer MWP = null;
-        //private int pIndexBufferuVlnyProPrehrani = 0;
+        private int pIndexBufferuVlnyProPrehrani = 0;
         private bool pZacloPrehravani = false;
         private bool _playing = false;
         private bool Playing
@@ -154,14 +154,6 @@ namespace NanoTrans
                     if (MWP == null)
                     {
                         InicializaceAudioPrehravace();
-                    }
-                }
-                else
-                { 
-                    if (MWP != null)
-                    {
-                        MWP.Dispose();
-                        MWP = null;
                     }
                 }
 
@@ -1489,8 +1481,9 @@ namespace NanoTrans
             {
                 //oWav = new MyWav(new ExampleCallback(ResultCallback), new BufferCallback(ResultCallbackBuffer), 1000000);
                 oWav = new MyWav(nastaveniAplikace.absolutniCestaEXEprogramu);
-                oWav.HaveData += new DataReadyEventHandler(oWav_HaveData);
-                oWav.HaveFileNumber += new DataReadyEventHandler(oWav_HaveFileNumber);
+                oWav.HaveData += oWav_HaveData;
+                oWav.HaveFileNumber += oWav_HaveFileNumber;
+                oWav.TemporaryWavesDone+=new EventHandler(oWav_TemporaryWavesDone);
 
                 string pCesta = null;
                 if (App.Startup_ARGS != null && App.Startup_ARGS.Length > 0)
@@ -1536,7 +1529,7 @@ namespace NanoTrans
                             pOmezeniMS = (long)waveform1.SelectionEnd.TotalMilliseconds;
                         }
 
-                        short[] bfr = waveform1.AudioBuffer.VratDataBufferuShort(pIndexBufferuVlnyProPrehrani, 150, pOmezeniMS);
+                        short[] bfr = waveform1.GetAudioData(TimeSpan.FromMilliseconds(pIndexBufferuVlnyProPrehrani), TimeSpan.FromMilliseconds(150),TimeSpan.FromMilliseconds(pOmezeniMS));
                         zacatekbufferums = pIndexBufferuVlnyProPrehrani;
                         pIndexBufferuVlnyProPrehrani += 150;
                         
@@ -1657,6 +1650,15 @@ namespace NanoTrans
             }
         }
 
+        private void oWav_TemporaryWavesDone(object sender, EventArgs e)
+        {
+            waveform1.Dispatcher.Invoke(new Action(delegate()
+            {
+                waveform1.AutomaticProgressHighlight = true;
+            }));
+            
+        }
+
         /// <summary>
         /// zobrazi progress nacitani
         /// </summary>
@@ -1698,7 +1700,7 @@ namespace NanoTrans
 
 
         /// <summary>
-        /// metoda vracejici data z threadu, v argumentu e...zatim nepouzivana ale jo pouzivana
+        /// metoda vracejici data z threadu, v argumentu e
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -1709,7 +1711,7 @@ namespace NanoTrans
                 MyEventArgs me = (MyEventArgs)e;
                 if (me.IDBufferu == MyKONST.ID_ZOBRAZOVACIHO_BUFFERU_VLNY)
                 {
-                    waveform1.AudioBuffer.UlozDataDoBufferu(me.data, me.pocatecniCasMS, me.koncovyCasMS);
+                    waveform1.SetAudioData(me.data,TimeSpan.FromMilliseconds(me.pocatecniCasMS),TimeSpan.FromMilliseconds(me.koncovyCasMS));
                     if (me.pocatecniCasMS == 0)
                     {
                         if (!timer1.IsEnabled) InitializeTimer();
@@ -1753,6 +1755,8 @@ namespace NanoTrans
 
                     }
                 }
+
+                waveform1.InvalidateWaveform();
             }
             catch (Exception ex)
             {
@@ -3523,7 +3527,7 @@ namespace NanoTrans
                 if (playpos.TotalMilliseconds >= mSekundyKonec - waveform1.WaveLengthDelta.TotalMilliseconds && mSekundyKonec < oWav.DelkaSouboruMS && !nahled)
                 {
 
-                    if (celkMilisekundy < oWav.DelkaSouboruMS && celkMilisekundy < waveform1.AudioBuffer.KonecMS)
+                    if (celkMilisekundy < oWav.DelkaSouboruMS)// && celkMilisekundy < waveform1.AudioBuffer.KonecMS)
                     {
                         long pKonec = celkMilisekundy - (long)waveform1.WaveLengthDelta.TotalMilliseconds + rozdil;
                         long pPocatekMS = pKonec - rozdil;
@@ -3540,9 +3544,8 @@ namespace NanoTrans
                 }
                 else if (playpos < waveform1.WaveBegin && waveform1.WaveBegin >= TimeSpan.Zero && !nahled)
                 {
-                    if (celkMilisekundy < oWav.DelkaSouboruMS && celkMilisekundy < waveform1.AudioBuffer.KonecMS && celkMilisekundy >= waveform1.AudioBuffer.PocatekMS)
+                    if (celkMilisekundy < oWav.DelkaSouboruMS && celkMilisekundy < waveform1.AudioBufferEnd.TotalMilliseconds && celkMilisekundy >= waveform1.AudioBufferBegin.TotalMilliseconds)
                     {
-                        //long pKonec = celkMilisekundy + oVlna.MSekundyDelta * 2;
                         long pKonec = celkMilisekundy + (long)(rozdil * 0.3);
                         long pPocatekMS = pKonec - rozdil;
                         if (pKonec > waveform1.WaveEnd.TotalMilliseconds)
@@ -3562,21 +3565,21 @@ namespace NanoTrans
                     nahled = false;
                 }
 
-                if (oWav.Nacteno && celkMilisekundy > waveform1.AudioBuffer.KonecMS - (waveform1.AudioBuffer.KonecMS - waveform1.AudioBuffer.PocatekMS) * 0.2)
+                if (oWav.Nacteno && celkMilisekundy > waveform1.AudioBufferEnd.TotalMilliseconds - (waveform1.AudioBufferEnd - waveform1.AudioBufferBegin).TotalMilliseconds * 0.2)
                 {
                     if (!oWav.NacitaniBufferu && !nahled) //pokud jiz neni nacitano vlakno,dojde k inicializaci threadu
                     {
-                        if (waveform1.AudioBuffer.KonecMS < oWav.DelkaSouboruMS && !oWav.NacitaniBufferu)
+                        if (waveform1.AudioBufferEnd.TotalMilliseconds < oWav.DelkaSouboruMS && !oWav.NacitaniBufferu)
                         {
-                            oWav.AsynchronniNacteniRamce2((long)(celkMilisekundy - (waveform1.AudioBuffer.KonecMS - waveform1.AudioBuffer.PocatekMS) * 0.3), MyKONST.DELKA_VYCHOZIHO_ZOBRAZOVACIHO_BUFFERU_MS, 0);
+                            oWav.AsynchronniNacteniRamce2((long)(celkMilisekundy - (waveform1.AudioBufferEnd - waveform1.AudioBufferBegin).TotalMilliseconds * 0.3), MyKONST.DELKA_VYCHOZIHO_ZOBRAZOVACIHO_BUFFERU_MS, 0);
                         }
                     }
                 }
-                else if (oWav.Nacteno && (waveform1.AudioBuffer.PocatekMS > 0 && celkMilisekundy < waveform1.AudioBuffer.PocatekMS + (waveform1.AudioBuffer.KonecMS - waveform1.AudioBuffer.PocatekMS) * 0.2) || pPozadovanyPocatekVlny < waveform1.AudioBuffer.PocatekMS)
+                else if (oWav.Nacteno && (waveform1.AudioBufferBegin > TimeSpan.Zero && celkMilisekundy < waveform1.AudioBufferBegin.TotalMilliseconds+ (waveform1.AudioBufferEnd - waveform1.AudioBufferBegin).TotalMilliseconds * 0.2) || pPozadovanyPocatekVlny < waveform1.AudioBufferBegin.TotalMilliseconds)
                 {
                     if (!oWav.NacitaniBufferu && !nahled) //pokud jiz neni nacitano vlakno,dojde k inicializaci threadu
                     {
-                        oWav.AsynchronniNacteniRamce2((long)(celkMilisekundy - (waveform1.AudioBuffer.KonecMS - waveform1.AudioBuffer.PocatekMS) * 0.6), MyKONST.DELKA_VYCHOZIHO_ZOBRAZOVACIHO_BUFFERU_MS, 0);
+                        oWav.AsynchronniNacteniRamce2((long)(celkMilisekundy - (waveform1.AudioBufferEnd - waveform1.AudioBufferBegin).TotalMilliseconds * 0.6), MyKONST.DELKA_VYCHOZIHO_ZOBRAZOVACIHO_BUFFERU_MS, 0);
                     }
                 }
             }
@@ -3615,6 +3618,7 @@ namespace NanoTrans
 
                 if (pOtevrit || openDialog.ShowDialog() == true)
                 {
+                    waveform1.AutomaticProgressHighlight = false;
                     if (!pOtevrit)
                     {
                         aFileName = openDialog.FileName;
@@ -6841,11 +6845,20 @@ namespace NanoTrans
             timer1.IsEnabled = true;
         }
 
-        private void waveform1_CarretPostionChanged(object sender, Waveform.TimeSpanEventArgs e)
+        private void waveform1_CarretPostionChangedByUser(object sender, Waveform.TimeSpanEventArgs e)
         {
-            pIndexBufferuVlnyProPrehrani = (int)e.Value.TotalMilliseconds;
+            if (Playing)
+            {
+                MWP.Pause();
+                Playing = false;
+                pIndexBufferuVlnyProPrehrani = (int)e.Value.TotalMilliseconds;
+                Playing = true;
+                MWP.Play(MWP.PlaySpeed);
+            }
+            else
+            {
+                pIndexBufferuVlnyProPrehrani = (int)e.Value.TotalMilliseconds;
+            }
         }
-
-
     }
 }

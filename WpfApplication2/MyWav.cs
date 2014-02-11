@@ -10,8 +10,7 @@ using System.Threading;
 
 namespace NanoTrans
 {
-    public delegate void DataReadyEventHandler(object sender, EventArgs e); //delegovana udalostni metoda pro posilani ramcu s wav daty
-    
+
     public class MyEventArgs : EventArgs            //upravene eventargs pro predani dat dale
     {
         public MyEventArgs(short[] data, int size, long pocatekMS, long konecMS, int aIDBufferu)
@@ -50,8 +49,9 @@ namespace NanoTrans
     /// </summary>
     public class MyWav: IDisposable
     {
-        public event DataReadyEventHandler HaveData;    //metoda have data je udalost,kterou objekt podporuje-datovy ramec zvuku
-        public event DataReadyEventHandler HaveFileNumber; //metoda podporujici objekt
+        public event EventHandler HaveData;    //metoda have data je udalost,kterou objekt podporuje-datovy ramec zvuku
+        public event EventHandler HaveFileNumber; //metoda podporujici objekt
+        public event EventHandler TemporaryWavesDone;
 
         private bool _Nacteno;
         /// <summary>
@@ -687,6 +687,11 @@ namespace NanoTrans
                         HaveData(this, e); // nacten ramec k zobrazeni a poslani tohoto ramce ven z tridy pomoci e
                 }
                 this.pPocetVzorku = i;
+
+                if (TemporaryWavesDone != null)
+                {
+                    TemporaryWavesDone(this, new EventArgs());
+                }
                 return true;
             }
             catch (Exception ex)
@@ -697,6 +702,8 @@ namespace NanoTrans
                     output = null;
                 }
                 this._Prevedeno = true; //i pres spadnuti je nacteni ok, doresit preteceni indexu!!!!!!
+                if (TemporaryWavesDone != null)
+                    TemporaryWavesDone(this,new EventArgs());
                 //MessageBox.Show("Načítání a převod audio souboru se nezdařily..."+ ex.Message);
                 MyLog.LogujChybu(ex);
                 

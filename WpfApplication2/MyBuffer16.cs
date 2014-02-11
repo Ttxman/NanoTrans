@@ -284,10 +284,17 @@ namespace NanoTrans
         /// Vrati data v poli bytu, aOmezeniMS = -1 ignorovano, jinak vrati zvuk pouze do omezeni
         /// </summary>
         /// <returns></returns>
-        public short[] VratDataBufferuShort(long aPocatekMS, long aKolikMS, long aOmezeniMS)
+        public short[] VratDataBufferuShort(TimeSpan from, TimeSpan to, TimeSpan max)
         {
             try
             {
+                long aPocatekMS = (long)from.TotalMilliseconds;
+                long aKolikMS = (long)to.TotalMilliseconds;
+                long aOmezeniMS = (long)max.TotalMilliseconds;
+
+                if (max < TimeSpan.Zero)
+                    aOmezeniMS = -1;
+
                 if (aPocatekMS > this.KonecMS) aPocatekMS -= aKolikMS;
                 if (aPocatekMS < this.PocatekMS) aPocatekMS = this.PocatekMS;
 
