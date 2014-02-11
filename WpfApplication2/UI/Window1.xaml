@@ -10,13 +10,17 @@
         <!--local:MySubtitlesData x:Key="myDataSource"/-->
     </Window.Resources>
     <Grid Name="d" Height="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="845*"/>
+            <ColumnDefinition Width="14*"/>
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="260*" />
             <RowDefinition Height="134"/>
             <RowDefinition Height="236" />
         </Grid.RowDefinitions>
-        <GridSplitter Margin="0,0,0,0" Name="gridSplitter1" Height="5" VerticalAlignment="Bottom" Grid.Row="0" Focusable="False" IsTabStop="False" Grid.IsSharedSizeScope="False" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" ResizeBehavior="CurrentAndNext" ShowsPreview="True" />
-        <Menu Name="menu1" Height="22.5" VerticalAlignment="Top" HorizontalAlignment="Stretch">
+        <GridSplitter Margin="0,0,0,0" Name="gridSplitter1" Height="5" VerticalAlignment="Bottom" Grid.Row="0" Focusable="False" IsTabStop="False" Grid.IsSharedSizeScope="False" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" ResizeBehavior="CurrentAndNext" ShowsPreview="True" Grid.ColumnSpan="2" />
+        <Menu Name="menu1" Height="22" VerticalAlignment="Top" HorizontalAlignment="Stretch" Grid.ColumnSpan="2">
             <MenuItem Header="Soubor" Focusable="True" Tag="10" Name="menuSoubor">
                 <MenuItem Header="_Nový přepis" InputGestureText="Ctrl+N" Click="MSoubor_Novy_Click" Name="menuSouborNovyPrepis">
                     <MenuItem.Icon>
@@ -110,7 +114,7 @@
             </MenuItem>
         </Menu>
 
-        <Grid Margin="0,55,0,5" Name="gListVideo">
+        <Grid Margin="0,55,0,5" Name="gListVideo" Grid.ColumnSpan="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="500.77*" />
                 <ColumnDefinition Width="300" />
@@ -164,7 +168,7 @@
 
             </TabControl>
         </Grid>
-        <GroupBox Header="Audio: " Name="groupBox1" Grid.Row="2" Height="52" VerticalAlignment="Top">
+        <GroupBox Header="Audio: " Name="groupBox1" Grid.Row="2" Height="52" VerticalAlignment="Top" Grid.ColumnSpan="2">
             <Grid>
                 <Button  Name="btNacistAudioSoubor" Click="button1_Click" VerticalAlignment="Top" Focusable="False" IsTabStop="False" Height="29.277" Margin="294,0,0,0" HorizontalAlignment="Left" Width="72">
                     <StackPanel Orientation="Horizontal">
@@ -215,7 +219,7 @@
             </Grid>
         </GroupBox>
 
-        <StatusBar  Name="statusBar1" VerticalAlignment="Bottom" Grid.Row="2" HorizontalAlignment="Stretch">
+        <StatusBar  Name="statusBar1" VerticalAlignment="Bottom" Grid.Row="2" HorizontalAlignment="Stretch" Grid.ColumnSpan="2">
             <StatusBar.ItemsPanel>
                 <ItemsPanelTemplate>
                     <Grid>
@@ -247,7 +251,7 @@
             </StatusBarItem>
 
         </StatusBar>
-        <Grid Name="gFonetickyPrepis" Grid.Row="1" Margin="0,0,0,8">
+        <Grid Name="gFonetickyPrepis" Grid.Row="1" Margin="0,0,0,8" Grid.ColumnSpan="2">
             <Border Margin="0,0,24,30" BorderThickness="1" BorderBrush="LightBlue" >
                     <local:Element x:Name="phoneticTranscription" Margin="1,1,1,1" IsEnabled="False" />
             </Border>
@@ -256,19 +260,19 @@
             <Button IsEnabled="False" Focusable="False" HorizontalAlignment="Left" IsTabStop="False" Margin="19,0,0,5.724" Name="btNormalizovat" Click="btNormalizovat_Click" VerticalAlignment="Bottom" Height="21.277">Normalizovat (F9)</Button>
 
         </Grid>
-        <GridSplitter Grid.Row="1" Margin="0,0,0,-3" Name="gridSplitter3" Height="5" VerticalAlignment="Bottom" Focusable="False" IsTabStop="False" Grid.IsSharedSizeScope="False" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" ResizeBehavior="PreviousAndNext" ShowsPreview="True" />
+        <GridSplitter Grid.Row="1" Margin="0,0,0,233" Name="gridSplitter3" Height="5" VerticalAlignment="Bottom" Focusable="False" IsTabStop="False" Grid.IsSharedSizeScope="False" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" ResizeBehavior="PreviousAndNext" ShowsPreview="True" Grid.ColumnSpan="2" Grid.RowSpan="2" />
         <Button Visibility="Hidden" Grid.Row="2" Height="23" HorizontalAlignment="Left" Margin="280,0,0,2" Name="btPriraditVyber" VerticalAlignment="Bottom" Click="btPriraditVyber_Click" Focusable="False" IsTabStop="False">Přiřadit výběr k elementu</Button>
-        <ToolBarTray Margin="0,26,0,0" Name="toolBarTray2" Height="28" VerticalAlignment="Top">
+        <ToolBarTray Margin="0,26,0,0" Name="toolBarTray2" Height="28" VerticalAlignment="Top" Grid.ColumnSpan="2">
             <ToolBar Height="26" Margin="0,0,0,0" Name="toolBar1" VerticalAlignment="Top" HorizontalAlignment="Left" Loaded="toolBar1_Loaded"></ToolBar>
         </ToolBarTray>
-        <Button Content="TS" Height="23" Margin="0,26,52,0" Name="button2" Width="27" HorizontalAlignment="Right" VerticalAlignment="Top" Click="button2_Click" Foreground="Black" Visibility="Hidden" />
-        <Button Content="Bck" Height="23" Margin="0,26,5,0" Name="button3" Width="33" VerticalAlignment="Top" HorizontalAlignment="Right" Click="button3_Click_1" Visibility="Hidden" />
+        <Button Content="TS" Height="23" Margin="0,26,38,0" Name="button2" Width="27" HorizontalAlignment="Right" VerticalAlignment="Top" Click="button2_Click" Foreground="Black" Visibility="Hidden" />
+        <Button Content="Bck" Height="23" Margin="0,26,5,0" Name="button3" Width="33" VerticalAlignment="Top" HorizontalAlignment="Right" Click="button3_Click_1" Visibility="Hidden" Grid.ColumnSpan="2" />
         <local:Waveform Grid.Row="2" Margin="3,52,1,26" x:Name="waveform1" PlayPauseClick="waveform1_PlayPauseClick" 
                         SliderPositionChanged="waveform1_SliderPositionChanged"
                         CarretPostionChangedByUser="waveform1_CarretPostionChangedByUser" ParagraphClick="waveform1_ParagraphClick" 
                         ParagraphDoubleClick="waveform1_ParagraphDoubleClick" CarretPostionChanged="waveform1_CarretPostionChanged" 
                         ElementChanged="waveform1_ElementChanged"
-                        Subtitles="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:Window1}},Path=myDataSource}" />
+                        Subtitles="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:Window1}},Path=myDataSource}" Grid.ColumnSpan="2" />
     </Grid>
     
 </Window>
