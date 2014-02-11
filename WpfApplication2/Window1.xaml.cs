@@ -845,7 +845,7 @@ namespace NanoTrans
                         }
 
                         MySubtitlesData pDataSource = null;
-                        pDataSource = myDataSource.Deserializovat(fileDialog.FileName);
+                        pDataSource = MySubtitlesData.Deserialize(fileDialog.FileName);
 
 
                         if (pDataSource == null)
@@ -899,7 +899,7 @@ namespace NanoTrans
                             //synchronizace mluvcich podle vnitrni databaze
                             try
                             {
-                                foreach (MySpeaker i in myDataSource.SeznamMluvcich.Speakers)
+                                foreach (MySpeaker i in myDataSource.Speakers.Speakers)
                                 {
                                     MySpeaker pSp = myDatabazeMluvcich.NajdiSpeakeraSpeaker(i.FullName);
                                     if (i.FullName == pSp.FullName && i.FotoJPGBase64 == null)
@@ -937,7 +937,7 @@ namespace NanoTrans
                                 {
                                     if (files[i].Name.ToUpper() == fi.Name.ToUpper().Replace(".TXT", "_PHONETIC.XML"))
                                     {
-                                        pDataSource = myDataSource.Deserializovat(files[i].FullName);
+                                        pDataSource = MySubtitlesData.Deserialize(files[i].FullName);
                                         break;
                                     }
                                 }
@@ -975,7 +975,7 @@ namespace NanoTrans
                     }
                     else
                     {
-                        myDataSource = myDataSource.Deserializovat(jmenoSouboru);
+                        myDataSource = MySubtitlesData.Deserialize(jmenoSouboru);
                     }
                     if (myDataSource != null)
                     {
@@ -2381,10 +2381,10 @@ namespace NanoTrans
                             FileInfo fi = new FileInfo(aCesta);
                             string pNazev = fi.Name.ToUpper().Remove(fi.Name.Length - fi.Extension.Length);
                             string pHlavicka = "<" + pNazev + ";";
-                            for (int i = 0; i < aDokument.SeznamMluvcich.Speakers.Count; i++)
+                            for (int i = 0; i < aDokument.Speakers.Speakers.Count; i++)
                             {
                                 if (i > 0) pHlavicka += ",";
-                                pHlavicka += " " + aDokument.SeznamMluvcich.Speakers[i].FirstName;
+                                pHlavicka += " " + aDokument.Speakers.Speakers[i].FirstName;
                             }
                             pHlavicka += ">";
                             sw.WriteLine(pHlavicka);
@@ -2546,7 +2546,7 @@ namespace NanoTrans
             {
                 for (int i = 0; i < lbDavkoveNacteni.Items.Count; i++)
                 {
-                    MySubtitlesData pExport = new MySubtitlesData();
+                    MySubtitlesData pExport = null;
                     string pJmenoSouboruXML = (lbDavkoveNacteni.Items[i] as CheckBox).Content.ToString();
                     FileInfo fi = new FileInfo(tbDavkovyAdresar.Text + "//" + pJmenoSouboruXML);
                     pJmenoSouboruXML = fi.FullName.Replace(fi.Extension, "") + "_phonetic.xml";
@@ -2554,7 +2554,7 @@ namespace NanoTrans
                     FileInfo fi2 = new FileInfo(pJmenoSouboruXML);
                     if (fi2.Exists)
                     {
-                        pExport = pExport.Deserializovat(pJmenoSouboruXML);
+                        pExport = MySubtitlesData.Deserialize(pJmenoSouboruXML);
                         string prozsirit = "";
                         MyWav pWAV = new MyWav(MySetup.Setup.absolutniCestaEXEprogramu);
                         if (pExport.Chapters[0].Sections[0].Paragraphs.Count > 1)
@@ -2724,7 +2724,7 @@ namespace NanoTrans
             try
             {
                 MemoryStream ms = new MemoryStream(state);
-                myDataSource = myDataSource.Deserializovat(ms);
+                myDataSource = MySubtitlesData.Deserialize(ms);
                 if (myDataSource != null)
                 {
                     this.Title = MyKONST.NAZEV_PROGRAMU + " [" + myDataSource.JmenoSouboru + "]";

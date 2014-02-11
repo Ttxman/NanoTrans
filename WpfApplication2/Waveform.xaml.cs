@@ -899,7 +899,7 @@ namespace NanoTrans
                                     pMluvci.Width = gCasovaOsa.ActualWidth - aLeft - aRight;
 
                                     pMluvci.Background = Brushes.LightPink;
-                                    MySpeaker pSpeaker = aDokument.SeznamMluvcich.VratSpeakera(pParagraph.speakerID);
+                                    MySpeaker pSpeaker = aDokument.Speakers.VratSpeakera(pParagraph.speakerID);
                                     string pText = "";
                                     if (pSpeaker != null) pText = pSpeaker.FullName;
                                     //pMluvci.Content = pText;

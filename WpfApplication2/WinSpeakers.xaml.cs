@@ -54,7 +54,7 @@ namespace NanoTrans
             lbDatabazeMluvcich.ItemsSource = null;
             lbDatabazeMluvcich.ItemsSource = bDatabazeMluvcich.Speakers;
             lbSeznamMluvcich.ItemsSource = null;
-            lbSeznamMluvcich.ItemsSource = myDataSource.SeznamMluvcich.Speakers;
+            lbSeznamMluvcich.ItemsSource = myDataSource.Speakers.Speakers;
         }
         
         public WinSpeakers(MyParagraph aTag, MySetup aNastaveniProgramu, MySpeakers aDatabazeMluvcich, MySubtitlesData aDataTitulky)
@@ -159,7 +159,7 @@ namespace NanoTrans
                     }
                     else
                     {
-                        pSpeaker = myDataSource.SeznamMluvcich.NajdiSpeakeraSpeaker(plb.SelectedItem.ToString());
+                        pSpeaker = myDataSource.Speakers.NajdiSpeakeraSpeaker(plb.SelectedItem.ToString());
                     }
                     bSpeaker = new MySpeaker(pSpeaker);
                 }
@@ -196,7 +196,7 @@ namespace NanoTrans
             EditSpeakerWindow ew = new EditSpeakerWindow(myDataSource, new MySpeaker());
             if (ew.ShowDialog() == true)
             {
-                myDataSource.SeznamMluvcich.NovySpeaker(new MySpeaker(ew.Speaker));
+                myDataSource.Speakers.NovySpeaker(new MySpeaker(ew.Speaker));
                 bDatabazeMluvcich.NovySpeaker(new MySpeaker(ew.Speaker));
                 Updatebindings();
             }
@@ -238,12 +238,12 @@ namespace NanoTrans
             MySpeaker pkopieSpeaker = new MySpeaker(bSpeaker);
             if (bSpeaker != null && pkopieSpeaker != null && pkopieSpeaker.FullName != null && pkopieSpeaker.FullName != "" && pSpeaker != null)
             {
-                MySpeaker pSp = myDataSource.SeznamMluvcich.NajdiSpeakeraSpeaker(pkopieSpeaker.FullName);
+                MySpeaker pSp = myDataSource.Speakers.NajdiSpeakeraSpeaker(pkopieSpeaker.FullName);
                 if (pSp != null && pSp.ID != int.MinValue)
                 {
-                    if (myDataSource.SeznamMluvcich.UpdatujSpeakera(pkopieSpeaker.FullName, pSpeaker))
+                    if (myDataSource.Speakers.UpdatujSpeakera(pkopieSpeaker.FullName, pSpeaker))
                     {
-                        bSpeaker = myDataSource.SeznamMluvcich.NajdiSpeakeraSpeaker(pSpeaker.FullName);
+                        bSpeaker = myDataSource.Speakers.NajdiSpeakeraSpeaker(pSpeaker.FullName);
                         Updatebindings();
                         lbSeznamMluvcich.SelectedItem = bSpeaker;
                     }
@@ -358,7 +358,7 @@ namespace NanoTrans
                 }
                 catch
                 {
-
+                    
                 }
                 fileDialog.FilterIndex = 1;
                 fileDialog.RestoreDirectory = true;
@@ -376,7 +376,7 @@ namespace NanoTrans
         {
             try
             {
-                foreach (MySpeaker i in myDataSource.SeznamMluvcich.Speakers)
+                foreach (MySpeaker i in myDataSource.Speakers.Speakers)
                 {
                     if (bDatabazeMluvcich.NajdiSpeakeraID(i.FullName) < 0)
                         bDatabazeMluvcich.NovySpeaker(i);
@@ -421,7 +421,7 @@ namespace NanoTrans
                     if (elm.IsParagraph)
                     {
                         MyParagraph p = (MyParagraph)elm;
-                        if (myDataSource.SeznamMluvcich.VratSpeakera(p.speakerID).ID == MySpeaker.DefaultID)
+                        if (myDataSource.Speakers.VratSpeakera(p.speakerID).ID == MySpeaker.DefaultID)
                         {
                             p.speakerID = sp.ID;
                         }

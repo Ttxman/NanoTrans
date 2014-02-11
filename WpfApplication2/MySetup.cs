@@ -29,7 +29,7 @@ namespace NanoTrans
     [XmlInclude(typeof(string))]
     public class MySetupRozpoznavac
     {
-        
+
         //public string AbsolutniCestaRozpoznavace;
         public string RelativniCestaRozpoznavace;
 
@@ -50,77 +50,77 @@ namespace NanoTrans
         public long KvalitaRozpoznavaniDiktat;
 
         public string LicencniSoubor;
-               
+
 
         public MySetupRozpoznavac()
         {
-            
+
         }
-        
+
         /// <summary>
         /// vrati seznam vsech jazykovych modelu v danem adresari - seznam souboru
         /// </summary>
         public string[] JazykovyModelSeznamDostupnych(string aAbslutniCestaRozpoznavace)
         {
-            
-                List<string> ret = new List<string>();
-                try
+
+            List<string> ret = new List<string>();
+            try
+            {
+                FileInfo[] fiPole;
+                DirectoryInfo di = new DirectoryInfo(aAbslutniCestaRozpoznavace + "/" + JazykovyModelRelativniAdresar);
+                if (di != null && di.Exists)
                 {
-                    FileInfo[] fiPole;
-                    DirectoryInfo di = new DirectoryInfo(aAbslutniCestaRozpoznavace + "/" + JazykovyModelRelativniAdresar);
-                    if (di != null && di.Exists)
+                    fiPole = di.GetFiles();
+                    if (fiPole != null)
                     {
-                        fiPole = di.GetFiles();
-                        if (fiPole != null)
+                        foreach (FileInfo fi in fiPole)
                         {
-                            foreach (FileInfo fi in fiPole)
-                            {
-                                ret.Add(fi.Name);
-                            }
+                            ret.Add(fi.Name);
                         }
                     }
                 }
-                finally
-                {
-                    
-                }
-                return ret.ToArray();
-            
+            }
+            finally
+            {
+
+            }
+            return ret.ToArray();
+
         }
 
-    
+
 
         /// <summary>
         /// vrati seznam vsech mluvcich v danem adresari - seznam souboru
         /// </summary>
         public string[] MluvciSeznamDostupnych(string aAbslutniCestaRozpoznavace)
         {
-            
-                List<string> ret = new List<string>();
-                try
+
+            List<string> ret = new List<string>();
+            try
+            {
+                FileInfo[] fiPole;
+                DirectoryInfo di = new DirectoryInfo(aAbslutniCestaRozpoznavace + "/" + MluvciRelativniAdresar);
+                if (di != null && di.Exists)
                 {
-                    FileInfo[] fiPole;
-                    DirectoryInfo di = new DirectoryInfo(aAbslutniCestaRozpoznavace + "/" + MluvciRelativniAdresar);
-                    if (di != null && di.Exists)
+                    fiPole = di.GetFiles();
+                    if (fiPole != null)
                     {
-                        fiPole = di.GetFiles();
-                        if (fiPole != null)
+                        foreach (FileInfo fi in fiPole)
                         {
-                            foreach (FileInfo fi in fiPole)
-                            {
-                                ret.Add(fi.Name);
-                            }
+                            ret.Add(fi.Name);
                         }
                     }
                 }
-                finally
-                {
-                    
-                }
-                return ret.ToArray();
-            
+            }
+            finally
+            {
+
+            }
+            return ret.ToArray();
+
         }
-        
+
 
 
         /// <summary>
@@ -182,32 +182,32 @@ namespace NanoTrans
 
 
     public class SingletonRefresher : System.ComponentModel.INotifyPropertyChanged
+    {
+        private MySetup m_setup;
+        public MySetup Setup
         {
-            private MySetup m_setup;
-            public MySetup Setup
+            get { return m_setup; }
+            set
             {
-                get { return m_setup; }
-                set
-                {
-                    m_setup = value;
-                    if (PropertyChanged != null)
-                        PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs("Setup"));
-                }
-            }
-
-            //je to na setupu lepsi refreshnout vsechny bindingy.. stejne se vklada najedou
-            public void Refresher()
-            {
+                m_setup = value;
                 if (PropertyChanged != null)
                     PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs("Setup"));
             }
-
-            #region INotifyPropertyChanged Members
-
-            public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-
-            #endregion
         }
+
+        //je to na setupu lepsi refreshnout vsechny bindingy.. stejne se vklada najedou
+        public void Refresher()
+        {
+            if (PropertyChanged != null)
+                PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs("Setup"));
+        }
+
+        #region INotifyPropertyChanged Members
+
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+
+        #endregion
+    }
 
 
     [XmlInclude(typeof(MySetupFonetickyPrepis))]
@@ -225,12 +225,12 @@ namespace NanoTrans
         static MySetup()
         {
             m_setup = new MySetup();
-            m_refresher = new SingletonRefresher() {Setup = m_setup };
+            m_refresher = new SingletonRefresher() { Setup = m_setup };
         }
         private static MySetup m_setup;
         public static MySetup Setup
         {
-            set 
+            set
             {
                 m_setup = value;
                 m_refresher.Setup = value;
@@ -262,7 +262,7 @@ namespace NanoTrans
                 loc = Path.GetDirectoryName(loc);
                 return loc;
             }
-                
+
         }
         /// <summary>
         /// Vraci absolutni cestu adresare s rozpoznavacem - pouze GET property
@@ -284,13 +284,13 @@ namespace NanoTrans
         public Brush BarvaTextBoxuOdstavce //udava barvu textboxu
         {
             get { return m_BarvaTextBoxuOdstavce; }
-            set 
-            { 
+            set
+            {
                 m_BarvaTextBoxuOdstavce = value;
                 if (PropertyChanged != null)
                     PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs("BarvaTextBoxuOdstavce"));
             }
-        }                    
+        }
         [XmlIgnore]
         public Brush BarvaTextBoxuOdstavceAktualni { get; set; }            //udava barvu vybraneho textboxu
         /// <summary>
@@ -304,16 +304,16 @@ namespace NanoTrans
         /// </summary>
         [XmlIgnore]
         public Brush BarvaTextBoxuFonetickyZakazany { get; set; }
-        
+
 
         public double ZpomalenePrehravaniRychlost { get; set; } //rychlost zpomaleneho prehravani
         public double VlnaMalySkok { get; set; } //delka maleho skoku na vlne
         public string[] NerecoveUdalosti { get; set; }
-        
+
         double m_SetupTextFontSize;
         public double SetupTextFontSize //udava velikost pisma v textboxech   
-        { 
-            get{return m_SetupTextFontSize;}
+        {
+            get { return m_SetupTextFontSize; }
             set
             {
                 m_SetupTextFontSize = value;
@@ -336,8 +336,8 @@ namespace NanoTrans
         public string PriponaDatabazeMluvcich { get; set; }
 
         private string m_CestaDatabazeMluvcich;
-        public string CestaDatabazeMluvcich 
-        { 
+        public string CestaDatabazeMluvcich
+        {
             get
             {
                 if (!Path.IsPathRooted(m_CestaDatabazeMluvcich))
@@ -358,7 +358,7 @@ namespace NanoTrans
 
         public MySetupFonetickyPrepis fonetickyPrepis;
         public MySetupRozpoznavac rozpoznavac;
-        
+
 
         public MySpeaker diktatMluvci;
         public MySpeaker hlasoveOvladaniMluvci;
@@ -382,8 +382,8 @@ namespace NanoTrans
         /// stav okna - maximalizovano, normalni...
         /// </summary>
         public WindowState OknoStav;
-        
-        
+
+
         public Audio audio;
 
         /// <summary>
@@ -441,7 +441,7 @@ namespace NanoTrans
             rozpoznavac.LicencniSoubor = "martin.cickan@tul.cz";
             rozpoznavac.KvalitaRozpoznavaniOvladani = 110;
             rozpoznavac.KvalitaRozpoznavaniDiktat = 110;
-            
+
             rozpoznavac.MluvciRelativniAdresar = "amodels";
             rozpoznavac.JazykovyModelRelativniAdresar = "lmodels";
             rozpoznavac.PrepisovaciPravidlaRelativniAdresar = "drules";
@@ -467,10 +467,10 @@ namespace NanoTrans
             OknoVelikost = new Size(800, 600);
             OknoStav = WindowState.Normal;
 
-            NerecoveUdalosti =  new []{ "kasel", "ehm", "smich", "ticho", "nadech", "hluk", "hudba", "mlask" };
+            NerecoveUdalosti = new[] { "kasel", "ehm", "smich", "ticho", "nadech", "hluk", "hudba", "mlask" };
         }
 
-        
+
         public MySetup()
         {
             fonetickyPrepis = new MySetupFonetickyPrepis();
@@ -485,16 +485,16 @@ namespace NanoTrans
             BarvaTextBoxuFoneticky = Brushes.AliceBlue;
             BarvaTextBoxuFonetickyZakazany = Brushes.LightGray;
         }
-        
+
         public MySetup(string aAbsolutniCestaEXEprogramu)
         {
-            if (aAbsolutniCestaEXEprogramu==null) aAbsolutniCestaEXEprogramu="";
+            if (aAbsolutniCestaEXEprogramu == null) aAbsolutniCestaEXEprogramu = "";
             fonetickyPrepis = new MySetupFonetickyPrepis();
             rozpoznavac = new MySetupRozpoznavac();
-            
+
             NastavDefaultHodnoty();
             //rozpoznavac.AbsolutniCestaRozpoznavace = this.AbsolutniCestaEXEprogramu + rozpoznavac.RelativniCestaRozpoznavace;
-            
+
             PriponaTitulku = ".trsx";
             PriponaDatabazeMluvcich = ".xml";
 
@@ -521,7 +521,7 @@ namespace NanoTrans
                 XmlSerializer serializer = new XmlSerializer(typeof(MySetup));
                 TextWriter writer = new StreamWriter(jmenoSouboru);
                 //XmlTextWriter writer = new XmlTextWriter(jmenoSouboru, Encoding.UTF8);
-                
+
                 serializer.Serialize(writer, co);
                 writer.Close();
                 return true;
@@ -559,5 +559,5 @@ namespace NanoTrans
 
 
     }
-        
+
 }
