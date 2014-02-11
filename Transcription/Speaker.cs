@@ -33,6 +33,10 @@ namespace NanoTrans.Core
         {
             _IDFixed = true;
         }
+        
+        /// <summary>
+        /// Serialization ID, Changed when Transcription is serialized. For user ID use DBID property
+        /// </summary>
         public int ID
         {
             get { return _ID; }

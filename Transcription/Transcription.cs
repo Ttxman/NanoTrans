@@ -339,6 +339,7 @@ namespace NanoTrans.Core
         /// <returns></returns>
         public bool Serialize(Stream datastream, bool aUkladatKompletMluvci = false, bool StrictFormat = false)
         {
+            ReindexSpeakers();
             XElement pars = new XElement("transcription", elements.Select(e => new XAttribute(e.Key, e.Value)).Union(new[] { 
                         new XAttribute("version", "3.0"), 
                         new XAttribute("mediauri", mediaURI ?? ""),
@@ -361,9 +362,19 @@ namespace NanoTrans.Core
             return true;
         }
 
+        private void ReindexSpeakers()
+        {
+            var speakers = this.EnumerateParagraphs().Select(p => p.Speaker).Where(s => s != Speaker.DefaultSpeaker && s.ID != Speaker.DefaultID).Distinct().ToList();
+            for (int i = 0; i < speakers.Count; i++)
+            {
+                speakers[i].ID = i;
+            }
+        }
+
         private XElement SerializeSpeakers()
         {
-            return new SpeakerCollection(this.EnumerateParagraphs().Select(p => p.Speaker).Where(s => s != Speaker.DefaultSpeaker && s.ID != Speaker.DefaultID).Distinct()).Serialize();
+            var speakers = this.EnumerateParagraphs().Select(p => p.Speaker).Where(s => s != Speaker.DefaultSpeaker && s.ID != Speaker.DefaultID).Distinct().ToList();
+            return new SpeakerCollection(speakers).Serialize();
         }
 
 

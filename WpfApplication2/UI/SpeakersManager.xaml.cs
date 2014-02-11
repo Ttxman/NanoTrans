@@ -258,6 +258,12 @@ namespace NanoTrans
             }
         }
 
+        public Speaker SelectedSpeaker;
+        private void SpeakersBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            SelectedSpeaker = ((SpeakerContainer)SpeakersBox.SelectedItem).Speaker;
+        }
+
     }
 
     public class SpeakersViewModel : INotifyPropertyChanged

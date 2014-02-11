@@ -309,7 +309,7 @@ namespace NanoTrans.Core
                     new XAttribute("b", Begin), 
                     new XAttribute("e", End), 
                     new XAttribute("a", Attributes), 
-                    new XAttribute("s", _speakerID),
+                    new XAttribute("s", SpeakerID), //DO NOT use _speakerID,  it is not equivalent
                     new XAttribute("l", Language),
                 }),
                 Phrases.Select(p => p.Serialize())
@@ -339,7 +339,7 @@ namespace NanoTrans.Core
                     this.Phrases.Add(new TranscriptionPhrase(aKopie.Phrases[i]));
                 }
             }
-            this._speakerID = aKopie._speakerID;
+            this.Speaker = aKopie.Speaker;
         }
 
         public TranscriptionParagraph(List<TranscriptionPhrase> phrases)

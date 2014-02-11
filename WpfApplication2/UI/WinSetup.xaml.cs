@@ -24,9 +24,9 @@ namespace NanoTrans
     public partial class WinSetup : Window
     {
         public MySetup bNastaveni;
-        private MySpeakers bDatabazeMluvcich;
+        private SpeakerCollection bDatabazeMluvcich;
 
-        public WinSetup(MySetup aNastaveni, MySpeakers aDatabazeMluvcich)
+        public WinSetup(MySetup aNastaveni, SpeakerCollection aDatabazeMluvcich)
         {
             bNastaveni = aNastaveni;
             bDatabazeMluvcich = aDatabazeMluvcich;
@@ -96,7 +96,7 @@ namespace NanoTrans
                 if (val >= UpDownJump.Minimum.Value && val <= UpDownJump.Maximum.Value)
                     UpDownJump.Value = val;
             }
-        
+
         }
 
 
@@ -106,7 +106,7 @@ namespace NanoTrans
         /// </summary>
         /// <param name="aNastaveni"></param>
         /// <returns></returns>
-        public static MySetup WinSetupNastavit(MySetup aNastaveni, MySpeakers aDatabazeMluvcich)
+        public static MySetup WinSetupNastavit(MySetup aNastaveni, SpeakerCollection aDatabazeMluvcich)
         {
             WinSetup ws = new WinSetup(aNastaveni, aDatabazeMluvcich);
             ws.ShowDialog();
@@ -141,7 +141,7 @@ namespace NanoTrans
             bNastaveni.ZobrazitFotografieMluvcich = (bool)chbZobrazitFotku.IsChecked;
             bNastaveni.Fotografie_VyskaMax = slVelikostFotografie.Value;
 
-            bNastaveni.ZpomalenePrehravaniRychlost =(double)UpDownSpeed.Value;
+            bNastaveni.ZpomalenePrehravaniRychlost = (double)UpDownSpeed.Value;
             bNastaveni.VlnaMalySkok = (double)UpDownJump.Value;
 
 
@@ -153,24 +153,19 @@ namespace NanoTrans
         {
             Microsoft.Win32.OpenFileDialog fileDialog = new Microsoft.Win32.OpenFileDialog();
             fileDialog.Title = Properties.Strings.FileDialogLoadSpeakersDatabaseTitle;
-            fileDialog.Filter = string.Format(Properties.Strings.FileDialogLoadSpeakersDatabaseFilter, "*.xml","*.xml");
-                
-            try
-            {
-                FileInfo fi = new FileInfo(bNastaveni.CestaDatabazeMluvcich);
-                if (fi != null && fi.Directory.Exists) fileDialog.InitialDirectory = fi.DirectoryName;
-                else fileDialog.InitialDirectory = FilePaths.DefaultDirectory;
-            }
-            catch
-            {
+            fileDialog.Filter = string.Format(Properties.Strings.FileDialogLoadSpeakersDatabaseFilter, "*.xml", "*.xml");
 
-            }
+            FileInfo fi = new FileInfo(bNastaveni.CestaDatabazeMluvcich);
+            if (fi != null && fi.Directory.Exists) 
+                fileDialog.InitialDirectory = fi.DirectoryName;
+            else fileDialog.InitialDirectory = FilePaths.DefaultDirectory;
+
             fileDialog.FilterIndex = 1;
-            fileDialog.RestoreDirectory = true;
+
             if (fileDialog.ShowDialog() == true)
             {
-                MySpeakers ms = MySpeakers.Deserialize(fileDialog.FileName);
-                if(ms!=null)
+                SpeakerCollection ms = SpeakerCollection.Deserialize(fileDialog.FileName);
+                if (ms != null)
                     tbCestaDatabazeMluvcich.Text = ms.FileName;
             }
         }
@@ -179,11 +174,12 @@ namespace NanoTrans
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
             string URL = ConfigurationManager.AppSettings["OODictionarySource"];
-            Stream s= DownloadOneFileWindow.DownloadFile(URL);
+            Stream s = DownloadOneFileWindow.DownloadFile(URL);
             if (s == null)
             {
-                MessageBox.Show(this, Properties.Strings.MessageBoxDictionaryDownloadError, Properties.Strings.MessageBoxDictionaryDownloadErrorCaption, MessageBoxButton.OK, MessageBoxImage.Warning); 
-            }else
+                MessageBox.Show(this, Properties.Strings.MessageBoxDictionaryDownloadError, Properties.Strings.MessageBoxDictionaryDownloadErrorCaption, MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            else
                 GetDictionaryFromZip(s);
         }
 
@@ -192,7 +188,7 @@ namespace NanoTrans
             OpenFileDialog of = new OpenFileDialog();
             of.Filter = Properties.Strings.FileDialogLoadOODictionaryFilter;
 
-            if (of.ShowDialog(this)==true)
+            if (of.ShowDialog(this) == true)
             {
                 try
                 {
@@ -200,7 +196,7 @@ namespace NanoTrans
                 }
                 catch
                 {
-                    MessageBox.Show(this, Properties.Strings.MessageBoxDictionaryFormatError, Properties.Strings.MessageBoxWarningCaption, MessageBoxButton.OK, MessageBoxImage.Warning);   
+                    MessageBox.Show(this, Properties.Strings.MessageBoxDictionaryFormatError, Properties.Strings.MessageBoxWarningCaption, MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
             }
         }
@@ -217,16 +213,16 @@ namespace NanoTrans
 
                 if (dic != null)
                 {
-                    if (MessageBox.Show(this,string.Format(Properties.Strings.MessageBoxDictionaryConfirmLoad,System.IO.Path.GetFileNameWithoutExtension(aff.FileName)), Properties.Strings.MessageBoxQuestionCaption, MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK)
+                    if (MessageBox.Show(this, string.Format(Properties.Strings.MessageBoxDictionaryConfirmLoad, System.IO.Path.GetFileNameWithoutExtension(aff.FileName)), Properties.Strings.MessageBoxQuestionCaption, MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK)
                     {
                         var readme = zf.Entries.Where(en => en.FileName.ToLower().Contains("readme")).FirstOrDefault();
                         if (readme != null)
                         {
                             string ss = new StreamReader(readme.OpenReader()).ReadToEnd();
-                            
+
                             if (TextWallWindow.ShowWall(true, Properties.Strings.OODictionaryLicenceTitle, ss))
                             {
-                                
+
                                 if (SpellChecker.SpellEngine != null)
                                 {
                                     SpellChecker.SpellEngine.Dispose();
@@ -236,7 +232,7 @@ namespace NanoTrans
 
                                 File.WriteAllText(FilePaths.GetWritePath("data\\readme_slovniky.txt"), ss);
                                 string p = FilePaths.GetWritePath("data\\cs_CZ.aff");
-   
+
                                 using (Stream fs = File.Create(p))
                                     aff.Extract(fs);
                                 p = FilePaths.GetWritePath("data\\cs_CZ.dic");
@@ -245,7 +241,7 @@ namespace NanoTrans
                                     dic.Extract(fs);
 
                                 SpellChecker.LoadVocabulary();
-                                MessageBox.Show(this, Properties.Strings.MessageBoxDictinaryInstalled,Properties.Strings.MessageBoxInfoCaption , MessageBoxButton.OK, MessageBoxImage.Information);
+                                MessageBox.Show(this, Properties.Strings.MessageBoxDictinaryInstalled, Properties.Strings.MessageBoxInfoCaption, MessageBoxButton.OK, MessageBoxImage.Information);
                             }
                         }
 

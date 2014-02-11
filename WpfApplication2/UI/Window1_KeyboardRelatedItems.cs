@@ -370,9 +370,12 @@ namespace NanoTrans
             else
                 tpr = VirtualizingListBox.ActiveTransctiption as TranscriptionParagraph;
 
+            var mgr = new SpeakersManager(tpr.Speaker, Transcription, Transcription.Speakers, SpeakersDatabase) { MessageLabel = "Vybraný odstavec:", Message = VirtualizingListBox.ActiveTransctiption.Text };
 
-
-            new SpeakersManager(tpr.Speaker, Transcription, Transcription.Speakers, SpeakersDatabase) { MessageLabel = "Vybraný odstavec:", Message = VirtualizingListBox.ActiveTransctiption.Text }.ShowDialog();
+            if (mgr.ShowDialog() == true && mgr.SelectedSpeaker!=null)
+            {
+                tpr.Speaker = mgr.SelectedSpeaker;
+            }
 
             VirtualizingListBox.SpeakerChanged(VirtualizingListBox.ActiveElement);
         }

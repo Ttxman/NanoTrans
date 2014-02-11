@@ -158,7 +158,7 @@ namespace NanoTrans.Core
             {
                 throw new FileNotFoundException();
             }
-
+            store._fileName = filename;
             XDocument doc = XDocument.Load(filename);
 
 
