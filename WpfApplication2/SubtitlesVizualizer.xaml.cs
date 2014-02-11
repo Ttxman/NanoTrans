@@ -55,7 +55,7 @@ namespace NanoTrans
             double totalh = 0;
             if (Subtitles != null)
             {
-                Element lm = new Element();
+                Element lm = new Element(true);
                 foreach (TranscriptionElement tr in Subtitles)
                 {
                     

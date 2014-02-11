@@ -73,12 +73,6 @@ namespace NanoTrans
         /// </summary>
         private MyFonetic bFonetika = null;
 
-        /// <summary>
-        /// slovnik s vlastnimi slovy prepisu
-        /// </summary>
-        private MyFoneticSlovnik bSlovnikFonetickehoDoplneni = null;
-
-
         bool slPoziceMedia_mouseDown = false; //promenna pro detekci stisknuti mysi na posuvniku videa
         /// <summary>
         /// info zda je nacitan audio soubor kvuli davce
@@ -215,7 +209,6 @@ namespace NanoTrans
                 menuNastroje.Header = "Tools";
                 menuNastrojeFonetika.Header = "Phonetic transcription";
                 menuNastrojeFonetikaFonetika.Header = "Automatic phonetic transcription";
-                menuNastrojeFonetikaVarianty.Header = "Phonetic alternative";
                 menuNastrojeFonetikaZobrazit.Header = "Show phonetic transcription";
                 menuNastrojeNastaveni.Header = "Option";
                 menuNastrojeNastavMluvciho.Header = "Speaker selection";
@@ -306,9 +299,6 @@ namespace NanoTrans
 
                 this.WindowState = MySetup.Setup.OknoStav;
 
-                bSlovnikFonetickehoDoplneni = new MyFoneticSlovnik();
-                bSlovnikFonetickehoDoplneni.NacistSlovnik(MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.CESTA_SLOVNIK_FONETIKA_UZIVATELSKY, bSlovnikFonetickehoDoplneni.PridanaSlova);
-                bSlovnikFonetickehoDoplneni.NacistSlovnik(MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.CESTA_SLOVNIK_FONETIKA_ZAKLADNI, bSlovnikFonetickehoDoplneni.SlovnikZakladni);
 
                 ZobrazitOknoFonetickehoPrepisu(MySetup.Setup.ZobrazitFonetickyPrepis - 1 > 0);
 
@@ -1664,11 +1654,6 @@ namespace NanoTrans
                     }
 
                 }
-                //ulozeni fonetickeho uzivatelskeho slovniku
-                if (bSlovnikFonetickehoDoplneni != null)
-                {
-                    bSlovnikFonetickehoDoplneni.UlozitSlovnik(MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.CESTA_SLOVNIK_FONETIKA_UZIVATELSKY);
-                }
 
                 //pokus o ulozeni nastaveni
                 if (MySetup.Setup != null)
@@ -1752,7 +1737,7 @@ namespace NanoTrans
             Thread t = new Thread(
                 delegate()
                 {
-                    if (Element.SpellChecker.LoadVocabulary(MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.CESTA_SLOVNIK_SPELLCHECK))
+                    if (Element.SpellChecker.LoadVocabulary())
                     {
                         this.Dispatcher.Invoke(new Action(
                     delegate()
@@ -2262,85 +2247,6 @@ namespace NanoTrans
 
         }
 
-        private void MenuItemFonetickeVarianty_Click(object sender, RoutedEventArgs e)
-        {
-            if (VirtualizingListBox.ActiveElement!=null)
-            {
-                MyParagraph pp = VirtualizingListBox.ActiveTransctiption as MyParagraph;
-                if (pp == null) return;
-                int pIndexKurzoru = fonetickyPrepis.editor.CaretOffset;
-                int pIndexPocatkuSlova = -1;
-                string pText = "";
-                for (int iii = 0; iii < pp.Phrases.Count; iii++)
-                {
-
-                    pText += pp.Phrases[iii].Text;
-                    bool je = pText.Length >= pIndexKurzoru;
-                    if (je)
-                    {
-                        string pSlovo = "";
-                        int jjj = pIndexKurzoru;
-                        if (jjj >= pText.Length) jjj = pText.Length - 1;
-                        while (jjj >= 0 && jjj < pText.Length && pText[jjj] != '_')
-                        {
-                            pSlovo = pText[jjj] + pSlovo;
-                            pIndexPocatkuSlova = jjj;
-                            jjj--;
-                        }
-                        jjj = pIndexKurzoru + 1;
-                        while (jjj < pText.Length && pText[jjj] != '_')
-                        {
-                            pSlovo += pText[jjj];
-                            jjj++;
-                        }
-
-                        int pIndex = -1;
-
-                        if (pSlovo.Length > 0)
-                        {
-                            if (pSlovo.Contains("{"))
-                            {
-                                pSlovo = pSlovo.Substring(1, pSlovo.Length - 2);
-                                for (int j = 0; j < bSlovnikFonetickehoDoplneni.PridanaSlovaDocasna.Count; j++)
-                                {
-                                    if (bSlovnikFonetickehoDoplneni.PridanaSlovaDocasna[j].jeFonetickaVarianta(pSlovo))
-                                    {
-                                        //pSlovo = bSlovnikFonetickehoDoplneni.PridanaSlovaDocasna[j].Slovo;
-                                        pIndex = j;
-                                        break;
-                                    }
-                                }
-                                //if (aNalezeno)
-                                //break;
-
-                            }
-
-                            WinFonetickySlovnik ws = new WinFonetickySlovnik(pp.Phrases[iii].Text, pSlovo, pIndex, bSlovnikFonetickehoDoplneni);
-                            ws.Owner = this;
-                            if ((bool)ws.ShowDialog())
-                            {
-                                int pIndexSouctu = 0;
-                                foreach (MyPhrase ph in pp.Phrases)
-                                {
-                                    pIndexSouctu += ph.Text.Length;
-                                    if (pIndexPocatkuSlova < pIndexSouctu && ph.Text.Contains(pSlovo) && (pSlovo.Length == ph.Text.Length - 2 || pSlovo.Length == ph.Text.Length))
-                                    {
-                                        ph.Text = ws.tbFonetickyPrepis.Text;
-                                    }
-                                }
-                            }
-                            fonetickyPrepis.editor.CaretOffset = pIndexPocatkuSlova;
-                            return;
-
-                        }
-
-                    }
-
-                }
-            }
-            return;
-        }
-
         private void menuItemNastrojeNormalizovat_Click(object sender, RoutedEventArgs e)
         {
             CommandNormalizeParagraph.Execute(null, this);
@@ -2353,7 +2259,7 @@ namespace NanoTrans
         /// <param name="e"></param>
         private void menuItemNastrojeFonetickyPrepis_Click(object sender, RoutedEventArgs e)
         {
-            throw new NotImplementedException();
+            
         }
 
         private void menuItemNastrojeAllignment_Click(object sender, RoutedEventArgs e)

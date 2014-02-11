@@ -21,14 +21,14 @@
         </Grid>
         <GroupBox Header="Vybraný mluvčí" Height="195" Margin="13,8,9,0" Name="groupBox1" VerticalAlignment="Top" FontWeight="bold">
             <Grid>
-                <TextBox Margin="104,2,0,0" Name="tbPridejMluvciho" KeyDown="tbPridejMluvciho_KeyDown" TabIndex="30" Height="23" VerticalAlignment="Top" HorizontalAlignment="Left" Width="171" />
+                <TextBox Margin="48,1,0,0" Name="tbPridejMluvciho" KeyDown="tbPridejMluvciho_KeyDown" TabIndex="30" Height="23" VerticalAlignment="Top" HorizontalAlignment="Left" Width="171" />
                 <Button Margin="59,0,0,3" Name="btPridejMluvciho" Click="btPridejMluvciho_Click" TabIndex="50" ToolTip="Uloží změny" Height="26.723" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="119">
                     <StackPanel Orientation="Horizontal">
                         <Image Source="/icons/iUlozit.png" Height="16" />
                         <TextBlock Margin="3">Uložit změny</TextBlock>
                     </StackPanel>
                  </Button>
-                <Label Name="label3" Height="25.723" VerticalAlignment="Top" HorizontalAlignment="Left" Width="102">Jméno, příjmení:</Label>
+                <Label Name="label3" Height="25.723" VerticalAlignment="Top" HorizontalAlignment="Left" Width="53">Jméno:</Label>
                 
                 <ComboBox HorizontalAlignment="Left" FontWeight="normal" Margin="59,56.723,0,0" Name="cbMluvci" Width="216" Height="23" VerticalAlignment="Top" TabIndex="35" />
                 <Label HorizontalAlignment="Left" FontWeight="normal" Margin="0,55.447,0,0" Name="label5" Width="55" Height="24.276" VerticalAlignment="Top">Mluvčí:</Label>
@@ -57,6 +57,7 @@
                     <ComboBoxItem>male</ComboBoxItem>
                     <ComboBoxItem>female</ComboBoxItem>
                 </ComboBox>
+                <Label Content="Příjmení:" Height="25.723" HorizontalAlignment="Left" Margin="222,-1,0,0" Name="label9" VerticalAlignment="Top" Width="68" />
             </Grid>
         </GroupBox>
             

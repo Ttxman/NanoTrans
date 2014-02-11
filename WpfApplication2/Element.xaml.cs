@@ -252,21 +252,34 @@ namespace NanoTrans
 
         private bool updating = false;
 
-        public Element()
+
+        public Element():this(false)
+        { 
+        
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="isPasiveElement"></param>
+        public Element(bool isPasiveElement)
         {
             InitializeComponent();
             RepaintAttributes();
 
-            editor.TextArea.TextView.LineTransformers.Add(DefaultSpellchecker);
-
+            
             editor.TextArea.TextView.ElementGenerators.Add(DefaultNonEditableBlockGenerator);
             editor.TextArea.IndentationStrategy = new NoIndentationStrategy() ;
             editor.Options.InheritWordWrapIndentation = false;
-            editor.TextArea.TextEntering += new TextCompositionEventHandler(TextArea_TextEntering);
-            editor.TextArea.TextEntered += new TextCompositionEventHandler(TextArea_TextEntered);
-            editor.Document.Changed += new EventHandler<DocumentChangeEventArgs>(Document_Changed);
 
-            editor.TextArea.TextView.MouseLeftButtonDown += new MouseButtonEventHandler(TextView_MouseLeftButtonDown);
+            if (!isPasiveElement)
+            {
+                editor.TextArea.TextView.LineTransformers.Add(DefaultSpellchecker);
+                editor.TextArea.TextEntering += new TextCompositionEventHandler(TextArea_TextEntering);
+                editor.TextArea.TextEntered += new TextCompositionEventHandler(TextArea_TextEntered);
+                editor.Document.Changed += new EventHandler<DocumentChangeEventArgs>(Document_Changed);
+
+                editor.TextArea.TextView.MouseLeftButtonDown += new MouseButtonEventHandler(TextView_MouseLeftButtonDown);
+            }
         }
 
         void TextView_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -353,26 +366,11 @@ namespace NanoTrans
             static TextDecorationCollection defaultdecoration;
 
             //nacteni celeho slovniku z souboru do hash tabulky
-            public static bool LoadVocabulary(string filename)
+            static NHunspell.Hunspell spell= null;
+            public static bool LoadVocabulary()
             {
-                try
-                {
-                    Vocabulary = new HashSet<string>();
-                    System.IO.StreamReader reader = new System.IO.StreamReader(filename);
-                    while (reader.Peek() >= 0)
-                    {
-                        foreach (string s in reader.ReadLine().Split(' '))
-                        {
-                            Vocabulary.Add(s.ToLower());
-                        }
-                    }
-
-                    reader.Close();
-                }
-                catch (Exception)
-                {
-                    return false;
-                }
+                //TODO: dosetupu
+                spell = new NHunspell.Hunspell(MySetup.Setup.absolutniCestaEXEprogramu + @"\data\cs_CZ.aff", MySetup.Setup.absolutniCestaEXEprogramu + @"\data\cs_CZ.dic");
 
                 return true;
             }
@@ -420,6 +418,8 @@ namespace NanoTrans
 
             protected override void ColorizeLine(DocumentLine line)
             {
+                if (spell == null)
+                    return;
                 int lineStartOffset = line.Offset;
                 string text = CurrentContext.Document.GetText(line);
                 MatchCollection matches = wordSplitter.Matches(text, 0);
@@ -427,7 +427,7 @@ namespace NanoTrans
                 {
                     string s = text.Substring(m.Index, m.Length).ToLower();
 
-                    if (!wordIgnoreChecker.IsMatch(s) && !Vocabulary.Contains(s))
+                    if (!wordIgnoreChecker.IsMatch(s) && !spell.Spell(s))
                     {
                         base.ChangeLinePart(
                             lineStartOffset + m.Index,

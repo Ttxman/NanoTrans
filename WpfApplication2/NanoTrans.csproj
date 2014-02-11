@@ -103,6 +103,9 @@
       <HintPath>..\Microsoft.DirectX.DirectSound.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="NHunspell">
+      <HintPath>..\NHunspell.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
@@ -169,12 +172,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Window1.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="WinFonetickySlovnik.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -269,9 +266,6 @@
     <Compile Include="Window1_waveformRelated.cs">
       <DependentUpon>Window1.xaml</DependentUpon>
       <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="WinFonetickySlovnik.xaml.cs">
-      <DependentUpon>WinFonetickySlovnik.xaml</DependentUpon>
     </Compile>
     <Compile Include="WinHelp.xaml.cs">
       <DependentUpon>WinHelp.xaml</DependentUpon>

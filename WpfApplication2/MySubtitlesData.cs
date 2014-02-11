@@ -1429,11 +1429,12 @@ namespace NanoTrans
                 reader.Read();
                 
                // reader.ReadStartElement("Transcription");
-                data.dateTime = XmlConvert.ToDateTime(reader.GetAttribute("dateTime"),XmlDateTimeSerializationMode.Local);
+                string val = reader.GetAttribute("dateTime");
+                if(val!=null)
+                    data.dateTime = XmlConvert.ToDateTime(val,XmlDateTimeSerializationMode.Local);
                 data.audioFileName = reader.GetAttribute("audioFileName");
                 
                 int result;
-                string val;
 
                 reader.Read();
                 reader.ReadStartElement("Chapters");
@@ -1462,11 +1463,13 @@ namespace NanoTrans
                         c.End = XmlConvert.ToTimeSpan(val);
 
                     reader.Read();
+                    
                     reader.ReadStartElement("Sections");
-                    //reader.ReadStartElement("Section");
-
+                   
+               
                     while (reader.Name == "Section")
                     {
+                        
                         MySection s = new MySection();
                         s.name = reader.GetAttribute("name");
 
@@ -1512,7 +1515,8 @@ namespace NanoTrans
                             else
                                 p.End = XmlConvert.ToTimeSpan(val);
 
-                            p.trainingElement = XmlConvert.ToBoolean(reader.GetAttribute("trainingElement"));
+                            val = reader.GetAttribute("trainingElement");
+                            p.trainingElement = val==null?false:XmlConvert.ToBoolean(val);
                             p.Attributes = reader.GetAttribute("Attributes");
 
                             reader.Read();
@@ -1732,11 +1736,10 @@ namespace NanoTrans
                         reader.ReadEndElement();//section
                     }
 
-                    reader.ReadEndElement();//sections
+                    if(reader.Name=="Sections")
+                        reader.ReadEndElement();//sections
                     reader.ReadEndElement();//chapter
                     data.Chapters.Add(c);
-
-
                 }
 
                 reader.ReadEndElement();//chapters
