@@ -446,7 +446,11 @@
     <Content Include="Prevod\ffmpeg.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Resource Include="TACR\000_TACR_logotyp-en.jpg" />
+    <Resource Include="TACR\050_Alfa_logotyp.jpg" />
+    <Resource Include="TACR\100_newton.jpg" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>
