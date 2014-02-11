@@ -281,7 +281,9 @@ namespace NanoTrans
         [XmlIgnore]
         public string CasoveZnackyText { get; set; } //uchovava informace o samotnem! textu ulozenem v textboxu-bez koncu/r/n...
 
-        public double ZpomalenePrehravaniRychlost { get; set; }
+        public double ZpomalenePrehravaniRychlost { get; set; } //rychlost zpomaleneho prehravani
+        public double VlnaMalySkok { get; set; } //delka maleho skoku na vlne
+
 
         public string[] NerecoveUdalosti { get; set; }
 

@@ -10,6 +10,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.IO;
+using Microsoft.Windows.Controls;
+
 
 namespace NanoTrans
 {
@@ -164,6 +166,10 @@ namespace NanoTrans
                 chbZobrazitIndexyPocatku.IsChecked = aNastaveni.zobrazitCasBegin;
                 chbZobrazitIndexyKonce.IsChecked = aNastaveni.zobrazitCasEnd;
 
+                //prehravani
+
+                UpDownSpeed.Value =  (decimal)aNastaveni.ZpomalenePrehravaniRychlost;
+                UpDownJump.Value = (int)(aNastaveni.VlnaMalySkok);
             }
         }
 
@@ -284,6 +290,9 @@ namespace NanoTrans
             bNastaveni.zobrazitCasBegin = (bool)(chbZobrazitIndexyPocatku.IsChecked);
             bNastaveni.zobrazitCasEnd = (bool)(chbZobrazitIndexyKonce.IsChecked);
 
+            bNastaveni.ZpomalenePrehravaniRychlost =(double)UpDownSpeed.Value;
+            bNastaveni.VlnaMalySkok = (double)UpDownJump.Value;
+
             this.Close();
         }
 
@@ -351,10 +360,6 @@ namespace NanoTrans
             if (bPomocnyMluvciDiktatPredUlozenim != null) bPomocnyMluvciDiktatPredUlozenim.FotoJPGBase64 = null;
             VyplnTextHlasovehoOvladani(tbMluvciHlasovehoOvladani, bPomocnyMluvciHlasovehoOvladaniPredUlozenim);
         }
-
-
-
-
 
     }
 }

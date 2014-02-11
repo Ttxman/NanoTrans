@@ -5681,7 +5681,7 @@ namespace NanoTrans
             nastaveniAplikace = WinSetup.WinSetupNastavit(nastaveniAplikace, myDatabazeMluvcich);
             //pokus o ulozeni konfigurace
             nastaveniAplikace.Serializovat(nastaveniAplikace.absolutniCestaEXEprogramu + MyKONST.KONFIGURACNI_SOUBOR, nastaveniAplikace);
-
+            oVlna.mSekundyMalySkok = (int)(nastaveniAplikace.VlnaMalySkok * 1000);
             InicializaceAudioPrehravace();  //nove nastaveni prehravaciho zarizeni 
 
             UpdateXMLData();    //zobrazeni xml dat v pripade zmeny velikosti pisma
@@ -7741,7 +7741,7 @@ namespace NanoTrans
                         {
 
                             bool adjustspeed = false;
-                            if (leftShift)
+                            if (leftShift || ToolBar2BtnSlow.IsChecked==true)
                             {
                                 adjustspeed = true;
                                 meVideo.SpeedRatio = nastaveniAplikace.ZpomalenePrehravaniRychlost;

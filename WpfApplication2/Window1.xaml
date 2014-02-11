@@ -1,7 +1,7 @@
 ﻿<Window x:Class="NanoTrans.Window1"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Title="NanoTrans" Height="758" Width="754" Closing="Window_Closing"
+    Title="NanoTrans" Height="758" Width="867" Closing="Window_Closing"
     xmlns:local="clr-namespace:NanoTrans" ResizeMode="CanResizeWithGrip" SizeChanged="Window_SizeChanged" Loaded="Window_Loaded" WindowStartupLocation="CenterScreen" PreviewKeyDown="Window_PreviewKeyDown" PreviewKeyUp="Window_PreviewKeyUp" Icon="/Prepisovac2.0;component/icons/pen.ico" IsEnabled="True" AllowDrop="True" Drop="Window_Drop" LocationChanged="Window_LocationChanged" LostFocus="Window_LostFocus">
     
     <Window.Resources>
@@ -229,7 +229,7 @@
         
         <GroupBox Header="Audio: " Name="groupBox1" Grid.Row="2" Height="52" VerticalAlignment="Top">
             <Grid>
-                <Button  Name="btNacistAudioSoubor" Click="button1_Click" VerticalAlignment="Top" Focusable="False" IsTabStop="False" Height="29.277" Margin="265,0,0,0" HorizontalAlignment="Left" Width="72">
+                <Button  Name="btNacistAudioSoubor" Click="button1_Click" VerticalAlignment="Top" Focusable="False" IsTabStop="False" Height="29.277" Margin="294,0,0,0" HorizontalAlignment="Left" Width="72">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Margin="4">Audio...</TextBlock>
                         <Image Margin="0,2,0,0" Source="/icons/iOtevrit.png" StretchDirection="DownOnly">
@@ -238,7 +238,7 @@
                     </StackPanel>
                 </Button>
                 <Image Name="image1" Stretch="Uniform" Source="/icons/nota.png" HorizontalAlignment="Right" Width="36.663" StretchDirection="Both" Margin="0,-3,-1,0" Height="33.723" VerticalAlignment="Top" />
-                <TextBox Margin="339,2.554,222,0" Name="tbAudioSoubor" Background="LightGoldenrodYellow" IsReadOnly="False" IsEnabled="True" Height="24.557" VerticalAlignment="Top" Focusable="True" IsTabStop="True"></TextBox>
+                <TextBox Margin="372,2.554,222,0" Name="tbAudioSoubor" Background="LightGoldenrodYellow" IsReadOnly="False" IsEnabled="True" Height="24.557" VerticalAlignment="Top" Focusable="True" IsTabStop="True"></TextBox>
                 
                 
                 <Label Margin="0,4,195,0" Name="lPocatek" HorizontalAlignment="Right" Width="29.675" Height="22.723" VerticalAlignment="Top">Poč.</Label>
@@ -256,6 +256,9 @@
                         <Button Click="ToolBar2BtnAuto_Click" Focusable="False" IsTabStop="False" Name="ToolBar2BtnAuto" ToolTip="Automaticky nastaví měřítko vlny" ClickMode="Press">
                             <Image Source="/icons/iAutoSize.png" />
                         </Button>
+                        <ToggleButton IsChecked="False" Name="ToolBar2BtnSlow">
+                            <Image Source="/NanoTrans;component/icons/isnail.png" />
+                        </ToggleButton>
                     </ToolBar>
                     <ToolBar>
                         <Button Name="Toolbar1Btn5" Click="Toolbar1Btn5_Click" Focusable="False" IsTabStop="False" Tag="5000">5s</Button>
@@ -267,10 +270,11 @@
                         <Button Name="Toolbar1Btn300" Click="Toolbar1Btn5_Click" Focusable="False" IsTabStop="False" Tag="180000">3m</Button>
                     </ToolBar>
                 </ToolBarTray>
-                <StackPanel Margin="352.78,0,184.895,0.422" Name="stackPanel1" Orientation="Horizontal" Height="27.157" VerticalAlignment="Bottom">
+                <StackPanel Margin="372,0,184.895,0.422" Name="stackPanel1" Orientation="Horizontal" Height="27.157" VerticalAlignment="Bottom">
                     <MediaElement Name="mediaElement1" LoadedBehavior="Manual" Width="71.104" Height="14.224"></MediaElement>
                     <MediaElement Name="meAudio" LoadedBehavior="Manual" Width="71.104" Height="14.224"></MediaElement>
                 </StackPanel>
+             
             </Grid>
         </GroupBox>
         <Grid Height="26" VerticalAlignment="Top" Grid.Row="2" Margin="0,50">

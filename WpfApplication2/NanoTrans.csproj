@@ -101,6 +101,9 @@
     <Reference Include="WindowsFormsIntegration">
       <RequiredTargetFramework>3.0</RequiredTargetFramework>
     </Reference>
+    <Reference Include="WPFToolkit.Extended">
+      <HintPath>..\WPFToolkit.Extended.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -334,6 +337,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="icons\isnail.png" />
     <Content Include="Microsoft.DirectX.DirectSound.dll" />
     <Content Include="Microsoft.DirectX.dll" />
   </ItemGroup>
