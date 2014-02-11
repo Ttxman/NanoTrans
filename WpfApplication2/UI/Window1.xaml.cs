@@ -1541,7 +1541,7 @@ namespace NanoTrans
                 Pedalthread.Abort();
             if (myDataSource != null && !myDataSource.Ulozeno)
             {
-                MessageBoxResult mbr = MessageBox.Show("Přepis není uložený. Chcete ho nyní uložit? ", "Varování", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+                    MessageBoxResult mbr = MessageBox.Show("Přepis není uložený. Chcete ho nyní uložit? ", "Varování", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
                 if (mbr == MessageBoxResult.Yes || mbr == MessageBoxResult.No)
                 {
                     if (mbr == MessageBoxResult.Yes)

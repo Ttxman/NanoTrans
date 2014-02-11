@@ -88,7 +88,7 @@ namespace NanoTrans
                 //prehravani
 
                 UpDownSpeed.Value =  (decimal)aNastaveni.ZpomalenePrehravaniRychlost;
-                UpDownJump.Value = (int)(aNastaveni.VlnaMalySkok);
+                UpDownJump.Value = (decimal)(aNastaveni.VlnaMalySkok);
 
                 checkBoxSaveShortened.IsChecked = aNastaveni.SaveInShortFormat;
             }
