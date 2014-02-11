@@ -1,0 +1,6 @@
+Jak vytvorit novy filelist kdyz v nanotransu pribydou soubory:
+1)CreateFileList.ps1 
+	je powershell script, ktery pomoci relativni cesty udela seznam souboru x86 realease verze nanotransu
+2) vznikne soubor filelist.lst - 
+	znej se umazou nepotrebny veci (jako config.xml, DatabazeMluvcich.xml, pripadne dalsi soubory)
+3) filelist se zkopiruje k exaci update builderu aby moh vytvaret updaty

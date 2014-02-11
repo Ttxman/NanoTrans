@@ -13,7 +13,7 @@ namespace UpdateBuilder
     {
         static void Main(string[] args)
         {
-            args = new string[]{@"C:\Users\Ttxman\Documents\NanoTrans\Work\WpfApplication2\bin\x86\Debug","Filelist.lst","300",@"http://admin.notebook.ttxman.operaunite.com/file_sharing_1/content/"};
+            //args = new string[] { @"C:\Users\Ttxman\Documents\NanoTrans\Work\WpfApplication2\bin\x86\Debug", "Filelist.lst", "300", @"http://admin.notebook.ttxman.operaunite.com/file_sharing_1/content/" };
             Console.WriteLine("Creating definitions");
             string basedir = args[0];
             string list = args[1];
