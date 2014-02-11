@@ -63,19 +63,19 @@
                     </MenuItem.Icon>
                 </MenuItem>
                 <Separator/>
-                <MenuItem Header="Vytvořit obrázek mluvčího" InputGestureText="F12" Click="menuItemVideoPoriditFotku_Click" Name="menuNastrojeObrazekMluvciho" />
+                <MenuItem IsEnabled="False" Header="Vytvořit obrázek mluvčího" InputGestureText="F12" Click="menuItemVideoPoriditFotku_Click" Name="menuNastrojeObrazekMluvciho" />
                 <Separator/>
-                <MenuItem Header="Normalizace" InputGestureText="F9" Click="menuItemNastrojeNormalizovat_Click" Name="menuNastrojeNormalizace" />
+                <MenuItem IsEnabled="False" Header="Normalizace" InputGestureText="F9" Click="menuItemNastrojeNormalizovat_Click" Name="menuNastrojeNormalizace" />
                 <MenuItem Header="Fonetický přepis" Name="menuNastrojeFonetika">
                     <MenuItem Header="Zobrazit fonetický přepis" Click="menuItemFonetickyPrepis_Click" Name="menuNastrojeFonetikaZobrazit" />
                     <Separator/>
-                    <MenuItem Header="Automatický fonetický přepis" InputGestureText="F10" Click="menuItemNastrojeFonetickyPrepis_Click" Name="menuNastrojeFonetikaFonetika" />
+                    <MenuItem IsEnabled="False" Header="Automatický fonetický přepis" InputGestureText="F10" Click="menuItemNastrojeFonetickyPrepis_Click" Name="menuNastrojeFonetikaFonetika" />
                 </MenuItem>
                 
                 <MenuItem Header="Video" Name="menuNastrojeVideo">
                     <MenuItem Header="Zobrazit Video" Name="menuNastrojeVideoZobrazit" Click="menuNastrojeVideoZobrazit_Click" />
                 </MenuItem>
-                <MenuItem Header="Allignment" InputGestureText="" Click="menuItemNastrojeAllignment_Click"/>
+                <MenuItem IsEnabled="False" Header="Allignment" InputGestureText="" Click="menuItemNastrojeAllignment_Click"/>
                 
                 <Separator/>
                 <MenuItem Header="Nastavení" Click="MNastroje_Nastaveni_Click" Name="menuNastrojeNastaveni">
@@ -141,7 +141,8 @@
                         </Button>
                     </Grid>
                 </TabItem>
-                <TabItem IsEnabled="True" Name="tiPrepis">
+
+                <TabItem Name="tiPrepis" IsEnabled="False">
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
                             <Image Source="/icons/iPrepisovac1.png" />
@@ -172,14 +173,14 @@
                         <TextBox Height="23" Margin="81,12,7,0" Name="tbDatumCasDokumentu" VerticalAlignment="Top" />
                     </Grid>
                 </TabItem>
-                <TabItem Name="tiDavka">
+                <TabItem Name="tiDavka" IsEnabled="False">
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
                             <Image Height="18" />
                             <TextBlock Text="Dávkové načtení" Margin="2,0,0,0" VerticalAlignment="Center" />
                          </StackPanel>
                     </TabItem.Header>
-                    <Grid>
+                    <Grid >
                         
                         <ListBox Margin="13.999,15,13.999,93" Name="lbDavkoveNacteni" MouseDoubleClick="lbDavkoveNacteni_MouseDoubleClick" Focusable="False" />
                         <Button  Margin="0,0,6,10" Name="btNacistAdresar" FontWeight="Bold" VerticalAlignment="Bottom" HorizontalAlignment="Right" ToolTip="Načte adresář s textovými/audio soubory" Click="btNacistAdresar_Click" Height="21.277" Width="87.453" IsTabStop="False" Focusable="False">Načíst adresář</Button>

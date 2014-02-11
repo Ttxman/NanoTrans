@@ -10,7 +10,6 @@
     <UserControl.Resources>
         <ObjectDataProvider x:Key="provider" ObjectInstance="{x:Static my:MySetup.Refresher}"/>
         <my:SpeakerConverter x:Key="SpeakerConverter" />
-        <my:EndingVisibilityConverter x:Key="EndingVisibilityConverter" />
     </UserControl.Resources>
 
     <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Name="maingrid" Background="{x:Null}">

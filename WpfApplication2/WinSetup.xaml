@@ -4,7 +4,7 @@
     xmlns:tk="http://schemas.microsoft.com/winfx/2006/xaml/presentation/toolkit/extended"
     Title="Nastavení" Height="484" Width="674" Icon="icons/iNastaveni.png">
     <Grid>
-        <TabControl Margin="4,6,6,38" Name="tabControl1" SelectedIndex="3" Height="402" Width="642">
+        <TabControl Margin="4,6,6,38" Name="tabControl1" SelectedIndex="0" Height="402" Width="642">
             <TabItem >
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
@@ -28,7 +28,7 @@
                     
                 </Grid>
             </TabItem>
-            <TabItem IsEnabled="True">
+            <TabItem IsEnabled="false">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
                         <Image Source="/icons/iPrepisovac1.png" />
@@ -67,7 +67,7 @@
                     </GroupBox>
                 </Grid>
             </TabItem>
-            <TabItem IsEnabled="True">
+            <TabItem IsEnabled="False">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
                         <Image Source="/icons/iHlasoveOvladani.png" />
@@ -110,7 +110,7 @@
                     </GroupBox>
                 </Grid>
             </TabItem>
-            <TabItem Header="Fonetický přepis">
+            <TabItem IsEnabled="False" Header="Fonetický přepis">
                 <Grid>
                     <GroupBox Header="Automatická tvorba fonetického přepisu" Margin="5,5,5,0" Height="151" VerticalAlignment="Top" FontWeight="Bold" >
                         <Grid>

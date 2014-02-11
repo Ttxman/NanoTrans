@@ -284,7 +284,7 @@ namespace NanoTrans
                 {
                     MySetup.Setup = MySetup.Setup.Deserializovat(MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.KONFIGURACNI_SOUBOR);
                     MySetup.Setup.Serializovat(MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.KONFIGURACNI_SOUBOR, MySetup.Setup);
-                    NastavJazyk(MySetup.Setup.jazykRozhranni);
+                   // NastavJazyk(MySetup.Setup.jazykRozhranni);
                 }
 
                 //nastaveni posledni pozice okna
@@ -383,9 +383,9 @@ namespace NanoTrans
                 ContextMenuVlnaImage.Items.Add(menuItemVlna2);
                 ContextMenuVlnaImage.Items.Add(new Separator());
                 ContextMenuVlnaImage.Items.Add(menuItemVlna3);
-                ContextMenuVlnaImage.Items.Add(menuItemVlna5);
-                ContextMenuVlnaImage.Items.Add(new Separator());
-                ContextMenuVlnaImage.Items.Add(menuItemVlna4);
+                //ContextMenuVlnaImage.Items.Add(menuItemVlna5);
+                //ContextMenuVlnaImage.Items.Add(new Separator());
+                //ContextMenuVlnaImage.Items.Add(menuItemVlna4);
 
                 waveform1.ContextMenu = ContextMenuVlnaImage;
 
