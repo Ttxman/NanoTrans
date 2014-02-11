@@ -4090,10 +4090,7 @@ namespace NanoTrans
 
                 if (nastavitMedia)
                 {
-                    //mediaElement1.Position = new TimeSpan(aMilisekundy * 10000);
                     pIndexBufferuVlnyProPrehrani = (int)aMilisekundy;
-                    //pCasZacatkuPrehravani = DateTime.Now.AddMilliseconds(-pIndexBufferuVlnyProPrehrani);
-                    //pCasZacatkuPrehravani = DateTime.Now;
                     if (jeVideo) meVideo.Position = new TimeSpan(aMilisekundy * 10000);
                     List<MyTag> pTagy = myDataSource.VratElementDanehoCasu(aMilisekundy, null);
                     for (int i = 0; i < pTagy.Count; i++)
@@ -4103,7 +4100,11 @@ namespace NanoTrans
                             return;
                         }
                     }
-                    VyberElement(pTagy[0], aNeskakatNaZacatekElementu);
+
+                    if (pTagy.Count > 0) // nechceme kazdy pruchod chybu...
+                    {
+                        VyberElement(pTagy[0], aNeskakatNaZacatekElementu);
+                    }
                 }
             }
             catch (Exception ex)
@@ -6414,7 +6415,7 @@ namespace NanoTrans
             catch (Exception ex)
             {
                 MyLog.LogujChybu(ex);
-                throw (ex);
+                
             }
         }
 
@@ -7755,11 +7756,25 @@ namespace NanoTrans
                                 prehratVyber = true;
                                 if (oVlna.KurzorVyberPocatekMS > -1)
                                 {
-                                    NastavPoziciKurzoru(oVlna.KurzorVyberPocatekMS, true, false);
-                                }
-                                else
-                                { 
-                                  
+                                    long timems;
+                                    if (oVlna.KurzorPoziceMS >= oVlna.KurzorVyberPocatekMS && oVlna.KurzorPoziceMS <= oVlna.KurzorVyberKonecMS)
+                                    {
+                                        timems = oVlna.KurzorVyberPocatekMS;
+                                        List<MyTag> elementy = myDataSource.VratElementDanehoCasu(timems, null);
+                                        NastavPoziciKurzoru(oVlna.KurzorVyberPocatekMS, true, false);
+                                    }
+                                    else
+                                    { 
+                                        int lastc = myDataSource.Chapters.Count-1;
+                                        int lasts = myDataSource.Chapters[lastc].Sections.Count-1;
+                                        int lastp = myDataSource.Chapters[lastc].Sections[lasts].Paragraphs.Count-1;
+
+
+                                        long konec = myDataSource.VratCasElementuPocatek(new MyTag(lastc, lasts, lastp))+5;
+                                        NastavPoziciKurzoru(konec, true, true);
+                                        oVlna.KurzorVyberPocatekMS = konec;
+                                        oVlna.KurzorVyberKonecMS = konec + 120000;
+                                    }
                                 }
                             }
                             if (jeVideo) meVideo.Play();
