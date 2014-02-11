@@ -229,7 +229,6 @@
       <DependentUpon>LoadingAnimation.xaml</DependentUpon>
     </Compile>
     <Compile Include="Source\CorrectionsGenerator.cs" />
-    <Compile Include="Source\Transcription.cs" />
     <Compile Include="Source\WaitCursor.cs" />
     <Compile Include="UI\DownloadOneFileWindow.xaml.cs">
       <DependentUpon>DownloadOneFileWindow.xaml</DependentUpon>
@@ -262,7 +261,6 @@
     <Compile Include="UI\TextWallWindow.xaml.cs">
       <DependentUpon>TextWallWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\TranscriptionElement.cs" />
     <Compile Include="UI\Waveform.xaml.cs">
       <DependentUpon>Waveform.xaml</DependentUpon>
     </Compile>
