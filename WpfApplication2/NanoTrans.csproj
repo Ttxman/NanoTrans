@@ -139,6 +139,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="FindDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Themes\Generic.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -200,6 +204,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ButtonClickCommand.cs" />
+    <Compile Include="FindDialog.xaml.cs">
+      <DependentUpon>FindDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="MyEnumParagraphAttributes.cs" />
     <Compile Include="MyPopupListbox.cs" />
     <Compile Include="MyTextbox.cs" />

@@ -175,7 +175,7 @@ namespace NanoTrans
                 m_CurrentBuffer.Record();
             }
             WaveInHelper.Try(WaveNative.waveInStart(m_WaveIn));
-            m_Thread = new Thread(new ThreadStart(ThreadProc));
+            m_Thread = new Thread(new ThreadStart(ThreadProc)) { Name = "MyWaveRecorder"};
             m_Thread.Start();
         }
         ~MyWaveRecorder()

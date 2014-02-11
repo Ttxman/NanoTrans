@@ -2347,7 +2347,7 @@ namespace NanoTrans
                     {
                         //if (oVlna.KurzorPoziceMS > pTime)
                         {
-                            NastavPoziciKurzoru(TimeSpan.FromSeconds(pTime), true, true);
+                            NastavPoziciKurzoru(TimeSpan.FromMilliseconds(pTime), true, true);
                         }
                     }
                 }
@@ -4022,6 +4022,10 @@ namespace NanoTrans
 
                 if (!e.Cancel)
                 {
+                    if (m_findDialog != null && m_findDialog.IsLoaded)
+                        m_findDialog.Close();
+
+
                     if (MWP != null)
                     {
                         MWP.Dispose();
@@ -4107,6 +4111,8 @@ namespace NanoTrans
 
                 Directory.Delete(MyKONST.CESTA_DOCASNYCH_SOUBORU_ZVUKU);
                 TempCheckMutex.Close();
+
+                Environment.Exit(0); // Vynuti ukonceni vsech vlaken a uvolneni prostredku
 
             }
             catch (Exception ex)
@@ -4206,6 +4212,10 @@ namespace NanoTrans
         //pokusi se zamerit textbox pri spousteni aplikace
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+
+            InitCommands();
+            m_findDialog = new FindDialog(this);
+
             //inicializuje (asynchronni) nacitani slovniku
 
             Thread t = new Thread(
@@ -4234,7 +4244,7 @@ namespace NanoTrans
                     ));
                     }
                 }
-                );
+                ) { Name = "Spellchecking_Load"};
             t.Start();
 
             // foneticky prepis musi dostat oznaceni jinak pak nejsou videt zmeny kdyz neam focus (pri prehravani)
@@ -6742,6 +6752,31 @@ namespace NanoTrans
                 Playing = false;
             }
             pIndexBufferuVlnyProPrehrani = (int)waveform1.CaretPosition.TotalMilliseconds;
+
+            bool fixVisible = true;
+            List<MyTag> tags = myDataSource.VratElementDanehoCasu(pIndexBufferuVlnyProPrehrani,null);
+
+            for (int i = 0; i < spSeznam.Children.Count && fixVisible; i++)
+            {
+                MyTag tg = ((spSeznam.Children[i] as Grid).Children[0] as TextBox).Tag as MyTag;
+                MyParagraph p = myDataSource[tg];
+
+                foreach (MyTag mt in tags)
+                {
+                    MyParagraph mp = myDataSource[mt];
+                    if (p != null && p.begin == mp.begin && p.end == mp.end)
+                    {
+                        fixVisible = false;
+                        ((spSeznam.Children[i] as Grid).Children[0] as TextBox).Focus();
+                        break;
+                    }
+                }
+            }
+
+            if (fixVisible)
+                ZobrazXMLData();
+
+
         }
 
         private void waveform1_ParagraphClick(object sender, Waveform.MyTagEventArgs e)

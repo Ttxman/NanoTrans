@@ -184,6 +184,7 @@ namespace NanoTrans
     [XmlInclude(typeof(MyPhrase))]
     public class MyParagraph
     {
+
         [XmlAttribute]
         public String name;
 
@@ -761,6 +762,54 @@ namespace NanoTrans
     [XmlInclude(typeof(MyChapter))]
     public class MySubtitlesData
     {
+
+        public bool FindNext(ref MyTag paragraph,ref int TextOffset,string pattern, bool isregex, bool CaseSensitive)
+        {
+            MyParagraph par = this[paragraph];
+
+            if (par == null)
+                return false;
+
+
+
+            Regex r;
+            if (isregex)
+            {
+                r = new Regex(pattern);
+            }
+            else
+            {
+                r = new Regex(".*?"+pattern);
+            }
+
+            MyTag tag = paragraph;
+            while (par != null)
+            {
+                string s = par.Text;
+                if (!CaseSensitive && !isregex)
+                    s = s.ToLower();
+
+                Match m = r.Match(s, TextOffset);
+
+                if (m.Success)
+                {
+                    TextOffset += m.Length;
+                    paragraph = tag;
+                    return true;
+                }
+
+                tag = this.VratOdstavecNasledujiciTag(tag);
+                if (tag == null)
+                    return false;
+                par = this[tag];
+                TextOffset = 0;
+
+            
+            }
+
+            return false;
+        }
+
         [XmlIgnore()]
         public string JmenoSouboru { get; set; }
         [XmlIgnore()]

@@ -32,6 +32,99 @@ namespace NanoTrans
     /// 
     public partial class Window1 : Window
     {
+        #region WPF commandy...
+        public static RoutedCommand CFindDialog = new RoutedCommand();
+
+
+        public void InitCommands()
+        {
+            CFindDialog.InputGestures.Add(new KeyGesture(Key.F, ModifierKeys.Control));
+            CFindDialog.InputGestures.Add(new KeyGesture(Key.F3));
+
+            CommandBinding cb = new CommandBinding(CFindDialog, CFindDialogExecute, CFindDialogCanExecute);
+            this.CommandBindings.Add(cb);
+        }
+
+
+
+        private void CFindDialogCanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = true;
+        }
+
+        private void CFindDialogExecute(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (!m_findDialog.IsLoaded || !m_findDialog.IsVisible)
+            {
+                m_findDialog = new FindDialog(this);
+
+                m_findDialog.Show();
+            }
+            else
+            {
+                m_findDialog.SearchNext();
+            }
+        }
+
+
+        int searchtextoffset = 0;
+        public void FindNext(string pattern, bool isregex, bool CaseSensitive)
+        { 
+            if(nastaveniAplikace.RichTag == null)
+                return;
+            MyTag tag = nastaveniAplikace.RichTag;
+
+            MyParagraph pr = myDataSource[tag];
+            if (pr == null)
+                tag = new MyTag(0, 0, 0);
+
+
+
+
+            if (myDataSource.FindNext(ref tag, ref searchtextoffset, pattern, isregex, CaseSensitive))
+            {
+                MyParagraph p = myDataSource[tag];
+                waveform1.CaretPosition = TimeSpan.FromMilliseconds(p.begin);
+
+                //TODO: omg neni potreba, zadna virtualizace neexistuje .... ZobrazXMLData();
+
+                foreach (UIElement c in spSeznam.Children)
+                {
+                    Grid g = c as Grid;
+
+                    if (g.Children[0] is MyTextBox)
+                    {
+                        MyTextBox tb = g.Children[0] as MyTextBox;
+
+                        MyTag mt = tb.Tag as MyTag;
+                        if (mt != null)
+                        {
+                            if (mt.tKapitola == tag.tKapitola && mt.tOdstavec == tag.tOdstavec && mt.tSekce == tag.tSekce)
+                            {
+                                tb.Focus();
+                                tb.Select(searchtextoffset - pattern.Length, pattern.Length);
+                                return;
+                            }
+                        
+                        }
+                    
+                    }
+                
+                
+                
+                }
+
+
+
+
+            
+            }
+        }
+
+        public FindDialog m_findDialog;
+
+
+        #endregion
         #region usb HID pedals
         static USBHIDDRIVER.USBInterface usbI = new USBInterface("vid_05f3", "pid_00ff");
         EventHandler savehandle;
@@ -445,8 +538,10 @@ namespace NanoTrans
                         }
                     }
                 }
-                else if (e.Key == Key.F3 && !e.IsRepeat)
+                else if (e.Key == Key.F4 && !e.IsRepeat)
                 {
+
+                    //TODO: nevim jestli (mluvci sekce) to enkdo nekdy pouzival, ale F3 potrebuju
                     e.Handled = true;
                     MyTag pomTag = null;
                     //  if (leftShift)
@@ -519,13 +614,13 @@ namespace NanoTrans
                     menuItemVlna1_prirad_casovou_znacku_Click(null, new RoutedEventArgs());
                     e.Handled = true;
                 }
-                else if (e.Key == Key.F && leftCtrl && !e.IsRepeat)
+            /*    else if (e.Key == Key.F && leftCtrl && !e.IsRepeat)
                 {
                     e.Handled = true;
                     MenuItemFonetickeVarianty_Click(null, new RoutedEventArgs());
                     leftCtrl = false;
 
-                }
+                }*/
                 else if (e.Key == Key.M)
                 {
                     if (leftCtrl && !e.IsRepeat)  //prehrani nebo pausnuti prehravani

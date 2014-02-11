@@ -321,7 +321,7 @@ namespace NanoTrans
         {
 
             InitializeComponent();
-            Invalidator = new Thread(ProcessInvalidates);
+            Invalidator = new Thread(ProcessInvalidates) { Name = this.Name+":Invalidator"};
             Invalidator.Start();
             Application.Current.Exit += new ExitEventHandler(Current_Exit);
         }
@@ -1330,15 +1330,14 @@ namespace NanoTrans
 
         private void UserControl_Unloaded(object sender, RoutedEventArgs e)
         {
-            if (Invalidator != null && Invalidator.ThreadState == System.Threading.ThreadState.Running)
+            if (Invalidator.ThreadState == System.Threading.ThreadState.Running)
                 Invalidator.Interrupt();
 
-            Invalidator = null;
         }
 
         private void grid1_Unloaded(object sender, RoutedEventArgs e)
         {
-            if (Invalidator.IsAlive)
+            if (Invalidator!=null && Invalidator.IsAlive)
                 Invalidator.Interrupt();
         }
 

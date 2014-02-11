@@ -253,7 +253,7 @@ namespace NanoTrans
             m_notify.SetNotificationPositions(nots);
 
 
-            m_waitThread = new Thread(new ThreadStart(DataRequestThread));
+            m_waitThread = new Thread(new ThreadStart(DataRequestThread)) { Name = "MyWavePlayer.DataRequestThread" };
             m_waitThread.Start();
         }
 

@@ -190,7 +190,7 @@ namespace NanoTrans
             NastavPocatecniCasNovehoRamce(aCasMS, aDelkaMS, aIDBufferu);
             if (aIDBufferu == MyKONST.ID_BUFFERU_PREPISOVANEHO_ELEMENTU_FONETICKY_PREPIS)
             {
-                this.tNacitaniBufferu2 = new Thread(AsynchronniNacteniRamce);
+                this.tNacitaniBufferu2 = new Thread(AsynchronniNacteniRamce) { Name = "AsynchronniNacteniRamce2()" };
                 this.tNacitaniBufferu2.Start();
             }
             if (aIDBufferu == MyKONST.ID_BUFFERU_PREPISOVANEHO_ELEMENTU)
@@ -222,7 +222,7 @@ namespace NanoTrans
             this._CestaSouboru = aCestaSouboru;
             this._Nacteno = false;
             this._Prevedeno = false;
-            this.tPrevodNaDocasneSoubory = new Thread(AsynchronniPrevodMultimedialnihoSouboruNaDocasne);
+            this.tPrevodNaDocasneSoubory = new Thread(AsynchronniPrevodMultimedialnihoSouboruNaDocasne) { Name = "AsynchronniPrevodMultimedialnihoSouboruNaDocasne2" };
             this.tPrevodNaDocasneSoubory.Start(); //spusteni
 
         }

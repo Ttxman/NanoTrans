@@ -87,5 +87,29 @@ namespace NanoTrans
             this.tSender = aSender;
         }
 
+        //public override bool Equals(object obj)
+        //{
+        //    if (obj is MyTag)
+        //    {
+        //        MyTag mt = (MyTag)obj;
+        //        return this == mt;
+        //    }
+
+        //    return false;
+        //}
+
+        //public static bool operator == (MyTag a, MyTag b)
+        //{
+            
+        //    if ((object)a == null || (object)b == null)
+        //        return false;
+        //    return a.tKapitola == b.tKapitola && a.tOdstavec == b.tOdstavec && a.tSekce == b.tSekce;
+        //}
+
+        //public static bool operator !=(MyTag a, MyTag b)
+        //{
+        //    return !(a == b);
+        //}
+
     }
 }

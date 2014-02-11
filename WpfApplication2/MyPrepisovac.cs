@@ -353,7 +353,7 @@ namespace NanoTrans
             {
                 if (this.threadZapisStop == null || this.threadZapisStop.ThreadState != System.Threading.ThreadState.Running)
                 {
-                    threadZapisStop = new Thread(Stop);
+                    threadZapisStop = new Thread(Stop) { Name = "AsynchronniStop()" };
                     threadZapisStop.Start();
                 }
             }
@@ -608,7 +608,7 @@ namespace NanoTrans
         {
             if (threadCteniZpravy == null || threadCteniZpravy.ThreadState != System.Threading.ThreadState.Running)
             {
-                threadCteniZpravy = new Thread(ReadMessage);
+                threadCteniZpravy = new Thread(ReadMessage) { Name = "AsynchronniRead()" };
                 threadCteniZpravy.Start();
             }
             

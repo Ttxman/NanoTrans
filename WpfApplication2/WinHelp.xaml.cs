@@ -22,6 +22,8 @@ namespace NanoTrans
         {
             InitializeComponent();
             richTextBox1.AppendText("Klávesové zkratky\nTab... přehrání/zastavení audio (video) souboru\rCtrl+Tab... Přehrání vybrané části souboru dokola\rAlt+Left... posun audio souboru o 1s zpet\rAlt+Right... posun audio souboru o 1s vpred\n");
+            richTextBox1.AppendText("Ctrl+šipka.. skok po slovu\r");
+            richTextBox1.AppendText("Ctrl+F / F3.. Vhledávání\r");
             richTextBox1.AppendText("Ctrl+N... nový přepis\rCtrl+O... otevře soubor s přepisem\rCtrl+S... uloží soubor s přepisem\r");
             richTextBox1.AppendText("Ctrl+M... otevře nové okno, kde lze vytvořit nového mluvčího, který se v přepisu vyskytuje a nastavit ho aktuálnímu elementu\r");
             //richTextBox1.AppendText("Ctrl+R... otevře nové okno, ve kterém lze vybrat některý ze zvuků, které se v přepisovaném audio souboru mohou vyskytovat\r");
@@ -35,7 +37,7 @@ namespace NanoTrans
             richTextBox1.AppendText("F10...Fonetický přepis pomocí HTK\r");
             richTextBox1.AppendText("F12...pořízení obrázku mluvčího z video souboru\r");
             richTextBox1.AppendText("Ctrl+klik myši v textu...skok kurzoru ve zvukovém signálu\r");
-            richTextBox1.AppendText("Shift+táhnutí myší v signálu...změna hranic mluvčích a povolení překryvu\r");
+            richTextBox1.AppendText("Shift+táhnutí myší v signálu... povolení překryvu\r");
             richTextBox1.AppendText("F1...Nápověda - klávesové zkratky\r");
             richTextBox1.AppendText("Ctrl+F1...Nápověda - O programu\r");
             
