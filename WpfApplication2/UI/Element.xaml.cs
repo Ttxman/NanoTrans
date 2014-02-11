@@ -96,7 +96,7 @@ namespace NanoTrans
                 el.textbegin.Visibility = Visibility.Collapsed;
                 el.textend.Visibility = Visibility.Collapsed;
                 el.stackPanel1.Visibility = Visibility.Collapsed;
-                el.Background = Brushes.LightGreen;
+                el.Background = MySetup.Setup.BarvaTextBoxuSekce;
                 el.button1.Visibility = Visibility.Collapsed;
                 el.checkBox1.Visibility = Visibility.Collapsed;
             }
@@ -106,7 +106,7 @@ namespace NanoTrans
                 el.textbegin.Visibility = Visibility.Collapsed;
                 el.textend.Visibility = Visibility.Collapsed;
                 el.stackPanel1.Visibility = Visibility.Collapsed;
-                el.Background = Brushes.LightPink;
+                el.Background = MySetup.Setup.BarvaTextBoxuKapitoly;
                 el.button1.Visibility = Visibility.Collapsed;
                 el.checkBox1.Visibility = Visibility.Collapsed;
             }
@@ -279,6 +279,43 @@ namespace NanoTrans
                 editor.Document.Changed += new EventHandler<DocumentChangeEventArgs>(Document_Changed);
 
                 editor.TextArea.TextView.MouseLeftButtonDown += new MouseButtonEventHandler(TextView_MouseLeftButtonDown);
+                editor.TextArea.TextView.MouseDown+=TextView_MouseDown;
+            }
+        }
+
+        private void TextView_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.MiddleButton != MouseButtonState.Pressed)
+                return;
+
+            if (e.ChangedButton != MouseButton.Middle)
+                return;
+
+            e.Handled = true;
+            TextArea ta = editor.TextArea;
+            if (ta != null)
+            {
+                if (ta.Selection.Length <= 0)
+                    return;
+                string selection = ta.Document.Text.Substring(ta.Selection.SurroundingSegment.Offset, ta.Selection.Length);
+
+                if (selection.Length == 0)
+                    return;
+                completionWindow = new CompletionWindow(editor.TextArea);
+                completionWindow.ResizeMode = ResizeMode.NoResize;
+
+                IList<ICompletionData> data = completionWindow.CompletionList.CompletionData;
+                foreach (string s in CorrectionsGenerator.GetCorrectionsFor(selection))
+                    data.Add(new CodeCompletionDataCorretion(s));
+
+
+                completionWindow.Show();
+                completionWindow.Focus();
+
+                completionWindow.Closed += delegate
+                {
+                    completionWindow = null;
+                };
             }
         }
 
@@ -301,7 +338,7 @@ namespace NanoTrans
                         {
                             if (SetTimeRequest != null)
                                 SetTimeRequest(ph.Begin);
-                            editor.TextArea.Caret.Location = t.Value;
+                            editor.TextArea.Caret.Location = t.Value.Location;
                             e.Handled = true;
                             return;
                         }
@@ -551,27 +588,6 @@ namespace NanoTrans
                 TimeSpan val = ValueElement.End;
                 this.textend.Text = string.Format("{0}:{1:00}:{2:00},{3}", val.Hours, val.Minutes, val.Seconds, val.Milliseconds.ToString("00").Substring(0, 2));
             }
-        }
-
-        internal void UserControl_GotFocus(object sender, RoutedEventArgs e)
-        {
-            if (ValueElement is MyParagraph)
-            {
-                editor.Background = MySetup.Setup.BarvaTextBoxuOdstavceAktualni;
-            }
-            else
-            {
-                editor.Background = null;
-            }
-        }
-
-        private void UserControl_LostFocus(object sender, RoutedEventArgs e)
-        {
-            if (ValueElement is MyParagraph)
-            {
-                editor.Background = null;
-            }
-
         }
 
         private void checkBox1_Checked(object sender, RoutedEventArgs e)
@@ -1006,8 +1022,8 @@ namespace NanoTrans
 
         public static bool LoadVocabulary()
         {
-            string faff = FilePaths.GetReadPath(@"\data\cs_CZ.aff");
-            string fdic = FilePaths.GetReadPath(@"\data\cs_CZ.dic");
+            string faff = FilePaths.GetReadPath(@"data\cs_CZ.aff");
+            string fdic = FilePaths.GetReadPath(@"data\cs_CZ.dic");
             if (File.Exists(faff) && File.Exists(fdic))
             {
                 spell = new NHunspell.Hunspell(faff, fdic);

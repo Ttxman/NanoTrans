@@ -272,12 +272,12 @@ namespace NanoTrans
                                 }
 
 
-                                File.WriteAllText(FilePaths.GetWritePath("\\data\\readme_slovniky.txt"), ss);
-                                string p = FilePaths.GetWritePath("\\data\\cs_CZ.aff");
+                                File.WriteAllText(FilePaths.GetWritePath("data\\readme_slovniky.txt"), ss);
+                                string p = FilePaths.GetWritePath("data\\cs_CZ.aff");
    
                                 using (Stream fs = File.Create(p))
                                     aff.Extract(fs);
-                                p = FilePaths.GetWritePath("\\data\\cs_CZ.dic");
+                                p = FilePaths.GetWritePath("data\\cs_CZ.dic");
 
                                 using (Stream fs = File.Create(p))
                                     dic.Extract(fs);

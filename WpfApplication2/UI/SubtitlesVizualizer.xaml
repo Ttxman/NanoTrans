@@ -4,23 +4,54 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
-             d:DesignHeight="283" d:DesignWidth="677" xmlns:my="clr-namespace:NanoTrans" MouseWheel="UserControl_MouseWheel" SizeChanged="UserControl_SizeChanged">
-
+             d:DesignHeight="283" d:DesignWidth="677"
+             xmlns:my="clr-namespace:NanoTrans"
+             Name="Vizualizer" Loaded="Vizualizer_Loaded" PreviewKeyDown="Vizualizer_PreviewKeyDown">
+    
     <UserControl.Resources>
         <ObjectDataProvider x:Key="provider" ObjectInstance="{x:Static my:MySetup.Refresher}"/>
     </UserControl.Resources>
-
-    <Grid ClipToBounds="True">
-        <Grid.Background>
-                <Binding Source="{StaticResource provider}" Path="Setup.BarvaTextBoxuOdstavce"/>
-        </Grid.Background>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="282*" />
-            <ColumnDefinition Width="18" />
-        </Grid.ColumnDefinitions>
-        <ScrollBar Name ="gridscrollbar" Grid.Column="1" HorizontalAlignment="Right" Width="18" SmallChange="50" LargeChange="100" Maximum="200" Minimum="0" Value="200" RangeBase.ValueChanged="gridscrollbar_ValueChanged" ViewportSize="20" />
-        <StackPanel Name="gridstack">
-            <my:Element Height="0" x:Name="element1" Width="1" />
-        </StackPanel>
+    <Grid>
+        <ListBox Name="listbox" ItemsSource="{Binding Subtitles, ElementName=Vizualizer}" Background="{Binding Source={StaticResource provider},Path=Setup.BarvaTextBoxuOdstavce}"
+            VirtualizingPanel.ScrollUnit="Pixel" 
+            VirtualizingPanel.IsVirtualizing="True" 
+            VirtualizingPanel.CacheLength="2,3" 
+            VirtualizingPanel.CacheLengthUnit="Page"
+            ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+            HorizontalContentAlignment="Stretch" SelectionChanged="listbox_SelectionChanged"
+            SelectionMode="Single">
+            
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <my:Element ValueElement="{Binding}" 
+                                GotFocus="l_GotFocus"
+                                ChangeSpeakerRequest="l_ChangeSpeakerRequest"
+                                MergeWithnextRequest="l_MergeWithnextRequest"
+                                MergeWithPreviousRequest="l_MergeWithPreviousRequest"
+                                MoveDownRequest="l_MoveDownRequest"
+                                MoveRightRequest="l_MoveRightRequest"
+                                MoveLeftRequest="l_MoveLeftRequest"
+                                MoveUpRequest="l_MoveUpRequest"
+                                NewRequest="l_NewRequest"
+                                SetTimeRequest="l_SetTimeRequest"
+                                SplitRequest="l_SplitRequest"
+                                SizeChanged="l_Element_SizeChanged"
+                                ></my:Element>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+            <ListBox.ItemContainerStyle><!--disable background changing on select-->
+                <Style TargetType="{x:Type ListBoxItem}">
+                    <Setter Property="Focusable" Value="False" />
+                    <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                    <ContentPresenter />
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </ListBox.ItemContainerStyle>
+        </ListBox>
     </Grid>
 </UserControl>

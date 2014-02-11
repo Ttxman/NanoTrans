@@ -105,6 +105,15 @@ namespace NanoTrans
                     PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs("BarvaTextBoxuOdstavce"));
             }
         }
+
+
+
+        [XmlIgnore]
+        public Brush BarvaTextBoxuSekce { get; set; }
+
+        [XmlIgnore]
+        public Brush BarvaTextBoxuKapitoly { get; set; }
+
         [XmlIgnore]
         public Brush BarvaTextBoxuOdstavceAktualni { get; set; }            //udava barvu vybraneho textboxu
         /// <summary>
@@ -248,6 +257,8 @@ namespace NanoTrans
             BarvaTextBoxuOdstavceAktualni = Brushes.AntiqueWhite;
             BarvaTextBoxuFoneticky = Brushes.AliceBlue;
             BarvaTextBoxuFonetickyZakazany = Brushes.LightGray;
+            BarvaTextBoxuSekce = Brushes.LightGreen;
+            BarvaTextBoxuKapitoly = Brushes.LightPink;
         }
 
 

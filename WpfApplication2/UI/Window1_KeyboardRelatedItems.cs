@@ -478,7 +478,7 @@ namespace NanoTrans
 
         private void CScrollDown(object sender, ExecutedRoutedEventArgs e)
         {
-            VirtualizingListBox.gridscrollbar.Value += 0.7 * VirtualizingListBox.ActualHeight;
+           // VirtualizingListBox.gridscrollbar.Value += 0.7 * VirtualizingListBox.ActualHeight;
             SetCursor();
         }
 
@@ -488,7 +488,7 @@ namespace NanoTrans
             HitTestResult res = VisualTreeHelper.HitTest(VirtualizingListBox, new Point(0,5));
             if (res.VisualHit != null)
             {
-                Element e = res.VisualHit.FindVisualParent<Element>();
+                Element e = res.VisualHit.VisualFindParent<Element>();
                 if (e != null)
                 {
                     e.editor.Focus();
@@ -499,7 +499,7 @@ namespace NanoTrans
 
         private void CScrollUP(object sender, ExecutedRoutedEventArgs e)
         {
-            VirtualizingListBox.gridscrollbar.Value -= 0.7 * VirtualizingListBox.ActualHeight;
+           // VirtualizingListBox.gridscrollbar.Value -= 0.7 * VirtualizingListBox.ActualHeight;
 
         }
 
@@ -654,10 +654,10 @@ namespace NanoTrans
         int searchtextoffset = 0;
         public void FindNext(string pattern, bool isregex, bool CaseSensitive, bool searchinspeakers)
         {
-            foreach (Element e in VirtualizingListBox.gridstack.Children)
-            {
-                e.editor.SelectionLength = 0;
-            }
+            //foreach (Element e in VirtualizingListBox.gridstack.Children)
+            //{
+            //    e.editor.SelectionLength = 0;
+            //}
 
             if (VirtualizingListBox.ActiveTransctiption == null)
                 if (m_mydatasource.Chapters.Count > 0)

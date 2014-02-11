@@ -11,6 +11,7 @@ using System.ComponentModel;
 using System.Text.RegularExpressions;
 using System.Linq;
 using System.Xml.Linq;
+using System.Collections.Specialized;
 
 
 namespace NanoTrans
@@ -305,7 +306,7 @@ namespace NanoTrans
             m_children.Add(data);
             data.m_Parent = this;
             data.m_ParentIndex = m_children.Count - 1;
-            ChildrenCountChanged();
+            ChildrenCountChanged(NotifyCollectionChangedAction.Add);
         }
 
         public virtual void Insert(int index, TranscriptionElement data)
@@ -319,9 +320,20 @@ namespace NanoTrans
             {
                 m_children[i].m_ParentIndex = i;
             }
+            ElementInserted(data,data.m_ParentIndex);
+            ChildrenCountChanged(NotifyCollectionChangedAction.Add);
 
-            ChildrenCountChanged();
+        }
 
+        public virtual int AbsoluteIndex
+        {
+            get { return (m_Parent != null) ? m_Parent.AbsoluteIndex + m_ParentIndex : 0; }
+        }
+
+        public virtual void ElementInserted(TranscriptionElement element, int index)
+        {
+            if (m_Parent != null)
+                m_Parent.ElementInserted(element,m_Parent.ParentIndex+index+1);//+1 for this
         }
 
         public virtual void RemoveAt(int index)
@@ -330,7 +342,7 @@ namespace NanoTrans
             if (index < 0 || index >= Children.Count)
                 throw new IndexOutOfRangeException();
 
-
+            TranscriptionElement element = m_children[index];
             var c = m_children[index];
             c.m_Parent = null;
             c.m_ParentIndex = -1;
@@ -340,16 +352,47 @@ namespace NanoTrans
             {
                 m_children[i].m_ParentIndex = i;
             }
+            ElementRemoved(element,index);
+            ChildrenCountChanged(NotifyCollectionChangedAction.Remove);
+           
+        }
 
-            ChildrenCountChanged();
+        public virtual void ElementRemoved(TranscriptionElement element,int index)
+        {
+            if (m_Parent != null)
+                m_Parent.ElementRemoved(element,m_Parent.ParentIndex+index+1);//+1 for this
         }
 
         public virtual bool Remove(TranscriptionElement value)
         {
             RemoveAt(m_children.IndexOf(value));
-
-            ChildrenCountChanged();
             return true;
+        }
+
+        public virtual bool Replace(TranscriptionElement oldelement,TranscriptionElement newelement)
+        {
+            int index = m_children.IndexOf(oldelement);
+            if (index >= 0)
+            {
+                m_children[index] = newelement;
+                
+                ChildrenCountChanged(NotifyCollectionChangedAction.Replace);
+                return true;
+            }
+            return false ;
+        }
+
+
+        public virtual void ElementReplaced(TranscriptionElement oldelement, TranscriptionElement newelement)
+        {
+            if (m_Parent != null)
+                m_Parent.ElementReplaced(oldelement, newelement);
+        }
+
+        public virtual void ElementChanged(TranscriptionElement element)
+        {
+            if (m_Parent != null)
+                m_Parent.ElementChanged(element);
         }
 
         public TranscriptionElement Next()
@@ -443,12 +486,12 @@ namespace NanoTrans
             return c;
         }
 
-        public virtual void ChildrenCountChanged()
+        public virtual void ChildrenCountChanged(NotifyCollectionChangedAction action)
         {
             if (!m_Updating)
             {
                 if (Parent != null)
-                    Parent.ChildrenCountChanged();
+                    Parent.ChildrenCountChanged(action);
             }
             else
                 m_updated = true;
@@ -465,7 +508,7 @@ namespace NanoTrans
         {
             m_Updating = false;
             if (m_updated)
-                ChildrenCountChanged();
+                ChildrenCountChanged(NotifyCollectionChangedAction.Reset);
             m_updated = false;
         }
     }
@@ -607,7 +650,26 @@ namespace NanoTrans
             return 0;
         }
 
-        public override void ChildrenCountChanged()
+        public override void ChildrenCountChanged(NotifyCollectionChangedAction action)
+        {
+
+        }
+
+        public override void ElementChanged(TranscriptionElement element)
+        {
+            
+        }
+
+        public override void ElementReplaced(TranscriptionElement oldelement, TranscriptionElement newelement)
+        {
+            
+        }
+
+        public override void ElementInserted(TranscriptionElement element, int index)
+        {
+        }
+
+        public override void ElementRemoved(TranscriptionElement element, int index)
         {
         }
 
@@ -766,7 +828,6 @@ namespace NanoTrans
 
         #endregion
     }
-
 
     public class MyParagraph : TranscriptionElement
     {
@@ -1244,7 +1305,7 @@ namespace NanoTrans
 
 
     //hlavni trida s titulky a se vsemi potrebnymi metodami pro serializaci
-    public class MySubtitlesData : TranscriptionElement, IList<TranscriptionElement>
+    public class MySubtitlesData : TranscriptionElement, IList<TranscriptionElement>, INotifyCollectionChanged
     {
         public double TotalHeigth;
         public bool FindNext(ref TranscriptionElement paragraph, ref int TextOffset, out int length, string pattern, bool isregex, bool CaseSensitive, bool searchinspeakers)
@@ -2336,7 +2397,7 @@ namespace NanoTrans
             if (item is MyChapter)
             {
                 base.Add(item);
-                this.ChildrenCountChanged();
+                this.ChildrenCountChanged(NotifyCollectionChangedAction.Add);
             }
             else if (item is MySection)
             {
@@ -2430,10 +2491,14 @@ namespace NanoTrans
         public event Action SubtitlesChanged;
 
 
-        public override void ChildrenCountChanged()
+        public override void ChildrenCountChanged(NotifyCollectionChangedAction action)
         {
             if (SubtitlesChanged != null)
                 SubtitlesChanged();
+            //if (CollectionChanged != null)
+            //{
+            //    CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            //}
         }
 
         public override string Text
@@ -2456,6 +2521,31 @@ namespace NanoTrans
             set
             {
             }
+        }
+
+        public event NotifyCollectionChangedEventHandler CollectionChanged;
+
+        public override void ElementChanged(TranscriptionElement element)
+        {
+             
+        }
+
+        public override void ElementReplaced(TranscriptionElement oldelement, TranscriptionElement newelement)
+        {
+            if(CollectionChanged!=null)
+                CollectionChanged(this,new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace,oldelement,newelement));
+        }
+
+        public override void ElementInserted(TranscriptionElement element, int index)
+        {
+            if (CollectionChanged != null)
+                CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, element, index));
+        }
+
+        public override void ElementRemoved(TranscriptionElement element, int index)
+        {
+            if (CollectionChanged != null)
+                CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, element, index));
         }
     }
 }

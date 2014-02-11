@@ -26,8 +26,10 @@ namespace TrsxV1Plugin
             for (int i = 0; i < files.Count; i++)
                 files[i] = "" + i + " - " + files[i];
 
-            SelectFile sf = new SelectFile(files);
-            if (sf.ShowDialog()==true)
+            SelectFile sf= new SelectFile(files);
+            sf.line = 0;
+
+            if (files.Count == 1 || sf.ShowDialog()==true)
             {
                 var bucket = buckets[sf.line];
 

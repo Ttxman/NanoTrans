@@ -15,21 +15,27 @@
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
                 <Label x:Name="label1" HorizontalContentAlignment="Left" Foreground="Red" FontSize="40" Grid.Column="0" Content="NanoTrans(beta)"/>
-                <Image Source="../TACR/100_newton.jpg" Stretch="None" HorizontalAlignment="Right" Grid.Column="1" />
+                <StackPanel Orientation="Horizontal" Grid.Column="1" FlowDirection="RightToLeft">
+                    <Image Height="80" Source="../TACR/100_newton.jpg" />
+                    <Image Height="80" Source="/NanoTrans;component/TACR/400_ite.jpg" />
+                </StackPanel>
+                
+                
+                
             </Grid>
             <Border BorderBrush="Black" BorderThickness="1"  Margin="10,15">
                 <TextBlock Background="LightYellow" TextWrapping="Wrap" Grid.ColumnSpan="2" AllowDrop="True" >
                     <TextBlock x:Name="versiontext" >nanotrans v 0</TextBlock>
                     <LineBreak/>
                     <LineBreak/>
-                    Developed by NewtonTechnologies in cooperation with Institue of Information Technology and Electronics, Faculty of Mechatronics, Technical University of Liberec, Czech Republic
+                    Developed by Institue of Information Technology and Electronics, Faculty of Mechatronics, Technical University of Liberec, Czech Republic and Newton Technologies
                     <LineBreak/><LineBreak/>
                     This work was supported by the Technology Agency of Czech Republic
                 </TextBlock>
             </Border>
             <StackPanel Orientation="Horizontal">
-                <Image Height="121" Source="../TACR/000_TACR_logotyp-en.jpg" Margin="0,0,15,0"/>
-                <Image Height="108" Source="../TACR/050_Alfa_logotyp.jpg"/>
+                <Image Height="80" Source="../TACR/000_TACR_logotyp-en.jpg" Margin="0,0,15,0"/>
+                <Image Height="80" Source="../TACR/050_Alfa_logotyp.jpg"/>
             </StackPanel>
         </StackPanel>
         <Button Grid.Row="1" Height="26" Margin="70,0,70,0" x:Name="button1" VerticalAlignment="Center" Click="button1_Click" IsCancel="True" IsDefault="True">

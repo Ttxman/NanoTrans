@@ -18,6 +18,7 @@ using ICSharpCode.AvalonEdit.Rendering;
 using System.Windows.Media.TextFormatting;
 using System.Collections;
 using System.Windows.Threading;
+using System.Diagnostics;
 
 namespace NanoTrans
 {
@@ -42,13 +43,7 @@ namespace NanoTrans
             if (data != null)
             {
                 data.SubtitlesChanged += vis.SubtitlesContentChanged;
-
             }
-
-            vis.gridscrollbar.Value = 0;
-            vis.RecalculateSizes();
-
-            vis.SubtitlesContentChanged();
         }
 
         public MySubtitlesData Subtitles
@@ -73,64 +68,13 @@ namespace NanoTrans
         public delegate void FlagStatusRequestDelegate(out bool value);
         public FlagStatusRequestDelegate RequestPlaying;
 
-
-        public void RecalculateSizes()
-        {
-            double totalh = 0;
-            if (Subtitles != null)
-            {
-                Element lm = new Element(true);
-                foreach (TranscriptionElement tr in Subtitles)
-                {
-                    lm.ValueElement = tr;
-                    lm.editor.TextArea.TextView.EnsureVisualLines();
-                    lm.maingrid.Measure(new Size(gridstack.ActualWidth, double.MaxValue));
-                    lm.maingrid.Arrange(new Rect(0, 0, gridstack.ActualWidth, lm.maingrid.DesiredSize.Height));
-                    lm.maingrid.UpdateLayout();
-                    tr.height = lm.editor.ActualHeight;
-                    totalh += lm.editor.ActualHeight;
-                }
-                lm.ValueElement = null;
-                Subtitles.TotalHeigth = totalh;
-            }
-            updating = true;
-            gridscrollbar.Maximum = totalh - this.ActualHeight;
-            gridscrollbar.LargeChange = this.ActualHeight;
-            gridscrollbar.ViewportSize = gridscrollbar.LargeChange;
-            updating = false;
-        }
-        bool updating = false;
-
-
-
-        public double PanelWidth
-        {
-            get { return gridstack.ActualWidth; }
-        }
-
         public SubtitlesVizualizer()
         {
             InitializeComponent();
         }
 
-        private bool m_Updating = false;
-        private bool m_updated = false;
-        public void BeginUpdate()
-        {
-            m_Updating = true;
-        }
-
-        public void EndUpdate()
-        {
-            m_Updating = false;
-            if (m_updated)
-                RecreateElements(gridscrollbar.Value, true);
-            m_updated = false;
-        }
-
         void l_NewRequest(object sender, EventArgs e)
         {
-            BeginUpdate();
             Element el = (Element)sender;
             MyParagraph p = new MyParagraph();
             p.Add(new MyPhrase());
@@ -162,9 +106,7 @@ namespace NanoTrans
             {
                 el.ValueElement.Children[0].Insert(0, p);
             }
-
             ActiveTransctiption = p;
-            EndUpdate();
         }
 
         void l_MoveRightRequest(object sender, EventArgs e)
@@ -283,41 +225,61 @@ namespace NanoTrans
 
         void l_MergeWithPreviousRequest(object sender, EventArgs e)
         {
-            BeginUpdate();
             Element el = (Element)sender;
             TranscriptionElement t = el.ValueElement;
             TranscriptionElement p = el.ValueElement.Previous();
 
+            int len =  p.Text.Length;
             if (t is MyParagraph && p is MyParagraph)
             {
                 if (!(t.Children.Count == 1 && string.IsNullOrEmpty(t.Children[0].Text)))
                 {
                     p.End = t.End;
                     t.Children.ForEach(x => p.Children.Add(x));
+                    var cont = listbox.ItemContainerGenerator.ContainerFromItem(p) as ListBoxItem;
+                    if (cont != null)
+                    {
+                        Element pel = cont.VisualFindChild<Element>();
+                        pel.ValueElement = null;
+                        pel.ValueElement = p;
+                    }
                 }
                 t.Parent.Remove(t);
             }
 
             ActiveTransctiption = p;
-            EndUpdate();
+            ScrollToItem(p);
             var vis = GetVisualForTransctiption(p);
-            vis.editor.CaretOffset = vis.editor.Text.Length;
+            vis.editor.CaretOffset = len;
         }
 
         void l_MergeWithnextRequest(object sender, EventArgs e)
         {
-            BeginUpdate();
             Element el = (Element)sender;
             TranscriptionElement t = el.ValueElement;
             TranscriptionElement n = el.ValueElement.Next();
-
+            int len = t.Text.Length;
             if (t is MyParagraph && n is MyParagraph)
             {
                 t.End = n.End;
                 n.Children.ForEach(x => t.Children.Add(x));
+                var cont = listbox.ItemContainerGenerator.ContainerFromItem(t) as ListBoxItem;
+                if (cont != null)
+                {
+                    Element pel = cont.VisualFindChild<Element>();
+                    pel.ValueElement = null;
+                    pel.ValueElement = t;
+                }
+
                 n.Parent.Remove(n);
             }
-            EndUpdate();
+
+            ActiveTransctiption = t;
+            ScrollToItem(t);
+            ColorizeBackground(t);
+            var vis = GetVisualForTransctiption(t);
+            vis.editor.CaretOffset = len;
+            
         }
 
         void l_SplitRequest(object sender, EventArgs e)
@@ -325,7 +287,6 @@ namespace NanoTrans
             try
             {
                 Element el = (Element)sender;
-                BeginUpdate();
                 if (el.ValueElement is MyParagraph)
                 {
 
@@ -379,7 +340,7 @@ namespace NanoTrans
                             par2.Begin = p2.Begin;
 
                             par1.End = p1.End;
-   
+
                         }
                         sum += p.Text.Length;
                     }//for
@@ -409,60 +370,22 @@ namespace NanoTrans
             }
             finally
             {
-                EndUpdate();
             }
-        }
-
-
-        void l_LostFocus(object sender, RoutedEventArgs e)
-        {
-            //m_activeTranscription = null;
-            //(sender as Element).maingrid.Background = null;
         }
 
         void l_GotFocus(object sender, RoutedEventArgs e)
         {
-
-            var el = sender as Element;
-            if (m_activeTranscription == el.ValueElement || el == null)
+            var el = (sender as Element).ValueElement;
+            if (m_activeTranscription == el || el == null)
                 return;
-            ActiveTransctiption = el.ValueElement;
+            ActiveTransctiption = el;
 
             if (SelectedElementChanged != null)
             {
                 SelectedElementChanged(this, new EventArgs());
             }
-        }
 
-        void l_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            if (e.PreviousSize.Height > 0.001 && e.PreviousSize != e.NewSize)
-            {
-                if (sender as Element == null || ((Element)sender).ValueElement == null)
-                { 
-                    RecreateElements(gridscrollbar.Value,true);
-                    return;
-                }
-                double delta = e.NewSize.Height - ((Element)sender).ValueElement.height;
-                ((Element)sender).ValueElement.height = e.NewSize.Height;
-
-                Subtitles.TotalHeigth += delta;
-                gridscrollbar.Maximum = Subtitles.TotalHeigth - ActualHeight;
-            }
-        }
-
-        private void UserControl_MouseWheel(object sender, MouseWheelEventArgs e)
-        {
-            double value = gridscrollbar.Value;
-            value -= (e.Delta > 0 ? 1 : -1) * gridscrollbar.SmallChange;
-
-            if (value < gridscrollbar.Minimum)
-                value = gridscrollbar.Minimum;
-
-            if (value > gridscrollbar.Maximum)
-                value = gridscrollbar.Maximum;
-
-            gridscrollbar.Value = value;
+            ColorizeBackground(el);
         }
 
         public Element ActiveElement
@@ -483,282 +406,118 @@ namespace NanoTrans
 
             set
             {
-                var e = ActiveElement;
-                if (e != null)
-                    e.maingrid.Background = null;
-
-                m_activeTranscription = value;
-                e = SetActiveTranscription(value);
-
-                if (e != null)
-                    e.maingrid.Background = Brushes.Beige;
+                SetActiveTranscription(value);
             }
         }
 
         public Element GetVisualForTransctiption(TranscriptionElement el)
         {
-            foreach (Element ee in gridstack.Children)
-            {
-                if (ee.ValueElement == el)
-                {
-                    return ee;
-                }
-            }
-
-            return null;
+            return listbox.ItemContainerGenerator.ContainerFromItem(el).VisualFindChild<Element>();
         }
 
+        private bool ActivatingTranscription = false;
         public Element SetActiveTranscription(TranscriptionElement el)
         {
+            ActivatingTranscription = true;
             if (el == null)
                 return null;
+
+            if (el == m_activeTranscription)
+                return listbox.ItemContainerGenerator.ContainerFromItem(el).VisualFindChild<Element>();
+
+            m_activeTranscription = el;
             m_activetransctiptionSelectionLength = -1;
             m_activetransctiptionSelectionStart = -1;
 
-            foreach (Element ee in gridstack.Children)
+
+            foreach (Element ee in listbox.VisualFindChildren<Element>())
             {
                 if (ee.ValueElement != el)
+                {
                     ee.editor.Select(0, 0);
+                }
             }
 
-
-            Element e = GetVisualForTransctiption(el);
-
-            if (e != null)
+            listbox.ScrollIntoView(el);
+            ListBoxItem cont = listbox.ItemContainerGenerator.ContainerFromItem(el) as ListBoxItem;
+            if (cont == null)
             {
-                TranscriptionElement t = e.ValueElement;
-                double h = e.TransformToAncestor(this).Transform(new Point(0, 0)).Y + e.ValueElement.height;
-
-                if (e.ValueElement.height > ActualHeight)
-                {
-                    double delta = 0;
-                    if (Subtitles != null)
-                    {
-                        foreach (TranscriptionElement tr in Subtitles)
-                        {
-                            if (tr == el)
-                                break;
-                            delta += tr.height;
-                        }
-                    }
-                    gridscrollbar.Value = delta - 30;
-                    UpdateLayout();
-                    e = GetVisualForTransctiption(t);
-                }
-                else if (h > ActualHeight)
-                {
-                    double delta = h - ActualHeight + 10;
-                    gridscrollbar.Value += delta;
-                    UpdateLayout();
-                    e = GetVisualForTransctiption(t);
-                }
-                else if (h < el.height)
-                {
-                    double delta = h - el.height - 10;
-                    gridscrollbar.Value += delta;
-                    UpdateLayout();
-                    e = GetVisualForTransctiption(t);
-                }
-
-                foreach (Element ee in gridstack.Children)
-                {
-                    ee.SetCaretOffset(-1);
-                }
-                if (e != null)
-                    e.SetCaretOffset(0);
-                return e;
+                listbox.UpdateLayout();
+                listbox.ScrollIntoView(el);
+                cont = listbox.ItemContainerGenerator.ContainerFromItem(el) as ListBoxItem;
             }
 
-
-            double totalh = 0;
-            if (Subtitles != null)
+            if (cont != null)
             {
-                foreach (TranscriptionElement tr in Subtitles)
+                var elm = cont.VisualFindChild<Element>();
+                listbox.SelectedItem = el;
+
+                //events may not be active yet
+                if (elm.Background != MySetup.Setup.BarvaTextBoxuOdstavceAktualni)
                 {
-                    if (tr == el)
-                        break;
-                    totalh += tr.height;
+                    elm.editor.Focus();
+                    ColorizeBackground(el);
                 }
+                ActivatingTranscription = false;
+                return elm;
             }
-            totalh -= 20;
-            gridscrollbar.Value = totalh;
-            m_activeTranscriptionOffset = 0;
-            return GetVisualForTransctiption(el);
+            ActivatingTranscription = false;
+            return null;
         }
 
-        private Stack<Element> ElementCache = new Stack<Element>();
-        private void RecycleElement(Element e)
+        private void ScrollToItem(TranscriptionElement elm)
         {
-            e.SizeChanged -= l_SizeChanged;
-            e.GotFocus -= l_GotFocus;
-            e.LostFocus -= l_LostFocus;
-            e.editor.TextArea.SelectionChanged -= TextArea_SelectionChanged;
-            e.editor.TextArea.Caret.PositionChanged -= Caret_PositionChanged;
-            e.ClearEvents();
-            e.ClearBindings();
-            e.ValueElement = null;
-            //e.editor.UpdateLayout();
-            //ElementCache.Push(e);
-        }
+            if (_scrollViewer == null)
+                return;
 
-        private Element GetElement()
-        {
-            if (ElementCache.Count > 0)
+            listbox.SelectedItem = elm;
+            listbox.ScrollIntoView(listbox.Items[listbox.SelectedIndex]);
+            listbox.UpdateLayout();
+            Debug.WriteLine("scrollTO:" + elm.Text);
+            if (elm == Subtitles.Last())
             {
-                return ElementCache.Pop();
+                Debug.WriteLine("scrollToEnd " + _scrollViewer.VerticalOffset + "/" + _scrollViewer.ExtentHeight);
+                _scrollViewer.ScrollToBottom();
             }
             else
-                return new Element();
+            {
+                var all = listbox.VisualFindChildren<Element>();
+                var visible = all.Where(itm => listbox.VisualIsVisibleChild(itm));
+                if (!visible.Any(itm => itm.ValueElement == elm))
+                {
+                    var element = all.First(itm => itm.ValueElement == elm);
+                    var position = element.TransformToAncestor(_scrollViewer).Transform(new Point(0, element.ActualHeight));
+                    Debug.WriteLine("scrollTO2:" + position.Y + " : " + _scrollViewer.ExtentHeight);
+                    _scrollViewer.ScrollToVerticalOffset(position.Y);
+                }
+            }
         }
 
-
-
-        public void RecreateElements(double newpos, bool repaintall = false)
+        private void ColorizeBackground(TranscriptionElement focused)
         {
-            using (Dispatcher.DisableProcessing())
+            var all = listbox.VisualFindChildren<Element>();
+            foreach (var elem in all)
             {
-                if (gridstack == null || Subtitles == null)
-                    return;
-                double maxh = this.ActualHeight;
-
-                if (m_Updating)
+                if (elem.ValueElement == focused)
                 {
-                    m_updated = true;
-                    return;
+                    elem.Background = MySetup.Setup.BarvaTextBoxuOdstavceAktualni;
                 }
-
-                double pos = 0;
-                bool ffound = false;
-
-                TranscriptionElement te = ActiveTransctiption;
-                int offset = m_activeTranscriptionOffset;
-                int sellength = m_activetransctiptionSelectionLength;
-                int selstart = m_activetransctiptionSelectionStart;
-
-                List<Element> before = new List<Element>();
-                List<Element> present = new List<Element>();
-                List<Element> after = new List<Element>();
-
-                if (Subtitles != null)
+                else
                 {
-                    double move = 0;
-                    foreach (TranscriptionElement el in Subtitles)
-                    {
-                        Element l = null;
-                        bool recycling = false;
-                        if (pos + el.height >= newpos && !ffound)
-                        {
-
-                            move = pos - newpos;
-                            foreach (Element ll in gridstack.Children)
-                                if (!repaintall && ll.ValueElement == el)
-                                {
-                                    l = ll;
-                                    recycling = true;
-                                    break;
-                                }
-
-                            if (l == null)
-                            {
-                                l = GetElement();
-                                l.ValueElement = el;
-                            }
-                            gridstack.Margin = new Thickness(0, move, 0, 0);
-                            ffound = true;
-                        }
-                        else if (ffound && pos < newpos + maxh - move + el.height)
-                        {
-                            if (after.Count == 0)
-                                foreach (Element ll in gridstack.Children)
-                                    if (!repaintall && ll.ValueElement == el)
-                                    {
-                                        l = ll;
-                                        recycling = true;
-                                        break;
-                                    }
-
-                            if (l == null)
-                            {
-                                l = GetElement();
-                                l.ValueElement = el;
-                            }
-
-                        }
-
-
-                        if (l != null)
-                        {
-                            if (!recycling)
-                            {
-                                l.GotFocus += l_GotFocus;
-                                l.LostFocus += l_LostFocus;
-
-                                l.MergeWithnextRequest += l_MergeWithnextRequest;
-                                l.MergeWithPreviousRequest += l_MergeWithPreviousRequest;
-                                l.MoveDownRequest += l_MoveDownRequest;
-                                l.MoveUpRequest += l_MoveUpRequest;
-                                l.MoveLeftRequest += l_MoveLeftRequest;
-                                l.MoveRightRequest += l_MoveRightRequest;
-                                l.SplitRequest += l_SplitRequest;
-                                l.NewRequest += l_NewRequest;
-                                l.ChangeSpeakerRequest += l_ChangeSpeakerRequest;
-                                l.SetTimeRequest += l_SetTimeRequest;
-                                l.ContentChanged += (X, Y) => Subtitles.Ulozeno = false;
-                                l.editor.TextArea.SelectionChanged += new EventHandler(TextArea_SelectionChanged);
-                                l.editor.TextArea.Caret.PositionChanged += new EventHandler(Caret_PositionChanged);
-                            }
-
-                            if (recycling)
-                                present.Add(l);
-                            else if (present.Count > 0)
-                                after.Add(l);
-                            else
-                                before.Add(l);
-                        }
-
-                        pos += el.height;
-                    }
-
-
-                    List<Element> elms = new List<Element>();
-                    foreach (Element el in gridstack.Children)
-                        if (!present.Contains(el))
-                            elms.Add(el);
-
-                    elms.ForEach(e => { gridstack.Children.Remove(e); RecycleElement(e); });
-
-                    before.Reverse();
-                    before.ForEach(e => gridstack.Children.Insert(0, e));
-                    after.ForEach(e => gridstack.Children.Add(e));
-
-
-
-                }
-
-
-                foreach (Element l in gridstack.Children)
-                {
-                    l.SizeChanged += l_SizeChanged;
-                    if (l.ValueElement == ActiveTransctiption)
-                    {
-                        if (sellength <= 0)
-                            l.SetCaretOffset((offset > 0) ? offset : 0);
-                        else
-                            l.SetSelection(selstart, sellength, (offset > 0) ? offset : 0);
-                        l.HiglightedPostion = HiglightedPostion;
-                        l.maingrid.Background = Brushes.Beige;
-                    }
+                    if (elem.ValueElement is MySection)
+                        elem.Background = MySetup.Setup.BarvaTextBoxuSekce;
+                    else if (elem.ValueElement is MyChapter)
+                        elem.Background = MySetup.Setup.BarvaTextBoxuKapitoly;
                     else
-                    {
-                        l.SetCaretOffset(-1);
-                    }
+                        elem.Background = null;
                 }
             }
         }
 
         void l_PlayPauseRequest(object sender, EventArgs e)
         {
-            PlayPauseRequest(this, null);
+            if (PlayPauseRequest != null)
+                PlayPauseRequest(this, null);
         }
 
         void Caret_PositionChanged(object sender, EventArgs e)
@@ -772,7 +531,7 @@ namespace NanoTrans
             var l = sender as ICSharpCode.AvalonEdit.Editing.TextArea;
             m_activetransctiptionSelectionLength = l.Selection.Length;
             if (l.Selection.Length > 0 && l.Selection.Segments.Count() > 0)
-                m_activetransctiptionSelectionStart = l.Selection.Segments.First().Offset;
+                m_activetransctiptionSelectionStart = l.Selection.Segments.First().StartOffset;
             else
                 m_activetransctiptionSelectionStart = 0;
         }
@@ -794,40 +553,7 @@ namespace NanoTrans
 
         public void SubtitlesContentChanged()
         {
-            if (!updating)
-            {
-                RecalculateSizes();
-                RecreateElements(gridscrollbar.Value, true);
-            }
-        }
 
-        private void gridscrollbar_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            if (!updating)
-                RecreateElements(e.NewValue);
-        }
-
-        private DispatcherTimer m_resizeTimer;
-        private void UserControl_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            if (m_resizeTimer == null)
-            {
-                IsEnabled = false;
-                m_resizeTimer = new DispatcherTimer(TimeSpan.FromMilliseconds(333), DispatcherPriority.Normal, (_sender, _e) =>
-                                    {
-                                        SubtitlesContentChanged();
-                                        IsEnabled = true;
-                                        m_resizeTimer.Stop();
-                                        m_resizeTimer = null;
-                                    }, Dispatcher);
-            }
-            else
-            {
-                m_resizeTimer.Stop();
-                m_resizeTimer.Start();
-            }
-            
-            
         }
 
 
@@ -846,8 +572,89 @@ namespace NanoTrans
             set
             {
                 m_higlightedPostion = value;
-                foreach (Element l in gridstack.Children)
+                foreach (Element l in listbox.VisualFindChildren<Element>())
                     l.HiglightedPostion = value;
+            }
+        }
+
+        ScrollViewer _scrollViewer;
+        private void Vizualizer_Loaded(object sender, RoutedEventArgs e)
+        {
+            _scrollViewer = listbox.VisualFindChild<ScrollViewer>();
+        }
+
+        private void listbox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var elm = listbox.SelectedItem as TranscriptionElement;
+            if (elm != null)
+            {
+                var elem = listbox.ItemContainerGenerator.ContainerFromItem(elm).VisualFindChild<Element>();
+                if (elem != null && !elem.editor.IsFocused)
+                {
+                    elem.SetCaretOffset(0);
+                }
+            }
+        }
+
+        private void Vizualizer_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            var trans = ActiveElement.TransformToAncestor(listbox);
+            var topleft = trans.Transform(default(Point));
+
+            if (e.Key == Key.PageDown)
+            {
+                e.Handled = true;
+
+                _scrollViewer.PageDown();
+
+                //end of document
+                if (Math.Abs((_scrollViewer.ExtentHeight - _scrollViewer.VerticalOffset) - _scrollViewer.ViewportHeight) < 30)
+                {
+                    SetActiveTranscription(Subtitles.Last());
+                    return;
+                }
+
+            }
+            else if (e.Key == Key.PageUp)
+            {
+                e.Handled = true;
+                _scrollViewer.PageUp();
+
+                //start of dument
+                if (Math.Abs(_scrollViewer.VerticalOffset) < 30)
+                {
+                    SetActiveTranscription(Subtitles.First());
+                    return;
+                }
+
+            }
+
+            if (e.Key == Key.PageUp || e.Key == Key.PageDown)
+            {
+                listbox.UpdateLayout();
+                var visible = listbox.VisualFindChildren<Element>().Where(elm => listbox.VisualIsVisibleChild(elm));
+                foreach (var el in visible)
+                {
+                    trans = el.TransformToAncestor(listbox);
+                    var tl = trans.TransformBounds(new Rect(0.0, 0.0, el.ActualWidth, el.ActualHeight));
+                    if (tl.Contains(topleft))
+                    {
+                        SetActiveTranscription(el.ValueElement);
+                        return;
+                    }
+                }
+            }
+        }
+
+        private void l_Element_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (!ActivatingTranscription)
+            {
+                var value = ((Element)sender).ValueElement;
+
+                Subtitles.ElementChanged(value);
+               if (listbox.SelectedItem == value)
+                    ScrollToItem(value);
             }
         }
 

@@ -702,7 +702,7 @@ namespace NanoTrans
                 }
                 else
                 {
-                    myDataSource = new MySubtitlesData();
+                    var source = new MySubtitlesData();
                     this.Title = MyKONST.NAZEV_PROGRAMU + " [novy]";
                     var c = new MyChapter("Kapitola 0");
                     var s = new MySection("Sekce 0");
@@ -710,8 +710,9 @@ namespace NanoTrans
                     p.Add(new MyPhrase());
                     c.Add(s);
                     s.Add(p);
-                    myDataSource.Add(c);
-                    myDataSource.Ulozeno = true;
+                    source.Add(c);
+                    source.Ulozeno = true;
+                    myDataSource = source;
                     VirtualizingListBox.ActiveTransctiption = p;
                     return true;
                 }
@@ -2434,7 +2435,7 @@ namespace NanoTrans
 
         private void waveform1_ElementChanged(object sender, Waveform.MyTranscriptionElementEventArgs e)
         {
-            VirtualizingListBox.RecreateElements(VirtualizingListBox.gridscrollbar.Value);
+            //VirtualizingListBox.RecreateElements(VirtualizingListBox.gridscrollbar.Value);
         }
 
         private void waveform1_PlayPauseClick(object sender, RoutedEventArgs e)
@@ -2552,7 +2553,6 @@ namespace NanoTrans
         {
             using (new WaitCursor())
             {
-                VirtualizingListBox.BeginUpdate();
                 try
                 {
                     MyParagraph p = myDataSource.Chapters[0].Sections[0].Paragraphs[0];
@@ -2573,7 +2573,6 @@ namespace NanoTrans
                 {
                     Debug.WriteLine(ex);
                 }
-                VirtualizingListBox.EndUpdate();
 
             }
         }
