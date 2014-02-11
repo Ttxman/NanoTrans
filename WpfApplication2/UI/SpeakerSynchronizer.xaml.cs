@@ -37,10 +37,45 @@ namespace NanoTrans
             this._transcription = Transcription;
             this._speakersDatabase = SpeakersDatabase;
 
-            listlocal.ItemsSource = _speakersDatabase.Speakers;
+            _pairs = _transcription._speakers.Speakers
+                .OrderBy(s => s.Surname)
+                .ThenBy(s => s.FirstName)
+                .ThenBy(s => s.MiddleName)
+                .Select(s => new SpeakerPair { Speaker1 = new SpeakerContainer(s) { IsDocument = true } })
+                .ToList();
 
-            _pairs = _transcription._speakers.Speakers.Select(s => new SpeakerPair { Speaker1 = new SpeakerContainer(s) { IsDocument = true } }).ToList();
-            listdocument.ItemsSource = _pairs;
+
+            var first = _pairs.Join(_speakersDatabase.Speakers, p => p.Speaker1.Speaker.FullName.ToLower(), s => s.FullName.ToLower(), (sp, s) => new { document = sp, local = s })
+                .Distinct()
+                .OrderBy(s => s.local.Surname)
+                .ThenBy(s => s.local.FirstName)
+                .ThenBy(s => s.local.MiddleName);
+
+            var other = _speakersDatabase.Speakers.Except(first.Select(s => s.local).ToArray())
+                .OrderBy(s => s.Surname)
+                .ThenBy(s => s.FirstName)
+                .ThenBy(s => s.MiddleName);
+
+            listlocal.ItemsSource = _speakersDatabase.Speakers = first.Select(s => s.local).Concat(other).ToList();
+
+
+
+
+
+
+
+
+
+            listdocument.ItemsSource = _pairs = first.Select(s => s.document)
+                                                        .OrderBy(s => s.Speaker1.SurName)
+                                                        .ThenBy(s => s.Speaker1.FirstName)
+                                                        .ThenBy(s => s.Speaker1.SecondName)
+                                                        .Concat(_pairs.Except(first.Select(s => s.document))).ToList();
+
+
+
+
+
         }
 
         private void ButtonOK_Click(object sender, RoutedEventArgs e)
@@ -103,7 +138,7 @@ namespace NanoTrans
                 {
                     foreach (var p in _pairs.Where(pa => pa.Speaker2 == null))
                     {
-                        var n = new SpeakerContainer( p.Speaker1.Speaker.Copy());
+                        var n = new SpeakerContainer(p.Speaker1.Speaker.Copy());
                         n.IsLocal = true;
                         _speakersDatabase.AddSpeaker(n.Speaker);
                         p.Speaker2 = n;

@@ -355,6 +355,9 @@ namespace NanoTrans
                 cb.SelectionChanged += cb_SelectionChanged;
                 cb.ToolTip = item[0];
                 cb.Width = 65;
+                cb.Focusable = false;
+
+
                 var par = (ValueElement as TranscriptionParagraph);
                 if (par != null)
                 {
@@ -366,6 +369,7 @@ namespace NanoTrans
                 }
             }
         }
+
 
         private void UpdateCustomParamsFromSpeaker()
         {

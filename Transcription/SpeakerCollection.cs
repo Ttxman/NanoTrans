@@ -19,6 +19,7 @@ namespace NanoTrans.Core
         public string FileName
         {
             get { return _fileName; }
+            set { _fileName  = value; }
         }
 
         protected List<Speaker> _Speakers = new List<Speaker>();    //vsichni mluvci ve streamu

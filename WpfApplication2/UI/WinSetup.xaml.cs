@@ -23,13 +23,13 @@ namespace NanoTrans
     /// </summary>
     public partial class WinSetup : Window
     {
-        public MySetup bNastaveni;
-        private SpeakerCollection bDatabazeMluvcich;
+        public MySetup _setup;
+        private SpeakerCollection _speakersDatabase;
 
         public WinSetup(MySetup aNastaveni, SpeakerCollection aDatabazeMluvcich)
         {
-            bNastaveni = aNastaveni;
-            bDatabazeMluvcich = aDatabazeMluvcich;
+            _setup = aNastaveni;
+            _speakersDatabase = aDatabazeMluvcich;
             InitializeComponent();
             if (MyKONST.VERZE == MyEnumVerze.Externi)
             {
@@ -49,7 +49,7 @@ namespace NanoTrans
                         cbVystupniAudioZarizeni.Items.Add(s);
                     }
                 }
-                if (bNastaveni.audio.OutputDeviceIndex < cbVystupniAudioZarizeni.Items.Count) cbVystupniAudioZarizeni.SelectedIndex = bNastaveni.audio.OutputDeviceIndex;
+                if (_setup.audio.OutputDeviceIndex < cbVystupniAudioZarizeni.Items.Count) cbVystupniAudioZarizeni.SelectedIndex = _setup.audio.OutputDeviceIndex;
 
                 cbVstupniAudioZarizeni.Items.Clear();
                 if (pZarizeni != null)
@@ -59,7 +59,7 @@ namespace NanoTrans
                         cbVstupniAudioZarizeni.Items.Add(s);
                     }
                 }
-                if (bNastaveni.audio.InputDeviceIndex < cbVstupniAudioZarizeni.Items.Count) cbVstupniAudioZarizeni.SelectedIndex = bNastaveni.audio.InputDeviceIndex;
+                if (_setup.audio.InputDeviceIndex < cbVstupniAudioZarizeni.Items.Count) cbVstupniAudioZarizeni.SelectedIndex = _setup.audio.InputDeviceIndex;
 
                 //databaze mluvcich
 
@@ -111,7 +111,7 @@ namespace NanoTrans
             WinSetup ws = new WinSetup(aNastaveni, aDatabazeMluvcich);
             ws.ShowDialog();
 
-            return ws.bNastaveni;
+            return ws._setup;
         }
 
         private void btOK_Click(object sender, RoutedEventArgs e)
@@ -119,43 +119,44 @@ namespace NanoTrans
             //ulozit vse do promenne!
 
             //audio
-            bNastaveni.audio.OutputDeviceIndex = cbVystupniAudioZarizeni.SelectedIndex;
-            if (bNastaveni.audio.OutputDeviceIndex < 0) bNastaveni.audio.OutputDeviceIndex = 0;
+            _setup.audio.OutputDeviceIndex = cbVystupniAudioZarizeni.SelectedIndex;
+            if (_setup.audio.OutputDeviceIndex < 0) _setup.audio.OutputDeviceIndex = 0;
 
-            bNastaveni.audio.InputDeviceIndex = cbVstupniAudioZarizeni.SelectedIndex;
-            if (bNastaveni.audio.InputDeviceIndex < 0) bNastaveni.audio.InputDeviceIndex = 0;
+            _setup.audio.InputDeviceIndex = cbVstupniAudioZarizeni.SelectedIndex;
+            if (_setup.audio.InputDeviceIndex < 0) _setup.audio.InputDeviceIndex = 0;
 
 
             //databaze mluvcich
-            bNastaveni.CestaDatabazeMluvcich = tbCestaDatabazeMluvcich.Text;
+            _setup.CestaDatabazeMluvcich = tbCestaDatabazeMluvcich.Text;
 
             //velikost fontu
             try
             {
-                bNastaveni.SetupTextFontSize = double.Parse(tbVelikostPisma.Text);
+                _setup.SetupTextFontSize = double.Parse(tbVelikostPisma.Text);
             }
             catch
             {
 
             }
-            bNastaveni.ZobrazitFotografieMluvcich = (bool)chbZobrazitFotku.IsChecked;
-            bNastaveni.Fotografie_VyskaMax = slVelikostFotografie.Value;
+            _setup.ZobrazitFotografieMluvcich = (bool)chbZobrazitFotku.IsChecked;
+            _setup.Fotografie_VyskaMax = slVelikostFotografie.Value;
 
-            bNastaveni.ZpomalenePrehravaniRychlost = (double)UpDownSpeed.Value;
-            bNastaveni.VlnaMalySkok = (double)UpDownJump.Value;
+            _setup.ZpomalenePrehravaniRychlost = (double)UpDownSpeed.Value;
+            _setup.VlnaMalySkok = (double)UpDownJump.Value;
 
 
-            bNastaveni.SaveInShortFormat = true;
+            _setup.SaveInShortFormat = true;
             this.Close();
         }
 
         private void ButtonLoadSpeakersDatabase_Click(object sender, RoutedEventArgs e)
         {
-            Microsoft.Win32.OpenFileDialog fileDialog = new Microsoft.Win32.OpenFileDialog();
+            var fileDialog = new Microsoft.Win32.SaveFileDialog();
+            fileDialog.OverwritePrompt = false;
             fileDialog.Title = Properties.Strings.FileDialogLoadSpeakersDatabaseTitle;
             fileDialog.Filter = string.Format(Properties.Strings.FileDialogLoadSpeakersDatabaseFilter, "*.xml", "*.xml");
 
-            FileInfo fi = new FileInfo(bNastaveni.CestaDatabazeMluvcich);
+            FileInfo fi = new FileInfo(_setup.CestaDatabazeMluvcich);
             if (fi != null && fi.Directory.Exists) 
                 fileDialog.InitialDirectory = fi.DirectoryName;
             else fileDialog.InitialDirectory = FilePaths.DefaultDirectory;
@@ -164,9 +165,18 @@ namespace NanoTrans
 
             if (fileDialog.ShowDialog() == true)
             {
-                SpeakerCollection ms = SpeakerCollection.Deserialize(fileDialog.FileName);
-                if (ms != null)
-                    tbCestaDatabazeMluvcich.Text = ms.FileName;
+                if (File.Exists(fileDialog.FileName))
+                {
+                    _speakersDatabase.Speakers.Clear();
+                    SpeakerCollection.Deserialize(fileDialog.FileName, _speakersDatabase);
+                }
+                else
+                {
+                    _speakersDatabase.FileName = fileDialog.FileName;
+                    _speakersDatabase.Serialize();
+                }
+
+                tbCestaDatabazeMluvcich.Text = _setup.CestaDatabazeMluvcich = fileDialog.FileName;
             }
         }
 

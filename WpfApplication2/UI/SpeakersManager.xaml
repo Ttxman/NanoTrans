@@ -57,7 +57,7 @@
             <Label DockPanel.Dock="Left">Search:</Label>
             <TextBox Text="{Binding ElementName=manager,Path=SpeakerProvider.FilterString,TargetNullValue='',UpdateSourceTrigger=PropertyChanged}"/>
         </DockPanel>
-        <ListBox Name="SpeakersBox" MinWidth="200" Grid.Column="0" Grid.Row="3" AlternationCount="2" ItemsSource="{Binding ElementName=manager,Path=SpeakerProvider.View}" SelectionMode="{Binding ElementName=manager,Converter={StaticResource selConverter}, Path=SelectMany}" ContextMenuOpening="SpeakersBox_ContextMenuOpening" SelectionChanged="SpeakersBox_SelectionChanged">
+        <ListBox Name="SpeakersBox" MinWidth="200" Grid.Column="0" Grid.Row="3" AlternationCount="2" ItemsSource="{Binding ElementName=manager,Path=SpeakerProvider.View}" SelectionMode="{Binding ElementName=manager,Converter={StaticResource selConverter}, Path=SelectMany}" ContextMenuOpening="SpeakersBox_ContextMenuOpening" SelectionChanged="SpeakersBox_SelectionChanged" MouseDoubleClick="SpeakersBox_MouseDoubleClick">
             <ListBox.GroupStyle>
                 <GroupStyle HeaderTemplate="{StaticResource groupingHeaderTemplate}" ContainerStyle="{StaticResource ContainerStyle}"/>
             </ListBox.GroupStyle>

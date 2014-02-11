@@ -264,6 +264,12 @@ namespace NanoTrans
             SelectedSpeaker = ((SpeakerContainer)SpeakersBox.SelectedItem).Speaker;
         }
 
+        private void SpeakersBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if(SpeakersBox.SelectedItem!=null)
+                ButtonOK_Click(null, null);
+        }
+
     }
 
     public class SpeakersViewModel : INotifyPropertyChanged

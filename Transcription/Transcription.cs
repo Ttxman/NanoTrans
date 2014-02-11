@@ -32,7 +32,7 @@ namespace NanoTrans.Core
                 while (prs != null)
                 {
                     TranscriptionParagraph pr = prs as TranscriptionParagraph;
-                    if (pr != null && GetSpeakerByID(pr.SpeakerID).FullName.ToLower().Contains(pattern.ToLower()))
+                    if (pr != null && pr.Speaker.FullName.ToLower().Contains(pattern.ToLower()))
                     {
                         paragraph = pr;
                         TextOffset = 0;
@@ -157,6 +157,7 @@ namespace NanoTrans.Core
             this.mediaURI = aKopie.mediaURI;
             this.videoFileName = aKopie.videoFileName;
             this.type = aKopie.type;
+            this.Created = aKopie.Created;
             if (aKopie.Chapters != null)
             {
                 this.Chapters = new VirtualTypeList<TranscriptionChapter>(this);
@@ -501,6 +502,7 @@ namespace NanoTrans.Core
             data.elements.Remove("mediauri");
             data.elements.Remove("version");
             data.elements.Remove("documentid");
+            data.elements.Remove("created");
 
             foreach (var c in chapters.Select(c => new TranscriptionChapter(c)))
                 data.Add(c);
