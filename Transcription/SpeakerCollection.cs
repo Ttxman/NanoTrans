@@ -9,15 +9,19 @@ using System.Xml.Serialization;
 
 namespace NanoTrans.Core
 {
+    /// <summary>
+    /// BEWARE - SpeakerCollection is synchronized manually, It can contain different speakers than transcription
+    /// </summary>
+    /// <returns></returns>
     public class SpeakerCollection
     {
-        private string _fileName;
+        protected string _fileName;
         public string FileName
         {
             get { return _fileName; }
         }
 
-        private List<Speaker> _Speakers = new List<Speaker>();    //vsichni mluvci ve streamu
+        protected List<Speaker> _Speakers = new List<Speaker>();    //vsichni mluvci ve streamu
 
         public List<Speaker> Speakers
         {
@@ -25,7 +29,7 @@ namespace NanoTrans.Core
             set { _Speakers = value; }
         }
 
-        private Dictionary<string, string> elements = new Dictionary<string, string>();
+        protected Dictionary<string, string> elements = new Dictionary<string, string>();
         public SpeakerCollection(XElement e)
         {
             elements = e.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
@@ -149,7 +153,11 @@ namespace NanoTrans.Core
             return null;
         }
 
-        public XElement Serialize()
+        /// <summary>
+        /// BEWARE - SpeakerCollection is synchronized manually, It can contain different speakers than transcription
+        /// </summary>
+        /// <returns></returns>
+        public virtual XElement Serialize()
         {
             XElement elm = new XElement("sp",
                 elements.Select(e => new XAttribute(e.Key, e.Value)),
@@ -159,19 +167,37 @@ namespace NanoTrans.Core
             return elm;
         }
 
+        /// <summary>
+        /// BEWARE - SpeakerCollection is synchronized manually, It can contain different speakers than transcription
+        /// </summary>
+        /// <returns></returns>
         public void Serialize(string filename)
         {
             var xelm = Serialize();
             xelm.Save(filename);
         }
 
-        //deserialize speaker database file...          
-        public static SpeakerCollection Deserialize(String filename)
+        /// <summary>
+        /// called after deserialization
+        /// </summary>
+        protected virtual void Initialize(XDocument doc)
+        {
+
+        }
+
+
+        /// <summary>
+        /// //deserialize speaker database file. 
+        /// Old file format support should not concern anyone outside ite.tul.cz, public release never containded old format
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <param name="store"></param>
+        public static void Deserialize(string filename, SpeakerCollection store)
         {
             //pokud neexistuje soubor, vrati prazdnou databazi
             if (!new FileInfo(filename).Exists)
             {
-                return new SpeakerCollection();
+                throw new FileNotFoundException();
             }
 
             XDocument doc = XDocument.Load(filename);
@@ -179,9 +205,9 @@ namespace NanoTrans.Core
 
             if (doc.Root.Name == "MySpeakers") //old format from XmlSerializer
             {
+                #region old format
                 var root = doc.Root;
-                SpeakerCollection mysp = new SpeakerCollection();
-                var speakers = root.Elements("Speaker");
+                var speakers = root.Elements("Speakers").Elements("Speaker");
                 foreach (var sp in speakers)
                 {
                     Speaker speaker = new Speaker();
@@ -198,6 +224,7 @@ namespace NanoTrans.Core
                     else
                         continue;
 
+                    speaker.DBID = Guid.NewGuid().ToString();
                     speaker.FirstName = fname.Value ?? "";
                     speaker.Surname = sname.Value ?? "";
 
@@ -219,25 +246,42 @@ namespace NanoTrans.Core
                             break;
                     }
 
-                    if (fname.Value != null)
-                        speaker.Attributes.Add(new SpeakerAttribute("comment", "comment", fname.Value));
+                    if (comment != null && !string.IsNullOrWhiteSpace(comment.Value))
+                        speaker.Attributes.Add(new SpeakerAttribute("comment", "comment", comment.Value));
 
-                    speaker.DefaultLang = lang.Value ?? Speaker.Langs[0];
 
-                    mysp.AddSpeaker(speaker);
+                    int vvvv;
+                    if (int.TryParse(lang.Value, out vvvv) && vvvv < Speaker.Langs.Count)
+                    {
+                        speaker.DefaultLang = Speaker.Langs[vvvv];
+                    }else
+                    {
+                        speaker.DefaultLang = lang.Value ?? Speaker.Langs[0];
+                    }
+                    store.AddSpeaker(speaker);
                 }
-
-                return mysp;
-
+                #endregion
             }
             else
             {
-
+                store._Speakers = doc.Root.Elements("s").Select(x => new Speaker(x)).ToList();
+                store.Initialize(doc);
             }
-            return null;
         }
 
+        //deserialize speaker database file...          
+        public static SpeakerCollection Deserialize(String filename)
+        {
+            var mysp = new SpeakerCollection();
+            Deserialize(filename, mysp);
 
+            return mysp;
+        }
+
+        public SpeakerCollection(string filename)
+        {
+            SpeakerCollection.Deserialize(filename, this);
+        }
 
     }
 }

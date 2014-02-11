@@ -172,7 +172,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\SubtitlesVizualizer.xaml">
+    <Page Include="UI\SpeakerSynchronizer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Control\SubtitlesVizualizer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -215,6 +219,7 @@
       <DependentUpon>SpeakerSmall.xaml</DependentUpon>
     </Compile>
     <Compile Include="Settings.cs" />
+    <Compile Include="Source\AdvancedSpeakerCollection.cs" />
     <Compile Include="Source\ButtonClickCommand.cs" />
     <Compile Include="Control\Block.xaml.cs">
       <DependentUpon>Block.xaml</DependentUpon>
@@ -252,7 +257,10 @@
     <Compile Include="UI\SpeakersManager.xaml.cs">
       <DependentUpon>SpeakersManager.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\SubtitlesVizualizer.xaml.cs">
+    <Compile Include="UI\SpeakerSynchronizer.xaml.cs">
+      <DependentUpon>SpeakerSynchronizer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Control\SubtitlesVizualizer.xaml.cs">
       <DependentUpon>SubtitlesVizualizer.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\TextWallWindow.xaml.cs">

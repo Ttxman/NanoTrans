@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 using System.Xml.Linq;
 
 namespace NanoTrans.Core
@@ -26,7 +27,9 @@ namespace NanoTrans.Core
 
         public SpeakerAttribute(XElement elm)
         {
-            throw new NotImplementedException();
+            this.Name = elm.Element("name").Value;
+            this.Date = XmlConvert.ToDateTime(elm.Element("date").Value,XmlDateTimeSerializationMode.Unspecified);
+            this.Value = elm.Value;
         }
 
         public XElement Serialize()
@@ -34,7 +37,6 @@ namespace NanoTrans.Core
             return new XElement("a",
                 new XAttribute("name",Name),
                 new XAttribute("date",Date),
-                new XAttribute("name",Name),
                 Value
                 );
         }

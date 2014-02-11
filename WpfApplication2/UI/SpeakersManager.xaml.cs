@@ -203,9 +203,8 @@ namespace NanoTrans
 
         private void MenuItem_NewSpeaker(object sender, RoutedEventArgs e)
         {
-            Speaker sp = new Speaker("Nový", "Nový", Speaker.Sexes.X, null);
-            _documentSpeakers.AddSpeaker(sp);
-            SpeakerProvider.AddDocumentSpeaker(sp);
+            Speaker sp = new Speaker("-----", "-----", Speaker.Sexes.X, null) { DataBase = DBType.User };
+            SpeakerProvider.AddLocalSpeaker(sp);
             SpeakerProvider.View.Refresh();
 
             var ss = SpeakerProvider.GetContainerForSpeaker(sp);
@@ -551,7 +550,14 @@ namespace NanoTrans
 
         public void AddDocumentSpeaker(Speaker sp)
         {
-            _allSpeakers.Add(new SpeakerContainer(_documentSpeakers, sp));
+            throw new NotImplementedException();
+           // _allSpeakers.Add(new SpeakerContainer(_documentSpeakers, sp));
+        }
+
+        internal void AddLocalSpeaker(Speaker sp)
+        {
+            _localSpeakers.AddSpeaker(sp);
+            _allSpeakers.Add(new SpeakerContainer(_documentSpeakers, sp) { IsLocal = true});
         }
     }
 
@@ -594,6 +600,9 @@ namespace NanoTrans
             {
                 return _speaker;
             }
+        }
+        public SpeakerContainer( Speaker s):this(null,s)
+        {
         }
         public SpeakerCollection SpeakerColletion;
         public SpeakerContainer(SpeakerCollection speakers, Speaker s)

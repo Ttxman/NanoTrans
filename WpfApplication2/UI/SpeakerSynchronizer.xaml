@@ -1,0 +1,67 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:my="clr-namespace:NanoTrans"
+        xmlns:core="clr-namespace:NanoTrans.Core;assembly=NanoTransCore"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    mc:Ignorable="d" 
+    x:Class="NanoTrans.SpeakerSynchronizer"
+        Title="Synchronizace mluvčích" Height="569" Width="859">
+    <Window.Resources>
+        <my:SpeakerWrapperConverter x:Key="speakerWrapper" />
+
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+        
+        <my:SpeakerControl IsEnabled="False" Grid.Column="2"/>
+        <DockPanel Grid.Column="0" LastChildFill="True">
+            <TextBlock Text="Mluvčí v dokumentu:" DockPanel.Dock="Top"/>
+            <ListBox x:Name="listdocument" Grid.Column="0" Grid.RowSpan="2" DockPanel.Dock="Bottom">
+            <ListBox.Resources>
+                <DataTemplate DataType="{x:Type my:SpeakerPair}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="3*" />
+                        </Grid.ColumnDefinitions>
+                        <my:SpeakerSmall Grid.Column="0" Grid.ColumnSpan="2" />
+                        <Border BorderBrush="BlanchedAlmond" BorderThickness="2" Grid.Column="1">
+                            <my:SpeakerSmall/>
+                        </Border>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.Resources>
+        </ListBox>
+        </DockPanel>
+        <DockPanel Grid.Column="1" LastChildFill="True">
+            <TextBlock Text="Mluvčí v dokumentu:" DockPanel.Dock="Top"/>
+            <ListBox x:Name="listlocal" Grid.Column="0" Grid.RowSpan="2" DockPanel.Dock="Bottom">
+                <ListBox.Resources>
+                    <DataTemplate DataType="{x:Type my:SpeakerPair}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="3*" />
+                            </Grid.ColumnDefinitions>
+                            <my:SpeakerSmall Grid.Column="0" Grid.ColumnSpan="2" SpeakerContainer="{Binding Speaker1}"/>
+                            <Border BorderBrush="BlanchedAlmond" BorderThickness="2" Grid.Column="1" >
+                                <my:SpeakerSmall SpeakerContainer="{Binding Speaker2}" />
+                            </Border>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.Resources>
+            </ListBox>
+        </DockPanel>
+
+    </Grid>
+</Window>

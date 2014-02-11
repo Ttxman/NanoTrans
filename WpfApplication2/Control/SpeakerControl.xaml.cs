@@ -43,6 +43,8 @@ namespace NanoTrans
             }
         }
 
+
+
         public SpeakerControl()
         {
             InitializeComponent();
@@ -68,24 +70,24 @@ namespace NanoTrans
         }
     }
 
-    [ValueConversion(typeof(Speaker.Sexes),typeof(string))]
+    [ValueConversion(typeof(Speaker.Sexes), typeof(string))]
     public class SexConverter : IValueConverter
     {
         public object ConvertBack(object value, Type targetType,
             object parameter, CultureInfo culture)
         {
-                if(((string)value) == Properties.Strings.SexConversionFemale)
-                    return Speaker.Sexes.Female;
-                else if (((string)value) == Properties.Strings.SexConversionMale)
-                    return Speaker.Sexes.Male;
-                else
-                    return Speaker.Sexes.X;
+            if (((string)value) == Properties.Strings.SexConversionFemale)
+                return Speaker.Sexes.Female;
+            else if (((string)value) == Properties.Strings.SexConversionMale)
+                return Speaker.Sexes.Male;
+            else
+                return Speaker.Sexes.X;
         }
 
         public object Convert(object value, Type targetType,
             object parameter, CultureInfo culture)
         {
-            switch((Speaker.Sexes)value)
+            switch ((Speaker.Sexes)value)
             {
                 case Speaker.Sexes.Female:
                     return Properties.Strings.SexConversionFemale;
@@ -114,6 +116,30 @@ namespace NanoTrans
             bim.StreamSource = new MemoryStream(System.Convert.FromBase64String(s));
 
             return new Image() { Source = bim };
+
+        }
+
+        public object ConvertBack(object value, Type targetType,
+            object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+
+
+    }
+    
+    [ValueConversion(typeof(bool), typeof(Visibility))]
+    public class MyBoolToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType,
+            object parameter, CultureInfo culture)
+        {
+            bool s = (bool)value;
+
+            if (s)
+                return Visibility.Visible;
+            else 
+                return Visibility.Collapsed;
 
         }
 

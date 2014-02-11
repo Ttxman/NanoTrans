@@ -18,7 +18,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpdateBuilder", "UpdateBuil
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pedals", "Pedals\Pedals.csproj", "{29BB5075-D0D7-4820-A897-42F44858EC9C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrsxV1Plugin", "TrsxV1Plugin\TrsxV1Plugin.csproj", "{34699257-4E91-48A8-B952-489E67B6C4E9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ResPlugin", "TrsxV1Plugin\ResPlugin.csproj", "{34699257-4E91-48A8-B952-489E67B6C4E9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExePlugin", "ExePlugin\ExePlugin.csproj", "{7C825F64-161C-404F-AB90-66881368A664}"
 EndProject

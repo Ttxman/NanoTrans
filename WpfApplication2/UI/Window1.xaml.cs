@@ -67,7 +67,7 @@ namespace NanoTrans
         /// <summary>
         /// databaze mluvcich konkretniho programu
         /// </summary>
-        public SpeakerCollection SpeakersDatabase;
+        private AdvancedSpeakerCollection SpeakersDatabase;
         //public static MySetup MySetup = null;          //trida pro nastaveni vlastnosti aplikace
 
         //public static bool spustenoOknoNapovedy = false;        //informace o spustenem oknu napovedy
@@ -192,25 +192,25 @@ namespace NanoTrans
             ZobrazitOknoFonetickehoPrepisu(MySetup.Setup.ZobrazitFonetickyPrepis - 1 > 0);
 
             //databaze mluvcich
-            SpeakersDatabase = new SpeakerCollection();
+            SpeakersDatabase = new AdvancedSpeakerCollection();
 
             string fname = System.IO.Path.GetFullPath(MySetup.Setup.CestaDatabazeMluvcich);
             if (fname.Contains(FilePaths.ProgramDirectory))
             {
                 if (!FilePaths.WriteToAppData)
                 {
-                    SpeakersDatabase = SpeakerCollection.Deserialize(MySetup.Setup.CestaDatabazeMluvcich);
+                    SpeakerCollection.Deserialize(MySetup.Setup.CestaDatabazeMluvcich, SpeakersDatabase);
                 }
                 else
                 {
                     string fname2 = System.IO.Path.Combine(FilePaths.AppDataDirectory, fname.Substring(FilePaths.ProgramDirectory.Length));
                     if (File.Exists(fname2))
                     {
-                        SpeakersDatabase = SpeakerCollection.Deserialize(fname2);
+                        SpeakerCollection.Deserialize(fname2, SpeakersDatabase);
                     }
                     else if (File.Exists(MySetup.Setup.CestaDatabazeMluvcich))
                     {
-                        SpeakersDatabase = SpeakerCollection.Deserialize(MySetup.Setup.CestaDatabazeMluvcich);
+                        SpeakerCollection.Deserialize(MySetup.Setup.CestaDatabazeMluvcich, SpeakersDatabase);
                     }
                 }
             }
@@ -218,7 +218,7 @@ namespace NanoTrans
             {
                 if (File.Exists(MySetup.Setup.CestaDatabazeMluvcich))
                 {
-                    SpeakersDatabase = SpeakerCollection.Deserialize(MySetup.Setup.CestaDatabazeMluvcich);
+                    SpeakerCollection.Deserialize(MySetup.Setup.CestaDatabazeMluvcich, SpeakersDatabase);
                 }
                 else
                 {
@@ -668,10 +668,14 @@ namespace NanoTrans
                             {
                                 foreach (Speaker i in Transcription.Speakers.Speakers)
                                 {
-                                    Speaker pSp = SpeakersDatabase.GetSpeakerByName(i.FullName);
-                                    if (i.FullName == pSp.FullName && i.ImgBase64 == null)
+                                    Speaker ss = SpeakersDatabase.SynchronizeSpeaker(i);
+                                    if (ss != null)
                                     {
-                                        i.ImgBase64 = pSp.ImgBase64;
+                                        foreach (var p in Transcription.EnumerateParagraphs().Where(p => p.Speaker == i))
+                                            p.Speaker = ss;
+
+                                        Transcription.Speakers.RemoveSpeaker(i);
+                                        
                                     }
                                 }
                             }
@@ -2046,6 +2050,11 @@ namespace NanoTrans
 
             }
 
+        }
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+            //new SpeakerSynchronizer(MySetup.Setup.CestaDatabazeMluvcich).ShowDialog();
         }
 
     }

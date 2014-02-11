@@ -334,150 +334,6 @@ namespace NanoTrans.Core
 
 
         /// <summary>
-        /// serialize data to txsx v1 format
-        /// </summary>
-        /// <param name="stream"></param>
-        /// <param name="co"></param>
-        /// <param name="SaveSpeakersInCompleteFormat"></param>
-        /// <returns></returns>
-        /// <exception cref="NanoTransSerializationException">when writing failed</exception>
-        public static void SerializeV1(Stream stream, Transcription co, bool SaveSpeakersInCompleteFormat)
-        {
-            try
-            {
-                System.Xml.XmlTextWriter writer = new XmlTextWriter(stream, Encoding.UTF8);
-                writer.Formatting = Formatting.Indented;
-                writer.WriteStartDocument(); //<?xml version ...
-
-
-                writer.WriteStartElement("Transcription");
-                writer.WriteAttributeString("dateTime", XmlConvert.ToString(co.Created, XmlDateTimeSerializationMode.Local));
-                writer.WriteAttributeString("audioFileName", co.mediaURI);
-
-                writer.WriteStartElement("Chapters");
-
-
-                foreach (TranscriptionChapter c in co.Chapters)
-                {
-                    writer.WriteStartElement("Chapter");
-                    writer.WriteAttributeString("name", c.name);
-                    writer.WriteAttributeString("begin", XmlConvert.ToString(c.Begin));
-                    writer.WriteAttributeString("end", XmlConvert.ToString(c.End));
-
-                    writer.WriteStartElement("Sections");
-
-                    foreach (TranscriptionSection s in c.Sections)
-                    {
-                        writer.WriteStartElement("Section");
-                        writer.WriteAttributeString("name", s.name);
-                        writer.WriteAttributeString("begin", XmlConvert.ToString(s.Begin));
-                        writer.WriteAttributeString("end", XmlConvert.ToString(s.End));
-
-                        writer.WriteStartElement("Paragraphs");
-
-                        foreach (TranscriptionParagraph p in s.Paragraphs)
-                        {
-                            writer.WriteStartElement("Paragraph");
-                            writer.WriteAttributeString("begin", XmlConvert.ToString(p.Begin));
-                            writer.WriteAttributeString("end", XmlConvert.ToString(p.End));
-                            writer.WriteAttributeString("trainingElement", XmlConvert.ToString(p.trainingElement));
-                            writer.WriteAttributeString("Attributes", p.Attributes);
-
-                            writer.WriteStartElement("Phrases");
-
-                            foreach (TranscriptionPhrase ph in p.Phrases)
-                            {
-                                writer.WriteStartElement("Phrase");
-                                writer.WriteAttributeString("begin", XmlConvert.ToString(ph.Begin));
-                                writer.WriteAttributeString("end", XmlConvert.ToString(ph.End));
-                                writer.WriteElementString("Text", ph.Text);
-                                writer.WriteEndElement();//Phrase
-                            }
-
-
-                            writer.WriteEndElement();//Phrases
-                            writer.WriteElementString("speakerID", XmlConvert.ToString(p.SpeakerID));
-                            writer.WriteEndElement();//Paragraph
-                        }
-
-                        writer.WriteEndElement();//Paragraphs
-
-
-
-
-                        writer.WriteStartElement("PhoneticParagraphs");
-                        foreach (TranscriptionParagraph p in s.Paragraphs)
-                        {
-                            writer.WriteStartElement("Paragraph");
-                            writer.WriteAttributeString("begin", XmlConvert.ToString(p.Begin));
-                            writer.WriteAttributeString("end", XmlConvert.ToString(p.End));
-                            writer.WriteAttributeString("trainingElement", XmlConvert.ToString(p.trainingElement));
-                            writer.WriteAttributeString("Attributes", p.Attributes);
-
-                            writer.WriteStartElement("Phrases");
-
-                            foreach (TranscriptionPhrase ph in p.Phrases)
-                            {
-                                writer.WriteStartElement("Phrase");
-                                writer.WriteAttributeString("begin", XmlConvert.ToString(ph.Begin));
-                                writer.WriteAttributeString("end", XmlConvert.ToString(ph.End));
-                                writer.WriteElementString("Text", ph.Phonetics);
-                                writer.WriteEndElement();//Phrase
-                            }
-
-
-                            writer.WriteEndElement();//Phrases
-                            writer.WriteElementString("speakerID", XmlConvert.ToString(p.SpeakerID));
-                            writer.WriteEndElement();//Paragraph
-                        }
-
-
-
-                        writer.WriteEndElement();//PhoneticParagraphs
-                        writer.WriteEndElement();//section
-                    }
-
-
-                    writer.WriteEndElement();//sections
-                    writer.WriteEndElement();//chapter
-                }
-
-                writer.WriteEndElement();//chapters
-
-
-                writer.WriteStartElement("SpeakersDatabase");
-                writer.WriteStartElement("Speakers");
-
-
-
-                foreach (Speaker sp in co._speakers.Speakers)
-                {
-                    writer.WriteStartElement("Speaker");
-                    writer.WriteElementString("ID", XmlConvert.ToString(sp.ID));
-                    writer.WriteElementString("Firstname", sp.FirstName);
-                    writer.WriteElementString("Surname", sp.Surname);
-                    writer.WriteElementString("Sex", (sp.Sex == Speaker.Sexes.Female) ? "female" : (sp.Sex == Speaker.Sexes.Male) ? "male" : "-");
-                    if(sp.Attributes.Any(a=>a.ID == "comment"))
-                        writer.WriteElementString("Comment", sp.Attributes.First(a => a.ID == "comment").Value);
-
-                    writer.WriteEndElement();//speaker
-                }
-
-                writer.WriteEndElement();//Speakers
-                writer.WriteEndElement();//SpeakersDatabase
-
-                writer.WriteEndElement();//Transcription
-
-                writer.Close();
-
-            }
-            catch (Exception ex)
-            {
-                throw new NanoTransSerializationException(ex.Message, ex);
-            }
-
-        }
-        /// <summary>
         /// Serializuje tuto tridu a ulozi data do xml souboru - muze ulozit mluvci bez fotky
         /// </summary>
         /// <param name="jmenoSouboru"></param>
@@ -492,7 +348,7 @@ namespace NanoTrans.Core
                         }),
                         this.Meta,
                         Chapters.Select(c => c.Serialize(StrictFormat)),
-                        Speakers.Serialize()
+                        SerializeSpeakers()
                     );
 
             if(!string.IsNullOrWhiteSpace(this.DocumentID))
@@ -505,6 +361,11 @@ namespace NanoTrans.Core
 
             xdoc.Save(datastream);
             return true;
+        }
+
+        private XElement SerializeSpeakers()
+        {
+            return new SpeakerCollection(this.EnumerateParagraphs().Select(p => p.Speaker).Distinct()).Serialize();
         }
 
 

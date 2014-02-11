@@ -12,55 +12,6 @@ namespace NanoTrans.Core
         public List<SpeakerAttribute> Attributes = new List<SpeakerAttribute>();
         public static int speakersIndexCounter = 0;
 
-        #region equality overriding
-        //TODO: what about other fields?
-        public override int GetHashCode()
-        {
-            return this.FullName.GetHashCode() ^ this._ID.GetHashCode();
-        }
-
-
-        public bool Equals(Speaker s)
-        {
-            if (s == null)
-                return false;
-
-            if (s._ID == this._ID && s.FullName == this.FullName)
-                return true;
-
-            return false;
-        }
-
-        public override bool Equals(object obj)
-        {
-            Speaker s = obj as Speaker;
-            return Equals(s);
-        }
-
-        public static bool operator ==(Speaker a, Speaker b)
-        {
-            // If both are null, or both are same instance, return true.
-            if (System.Object.ReferenceEquals(a, b))
-            {
-                return true;
-            }
-
-            // If one is null, but not both, return false.
-            if (((object)a == null) || ((object)b == null))
-            {
-                return false;
-            }
-
-            // Return true if the fields match:
-            return a.Equals(b);
-        }
-
-        public static bool operator !=(Speaker a, Speaker b)
-        {
-            return !(a == b);
-        }
-        #endregion
-
         private int _ID;
         private bool _IDFixed = false;
         public bool IDFixed
@@ -141,8 +92,20 @@ namespace NanoTrans.Core
         public Sexes Sex;
 
         public string ImgBase64;
-        //public string Comment;
-        public string DefaultLang;
+
+        string _defaultLang = null;
+        public string DefaultLang
+        {
+            get 
+            {
+                return _defaultLang ?? Langs[0];
+            }
+
+            set 
+            {
+                _defaultLang = value;
+            }
+        }
 
 
         public string DegreeBefore;
@@ -380,8 +343,21 @@ namespace NanoTrans.Core
             return new Speaker(this);
         }
 
+        string _dbid = null;
+        public string DBID 
+        {
+            get 
+            {
+                if (_dbid == null)
+                    _dbid = Guid.NewGuid().ToString();
 
-        public string DBID { get; set; }
+                return _dbid;
+            }
+            set
+            {
+                _dbid = value;
+            }
+        }
 
         public DBType DataBase { get; set; }
 

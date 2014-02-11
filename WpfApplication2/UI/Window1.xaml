@@ -277,6 +277,7 @@
             </StatusBarItem>
 
         </StatusBar>
+        <Button Content="speakersynchronizer" RenderTransformOrigin="0.827,0.471" Margin="745,28,25,291" Click="Button_Click_1"/>
     </Grid>
 
 </Window>

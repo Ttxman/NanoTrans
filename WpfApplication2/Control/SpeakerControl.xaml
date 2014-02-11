@@ -6,12 +6,12 @@
              xmlns:my ="clr-namespace:NanoTrans"
              xmlns:core ="clr-namespace:NanoTrans.Core;assembly=NanoTransCore"
              xmlns:clr="clr-namespace:System;assembly=mscorlib"
-             mc:Ignorable="d" 
-             d:DesignHeight="360" d:DesignWidth="350" MinWidth="350" MinHeight="360"
+             mc:Ignorable="d"
              Name="Control">
     <UserControl.Resources>
         <my:SexConverter x:Key="sexConverter" />
         <my:JPGB64Converter x:Key="jpgConverter" />
+        <my:MyBoolToVisibilityConverter x:Key="boolvisconverter" />
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -47,7 +47,7 @@
                 <clr:String>Žena</clr:String>
             </ComboBox>
             <ComboBox ItemsSource="{x:Static core:Speaker.Langs}" SelectedItem="{Binding ElementName=Control,Path=SpeakerContainer.Language}" Margin="5,0,5,5" Grid.Column="1" />
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Visibility="{Binding IsEnabled, ElementName=Control, Converter={StaticResource boolvisconverter}}" >
                 <Button Name="buttonUpdate" HorizontalAlignment="Left" Margin="5,5,5,5" IsEnabled="{Binding ElementName=Control,Path=SpeakerContainer.Changed,UpdateSourceTrigger=PropertyChanged,TargetNullValue=false}" Click="buttonUpdate_Click">
                     <StackPanel>
                         <Image Width="50" Height="50" Source="/NanoTrans;component/icons/save_small.png" HorizontalAlignment="Center" VerticalAlignment="Center" />
@@ -71,7 +71,7 @@
             </ListBox.Resources>
         </ListBox>
 
-        <StackPanel Grid.ColumnSpan="2" Grid.Row="3" HorizontalAlignment="Left" Orientation="Horizontal">
+        <StackPanel Grid.ColumnSpan="2" Grid.Row="3" HorizontalAlignment="Left" Orientation="Horizontal" Visibility="{Binding IsEnabled, ElementName=Control, Converter={StaticResource boolvisconverter}}">
             <Button Width="100">Přidat popisek</Button>
             <Button Width="100" Margin="20,0,0,0">Editovat popisek</Button>
             <Button Width="100" Margin="20,0,0,0">Smazat popisek</Button>
