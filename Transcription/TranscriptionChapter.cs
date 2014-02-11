@@ -45,15 +45,15 @@ namespace NanoTrans.Core
 
 
         #region serializace nova
-        private Dictionary<string, string> elements = new Dictionary<string, string>();
+        public Dictionary<string, string> Elements = new Dictionary<string, string>();
         private static readonly XAttribute EmptyAttribute = new XAttribute("empty", "");
 
         public static TranscriptionChapter DeserializeV2(XElement c, bool isStrict)
         {
             TranscriptionChapter chap = new TranscriptionChapter();
             chap.name = c.Attribute("name").Value;
-            chap.elements = c.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
-            chap.elements.Remove("name");
+            chap.Elements = c.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
+            chap.Elements.Remove("name");
             foreach(var s in c.Elements(isStrict ? "section" : "se").Select(s => (TranscriptionElement)TranscriptionSection.DeserializeV2(s, isStrict)))
                 chap.Add(s);
 
@@ -65,8 +65,8 @@ namespace NanoTrans.Core
         {
             Sections = new VirtualTypeList<TranscriptionSection>(this);
             name = c.Attribute("name").Value;
-            elements = c.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
-            elements.Remove("name");
+            Elements = c.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
+            Elements.Remove("name");
             foreach(var s in c.Elements("se").Select(s => (TranscriptionElement)new TranscriptionSection(s)))
                 Add(s);
 
@@ -76,7 +76,7 @@ namespace NanoTrans.Core
         {
 
             XElement elm = new XElement(strict ? "chapter" : "ch",
-                elements.Select(e => new XAttribute(e.Key, e.Value)).Union(new[] { new XAttribute("name", name), }),
+                Elements.Select(e => new XAttribute(e.Key, e.Value)).Union(new[] { new XAttribute("name", name), }),
                 Sections.Select(s => s.Serialize(strict))
             );
 

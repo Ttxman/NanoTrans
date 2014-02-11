@@ -50,14 +50,14 @@ namespace NanoTrans.Core
 
 
         #region serializace nova
-        private Dictionary<string, string> elements = new Dictionary<string, string>();
+        public Dictionary<string, string> Elements = new Dictionary<string, string>();
         private static readonly XAttribute EmptyAttribute = new XAttribute("empty", "");
         public static TranscriptionSection DeserializeV2(XElement e, bool isStrict)
         {
             TranscriptionSection tsec = new TranscriptionSection();
             tsec.name = e.Attribute("name").Value;
-            tsec.elements = e.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
-            tsec.elements.Remove("name");
+            tsec.Elements = e.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
+            tsec.Elements.Remove("name");
             foreach (var p in e.Elements(isStrict ? "paragraph" : "pa").Select(p => (TranscriptionElement)TranscriptionParagraph.DeserializeV2(p, isStrict)))
                 tsec.Add(p);
 
@@ -68,8 +68,8 @@ namespace NanoTrans.Core
         {
             this.Paragraphs = new VirtualTypeList<TranscriptionParagraph>(this);
             name = e.Attribute("name").Value;
-            elements = e.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
-            elements.Remove("name");
+            Elements = e.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
+            Elements.Remove("name");
             foreach(var p in e.Elements("pa").Select(p => (TranscriptionElement)new TranscriptionParagraph(p)))
                 Add(p);
 
@@ -78,7 +78,7 @@ namespace NanoTrans.Core
         public XElement Serialize(bool strict)
         {
 
-            XElement elm = new XElement("se", elements.Select(e => new XAttribute(e.Key, e.Value)).Union(new[] { new XAttribute("name", name), }),
+            XElement elm = new XElement("se", Elements.Select(e => new XAttribute(e.Key, e.Value)).Union(new[] { new XAttribute("name", name), }),
                 Paragraphs.Select(p => p.Serialize())
             );
 

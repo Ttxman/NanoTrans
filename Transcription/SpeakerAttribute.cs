@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Xml;
@@ -28,8 +29,22 @@ namespace NanoTrans.Core
 
         public SpeakerAttribute(XElement elm)
         {
-            this.Name = elm.Element("name").Value;
-            this.Date = XmlConvert.ToDateTime(elm.Element("date").Value,XmlDateTimeSerializationMode.Unspecified);
+            this.Name = elm.Attribute("name").Value;
+
+            DateTime date;
+            try
+            {
+                date = XmlConvert.ToDateTime(elm.Attribute("date").Value, XmlDateTimeSerializationMode.Local); //stored in UTC convert to local
+            }
+            catch
+            {
+                if (DateTime.TryParse(elm.Attribute("date").Value, CultureInfo.CreateSpecificCulture("cs"), DateTimeStyles.None, out date))
+                    date = TimeZoneInfo.ConvertTimeFromUtc(date, TimeZoneInfo.Local);
+                else
+                    date = DateTime.Now;
+            }
+            
+            this.Date = date;
             this.Value = elm.Value;
         }
 
@@ -46,7 +61,7 @@ namespace NanoTrans.Core
         {
             return new XElement("a",
                 new XAttribute("name",Name),
-                new XAttribute("date",Date),
+                new XAttribute("date",XmlConvert.ToString(Date, XmlDateTimeSerializationMode.Utc)),
                 Value
                 );
         }

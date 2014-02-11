@@ -37,7 +37,7 @@ namespace NanoTrans.Core
 
 
         #region serializace nova
-        private Dictionary<string, string> elements = new Dictionary<string, string>();
+        public Dictionary<string, string> Elements = new Dictionary<string, string>();
         private static readonly XAttribute EmptyAttribute = new XAttribute("empty", "");
 
         /// <summary>
@@ -48,10 +48,10 @@ namespace NanoTrans.Core
         public static TranscriptionPhrase DeserializeV2(XElement e, bool isStrict)
         {
             TranscriptionPhrase phr = new TranscriptionPhrase();
-            phr.elements = e.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
-            phr.elements.Remove(isStrict ? "begin" : "b");
-            phr.elements.Remove(isStrict ? "end" : "e");
-            phr.elements.Remove(isStrict ? "fon" : "f");
+            phr.Elements = e.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
+            phr.Elements.Remove(isStrict ? "begin" : "b");
+            phr.Elements.Remove(isStrict ? "end" : "e");
+            phr.Elements.Remove(isStrict ? "fon" : "f");
 
 
             phr._phonetics = (e.Attribute(isStrict ? "fon" : "f") ?? EmptyAttribute).Value;
@@ -86,10 +86,10 @@ namespace NanoTrans.Core
         /// <param name="e"></param>
         public TranscriptionPhrase(XElement e)
         {
-            elements = e.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
-            elements.Remove("b");
-            elements.Remove("e");
-            elements.Remove("f");
+            Elements = e.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
+            Elements.Remove("b");
+            Elements.Remove("e");
+            Elements.Remove("f");
 
 
             this._phonetics = (e.Attribute("f") ?? EmptyAttribute).Value;
@@ -124,7 +124,7 @@ namespace NanoTrans.Core
         public XElement Serialize()
         {
             XElement elm = new XElement("p",
-                elements.Select(e =>
+                Elements.Select(e =>
                     new XAttribute(e.Key, e.Value))
                     .Union(new[]{ 
                     new XAttribute("b", Begin),

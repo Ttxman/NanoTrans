@@ -293,9 +293,6 @@ namespace NanoTrans.Core
             if (Elements.TryGetValue("degreeafter", out rem))
                 this.DegreeAfter = rem;
 
-            if (Elements.TryGetValue("synchronized", out rem))
-                this.Synchronized = DateTime.Parse(rem);
-
 
             Elements.Remove("id");
             Elements.Remove("surname");

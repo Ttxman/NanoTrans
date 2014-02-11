@@ -329,7 +329,7 @@ namespace NanoTrans.Core
         public bool Serialize(Stream datastream, bool aUkladatKompletMluvci = false, bool StrictFormat = false)
         {
             ReindexSpeakers();
-            XElement pars = new XElement("transcription", elements.Select(e => new XAttribute(e.Key, e.Value)).Union(new[] { 
+            XElement pars = new XElement("transcription", Elements.Select(e => new XAttribute(e.Key, e.Value)).Union(new[] { 
                         new XAttribute("version", "3.0"), 
                         new XAttribute("mediauri", mediaURI ?? ""),
                         new XAttribute("created",Created)
@@ -424,7 +424,7 @@ namespace NanoTrans.Core
 
         public XElement Meta = EmptyMeta;
         private static readonly XElement EmptyMeta = new XElement("meta");
-        private Dictionary<string, string> elements = new Dictionary<string, string>();
+        public Dictionary<string, string> Elements = new Dictionary<string, string>();
 
         /// <summary>
         /// deserialize transcription in v2 format
@@ -448,10 +448,10 @@ namespace NanoTrans.Core
             data.Meta = transcription.Element("meta") ?? EmptyMeta;
             var chapters = transcription.Elements(isStrict ? "chapter" : "ch");
 
-            data.elements = transcription.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
-            data.elements.Remove("style");
-            data.elements.Remove("mediaURI");
-            data.elements.Remove("version");
+            data.Elements = transcription.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
+            data.Elements.Remove("style");
+            data.Elements.Remove("mediaURI");
+            data.Elements.Remove("version");
 
             chapters.Select(c => (TranscriptionElement)TranscriptionChapter.DeserializeV2(c, isStrict)).ToList().ForEach(c => data.Add(c));
 
@@ -480,18 +480,21 @@ namespace NanoTrans.Core
             data.mediaURI = mediaURI;
             data.Meta = transcription.Element("meta") ?? EmptyMeta;
             var chapters = transcription.Elements("ch");
+
+
+            data.Elements = transcription.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
             string did;
-            if (data.elements.TryGetValue("documentid", out did))
+            if (data.Elements.TryGetValue("documentid", out did))
                 data.DocumentID = did;
-            if (data.elements.TryGetValue("created", out did))
+            if (data.Elements.TryGetValue("created", out did))
                 data.Created = XmlConvert.ToDateTime(did, XmlDateTimeSerializationMode.Unspecified);
 
-            data.elements = transcription.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
-            data.elements.Remove("style");
-            data.elements.Remove("mediauri");
-            data.elements.Remove("version");
-            data.elements.Remove("documentid");
-            data.elements.Remove("created");
+
+            data.Elements.Remove("style");
+            data.Elements.Remove("mediauri");
+            data.Elements.Remove("version");
+            data.Elements.Remove("documentid");
+            data.Elements.Remove("created");
 
             foreach (var c in chapters.Select(c => new TranscriptionChapter(c)))
                 data.Add(c);
@@ -921,7 +924,10 @@ namespace NanoTrans.Core
                                 }
                                 break;
                             case "Comment":
-                                sp.Attributes.Add(new SpeakerAttribute("comment", "comment", reader.ReadElementString("Comment")));
+                                var str = reader.ReadElementString("Comment");
+                                if (string.IsNullOrWhiteSpace(str))
+                                    break;
+                                sp.Attributes.Add(new SpeakerAttribute("comment", "comment", str));
                                 break;
                             case "Speaker":
                                 if (reader.NodeType == XmlNodeType.EndElement)
@@ -942,8 +948,9 @@ namespace NanoTrans.Core
                         }
                     }
                     data._speakers.Add(sp);
-                    storage.AssingSpeakersByID();
                 }
+
+                storage.AssingSpeakersByID();
             }
             catch (Exception ex)
             {
