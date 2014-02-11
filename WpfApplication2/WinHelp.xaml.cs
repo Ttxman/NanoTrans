@@ -54,6 +54,9 @@ namespace NanoTrans
 
             richTextBox1.AppendText("Ctrl+F1...Nápověda - O programu\r");
 
+            richTextBox1.AppendText("Ctrl+Shift+I...Import ze souboru\r");
+            richTextBox1.AppendText("Ctrl+Shift+E...Export do souboru\r");
+
 
 
 
