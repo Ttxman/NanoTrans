@@ -995,20 +995,24 @@ namespace NanoTrans
         void pMluvci_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             Button b = sender as Button;
-            b.CaptureMouse();
+            
             Point p = e.GetPosition(b);
             if (p.X <= 4)
             {
                 btndrag = true;
-                btndragleft = true;   
+                btndragleft = true;
+                e.Handled = true;
+                b.CaptureMouse(); 
             }
             else if (p.X >= b.Width - 4)
             {
                 btndrag = true;
                 btndragleft = false;
+                e.Handled = true;
+                b.CaptureMouse();
             }
 
-            e.Handled = true;
+            
         }
 
 
@@ -1470,11 +1474,14 @@ namespace NanoTrans
             position = e.GetPosition((Button)sender);
 
             if (btndrag)
+            {
                 InvalidateSpeakers();
+                b.ReleaseMouseCapture();
+            }
             btndrag = false;
             btnrozhr = false;
 
-            b.ReleaseMouseCapture();
+            
         }
 
         private void Grid_SizeChanged(object sender, SizeChangedEventArgs e)

@@ -110,6 +110,12 @@ namespace NanoTrans
             {
                 if (m_begin == new TimeSpan(-1))
                 {
+                    if (m_Parent != null && m_ParentIndex == 0)
+                    {
+                        if (m_Parent.Begin != new TimeSpan(-1))
+                            return m_Parent.Begin;
+                    }
+
                     TranscriptionElement elm = this.Previous();
                     while (elm != null && elm.m_end == new TimeSpan(-1))
                     {
@@ -137,7 +143,15 @@ namespace NanoTrans
             {
                 if (m_end == new TimeSpan(-1))
                 {
-                    TranscriptionElement elm = this.Next();
+                    
+                    if (m_Parent != null && m_ParentIndex == m_Parent.Children.Count - 1)
+                    {
+                        if (m_Parent.End != new TimeSpan(-1))
+                            return m_Parent.End;
+                    }
+                   
+
+                    TranscriptionElement elm = this.Next(); 
                     while (elm != null && elm.m_begin == new TimeSpan(-1))
                     {
                         elm = elm.Next();
@@ -1598,7 +1612,7 @@ namespace NanoTrans
                                 val = reader.GetAttribute("begin");
                                 if (int.TryParse(val, out result))
                                     if (result < 0)
-                                        ph.Begin = p.Begin;
+                                        ph.Begin = new TimeSpan(result);
                                     else
                                         ph.Begin = TimeSpan.FromMilliseconds(result);
                                 else

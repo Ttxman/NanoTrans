@@ -311,9 +311,17 @@ namespace NanoTrans
 
                 if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
                 {
+
+                    if (waveform1.WaveBegin > waveform1.SelectionEnd || waveform1.WaveEnd < waveform1.SelectionBegin)
+                    {
+                        waveform1.SelectionBegin = VirtualizingListBox.ActiveTransctiption.Begin;
+                        waveform1.SelectionEnd = VirtualizingListBox.ActiveTransctiption.End;
+                    }
+
+
                     prehratVyber = true;
                     oldms = TimeSpan.Zero;
-                    //if (waveform1.CaretPosition >= waveform1.SelectionBegin && waveform1.CaretPosition <= waveform1.SelectionEnd)
+                    
 
                     if ((waveform1.SelectionBegin - waveform1.SelectionEnd).Duration() > TimeSpan.FromMilliseconds(100))
                     {
@@ -358,11 +366,13 @@ namespace NanoTrans
         private void CSmallJumpRight(object sender, ExecutedRoutedEventArgs e)
         {
            NastavPoziciKurzoru(waveform1.CaretPosition + waveform1.SmallJump, true, true);
+           VyberTextMeziCasovymiZnackami(waveform1.CaretPosition);
         }
 
         private void CSmallJumpLeft(object sender, ExecutedRoutedEventArgs e)
         {
             NastavPoziciKurzoru(waveform1.CaretPosition - waveform1.SmallJump, true, true);
+            VyberTextMeziCasovymiZnackami(waveform1.CaretPosition);
         }
 
         private void CMaximizeMinimize(object sender, ExecutedRoutedEventArgs e)
@@ -504,6 +514,11 @@ namespace NanoTrans
         int searchtextoffset = 0;
         public void FindNext(string pattern, bool isregex, bool CaseSensitive, bool searchinspeakers)
         {
+            foreach (Element e in VirtualizingListBox.gridstack.Children)
+            {
+                e.editor.SelectionLength = 0;
+            }
+
             if (VirtualizingListBox.ActiveTransctiption == null)
                 if (m_mydatasource.Chapters.Count > 0)
                 {
@@ -526,7 +541,7 @@ namespace NanoTrans
 
                 if (VirtualizingListBox.ActiveElement != null)
                 {
-                    VirtualizingListBox.ActiveElement.SetSelection(searchtextoffset,len);
+                    VirtualizingListBox.ActiveElement.SetSelection(searchtextoffset,len,0);
                     searchtextoffset += len;
                 }
             }

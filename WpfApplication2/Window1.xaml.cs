@@ -829,10 +829,13 @@ namespace NanoTrans
                                     FileInfo fi = new FileInfo(myDataSource.JmenoSouboru);
                                     pAudioFile = fi.Directory.FullName + "\\" + myDataSource.audioFileName;
                                 }
-                                FileInfo fi2 = new FileInfo(pAudioFile);
-                                if (fi2.Exists)
+                                if (pAudioFile.Split(new string[]{":\\"},StringSplitOptions.None).Length == 2)
                                 {
-                                    NactiAudio(pAudioFile);
+                                    FileInfo fi2 = new FileInfo(pAudioFile);
+                                    if (fi2.Exists)
+                                    {
+                                        NactiAudio(pAudioFile);
+                                    }
                                 }
                             }
 
@@ -945,10 +948,14 @@ namespace NanoTrans
                                 FileInfo fi = new FileInfo(myDataSource.JmenoSouboru);
                                 pAudioFile = fi.Directory.FullName + "\\" + myDataSource.audioFileName;
                             }
-                            FileInfo fi2 = new FileInfo(pAudioFile);
-                            if (fi2.Exists && (!oWav.Nacteno || oWav.CestaSouboru.ToUpper() != pAudioFile.ToUpper()))
+                            if (pAudioFile.Split(new string[] { ":\\" }, StringSplitOptions.None).Length == 2)
                             {
-                                NactiAudio(pAudioFile);
+
+                                FileInfo fi2 = new FileInfo(pAudioFile);
+                                if (fi2.Exists && (!oWav.Nacteno || oWav.CestaSouboru.ToUpper() != pAudioFile.ToUpper()))
+                                {
+                                    NactiAudio(pAudioFile);
+                                }
                             }
                         }
 
@@ -2635,6 +2642,8 @@ namespace NanoTrans
         private void waveform1_ParagraphClick(object sender, Waveform.MyTranscriptionElementEventArgs e)
         {
             VirtualizingListBox.ActiveTransctiption = e.Value;
+            waveform1.SelectionBegin = e.Value.Begin;
+            waveform1.SelectionEnd = e.Value.End;
         }
 
         private void waveform1_ParagraphDoubleClick(object sender, Waveform.MyTranscriptionElementEventArgs e)
@@ -2695,6 +2704,12 @@ namespace NanoTrans
         private void button4_Click(object sender, RoutedEventArgs e)
         {
             VirtualizingListBox.SubtitlesContentChanged();
+        }
+
+        private void Window_MouseDown(object sender, MouseButtonEventArgs e)
+        { 
+            if(e.ChangedButton == MouseButton.XButton1 || e.ChangedButton== MouseButton.XButton2 || e.ChangedButton == MouseButton.Middle)
+                CommandPlayPause.Execute(null, null);
         }
     }
 }

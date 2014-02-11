@@ -33,10 +33,12 @@ namespace NanoTrans
             InitializeComponent();
         }
 
-
+        bool searching = false;
         public void SearchNext()
         { 
             m_parent.FindNext(textBox1.Text,checkBox2.IsChecked == true,checkBox1.IsChecked == true, checkBox3.IsChecked == true);
+            searching = true;
+            m_parent.VirtualizingListBox.UpdateLayout();
             textBox1.Focus();
         }
 
@@ -61,5 +63,26 @@ namespace NanoTrans
             if (e.Key == Key.Escape)
                 Close();
         }
+
+        private void Window_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (searching)
+            {
+                Dispatcher.BeginInvoke((Action)(() => { textBox1.Focus(); searching = false; }));
+            }
+           
+        }
+
+        private void Window_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            Window_LostFocus(null, null);
+        }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            m_parent.Focus();
+        }
+
+
     }
 }
