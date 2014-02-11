@@ -413,20 +413,6 @@ namespace NanoTrans
                 oWav.HaveData += oWav_HaveData;
                 oWav.HaveFileNumber += oWav_HaveFileNumber;
                 oWav.TemporaryWavesDone += new EventHandler(oWav_TemporaryWavesDone);
-
-                string pCesta = null;
-                if (App.Startup_ARGS != null && App.Startup_ARGS.Length > 0)
-                {
-                    pCesta = App.Startup_ARGS[0];
-                }
-                if (pCesta == null)
-                {
-                  //  NoveTitulky();
-                }
-                else
-                {
-                    OtevritTitulky(false, pCesta, false);
-                }
             }
             catch (Exception ex)
             {
@@ -1713,7 +1699,19 @@ namespace NanoTrans
             TempCheckMutex = new Mutex(true, "NanoTransMutex_" + foldername);
             MyKONST.CESTA_DOCASNYCH_SOUBORU_ZVUKU = temppath + "\\";
 
-            NoveTitulky();
+            string pCesta = null;
+            if (App.Startup_ARGS != null && App.Startup_ARGS.Length > 0)
+            {
+                pCesta = App.Startup_ARGS[0];
+            }
+            if (pCesta == null)
+            {
+                NoveTitulky();
+            }
+            else
+            {
+                OtevritTitulky(false, pCesta, false);
+            }
 
             VirtualizingListBox.RequestTimePosition += delegate(out TimeSpan value){value = waveform1.CaretPosition;};
 
