@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-//using System.Linq;
+using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -24,13 +24,12 @@ namespace NanoTrans
         private MySetup bNastaveni;
         private MySpeakers bDatabazeMluvcich;
         private MySubtitlesData myDataSource;
-
         
         /// <summary>
         /// inicializace 
         /// </summary>
         /// <returns></returns>
-        private bool Inicializace(MyParagraph aTag, MySetup aNastaveniProgramu, MySpeakers aDatabazeMluvcich, MySubtitlesData aDataSource, MySpeaker aVychoziMluvci, string aPredavanaFotkaStringBase64)
+        private bool Inicializace(MyParagraph aTag, MySetup aNastaveniProgramu, MySpeakers aDatabazeMluvcich, MySubtitlesData aDataSource, MySpeaker aVychoziMluvci)
         {
 
             this.bTag = aTag;
@@ -43,79 +42,36 @@ namespace NanoTrans
                 lbSeznamMluvcich.IsEnabled = false;
             }
 
-            bSpeaker = new MySpeaker();
-            for (int i = 0; i < myDataSource.SeznamMluvcich.Speakers.Count; i++)
-            {
-                lbSeznamMluvcich.Items.Add((myDataSource.SeznamMluvcich.Speakers[i]).FullName);
-            }
-            for (int i = 0; i < this.bDatabazeMluvcich.Speakers.Count; i++)
-            {
-                lbDatabazeMluvcich.Items.Add((this.bDatabazeMluvcich.Speakers[i]).FullName);
-            }
 
-            //synchronizace obrazku
-            foreach (MySpeaker i in myDataSource.SeznamMluvcich.Speakers)
-            {
-                MySpeaker pS = bDatabazeMluvcich.NajdiSpeakeraSpeaker(i.FullName);
-                if (pS.ID >= 0 && i.FotoJPGBase64 == null && pS.FotoJPGBase64 != null)
-                {
-                    i.FotoJPGBase64 = pS.FotoJPGBase64;
-                }
-            }
-
-
-            if (myDataSource.VratSpeakera(bTag.speakerID).FullName != null)
-            {
-                bSpeaker = myDataSource.VratSpeakera(bTag.speakerID);
-                lbSeznamMluvcich.SelectedItem = bSpeaker.FullName;
-            }
-            else if (aVychoziMluvci != null)
-            {
-                bSpeaker = aVychoziMluvci;
-                lbSeznamMluvcich.SelectedItem = bSpeaker.FullName;
-            }
-
-            if (lbSeznamMluvcich.Items.Count > 0)
-            {
-                lbSeznamMluvcich.Items.MoveCurrentToPosition(lbSeznamMluvcich.SelectedIndex);
-                lbSeznamMluvcich.Focus();
-            }
-            else if (lbDatabazeMluvcich.Items.Count > 0)
-            {
-                lbDatabazeMluvcich.UpdateLayout();
-                lbDatabazeMluvcich.Items.MoveCurrentToPosition(0);
-
-                bool b = lbDatabazeMluvcich.Focus();
-            }
-            else
-            {
-                lbSeznamMluvcich.Focus();
-            }
+            Updatebindings();
             return true;
 
+            
+        }
+
+        private void Updatebindings()
+        {
+            lbDatabazeMluvcich.ItemsSource = null;
+            lbDatabazeMluvcich.ItemsSource = bDatabazeMluvcich.Speakers;
+            lbSeznamMluvcich.ItemsSource = null;
+            lbSeznamMluvcich.ItemsSource = myDataSource.SeznamMluvcich.Speakers;
         }
         
-        public WinSpeakers(MyParagraph aTag, MySetup aNastaveniProgramu, MySpeakers aDatabazeMluvcich, MySubtitlesData aDataTitulky, string aFotkaBase64)
+        public WinSpeakers(MyParagraph aTag, MySetup aNastaveniProgramu, MySpeakers aDatabazeMluvcich, MySubtitlesData aDataTitulky)
         {
             InitializeComponent();
-            Inicializace(aTag, aNastaveniProgramu, aDatabazeMluvcich, aDataTitulky, null, aFotkaBase64);
-            
-            
-            //this.Show();
+            Inicializace(aTag, aNastaveniProgramu, aDatabazeMluvcich, aDataTitulky,null);
         }
 
-        public WinSpeakers(MyParagraph aTag, MySetup aNastaveniProgramu, MySpeakers aDatabazeMluvcich, MySubtitlesData aDataTitulky, MySpeaker aVychoziMluvci, string aFotkaBase64)
+        public WinSpeakers(MyParagraph aTag, MySetup aNastaveniProgramu, MySpeakers aDatabazeMluvcich, MySubtitlesData aDataTitulky, MySpeaker aVychoziMluvci)
         {
             InitializeComponent();
-            Inicializace(aTag, aNastaveniProgramu, aDatabazeMluvcich, aDataTitulky, aVychoziMluvci, aFotkaBase64);
-            
-
-            //this.Show();
+            Inicializace(aTag, aNastaveniProgramu, aDatabazeMluvcich, aDataTitulky, aVychoziMluvci);
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-           
+            Updatebindings();
         }
 
 
@@ -127,27 +83,10 @@ namespace NanoTrans
                 {
                     if (MessageBox.Show("Opravdu chcete smazat vybraného mluvčího z příslušného seznamu i datové struktury, pokud je v ní přítomen?", "Upozornění:", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                     {
-                        if (myDataSource.OdstranSpeakera(myDataSource.VratSpeakera(myDataSource.GetSpeaker(((string)lbSeznamMluvcich.SelectedItem)))))
+                        if (myDataSource.OdstranSpeakera(lbSeznamMluvcich.SelectedItem as MySpeaker))
                         {
-                            lbSeznamMluvcich.Items.Clear();
-                            //spSeznam.Children.Clear();
-                            for (int i = 0; i < myDataSource.SeznamMluvcich.Speakers.Count; i++)
-                            {
-                                lbSeznamMluvcich.Items.Add((myDataSource.SeznamMluvcich.Speakers[i]).FullName);
-                            }
-
-                            if (myDataSource.VratSpeakera(bTag.speakerID).FullName != null)
-                            {
-                                bSpeaker = myDataSource.VratSpeakera(bTag.speakerID);
-                                lbSeznamMluvcich.SelectedItem = bSpeaker.FullName;
-
-                            }
-                            else
-                            {
-                                bSpeaker = null;
-                                btNovyMluvci_Click(null, new RoutedEventArgs());
-                                lbSeznamMluvcich.Focus();
-                            }
+                            lbSeznamMluvcich.Focus();
+                            Updatebindings();
                         }
                     }
                 }
@@ -155,18 +94,13 @@ namespace NanoTrans
                 {
                     if (MessageBox.Show("Opravdu chcete smazat vybraného mluvčího z databáze programu?", "Upozornění:", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                     {
-                        if (this.bDatabazeMluvcich.OdstranSpeakera(bDatabazeMluvcich.NajdiSpeakeraSpeaker((string)lbDatabazeMluvcich.SelectedItem)))
+                        if (lbDatabazeMluvcich.SelectedItem != null)
                         {
-                            lbDatabazeMluvcich.Items.Clear();
-                            //spSeznam.Children.Clear();
-                            for (int i = 0; i < this.bDatabazeMluvcich.Speakers.Count; i++)
+                            if (this.bDatabazeMluvcich.OdstranSpeakera(lbSeznamMluvcich.SelectedItem as MySpeaker))
                             {
-                                lbDatabazeMluvcich.Items.Add((this.bDatabazeMluvcich.Speakers[i]).FullName);
+                                lbDatabazeMluvcich.Focus();
+                                Updatebindings();
                             }
-                            bSpeaker = null;
-                            btNovyMluvci_Click(null, new RoutedEventArgs());
-                            lbDatabazeMluvcich.Focus();
-                            
                         }
                     }
                 }
@@ -176,7 +110,6 @@ namespace NanoTrans
         //odstrani aktualniho speakera
         private void button1_Click(object sender, RoutedEventArgs e)
         {
-            //spSeznam.Children.Clear();
             bSpeaker = null;
             bTag.speakerID = new MySpeaker().ID;
             this.DialogResult = true;
@@ -193,9 +126,7 @@ namespace NanoTrans
                     if (lbSeznamMluvcich.SelectedItem != null)
                     {
                         bSpeaker = myDataSource.VratSpeakera(myDataSource.GetSpeaker(((string)lbSeznamMluvcich.SelectedItem)));
-                        //spSeznam.Children.Clear();
-                        //spSeznam.Children.Add(this.bSpeaker.speakerName);
-                        //btOK.Focus();
+
                     }
                 }
             }
@@ -207,15 +138,9 @@ namespace NanoTrans
 
         private void lbDatabazeMluvcich_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            if (myDataSource.NovySpeaker(this.bDatabazeMluvcich.NajdiSpeakeraSpeaker((string)lbDatabazeMluvcich.SelectedItem)) >= 0)
+            if (myDataSource.NovySpeaker(this.bDatabazeMluvcich.NajdiSpeakeraSpeaker(((MySpeaker)lbDatabazeMluvcich.SelectedItem).FullName)) >= 0)
             {
-                lbSeznamMluvcich.Items.Add((string)lbDatabazeMluvcich.SelectedItem);
-            }
-           
-            {
-                bSpeaker = myDataSource.VratSpeakera(myDataSource.GetSpeaker(((string)lbDatabazeMluvcich.SelectedItem)));
-                //spSeznam.Children.Clear();
-                //spSeznam.Children.Add(this.bSpeaker.speakerName);
+                Updatebindings();
             }
         }
 
@@ -271,7 +196,9 @@ namespace NanoTrans
             EditSpeakerWindow ew = new EditSpeakerWindow(myDataSource, new MySpeaker());
             if (ew.ShowDialog() == true)
             {
-                myDataSource.SeznamMluvcich.NovySpeaker(ew.Speaker);
+                myDataSource.SeznamMluvcich.NovySpeaker(new MySpeaker(ew.Speaker));
+                bDatabazeMluvcich.NovySpeaker(new MySpeaker(ew.Speaker));
+                Updatebindings();
             }
         }
 
@@ -316,14 +243,9 @@ namespace NanoTrans
                 {
                     if (myDataSource.SeznamMluvcich.UpdatujSpeakera(pkopieSpeaker.FullName, pSpeaker))
                     {
-                        lbSeznamMluvcich.Items.Clear();
-                        for (int i = 0; i < myDataSource.SeznamMluvcich.Speakers.Count; i++)
-                        {
-                            lbSeznamMluvcich.Items.Add((myDataSource.SeznamMluvcich.Speakers[i]).FullName);
-                        }
-                        lbSeznamMluvcich.SelectedItem = pSpeaker.FullName;
                         bSpeaker = myDataSource.SeznamMluvcich.NajdiSpeakeraSpeaker(pSpeaker.FullName);
-
+                        Updatebindings();
+                        lbSeznamMluvcich.SelectedItem = bSpeaker;
                     }
                 }
                 pSp = this.bDatabazeMluvcich.NajdiSpeakeraSpeaker(pkopieSpeaker.FullName);
@@ -331,13 +253,9 @@ namespace NanoTrans
                 {
                     if (this.bDatabazeMluvcich.UpdatujSpeakera(pkopieSpeaker.FullName, pSpeaker))
                     {
-                        lbDatabazeMluvcich.Items.Clear();
-                        for (int i = 0; i < this.bDatabazeMluvcich.Speakers.Count; i++)
-                        {
-                            lbDatabazeMluvcich.Items.Add((this.bDatabazeMluvcich.Speakers[i]).FullName);
-                        }
-                        lbDatabazeMluvcich.SelectedItem = pSpeaker.FullName;
                         bSpeaker = this.bDatabazeMluvcich.NajdiSpeakeraSpeaker(pSpeaker.FullName);
+                        Updatebindings();
+                        lbDatabazeMluvcich.SelectedItem = bSpeaker;
                     }
                 }
             }
@@ -346,16 +264,8 @@ namespace NanoTrans
 
                 if (this.bDatabazeMluvcich.NovySpeaker(pSpeaker) > -1)
                 {
-                    if (myDataSource.GetSpeaker(pSpeaker.FullName) != int.MinValue)
-                    {
-                        if (myDataSource.NovySpeaker(pSpeaker) >= 0)
-                        {
-                            lbSeznamMluvcich.Items.Add(pSpeaker.FullName);
-                        }
-                    }
-
-                    lbDatabazeMluvcich.Items.Add(pSpeaker.FullName);
                     bSpeaker = myDataSource.VratSpeakera(myDataSource.GetSpeaker(pSpeaker.FullName));
+                    Updatebindings();
                 }
             }
         }
@@ -416,7 +326,7 @@ namespace NanoTrans
                 MySpeaker ret = aPuvodniMluvci;
                 MySubtitlesData ps = new MySubtitlesData();
                 ps.NovySpeaker(aPuvodniMluvci);
-                WinSpeakers ws = new WinSpeakers(new MyParagraph(), aNastaveniProgramu, aDatabazeMluvcich, ps, aPuvodniMluvci, aFotkaBase64);
+                WinSpeakers ws = new WinSpeakers(new MyParagraph(), aNastaveniProgramu, aDatabazeMluvcich, ps, aPuvodniMluvci);
                 ws.ShowDialog(); 
                 if (ws.DialogResult == true)
                 {
@@ -468,12 +378,10 @@ namespace NanoTrans
             {
                 foreach (MySpeaker i in myDataSource.SeznamMluvcich.Speakers)
                 {
-                    if (bDatabazeMluvcich.NajdiSpeakeraID(i.FullName)<0 &&  bDatabazeMluvcich.NovySpeaker(i) >= 0)
-                    {
-                        lbDatabazeMluvcich.Items.Add(i.FullName);
-                    }
+                    if (bDatabazeMluvcich.NajdiSpeakeraID(i.FullName) < 0)
+                        bDatabazeMluvcich.NovySpeaker(i);
                 }
-
+                Updatebindings();
             }
             catch
             {
@@ -486,6 +394,44 @@ namespace NanoTrans
             if (e.Key == Key.Up || e.Key == Key.Down)
             {
                 lbDatabazeMluvcich.Focus();
+            }
+        }
+
+        private void lbSeznamMluvcich_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            btEditace_Click(null, null);
+        }
+
+        private void btOK_Click(object sender, RoutedEventArgs e)
+        {
+            DialogResult = true;
+            if (bTag != null)
+                bTag.speakerID = bSpeaker.ID;
+            Close();
+        }
+
+        private void button1_Click_1(object sender, RoutedEventArgs e)
+        {
+            MySpeaker sp = lbSeznamMluvcich.SelectedItem as MySpeaker;
+            if (sp != null)
+            {
+                TranscriptionElement elm = myDataSource.First();
+                while (elm != null)
+                {
+                    if (elm.IsParagraph)
+                    {
+                        MyParagraph p = (MyParagraph)elm;
+                        if (myDataSource.SeznamMluvcich.VratSpeakera(p.speakerID).ID == MySpeaker.DefaultID)
+                        {
+                            p.speakerID = sp.ID;
+                        }
+                    }
+                    elm = elm.Next();
+                }
+            }
+            else
+            {
+                MessageBox.Show("Není výbraný mluvčí na kterého neviditelné převést","Chyba",MessageBoxButton.OK,MessageBoxImage.Exclamation);
             }
         }
 

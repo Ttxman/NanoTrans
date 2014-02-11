@@ -56,7 +56,7 @@ namespace NanoTrans
         public MySpeaker()
         {
 
-            ID = int.MinValue;
+            ID = MySpeaker.DefaultID;
             FirstName = null;
             Surname = null;
             Sex = null;
@@ -97,7 +97,12 @@ namespace NanoTrans
             FotoJPGBase64 = aSpeakerFotoBase64;
             Comment = aPoznamka;
         }
+        public override string ToString()
+        {
+            return FullName;
+        }
 
+        public static readonly int DefaultID = int.MinValue;
     }
 
     public abstract class TranscriptionElement
@@ -756,7 +761,7 @@ namespace NanoTrans
             }
         }
 
-        public int speakerID = int.MinValue;
+        public int speakerID = MySpeaker.DefaultID;
 
         /// <summary>
         /// informace zda je dany element zahrnut pro trenovani dat 
@@ -816,7 +821,7 @@ namespace NanoTrans
             this.Begin = new TimeSpan(-1);
             this.End = new TimeSpan(-1);
             this.trainingElement = false;
-            this.speakerID = int.MinValue;
+            this.speakerID = MySpeaker.DefaultID;
         }
     }
 
@@ -1095,7 +1100,14 @@ namespace NanoTrans
         public VirtualTypeList<MyChapter> Chapters;    //vsechny kapitoly streamu
 
         [XmlElement("SpeakersDatabase")]
-        public MySpeakers SeznamMluvcich = new MySpeakers();
+        public MySpeakers m_SeznamMluvcich = new MySpeakers();
+        
+        [XmlIgnore]
+        public MySpeakers SeznamMluvcich
+        {
+            get { return m_SeznamMluvcich; }
+            set { m_SeznamMluvcich = value; }
+        }
 
 
 
@@ -1130,7 +1142,7 @@ namespace NanoTrans
                 }
             }
             this.JmenoSouboru = aKopie.JmenoSouboru;
-            this.SeznamMluvcich = new MySpeakers(aKopie.SeznamMluvcich);
+            this.m_SeznamMluvcich = new MySpeakers(aKopie.m_SeznamMluvcich);
             this.Ulozeno = aKopie.Ulozeno;
         }
 
@@ -1197,7 +1209,7 @@ namespace NanoTrans
             {
                 if (aSpeaker.FullName != null && aSpeaker.FullName != "")
                 {
-                    if (this.SeznamMluvcich.OdstranSpeakera(aSpeaker))
+                    if (this.m_SeznamMluvcich.OdstranSpeakera(aSpeaker))
                     {
                         Ulozeno = false;
                         for (int k = 0; k < Chapters.Count; k++)
@@ -1237,8 +1249,8 @@ namespace NanoTrans
         /// <returns></returns>
         public int NovySpeaker(MySpeaker aSpeaker)
         {
-            int i = this.SeznamMluvcich.NovySpeaker(aSpeaker);
-            if (i != int.MinValue) 
+            int i = this.m_SeznamMluvcich.NovySpeaker(aSpeaker);
+            if (i != MySpeaker.DefaultID) 
                 this.Ulozeno = false;
             return i;
         }
@@ -1246,7 +1258,7 @@ namespace NanoTrans
 
         public MySpeaker VratSpeakera(int aIDSpeakera)
         {
-            return this.SeznamMluvcich.VratSpeakera(aIDSpeakera);
+            return this.m_SeznamMluvcich.VratSpeakera(aIDSpeakera);
         }
 
         /// <summary>
@@ -1256,7 +1268,7 @@ namespace NanoTrans
         /// <returns></returns>
         public int GetSpeaker(string aJmeno)
         {
-            return this.SeznamMluvcich.NajdiSpeakeraID(aJmeno);
+            return this.m_SeznamMluvcich.NajdiSpeakeraID(aJmeno);
         }
 
         /// <summary>
@@ -1266,7 +1278,7 @@ namespace NanoTrans
         /// <returns></returns>
         public MySpeaker GetSpeaker(int id)
         {
-            return this.SeznamMluvcich.VratSpeakera(id);
+            return this.m_SeznamMluvcich.VratSpeakera(id);
         }
 
 
@@ -1305,14 +1317,14 @@ namespace NanoTrans
         {
             try
             {
-                MySpeakers pKopieMluvcich = new MySpeakers(co.SeznamMluvcich);
+                MySpeakers pKopieMluvcich = new MySpeakers(co.m_SeznamMluvcich);
                 if (!aUkladatKompletMluvci)
                 {
-                    if (co != null && co.SeznamMluvcich != null)
+                    if (co != null && co.m_SeznamMluvcich != null)
                     {
-                        for (int i = 0; i < co.SeznamMluvcich.Speakers.Count; i++)
+                        for (int i = 0; i < co.m_SeznamMluvcich.Speakers.Count; i++)
                         {
-                            co.SeznamMluvcich.Speakers[i].FotoJPGBase64 = null;
+                            co.m_SeznamMluvcich.Speakers[i].FotoJPGBase64 = null;
                         }
                     }
                 }
@@ -1424,7 +1436,7 @@ namespace NanoTrans
 
 
 
-                foreach (MySpeaker sp in pCopy.SeznamMluvcich.Speakers)
+                foreach (MySpeaker sp in pCopy.m_SeznamMluvcich.Speakers)
                 {
                     writer.WriteStartElement("Speaker");
                     writer.WriteElementString("ID",XmlConvert.ToString(sp.ID));
@@ -1447,7 +1459,7 @@ namespace NanoTrans
                 {
                     if (co != null)
                     {
-                        co.SeznamMluvcich = pKopieMluvcich;
+                        co.m_SeznamMluvcich = pKopieMluvcich;
                     }
 
                 }
@@ -1653,7 +1665,7 @@ namespace NanoTrans
 
                             p.speakerID = XmlConvert.ToInt32(reader.ReadElementString());
                             if (p.speakerID == -1)
-                                p.speakerID = int.MinValue;
+                                p.speakerID = MySpeaker.DefaultID;
 
                             reader.ReadEndElement();//paragraph
                             s.Paragraphs.Add(p);
@@ -1743,7 +1755,7 @@ namespace NanoTrans
 
                             p.speakerID = XmlConvert.ToInt32(reader.ReadElementString());
                             if (p.speakerID == -1)
-                                p.speakerID = int.MinValue;
+                                p.speakerID = MySpeaker.DefaultID;
 
                             reader.ReadEndElement();//paragraph
                             
@@ -1842,7 +1854,7 @@ namespace NanoTrans
                                 reader.Read();
 
                             int spkr = XmlConvert.ToInt32(reader.ReadElementString("speaker"));
-                            s.Speaker = (spkr < 0)?int.MinValue:spkr;
+                            s.Speaker = (spkr < 0)?MySpeaker.DefaultID:spkr;
 
                         }
                         c.Sections.Add(s);
@@ -1907,9 +1919,11 @@ namespace NanoTrans
                                 break;
                         }
                     }
-                    data.SeznamMluvcich.Speakers.Add(sp);
+                    data.m_SeznamMluvcich.Speakers.Add(sp);
                 }
 
+
+                
                 return data;
             }
             catch (Exception ex)

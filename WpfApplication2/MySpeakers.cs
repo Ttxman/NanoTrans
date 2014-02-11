@@ -22,7 +22,13 @@ namespace NanoTrans
             get { return _JmenoSouboru; }
         }
 
-        public List<MySpeaker> Speakers = new List<MySpeaker>();    //vsichni mluvci ve streamu
+        private List<MySpeaker> m_Speakers = new List<MySpeaker>();    //vsichni mluvci ve streamu
+
+        public List<MySpeaker> Speakers
+        {
+            get { return m_Speakers; }
+            set { m_Speakers = value; }
+        }
         public int speakersIndexCounter = 0;                  //ohlidani vzdy vetsiho ID vsech mluvcich
 
 
@@ -39,12 +45,12 @@ namespace NanoTrans
                 this._JmenoSouboru = aSpeakers._JmenoSouboru;
                 this._Ulozeno = aSpeakers._Ulozeno;
                 this.speakersIndexCounter = aSpeakers.speakersIndexCounter;
-                if (aSpeakers.Speakers != null)
+                if (aSpeakers.m_Speakers != null)
                 {
-                    this.Speakers = new List<MySpeaker>();
-                    for (int i = 0; i < aSpeakers.Speakers.Count; i++)
+                    this.m_Speakers = new List<MySpeaker>();
+                    for (int i = 0; i < aSpeakers.m_Speakers.Count; i++)
                     {
-                        this.Speakers.Add(new MySpeaker(aSpeakers.Speakers[i]));
+                        this.m_Speakers.Add(new MySpeaker(aSpeakers.m_Speakers[i]));
                     }
                 }
             }
@@ -62,18 +68,18 @@ namespace NanoTrans
             {
                 if (aSpeaker.FullName != null && aSpeaker.FullName != "")
                 {
-                    for (int i = 0; i < Speakers.Count; i++)
+                    for (int i = 0; i < m_Speakers.Count; i++)
                     {
-                        if (((MySpeaker)Speakers[i]).FullName == aSpeaker.FullName)
+                        if (((MySpeaker)m_Speakers[i]).FullName == aSpeaker.FullName)
                         {
                             MessageBox.Show("Mluvčí s tímto jménem již existuje!", "Upozornění:", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                             return int.MinValue;
                         }
 
                     }
-                    this.speakersIndexCounter = Speakers.Count > 0 ? Speakers.Max(s => s.ID) + 1:1;
+                    this.speakersIndexCounter = m_Speakers.Count > 0 ? m_Speakers.Max(s => s.ID) + 1:1;
                     aSpeaker.ID = speakersIndexCounter;
-                    this.Speakers.Add(new MySpeaker(aSpeaker));
+                    this.m_Speakers.Add(new MySpeaker(aSpeaker));
                     return speakersIndexCounter;
 
 
@@ -95,7 +101,7 @@ namespace NanoTrans
         {
             try
             {
-                foreach (MySpeaker msp in this.Speakers)
+                foreach (MySpeaker msp in this.m_Speakers)
                 {
                     if (msp.ID == aIDSpeakera) return msp;
                 }
@@ -120,11 +126,11 @@ namespace NanoTrans
             {
                 if (aSpeaker.FullName != null && aSpeaker.FullName != "")
                 {
-                    for (int i = 0; i < Speakers.Count; i++)
+                    for (int i = 0; i < m_Speakers.Count; i++)
                     {
-                        if ((Speakers[i]).FullName == aSpeaker.FullName)
+                        if ((m_Speakers[i]).FullName == aSpeaker.FullName)
                         {
-                            this.Speakers.RemoveAt(i);
+                            this.m_Speakers.RemoveAt(i);
                             return true;
                         }
 
@@ -152,11 +158,11 @@ namespace NanoTrans
             try
             {
                 MySpeaker aSpeaker = new MySpeaker();
-                for (int i = 0; i < this.Speakers.Count; i++)
+                for (int i = 0; i < this.m_Speakers.Count; i++)
                 {
-                    if (((MySpeaker)Speakers[i]).FullName == aJmeno)
+                    if (((MySpeaker)m_Speakers[i]).FullName == aJmeno)
                     {
-                        aSpeaker = ((MySpeaker)Speakers[i]);
+                        aSpeaker = ((MySpeaker)m_Speakers[i]);
                         break;
                     }
                 }
@@ -179,11 +185,11 @@ namespace NanoTrans
             try
             {
                 MySpeaker aSpeaker = new MySpeaker();
-                for (int i = 0; i < this.Speakers.Count; i++)
+                for (int i = 0; i < this.m_Speakers.Count; i++)
                 {
-                    if (((MySpeaker)Speakers[i]).FullName == aJmeno)
+                    if (((MySpeaker)m_Speakers[i]).FullName == aJmeno)
                     {
-                        aSpeaker = ((MySpeaker)Speakers[i]);
+                        aSpeaker = ((MySpeaker)m_Speakers[i]);
                         break;
                     }
                 }
@@ -202,9 +208,9 @@ namespace NanoTrans
             try
             {
                 
-                for (int i = 0; i < Speakers.Count; i++)
+                for (int i = 0; i < m_Speakers.Count; i++)
                 {
-                    if (((MySpeaker)Speakers[i]).FullName == aSpeaker.FullName)
+                    if (((MySpeaker)m_Speakers[i]).FullName == aSpeaker.FullName)
                     {
                         //return false;
                     }
@@ -218,13 +224,13 @@ namespace NanoTrans
                     return false; //mluvci s timto jmenem jiz existuje
                 }
                 MySpeaker pSpeaker;
-                for (int i = 0; i < this.Speakers.Count; i++)
+                for (int i = 0; i < this.m_Speakers.Count; i++)
                 {
-                    if (((MySpeaker)Speakers[i]).FullName == aJmeno)
+                    if (((MySpeaker)m_Speakers[i]).FullName == aJmeno)
                     {
-                        pSpeaker = ((MySpeaker)Speakers[i]);
+                        pSpeaker = ((MySpeaker)m_Speakers[i]);
                         aSpeaker.ID = pSpeaker.ID;
-                        Speakers[i] = new MySpeaker(aSpeaker);
+                        m_Speakers[i] = new MySpeaker(aSpeaker);
                         
                         
 
