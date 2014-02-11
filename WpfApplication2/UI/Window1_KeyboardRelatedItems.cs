@@ -214,8 +214,10 @@ namespace NanoTrans
             string[] masks = _ExportPlugins.Select(p => p.Mask).ToArray();
 
             SaveFileDialog sf = new SaveFileDialog();
-            sf.InitialDirectory = System.IO.Path.GetDirectoryName(System.IO.Path.GetFullPath(Transcription.FileName));
-            sf.FileName = System.IO.Path.GetFileNameWithoutExtension(Transcription.FileName);
+            if (Transcription.FileName!=null)
+                sf.InitialDirectory = System.IO.Path.GetDirectoryName(System.IO.Path.GetFullPath(Transcription.FileName));
+                sf.FileName = System.IO.Path.GetFileNameWithoutExtension(Transcription.FileName);
+
             sf.AddExtension = true;
             sf.CheckPathExists = true;
             sf.Filter = string.Join("|", masks);

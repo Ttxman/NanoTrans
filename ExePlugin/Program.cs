@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace ExePlugin
 {
@@ -26,26 +27,31 @@ namespace ExePlugin
         {
             //abych nemusel mit dllku od nanotransu ve stejny slozce musim rucne rict kde je
             AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(CurrentDomain_AssemblyResolve);
-            
+
             List<string> arg = args.ToList();
             bool times = false;
             if (arg.Contains("-times"))
                 times = true;
 
-            int i = arg.IndexOf("-i")+1;
-            int o = arg.IndexOf("-o")+1;
+            bool nonoises = false;
+            if (arg.Contains("-nonoises"))
+                nonoises = true;
+
+            int i = arg.IndexOf("-i") + 1;
+            int o = arg.IndexOf("-o") + 1;
 
 
             //musi to byt ve vlastni classe kvuli resolveru, jinak to padne pred resolve, ve chvili kdy se zacne vytvaret typ z nenacteny ddlky
             var e = new Exporter();
-            e.ExportovatDokument(arg[i].Trim('"'), arg[o].Trim('"'), times);
-            
+            e.ExportovatDokument(arg[i].Trim('"'), arg[o].Trim('"'), times, nonoises);
+
         }
     }
 
     class Exporter
     {
-
+        public static readonly Regex ignoredGroup = new Regex(@"\[.*?\]", RegexOptions.Singleline | RegexOptions.Compiled);
+        public static readonly Regex whitespaceGroup = new Regex(@"\s\s+", RegexOptions.Singleline | RegexOptions.Compiled); 
         /// <summary>
         /// exportuje dokument do vybraneho formatu - pokud je cesta null, zavola savedialog
         /// </summary>
@@ -53,13 +59,12 @@ namespace ExePlugin
         /// <param name="vystup"></param>
         /// <param name="aFormat"></param>
         /// <returns></returns>
-        public void ExportovatDokument(string vstup, string vystup, bool times)
+        public void ExportovatDokument(string vstup, string vystup, bool times, bool nonoises)
         {
 
             Transcription data = null;
             using (var file = File.OpenRead(vstup))
                 data = Transcription.Deserialize(file);
-
 
             if (times)
             {
@@ -113,7 +118,16 @@ namespace ExePlugin
                     }
                 }
 
-                File.WriteAllText(vystup, sb.ToString());
+
+                string alltext = sb.ToString();
+
+                if (nonoises)
+                {
+                    alltext = ignoredGroup.Replace(alltext, "");
+                    alltext = whitespaceGroup.Replace(alltext, " ");
+                }
+
+                File.WriteAllText(vystup, alltext.Trim());
             }
         }
     }
