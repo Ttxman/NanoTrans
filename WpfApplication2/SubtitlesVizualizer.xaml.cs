@@ -377,14 +377,13 @@ namespace NanoTrans
 
         void l_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            if (e.PreviousSize.Height > 0.001 && e.PreviousSize!=e.NewSize)
+            if (e.PreviousSize.Height > 0.001 && e.PreviousSize != e.NewSize)
             {
                 double delta = e.NewSize.Height - ((Element)sender).ValueElement.height;
                 ((Element)sender).ValueElement.height = e.NewSize.Height;
                 
                 Subtitles.TotalHeigth += delta;
                 gridscrollbar.Maximum = Subtitles.TotalHeigth - ActualHeight;
-
             }
         }
 
@@ -548,7 +547,9 @@ namespace NanoTrans
                 return new Element();
         }
 
-        public void RecreateElements(double newpos)
+
+
+        public void RecreateElements(double newpos, bool repaintall = false)
         {
             if (gridstack == null || Subtitles == null)
                 return;
@@ -584,7 +585,7 @@ namespace NanoTrans
 
                         move = pos - newpos;
                         foreach (Element ll in gridstack.Children)
-                            if (ll.ValueElement == el)
+                            if (!repaintall && ll.ValueElement == el)
                             {
                                 l = ll;
                                 recycling = true;
@@ -602,7 +603,7 @@ namespace NanoTrans
                     else if (ffound && pos < newpos + maxh - move + el.height)
                     {
                         foreach (Element ll in gridstack.Children)
-                            if (ll.ValueElement == el)
+                            if (!repaintall && ll.ValueElement == el)
                             {
                                 l = ll;
                                 recycling = true;
@@ -728,7 +729,7 @@ namespace NanoTrans
             if (!updating)
             {
                 RecalculateSizes();
-                RecreateElements(gridscrollbar.Value);
+                RecreateElements(gridscrollbar.Value, true);
             }
         }
 

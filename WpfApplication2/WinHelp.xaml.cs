@@ -21,7 +21,7 @@ namespace NanoTrans
         public WinHelp()
         {
             InitializeComponent();
-            richTextBox1.AppendText("Klávesové zkratky\nTab... přehrání/zastavení audio (video) souboru");
+            richTextBox1.AppendText("Klávesové zkratky\nTab, Prostřední a obě boční tlačítka myši... přehrání/zastavení audio (video) souboru");
             richTextBox1.AppendText("Ctrl+Tab... Přehrání vybrané části souboru dokola\r");
             richTextBox1.AppendText("Alt+Left... posun audio souboru o 1s zpet\rAlt+Right... posun audio souboru o 1s vpred\n");
             richTextBox1.AppendText("Ctrl+šipka.. skok po slovu\r");
@@ -46,8 +46,11 @@ namespace NanoTrans
             richTextBox1.AppendText("Enter - deleni odstavce podle casoveho zarovnani prepisu \r");
             richTextBox1.AppendText("Ctrl+Enter - rozdeleni odstavce podle kurzoru ve zvukove vlne \r");
 
-            richTextBox1.AppendText("Ctrl+Home - nastaveni casu zacatku odstavce na misto kurzoru zvukove vlny \r");
-            richTextBox1.AppendText("Ctrl+End - nastaveni casu konce odstavce na misto kurzoru zvukove vlny \r");
+            richTextBox1.AppendText("Alt+Home - nastaveni casu zacatku odstavce na misto kurzoru zvukove vlny \r");
+            richTextBox1.AppendText("Alt+End - nastaveni casu konce odstavce na misto kurzoru zvukove vlny \r");
+
+            richTextBox1.AppendText("Ctrl+Home - Skok na začátek přepisu \r");
+            richTextBox1.AppendText("Ctrl+End - Skok na začátek přepisuSkok na konec přepisu \r");
 
             richTextBox1.AppendText("Ctrl+F1...Nápověda - O programu\r");
 

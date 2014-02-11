@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-//using System.Linq;
+using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -697,6 +697,8 @@ namespace NanoTrans
                         p.Phrases.Add(new MyPhrase());
 
                         myDataSource.Add(c);
+
+                        VirtualizingListBox.ActiveTransctiption = p;
                         return true;
                     }
 
@@ -714,6 +716,7 @@ namespace NanoTrans
                     s.Add(p);
                     myDataSource.Add(c);
                     myDataSource.Ulozeno = true;
+                    VirtualizingListBox.ActiveTransctiption = p;
                     return true;
                 }
                 return true;
@@ -869,6 +872,7 @@ namespace NanoTrans
                         }
 
                         this.Title = MyKONST.NAZEV_PROGRAMU + " [" + myDataSource.JmenoSouboru + "]";
+                        VirtualizingListBox.ActiveTransctiption = myDataSource.First(e=>e.IsParagraph) ?? myDataSource.First();
                         return true;
                     }
                     else

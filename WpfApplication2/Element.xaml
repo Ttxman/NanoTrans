@@ -10,6 +10,7 @@
     <UserControl.Resources>
         <ObjectDataProvider x:Key="provider" ObjectInstance="{x:Static my:MySetup.Refresher}"/>
         <my:SpeakerConverter x:Key="SpeakerConverter" />
+        <my:SpeakerVisibilityConverter x:Key="SpeakerVisibilityConverter" />
     </UserControl.Resources>
 
     <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Name="maingrid" Background="{x:Null}">
@@ -26,7 +27,7 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
         <Button Name="button1" MinWidth="80" HorizontalAlignment="Left" MinHeight="26" MaxHeight="26" FontSize="{Binding Source={StaticResource provider}, Path=Setup.SetupOthersFontSize}" 
-               Content="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}, Path=ValueElement, Converter={StaticResource SpeakerConverter}}" Click="button1_Click" />
+               Content="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}, Path=ValueElement, Converter={StaticResource SpeakerConverter}}" Click="button1_Click" Height="26" VerticalAlignment="Top" />
 
         <sd:TextEditor Grid.Column="2" x:Name="editor" BorderThickness="0" Panel.ZIndex="100" Grid.RowSpan="4" FontSize="{Binding Source={StaticResource provider}, Path=Setup.SetupTextFontSize}"
                        PreviewKeyDown="editor_PreviewKeyDown" 

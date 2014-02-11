@@ -111,7 +111,6 @@ namespace NanoTrans
         /// zde je uchovavan prepsany text od posledniho spusteni new_session - pomocna promenna pro externi zapis
         /// </summary>
         public string PrepsanyText;
-        public List<MyCasovaZnacka> PrepsanyTextCasoveZnacky = null;
 
         private string _CestaNanocore = null;
         
@@ -213,7 +212,6 @@ namespace NanoTrans
                     this.pomocnaCasPlneniMS = 0;
                     this.pomocnaCasPrepsaniMS = 0;
                     this.PrepsanyText = "";
-                    this.PrepsanyTextCasoveZnacky = null;
                     this.bufferProHlasoveOvladani.SmazBuffer();
 
 

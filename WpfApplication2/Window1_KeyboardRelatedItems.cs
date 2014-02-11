@@ -68,8 +68,8 @@ namespace NanoTrans
         public static RoutedCommand CommandAssignElementTimeSelection = new RoutedCommand();
 
 
-
-
+        public static RoutedCommand CommandJumpToBegin = new RoutedCommand();
+        public static RoutedCommand CommandJumpToEnd = new RoutedCommand();
 
         public void InitCommands()
         {
@@ -106,8 +106,16 @@ namespace NanoTrans
             this.CommandBindings.Add(new CommandBinding(CommandAssignElementEnd,CAssignElementEnd));
             this.CommandBindings.Add(new CommandBinding(CommandAssignElementTimeSelection,CAssignElementTimeSelection));
 
-            CommandAssignElementStart.InputGestures.Add(new KeyGesture(Key.Home,ModifierKeys.Control));
-            CommandAssignElementEnd.InputGestures.Add(new KeyGesture(Key.End, ModifierKeys.Control));
+
+            this.CommandBindings.Add(new CommandBinding(CommandJumpToBegin,CJumpToBegin));
+            this.CommandBindings.Add(new CommandBinding(CommandJumpToEnd, CJumpToEnd));
+
+
+            CommandJumpToBegin.InputGestures.Add(new KeyGesture(Key.Home, ModifierKeys.Control));
+            CommandJumpToEnd.InputGestures.Add(new KeyGesture(Key.End, ModifierKeys.Control));
+
+            CommandAssignElementStart.InputGestures.Add(new KeyGesture(Key.Home,ModifierKeys.Alt));
+            CommandAssignElementEnd.InputGestures.Add(new KeyGesture(Key.End, ModifierKeys.Alt));
            // CommandAssignElementTimeSelection.InputGestures.Add(new KeyGesture());
 
             CommandNewSection.InputGestures.Add(new KeyGesture(Key.F5));
@@ -143,14 +151,31 @@ namespace NanoTrans
 
         }
 
+        private void CJumpToBegin(object sender, ExecutedRoutedEventArgs e)
+        {
+           VirtualizingListBox.ActiveTransctiption =  VirtualizingListBox.Subtitles.First();
+        }
+
+        private void CJumpToEnd(object sender, ExecutedRoutedEventArgs e)
+        {
+            VirtualizingListBox.ActiveTransctiption = VirtualizingListBox.Subtitles.Last();
+        }
+
         private void CAssignElementStart(object sender, ExecutedRoutedEventArgs e)
         {
+            if (VirtualizingListBox.ActiveTransctiption == null)
+                return;
+
             VirtualizingListBox.ActiveTransctiption.Begin = waveform1.CaretPosition;
             waveform1.InvalidateSpeakers();
         }
 
         private void CAssignElementEnd(object sender, ExecutedRoutedEventArgs e)
         {
+            if (VirtualizingListBox.ActiveTransctiption == null)
+                return;
+
+
             VirtualizingListBox.ActiveTransctiption.End = waveform1.CaretPosition;
             waveform1.InvalidateSpeakers();
         }
@@ -547,7 +572,13 @@ namespace NanoTrans
             }
             else
             {
-                MessageBox.Show("Vyhledávaný výraz nebyl nalezen", "Vyhledávání", MessageBoxButton.OK, MessageBoxImage.Information);
+                if (MessageBox.Show("Vyhledávaný výraz nebyl nalezen, začít znovu od začátku dokumentu?", "Vyhledávání", MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes)
+                {
+                    var first = m_mydatasource.First();
+                    VirtualizingListBox.ActiveTransctiption = first;
+                    FindNext(pattern, isregex, CaseSensitive, searchinspeakers);
+                }
+                   
             }
         }
 

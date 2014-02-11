@@ -601,7 +601,11 @@ namespace NanoTrans
             if (ValueElement != null)
             {
                 TimeSpan val = ValueElement.Begin;
-                this.textbegin.Text = string.Format("{0}:{1:00}:{2:00},{3}", val.Hours, val.Minutes, val.Seconds, val.Milliseconds.ToString("00").Substring(0, 2));
+                
+                    this.textbegin.Text = string.Format("{0}:{1:00}:{2:00},{3}", val.Hours, val.Minutes, val.Seconds, val.Milliseconds.ToString("00").Substring(0, 2));
+
+                    if (val < TimeSpan.Zero)
+                        this.textbegin.Text = "u" + this.textbegin.Text;
             }
         }
 
@@ -611,6 +615,9 @@ namespace NanoTrans
             {
                 TimeSpan val = ValueElement.End;
                 this.textend.Text = string.Format("{0}:{1:00}:{2:00},{3}", val.Hours, val.Minutes, val.Seconds, val.Milliseconds.ToString("00").Substring(0, 2));
+
+                if (val < TimeSpan.Zero)
+                    this.textend.Text = "u" + this.textend.Text;
             }
         }
 
@@ -1041,6 +1048,52 @@ namespace NanoTrans
     [ValueConversion(typeof(TranscriptionElement), typeof(string))]
     public class SpeakerConverter : IValueConverter
     {
+        public static MySpeaker GetSpeaker(TranscriptionElement te)
+        {
+            TranscriptionElement x = te;
+            Type t = x.GetType();
+
+            while (x.Parent != null && t != typeof(MySubtitlesData))
+            {
+                x = x.Parent;
+                t = x.GetType();
+            }
+
+            MySubtitlesData sd = x as MySubtitlesData;
+            int id = int.MinValue;
+            if (sd != null)
+            {
+
+                if (te.GetType() == typeof(MyParagraph))
+                {
+                    MyParagraph par = (MyParagraph)te;
+                    id = par.speakerID;
+                }
+                else if (te.GetType() == typeof(MySection))
+                {
+                    MySection sec = (MySection)te;
+                    id = sec.Speaker;
+                }
+            }
+
+            return sd.GetSpeaker(id);
+        }
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            if (value == null)
+                return "";
+            return GetSpeaker((TranscriptionElement)value).FullName;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            return null;
+        }
+    }
+
+    [ValueConversion(typeof(TranscriptionElement), typeof(Visibility))]
+    public class SpeakerVisibilityConverter : IValueConverter
+    {
 
         public static MySpeaker GetSpeaker(TranscriptionElement te)
         {
@@ -1073,12 +1126,26 @@ namespace NanoTrans
             return sd.GetSpeaker(id);
         }
 
-
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            if (value == null)
-                return "";
-            return GetSpeaker((TranscriptionElement)value).FullName;
+            if (value != null)
+            {
+                MyParagraph ph = value as MyParagraph;
+                if (ph != null)
+                {
+
+                    if (ph.ParentIndex > 0)
+                    {
+                        MyParagraph ph2 = ph.Previous() as MyParagraph;
+                        if (ph2 != null)
+                        {
+                            if(ph == ph2)
+                                return Visibility.Collapsed;
+                        }
+                    }
+                }
+            }
+            return Visibility.Visible;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)

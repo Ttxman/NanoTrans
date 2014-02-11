@@ -547,6 +547,7 @@ namespace NanoTrans
 
         public void Clear()
         {
+            
             m_elementlist.Clear();
         }
 
@@ -817,15 +818,6 @@ namespace NanoTrans
             this.trainingElement = false;
             this.speakerID = int.MinValue;
         }
-
-        public MyParagraph(String aText, List<MyCasovaZnacka> aCasoveZnacky, TimeSpan aBegin, TimeSpan aEnd) : this()
-        {
-            //this.text = aText;
-            this.Begin = aBegin;
-            this.End = aEnd;
-            this.trainingElement = false;
-            this.speakerID = int.MinValue;
-        }
     }
 
     //sekce textu nadrazena odstavci
@@ -992,7 +984,6 @@ namespace NanoTrans
 
 
     //hlavni trida s titulky a se vsemi potrebnymi metodami pro serializaci
-
     public class MySubtitlesData : TranscriptionElement, IList<TranscriptionElement>
     {
         public double TotalHeigth;
@@ -1470,7 +1461,6 @@ namespace NanoTrans
             }
 
         }
-
 
         //Deserializuje soubor             
         public MySubtitlesData Deserializovat(String jmenoSouboru)
@@ -2115,26 +2105,4 @@ namespace NanoTrans
             }
         }
     }
-
-    //trida ktera obsahuje informace o casove znacce jednotlicych useku - pocatek a konec a index pozice v textu
-    public class MyCasovaZnacka
-    {
-        public TimeSpan Time { get; set; }   //cas znacky v ms
-        public int Index1 { get; set; }  //index v textu pred kurzorem
-        public int Index2 { get; set; }  //index v textu za kurzorem - casova znacka lezi uprostred
-
-        /// <summary>
-        /// vytvori casovou znacku, kurzor lezi mezi indexem1 a indexem2
-        /// </summary>
-        /// <param name="aTime"></param>
-        /// <param name="aIndexTextu1"></param>
-        /// <param name="aIndexTextu2"></param>
-        public MyCasovaZnacka(TimeSpan aTime, int aIndexTextu1, int aIndexTextu2)
-        {
-            this.Time = aTime;
-            this.Index1 = aIndexTextu1;
-            this.Index2 = aIndexTextu2;
-        }
-    }
-
 }
