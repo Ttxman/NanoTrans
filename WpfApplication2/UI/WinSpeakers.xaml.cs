@@ -230,6 +230,8 @@ namespace NanoTrans
 
         private void btEditace_Click(object sender, RoutedEventArgs e)
         {
+            if (bSpeaker == null)
+                return;
             EditSpeakerWindow win = new EditSpeakerWindow(myDataSource,bSpeaker);
             if (win.ShowDialog() == false)
                 return;
