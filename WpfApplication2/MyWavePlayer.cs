@@ -172,7 +172,7 @@ namespace NanoTrans
         public MyWavePlayer(int device, int BufferByteSize, DataRequestDelegate fillProc)
         {
             
-            if (BufferByteSize < 500)
+            if (BufferByteSize < 1000)
             { 
                 throw new ArgumentOutOfRangeException("BufferByteSize","minimal size of buffer is 500 bytes");
             }
@@ -224,7 +224,7 @@ namespace NanoTrans
             BufferPositionNotify[] nots = new BufferPositionNotify[InternalBufferSizeMultiplier];
 
             BufferPositionNotify not;
-            int bytepos = 80;
+            int bytepos = 800;
             for (int i = 0; i < InternalBufferSizeMultiplier; i++)
             {
                 not = new BufferPositionNotify();
@@ -269,7 +269,7 @@ namespace NanoTrans
         Queue<KeyValuePair<int, int>> timestamp = new Queue<KeyValuePair<int, int>>();
         private void WriteNextData(short[] data, int timems)
         {
-            m_soundBuffer.Write(m_bfpos, data, LockFlag.FromWriteCursor);
+            m_soundBuffer.Write(m_bfpos, data, LockFlag.None);
             lock (timestamp)
             {
                 timestamp.Enqueue(new KeyValuePair<int, int>(m_bfpos / m_buffersize, timems));
@@ -279,7 +279,7 @@ namespace NanoTrans
             m_bfpos += 2 * data.Length;
             m_bfpos %= m_buffDescription.BufferBytes;
 
-            //System.Diagnostics.Debug.WriteLine(m_bfpos);
+            System.Diagnostics.Debug.WriteLine(m_bfpos);
         }
 
 
@@ -322,7 +322,7 @@ namespace NanoTrans
                 if (data != null && data.Length > 0)
                     WriteNextData(data,timems);
             }
-            m_soundBuffer.SetCurrentPosition(0);
+            m_soundBuffer.SetCurrentPosition(300);
             m_samplesPlayed = 0;
             m_soundBuffer.Frequency = (int)(spedmodification * m_buffDescription.Format.SamplesPerSecond);
             m_soundBuffer.Play(0, BufferPlayFlags.Looping);
