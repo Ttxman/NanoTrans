@@ -37,7 +37,7 @@ namespace NanoTrans
             cbLanguage.SelectedIndex = speaker.DefaultLang;
             tbJmeno.Text = bSpeaker.FirstName;
             tbPrijmeni.Text = bSpeaker.Surname;
-            imFotka.Source = MyKONST.PrevedBase64StringNaJPG(bSpeaker.FotoJPGBase64);
+            imFotka.Source = MyKONST.PrevedBase64StringNaJPG(bSpeaker.ImgBase64);
             cbPohlavi.SelectedIndex = (int)bSpeaker.Sex;
             tbRemark.Text = speaker.Comment;
 
@@ -53,7 +53,7 @@ namespace NanoTrans
             bSpeaker.FirstName = tbJmeno.Text;
             bSpeaker.Surname = tbPrijmeni.Text;
             bSpeaker.Sex =  pPohlavi;
-            bSpeaker.FotoJPGBase64 = bStringBase64FotoInterni;
+            bSpeaker.ImgBase64 = bStringBase64FotoInterni;
             bSpeaker.Comment = tbRemark.Text;
 
             bSpeaker.DefaultLang = cbLanguage.SelectedIndex;
@@ -92,7 +92,7 @@ namespace NanoTrans
         {
             if (bSpeaker != null)
             {
-                bSpeaker.FotoJPGBase64 = null;
+                bSpeaker.ImgBase64 = null;
                 this.bStringBase64FotoInterni = null;
                 imFotka.Source = MyKONST.PrevedBase64StringNaJPG(this.bStringBase64FotoExterni);
             }

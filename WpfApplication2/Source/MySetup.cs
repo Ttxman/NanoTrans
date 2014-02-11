@@ -48,7 +48,6 @@ namespace NanoTrans
         #endregion
     }
 
-    [XmlInclude(typeof(NanoTrans.Core.Speaker))]
     public class MySetup : System.ComponentModel.INotifyPropertyChanged
     {
 

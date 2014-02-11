@@ -29,14 +29,14 @@ namespace NanoTrans
     public partial class SubtitlesVizualizer : UserControl
     {
         public static readonly DependencyProperty SubtitlesProperty =
-        DependencyProperty.Register("Subtitles", typeof(Transcription), typeof(SubtitlesVizualizer), new FrameworkPropertyMetadata(OnSubtitlesChanged));
+        DependencyProperty.Register("Transcription", typeof(WPFTranscription), typeof(SubtitlesVizualizer), new FrameworkPropertyMetadata(OnSubtitlesChanged));
 
         public static void OnSubtitlesChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            Transcription data = (Transcription)e.NewValue;
+            WPFTranscription data = (WPFTranscription)e.NewValue;
             SubtitlesVizualizer vis = (SubtitlesVizualizer)d;
 
-            Transcription olddata = e.OldValue as Transcription;
+            WPFTranscription olddata = e.OldValue as WPFTranscription;
             //if (olddata != null)
             //{
             //    olddata.SubtitlesChanged -= vis.SubtitlesContentChanged;
@@ -47,11 +47,11 @@ namespace NanoTrans
             //}
         }
 
-        public Transcription Subtitles
+        public WPFTranscription Transcription
         {
             get
             {
-                return (Transcription)GetValue(SubtitlesProperty);
+                return (WPFTranscription)GetValue(SubtitlesProperty);
             }
             set
             {
@@ -477,10 +477,8 @@ namespace NanoTrans
             listbox.SelectedItem = elm;
             listbox.ScrollIntoView(listbox.Items[listbox.SelectedIndex]);
             listbox.UpdateLayout();
-            Debug.WriteLine("scrollTO:" + elm.Text);
-            if (elm == Subtitles.Last())
+            if (elm == Transcription.Last())
             {
-                Debug.WriteLine("scrollToEnd " + _scrollViewer.VerticalOffset + "/" + _scrollViewer.ExtentHeight);
                 _scrollViewer.ScrollToBottom();
             }
             else
@@ -491,7 +489,6 @@ namespace NanoTrans
                 {
                     var element = all.First(itm => itm.ValueElement == elm);
                     var position = element.TransformToAncestor(_scrollViewer).Transform(new Point(0, element.ActualHeight));
-                    Debug.WriteLine("scrollTO2:" + position.Y + " : " + _scrollViewer.ExtentHeight);
                     _scrollViewer.ScrollToVerticalOffset(position.Y);
                 }
             }
@@ -628,7 +625,7 @@ namespace NanoTrans
                 //end of document
                 if (Math.Abs((_scrollViewer.ExtentHeight - _scrollViewer.VerticalOffset) - _scrollViewer.ViewportHeight) < 30)
                 {
-                    SetActiveTranscription(Subtitles.Last());
+                    SetActiveTranscription(Transcription.Last());
                     return;
                 }
 
@@ -641,7 +638,7 @@ namespace NanoTrans
                 //start of dument
                 if (Math.Abs(_scrollViewer.VerticalOffset) < 30)
                 {
-                    SetActiveTranscription(Subtitles.First());
+                    SetActiveTranscription(Transcription.First());
                     return;
                 }
 
@@ -670,7 +667,7 @@ namespace NanoTrans
             {
                 var value = ((Element)sender).ValueElement;
 
-                Subtitles.ElementChanged(value);
+                Transcription.ElementChanged(value);
                if (listbox.SelectedItem == value)
                     ScrollToItem(value);
             }
@@ -678,7 +675,7 @@ namespace NanoTrans
 
         private void l_Element_ContentChanged(object sender, EventArgs e)
         {
-            Subtitles.Saved = false;
+            Transcription.Saved = false;
         }
 
     }

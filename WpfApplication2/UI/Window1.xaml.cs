@@ -42,7 +42,7 @@ namespace NanoTrans
         private DispatcherTimer timerRozpoznavace = new DispatcherTimer();
 
         private WPFTranscription m_mydatasource;
-        public WPFTranscription myDataSource
+        public WPFTranscription Transcription
         {
             get { return m_mydatasource; }
             set
@@ -54,7 +54,7 @@ namespace NanoTrans
                     m_mydatasource.SubtitlesChanged += m_mydatasource_SubtitlesChanged;
 
                 if (PropertyChanged != null)
-                    PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs("myDataSource"));
+                    PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs("Transcription"));
             }
         }
 
@@ -66,7 +66,7 @@ namespace NanoTrans
         /// <summary>
         /// databaze mluvcich konkretniho programu
         /// </summary>
-        public MySpeakers myDatabazeMluvcich;
+        public MySpeakers SpeakersDatabase;
         //public static MySetup MySetup = null;          //trida pro nastaveni vlastnosti aplikace
 
         //public static bool spustenoOknoNapovedy = false;        //informace o spustenem oknu napovedy
@@ -297,25 +297,25 @@ namespace NanoTrans
                 ZobrazitOknoFonetickehoPrepisu(MySetup.Setup.ZobrazitFonetickyPrepis - 1 > 0);
 
                 //databaze mluvcich
-                myDatabazeMluvcich = new MySpeakers();
+                SpeakersDatabase = new MySpeakers();
 
                 string fname = System.IO.Path.GetFullPath(MySetup.Setup.CestaDatabazeMluvcich);
                 if (fname.Contains(FilePaths.ProgramDirectory))
                 {
                     if (!FilePaths.WriteToAppData)
                     {
-                        myDatabazeMluvcich = myDatabazeMluvcich.Deserialize(MySetup.Setup.CestaDatabazeMluvcich);
+                        SpeakersDatabase = SpeakersDatabase.Deserialize(MySetup.Setup.CestaDatabazeMluvcich);
                     }
                     else
                     {
                         string fname2 = System.IO.Path.Combine(FilePaths.AppDataDirectory, fname.Substring(FilePaths.ProgramDirectory.Length));
                         if (File.Exists(fname2))
                         {
-                            myDatabazeMluvcich = myDatabazeMluvcich.Deserialize(fname2);
+                            SpeakersDatabase = SpeakersDatabase.Deserialize(fname2);
                         }
                         else if (File.Exists(MySetup.Setup.CestaDatabazeMluvcich))
                         {
-                            myDatabazeMluvcich = myDatabazeMluvcich.Deserialize(MySetup.Setup.CestaDatabazeMluvcich);
+                            SpeakersDatabase = SpeakersDatabase.Deserialize(MySetup.Setup.CestaDatabazeMluvcich);
                         }
                     }
                 }
@@ -323,7 +323,7 @@ namespace NanoTrans
                 {
                     if (File.Exists(MySetup.Setup.CestaDatabazeMluvcich))
                     {
-                        myDatabazeMluvcich = myDatabazeMluvcich.Deserialize(MySetup.Setup.CestaDatabazeMluvcich);
+                        SpeakersDatabase = SpeakersDatabase.Deserialize(MySetup.Setup.CestaDatabazeMluvcich);
                     }
                     else
                     {
@@ -738,7 +738,7 @@ namespace NanoTrans
         {
             try
             {
-                if (myDataSource != null && !myDataSource.Saved)
+                if (Transcription != null && !Transcription.Saved)
                 {
                     MessageBoxResult mbr = MessageBox.Show("Přepis není uložený. Chcete ho nyní uložit? ", "Upozornění:", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
                     if (mbr == MessageBoxResult.Cancel || mbr == MessageBoxResult.None)
@@ -749,13 +749,13 @@ namespace NanoTrans
                     {
                         if (mbr == MessageBoxResult.Yes)
                         {
-                            if (myDataSource.FileName != null)
+                            if (Transcription.FileName != null)
                             {
-                                if (!UlozitTitulky(false, myDataSource.FileName)) return false;
+                                if (!UlozitTitulky(false, Transcription.FileName)) return false;
                             }
                             else
                             {
-                                if (!UlozitTitulky(true, myDataSource.FileName)) return false;
+                                if (!UlozitTitulky(true, Transcription.FileName)) return false;
                             }
                         }
                     }
@@ -771,7 +771,7 @@ namespace NanoTrans
                 s.Add(p);
                 source.Add(c);
                 source.Saved = true;
-                myDataSource = source;
+                Transcription = source;
                 VirtualizingListBox.ActiveTransctiption = p;
                 return true;
 
@@ -790,7 +790,7 @@ namespace NanoTrans
         {
             try
             {
-                if (myDataSource != null && !myDataSource.Saved)
+                if (Transcription != null && !Transcription.Saved)
                 {
                     MessageBoxResult mbr = MessageBox.Show("Přepis není uložený. Chcete ho nyní uložit? ", "Upozornění:", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
                     if (mbr == MessageBoxResult.Cancel || mbr == MessageBoxResult.None)
@@ -801,20 +801,20 @@ namespace NanoTrans
                     {
                         if (mbr == MessageBoxResult.Yes)
                         {
-                            if (myDataSource.FileName != null)
+                            if (Transcription.FileName != null)
                             {
-                                if (!UlozitTitulky(false, myDataSource.FileName)) return false;
+                                if (!UlozitTitulky(false, Transcription.FileName)) return false;
                             }
                             else
                             {
-                                if (!UlozitTitulky(true, myDataSource.FileName)) return false;
+                                if (!UlozitTitulky(true, Transcription.FileName)) return false;
                             }
                         }
                     }
                 }
 
 
-                if (myDataSource == null) myDataSource = new WPFTranscription();
+                if (Transcription == null) Transcription = new WPFTranscription();
                 if (pouzitOpenDialog)
                 {
                     Microsoft.Win32.OpenFileDialog fileDialog = new Microsoft.Win32.OpenFileDialog();
@@ -834,7 +834,7 @@ namespace NanoTrans
                     blockfocus = true;
                     if (fileDialog.ShowDialog() == true)
                     {
-                        if (myDataSource != null && !myDataSource.Saved)
+                        if (Transcription != null && !Transcription.Saved)
                         {
                             MessageBoxResult mbr = MessageBox.Show("Přepis není uložený. Chcete ho nyní uložit? ", "Upozornění:", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
                             if (mbr == MessageBoxResult.Cancel || mbr == MessageBoxResult.None)
@@ -845,13 +845,13 @@ namespace NanoTrans
                             {
                                 if (mbr == MessageBoxResult.Yes)
                                 {
-                                    if (myDataSource.FileName != null)
+                                    if (Transcription.FileName != null)
                                     {
-                                        if (!UlozitTitulky(false, myDataSource.FileName)) return false;
+                                        if (!UlozitTitulky(false, Transcription.FileName)) return false;
                                     }
                                     else
                                     {
-                                        if (!UlozitTitulky(true, myDataSource.FileName)) return false;
+                                        if (!UlozitTitulky(true, Transcription.FileName)) return false;
                                     }
                                 }
                             }
@@ -865,15 +865,15 @@ namespace NanoTrans
                         }
                         else
                         {
-                            myDataSource = pDataSource;
+                            Transcription = pDataSource;
 
 
-                            myDataSource.Saved = true;
+                            Transcription.Saved = true;
 
                             //nacteni audio souboru pokud je k dispozici
-                            if (!string.IsNullOrEmpty(myDataSource.mediaURI) && myDataSource.FileName != null)
+                            if (!string.IsNullOrEmpty(Transcription.mediaURI) && Transcription.FileName != null)
                             {
-                                FileInfo fiA = new FileInfo(myDataSource.mediaURI);
+                                FileInfo fiA = new FileInfo(Transcription.mediaURI);
                                 string pAudioFile = null;
                                 if (fiA.Exists)
                                 {
@@ -881,8 +881,8 @@ namespace NanoTrans
                                 }
                                 else
                                 {
-                                    FileInfo fi = new FileInfo(myDataSource.FileName);
-                                    pAudioFile = fi.Directory.FullName + "\\" + myDataSource.mediaURI;
+                                    FileInfo fi = new FileInfo(Transcription.FileName);
+                                    pAudioFile = fi.Directory.FullName + "\\" + Transcription.mediaURI;
                                 }
                                 if (pAudioFile.Split(new string[] { ":\\" }, StringSplitOptions.None).Length == 2)
                                 {
@@ -894,10 +894,10 @@ namespace NanoTrans
                                 }
                             }
 
-                            if (myDataSource.videoFileName != null && myDataSource.FileName != null)
+                            if (Transcription.videoFileName != null && Transcription.FileName != null)
                             {
-                                FileInfo fi = new FileInfo(myDataSource.FileName);
-                                string pVideoFile = fi.Directory.FullName + "\\" + myDataSource.videoFileName;
+                                FileInfo fi = new FileInfo(Transcription.FileName);
+                                string pVideoFile = fi.Directory.FullName + "\\" + Transcription.videoFileName;
                                 FileInfo fi2 = new FileInfo(pVideoFile);
                                 if (fi2.Exists && (meVideo.Source == null || meVideo.Source.AbsolutePath.ToUpper() != pVideoFile.ToUpper()))
                                 {
@@ -909,12 +909,12 @@ namespace NanoTrans
                             //synchronizace mluvcich podle vnitrni databaze
                             try
                             {
-                                foreach (Speaker i in myDataSource.Speakers.Speakers)
+                                foreach (Speaker i in Transcription.Speakers.Speakers)
                                 {
-                                    Speaker pSp = myDatabazeMluvcich.GetSpeakerByName(i.FullName);
-                                    if (i.FullName == pSp.FullName && i.FotoJPGBase64 == null)
+                                    Speaker pSp = SpeakersDatabase.GetSpeakerByName(i.FullName);
+                                    if (i.FullName == pSp.FullName && i.ImgBase64 == null)
                                     {
-                                        i.FotoJPGBase64 = pSp.FotoJPGBase64;
+                                        i.ImgBase64 = pSp.ImgBase64;
                                     }
                                 }
                             }
@@ -923,8 +923,8 @@ namespace NanoTrans
                             }
                         }
 
-                        this.Title = MyKONST.NAZEV_PROGRAMU + " [" + myDataSource.FileName + "]";
-                        VirtualizingListBox.ActiveTransctiption = myDataSource.First(e => e.IsParagraph) ?? myDataSource.First();
+                        this.Title = MyKONST.NAZEV_PROGRAMU + " [" + Transcription.FileName + "]";
+                        VirtualizingListBox.ActiveTransctiption = Transcription.First(e => e.IsParagraph) ?? Transcription.First();
                         return true;
                     }
                     else
@@ -972,7 +972,7 @@ namespace NanoTrans
                                     pDataSource.FileName = fi.FullName.ToUpper().Replace(".TXT", "_PHONETIC.XML");
 
                                 }
-                                myDataSource = pDataSource;
+                                Transcription = pDataSource;
                                 string pWav = fi.FullName.ToUpper().Replace(".TXT", ".WAV");
                                 NactiAudio(pWav);
 
@@ -985,15 +985,15 @@ namespace NanoTrans
                     }
                     else
                     {
-                        myDataSource = WPFTranscription.Deserialize(jmenoSouboru);
+                        Transcription = WPFTranscription.Deserialize(jmenoSouboru);
                     }
-                    if (myDataSource != null)
+                    if (Transcription != null)
                     {
-                        this.Title = MyKONST.NAZEV_PROGRAMU + " [" + myDataSource.FileName + "]";
+                        this.Title = MyKONST.NAZEV_PROGRAMU + " [" + Transcription.FileName + "]";
                         //nacteni audio souboru pokud je k dispozici
-                        if (myDataSource.mediaURI != null && myDataSource.FileName != null)
+                        if (Transcription.mediaURI != null && Transcription.FileName != null)
                         {
-                            FileInfo fiA = new FileInfo(myDataSource.mediaURI);
+                            FileInfo fiA = new FileInfo(Transcription.mediaURI);
                             string pAudioFile = null;
                             if (fiA.Exists)
                             {
@@ -1001,8 +1001,8 @@ namespace NanoTrans
                             }
                             else
                             {
-                                FileInfo fi = new FileInfo(myDataSource.FileName);
-                                pAudioFile = fi.Directory.FullName + "\\" + myDataSource.mediaURI;
+                                FileInfo fi = new FileInfo(Transcription.FileName);
+                                pAudioFile = fi.Directory.FullName + "\\" + Transcription.mediaURI;
                             }
                             if (pAudioFile.Split(new string[] { ":\\" }, StringSplitOptions.None).Length == 2)
                             {
@@ -1015,10 +1015,10 @@ namespace NanoTrans
                             }
                         }
 
-                        if (myDataSource.videoFileName != null && myDataSource.FileName != null)
+                        if (Transcription.videoFileName != null && Transcription.FileName != null)
                         {
-                            FileInfo fi = new FileInfo(myDataSource.FileName);
-                            string pVideoFile = fi.Directory.FullName + "\\" + myDataSource.videoFileName;
+                            FileInfo fi = new FileInfo(Transcription.FileName);
+                            string pVideoFile = fi.Directory.FullName + "\\" + Transcription.videoFileName;
                             FileInfo fi2 = new FileInfo(pVideoFile);
                             if (fi2.Exists && (meVideo.Source == null || meVideo.Source.AbsolutePath.ToUpper() != pVideoFile.ToUpper()))
                             {
@@ -1046,7 +1046,7 @@ namespace NanoTrans
         {
             try
             {
-                string savePath = myDataSource.FileName;
+                string savePath = Transcription.FileName;
                 if (useSaveDialog)
                 {
                     Microsoft.Win32.SaveFileDialog fileDialog = new Microsoft.Win32.SaveFileDialog();
@@ -1064,9 +1064,9 @@ namespace NanoTrans
                         return false;
                 }
 
-                if (myDataSource.Serialize(savePath, MySetup.Setup.UkladatKompletnihoMluvciho, !MySetup.Setup.SaveInShortFormat))
+                if (Transcription.Serialize(savePath, MySetup.Setup.UkladatKompletnihoMluvciho, !MySetup.Setup.SaveInShortFormat))
                 {
-                    this.Title = MyKONST.NAZEV_PROGRAMU + " [" + myDataSource.FileName + "]";
+                    this.Title = MyKONST.NAZEV_PROGRAMU + " [" + Transcription.FileName + "]";
                     return true;
                 }
                 return false;
@@ -1216,7 +1216,7 @@ namespace NanoTrans
                     FileInfo fi = new FileInfo(aFileName);
                     if (fi != null)
                     {
-                        myDataSource.mediaURI = fi.Name;
+                        Transcription.mediaURI = fi.Name;
                     }
 
                     ////////////
@@ -1316,7 +1316,7 @@ namespace NanoTrans
                     try
                     {
                         tbVideoSoubor.Text = new FileInfo(openDialog.FileName).Name;
-                        myDataSource.videoFileName = tbVideoSoubor.Text;
+                        Transcription.videoFileName = tbVideoSoubor.Text;
                     }
                     catch
                     {
@@ -1430,12 +1430,12 @@ namespace NanoTrans
         #region menu Nastroje
         private void MNastroje_Nastav_Mluvciho_Click(object sender, RoutedEventArgs e)
         {
-            new WinSpeakers((TranscriptionParagraph)VirtualizingListBox.ActiveTransctiption, MySetup.Setup, this.myDatabazeMluvcich, myDataSource, null).ShowDialog();
+            new WinSpeakers((TranscriptionParagraph)VirtualizingListBox.ActiveTransctiption, MySetup.Setup, this.SpeakersDatabase, Transcription, null).ShowDialog();
         }
 
         private void MNastroje_Nastaveni_Click(object sender, RoutedEventArgs e)
         {
-            MySetup.Setup = WinSetup.WinSetupNastavit(MySetup.Setup, myDatabazeMluvcich);
+            MySetup.Setup = WinSetup.WinSetupNastavit(MySetup.Setup, SpeakersDatabase);
             //pokus o ulozeni konfigurace
             MySetup.Setup.Serializovat(FilePaths.GetConfigFileWriteStream(), MySetup.Setup);
             waveform1.SmallJump = TimeSpan.FromSeconds(MySetup.Setup.VlnaMalySkok);
@@ -1486,20 +1486,20 @@ namespace NanoTrans
         {
             if (Pedalthread != null)
                 Pedalthread.Abort();
-            if (myDataSource != null && !myDataSource.Saved)
+            if (Transcription != null && !Transcription.Saved)
             {
                 MessageBoxResult mbr = MessageBox.Show("Přepis není uložený. Chcete ho nyní uložit? ", "Varování", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
                 if (mbr == MessageBoxResult.Yes || mbr == MessageBoxResult.No)
                 {
                     if (mbr == MessageBoxResult.Yes)
                     {
-                        if (myDataSource.FileName != null)
+                        if (Transcription.FileName != null)
                         {
-                            if (!UlozitTitulky(false, myDataSource.FileName)) e.Cancel = true;
+                            if (!UlozitTitulky(false, Transcription.FileName)) e.Cancel = true;
                         }
                         else
                         {
-                            if (!UlozitTitulky(true, myDataSource.FileName)) e.Cancel = true;
+                            if (!UlozitTitulky(true, Transcription.FileName)) e.Cancel = true;
                         }
                     }
 
@@ -1543,21 +1543,21 @@ namespace NanoTrans
 
 
                 //ulozeni databaze mluvcich - i externi databaze
-                if (myDatabazeMluvcich != null)
+                if (SpeakersDatabase != null)
                 {
                     string fname = System.IO.Path.GetFullPath(MySetup.Setup.CestaDatabazeMluvcich);
                     if (fname.StartsWith(FilePaths.ProgramDirectory))//kdyz je to v adresari (program files..)
                     {
                         if (!FilePaths.WriteToAppData) //checkni jestli muzes zapisovat
-                            myDatabazeMluvcich.Serialize_V1(fname, myDatabazeMluvcich);
+                            SpeakersDatabase.Serialize_V1(fname, SpeakersDatabase);
                         else
-                            myDatabazeMluvcich.Serialize_V1(FilePaths.AppDataDirectory + fname.Substring(FilePaths.ProgramDirectory.Length), myDatabazeMluvcich);
+                            SpeakersDatabase.Serialize_V1(FilePaths.AppDataDirectory + fname.Substring(FilePaths.ProgramDirectory.Length), SpeakersDatabase);
                     }
                     else //neni to u me neresit prava
                     {
                         try
                         {
-                            myDatabazeMluvcich.Serialize_V1(MySetup.Setup.CestaDatabazeMluvcich, myDatabazeMluvcich);
+                            SpeakersDatabase.Serialize_V1(MySetup.Setup.CestaDatabazeMluvcich, SpeakersDatabase);
                         }
                         catch
                         {
@@ -1715,31 +1715,31 @@ namespace NanoTrans
         private void menuSouborExportovatClick(object sender, RoutedEventArgs e)
         {
             Plugin p = (Plugin)((MenuItem)sender).Tag;
-            p.ExecuteExport(myDataSource);
+            p.ExecuteExport(Transcription);
         }
 
         private void LoadSubtitlesData(WPFTranscription data)
         {
             if (data == null)
                 return;
-            myDataSource = data;
+            Transcription = data;
             //nacteni audio souboru pokud je k dispozici
-            if (!string.IsNullOrEmpty(myDataSource.mediaURI))
+            if (!string.IsNullOrEmpty(Transcription.mediaURI))
             {
-                FileInfo fiA = new FileInfo(myDataSource.mediaURI);
+                FileInfo fiA = new FileInfo(Transcription.mediaURI);
                 string pAudioFile = null;
                 if (fiA.Exists)
                 {
                     pAudioFile = fiA.FullName;
                 }
-                else if (System.IO.Path.IsPathRooted(myDataSource.mediaURI))
+                else if (System.IO.Path.IsPathRooted(Transcription.mediaURI))
                 {
-                    tbAudioSoubor.Text = myDataSource.mediaURI;
+                    tbAudioSoubor.Text = Transcription.mediaURI;
                 }
                 else
                 {
-                    FileInfo fi = new FileInfo(myDataSource.FileName);
-                    pAudioFile = fi.Directory.FullName + "\\" + myDataSource.mediaURI;
+                    FileInfo fi = new FileInfo(Transcription.FileName);
+                    pAudioFile = fi.Directory.FullName + "\\" + Transcription.mediaURI;
                 }
 
                 if (pAudioFile != null && pAudioFile.Split(new string[] { ":\\" }, StringSplitOptions.None).Length == 2)
@@ -1751,7 +1751,7 @@ namespace NanoTrans
                     }
                     else
                     {
-                        tbAudioSoubor.Text = myDataSource.mediaURI;
+                        tbAudioSoubor.Text = Transcription.mediaURI;
                     }
                 }
             }
@@ -2309,10 +2309,10 @@ namespace NanoTrans
                 Back_data.RemoveAt(0);
             }
 
-            if (myDataSource != null)
+            if (Transcription != null)
             {
                 MemoryStream ms = new MemoryStream();
-                myDataSource.Serialize(ms, true, !MySetup.Setup.SaveInShortFormat);
+                Transcription.Serialize(ms, true, !MySetup.Setup.SaveInShortFormat);
                 ms.Close();
                 Back_data.Add(ms.ToArray());
             }
@@ -2332,14 +2332,14 @@ namespace NanoTrans
             {
                 MemoryStream ms = new MemoryStream(state);
 
-                myDataSource = WPFTranscription.Deserialize(ms);
-                if (myDataSource != null)
+                Transcription = WPFTranscription.Deserialize(ms);
+                if (Transcription != null)
                 {
-                    this.Title = MyKONST.NAZEV_PROGRAMU + " [" + myDataSource.FileName + "]";
+                    this.Title = MyKONST.NAZEV_PROGRAMU + " [" + Transcription.FileName + "]";
                     //nacteni audio souboru pokud je k dispozici
-                    if (myDataSource.mediaURI != null && myDataSource.FileName != null)
+                    if (Transcription.mediaURI != null && Transcription.FileName != null)
                     {
-                        FileInfo fiA = new FileInfo(myDataSource.mediaURI);
+                        FileInfo fiA = new FileInfo(Transcription.mediaURI);
                         string pAudioFile = null;
                         if (fiA.Exists)
                         {
@@ -2347,8 +2347,8 @@ namespace NanoTrans
                         }
                         else
                         {
-                            FileInfo fi = new FileInfo(myDataSource.FileName);
-                            pAudioFile = fi.Directory.FullName + "\\" + myDataSource.mediaURI;
+                            FileInfo fi = new FileInfo(Transcription.FileName);
+                            pAudioFile = fi.Directory.FullName + "\\" + Transcription.mediaURI;
                         }
                         FileInfo fi2 = new FileInfo(pAudioFile);
                         if (fi2.Exists && (!oWav.Loaded || oWav.FilePath.ToUpper() != pAudioFile.ToUpper()))
@@ -2357,10 +2357,10 @@ namespace NanoTrans
                         }
                     }
 
-                    if (myDataSource.videoFileName != null && myDataSource.FileName != null)
+                    if (Transcription.videoFileName != null && Transcription.FileName != null)
                     {
-                        FileInfo fi = new FileInfo(myDataSource.FileName);
-                        string pVideoFile = fi.Directory.FullName + "\\" + myDataSource.videoFileName;
+                        FileInfo fi = new FileInfo(Transcription.FileName);
+                        string pVideoFile = fi.Directory.FullName + "\\" + Transcription.videoFileName;
                         FileInfo fi2 = new FileInfo(pVideoFile);
                         if (fi2.Exists && (meVideo.Source == null || meVideo.Source.AbsolutePath.ToUpper() != pVideoFile.ToUpper()))
                         {
@@ -2439,7 +2439,7 @@ namespace NanoTrans
             }
 
             pIndexBufferuVlnyProPrehrani = (int)waveform1.CaretPosition.TotalMilliseconds;
-            List<TranscriptionParagraph> pl = myDataSource.VratElementDanehoCasu(waveform1.CaretPosition);
+            List<TranscriptionParagraph> pl = Transcription.VratElementDanehoCasu(waveform1.CaretPosition);
 
             _pozicenastav = true;
             var list = m_mydatasource.VratElementDanehoCasu(e.Value);
@@ -2463,7 +2463,7 @@ namespace NanoTrans
         private void waveform1_ParagraphDoubleClick(object sender, Waveform.MyTranscriptionElementEventArgs e)
         {
             VirtualizingListBox.ActiveTransctiption = e.Value;
-            new WinSpeakers((TranscriptionParagraph)e.Value, MySetup.Setup, this.myDatabazeMluvcich, myDataSource, null).ShowDialog();
+            new WinSpeakers((TranscriptionParagraph)e.Value, MySetup.Setup, this.SpeakersDatabase, Transcription, null).ShowDialog();
             VirtualizingListBox.SpeakerChanged();
         }
 
@@ -2591,7 +2591,7 @@ namespace NanoTrans
             {
                 try
                 {
-                    TranscriptionParagraph p = myDataSource.Chapters[0].Sections[0].Paragraphs[0];
+                    TranscriptionParagraph p = Transcription.Chapters[0].Sections[0].Paragraphs[0];
                     while (p != null)
                     {
                         for (int i = p.Phrases.Count - 1; i >= 0; i--)

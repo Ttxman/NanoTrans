@@ -134,6 +134,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Control\SpeakerControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Control\SpeakerSmall.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="UI\DownloadOneFileWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -161,6 +169,10 @@
     <Page Include="UI\PickOneDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UI\SpeakersManager.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UI\SubtitlesVizualizer.xaml">
       <SubType>Designer</SubType>
@@ -206,6 +218,12 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Control\SpeakerControl.xaml.cs">
+      <DependentUpon>SpeakerControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Control\SpeakerSmall.xaml.cs">
+      <DependentUpon>SpeakerSmall.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Settings.cs" />
     <Compile Include="Source\ButtonClickCommand.cs" />
     <Compile Include="Control\Block.xaml.cs">
@@ -241,6 +259,9 @@
     </Compile>
     <Compile Include="UI\PickOneDialog.xaml.cs">
       <DependentUpon>PickOneDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\SpeakersManager.xaml.cs">
+      <DependentUpon>SpeakersManager.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\SubtitlesVizualizer.xaml.cs">
       <DependentUpon>SubtitlesVizualizer.xaml</DependentUpon>
@@ -429,6 +450,11 @@
     <Content Include="Data\pen.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Resource Include="icons\download_small.png" />
+    <Resource Include="icons\download_small1.png" />
+    <Resource Include="icons\download_small2.png" />
+    <Resource Include="icons\save.png" />
+    <Resource Include="icons\save_small.png" />
     <Content Include="Plugins\Plugins.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

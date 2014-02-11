@@ -269,13 +269,13 @@ namespace NanoTrans
         private Transcription m_subtitlesData;
 
 
-        public static readonly DependencyProperty SubtitlesProperty = DependencyProperty.Register("Subtitles", typeof(Transcription), typeof(Waveform), new FrameworkPropertyMetadata(OnSubtitlesChanged));
+        public static readonly DependencyProperty SubtitlesProperty = DependencyProperty.Register("Transcription", typeof(WPFTranscription), typeof(Waveform), new FrameworkPropertyMetadata(OnSubtitlesChanged));
 
         public static void OnSubtitlesChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
 
-            ((Waveform)d).m_subtitlesData = (Transcription)e.NewValue;
-            Transcription value = (Transcription)e.NewValue;
+            ((Waveform)d).m_subtitlesData = (WPFTranscription)e.NewValue;
+            WPFTranscription value = (WPFTranscription)e.NewValue;
             if (value.Count > 0)
             {
                 TranscriptionElement last = value.Last();
@@ -289,11 +289,11 @@ namespace NanoTrans
         }
 
 
-        public Transcription Subtitles
+        public WPFTranscription Transcription
         {
             get
             {
-                return (Transcription)GetValue(SubtitlesProperty);
+                return (WPFTranscription)GetValue(SubtitlesProperty);
             }
             set
             {
@@ -454,17 +454,7 @@ namespace NanoTrans
 
         private void iInvalidateWaveform()
         {
-            Debug.WriteLine(WaveBegin);
-            Debug.WriteLine(WaveEnd);
-
-            Debug.WriteLine(AudioBufferBegin);
-            Debug.WriteLine(AudioBufferEnd);
-
             bool notbuffered = WaveBegin < AudioBufferBegin || WaveEnd > AudioBufferEnd;
-
-
-            Debug.WriteLine(notbuffered);
-            Debug.WriteLine("-----------------------------------------");
 
             if (notbuffered)
             {
@@ -1139,7 +1129,7 @@ namespace NanoTrans
             double pos = e.GetPosition(myImage).X;
             double relative = pos / myImage.ActualWidth;
             downtime = TimeSpan.FromTicks((long)((WaveEnd - WaveBegin).Ticks * relative + WaveBegin.Ticks));
-            System.Diagnostics.Debug.WriteLine("mousedown " + downtime);
+            
         }
 
 
@@ -1152,12 +1142,9 @@ namespace NanoTrans
                 double relative = pos / myImage.ActualWidth;
 
                 TimeSpan tpos = TimeSpan.FromTicks((long)((WaveEnd - WaveBegin).Ticks * relative + WaveBegin.Ticks));
-                System.Diagnostics.Debug.WriteLine("mouseup0 " + tpos);
                 this.CaretPosition = tpos;
-                System.Diagnostics.Debug.WriteLine("mouseup " + this.CaretPosition);
                 if (CarretPostionChangedByUser != null)
                     CarretPostionChangedByUser(this, new TimeSpanEventArgs(this.CaretPosition));
-                System.Diagnostics.Debug.WriteLine("mouseup2 " + this.CaretPosition);
                 EndUpdate();
             }
         }

@@ -9,6 +9,7 @@ namespace NanoTrans.Core
 {
     public class Speaker
     {
+        public List<SpeakerAttribute> Attributes = new List<SpeakerAttribute>();
         public static int speakersIndexCounter = 0;
 
         #region equality overriding
@@ -133,10 +134,14 @@ namespace NanoTrans.Core
         public string Surname;
         public Sexes Sex;
 
-        public string FotoJPGBase64;
+        public string ImgBase64;
         public string Comment;
         public int DefaultLang = 0;
 
+
+        public string DegreeBefore;
+        public string SecondName;
+        public string DegreeAfter;
 
 
         public Speaker()
@@ -146,7 +151,7 @@ namespace NanoTrans.Core
             FirstName = null;
             Surname = null;
             Sex = Sexes.X;
-            FotoJPGBase64 = null;
+            ImgBase64 = null;
             Comment = null;
             DefaultLang = 0;
         }
@@ -236,7 +241,7 @@ namespace NanoTrans.Core
             FirstName = aSpeaker.FirstName;
             Surname = aSpeaker.Surname;
             Sex = aSpeaker.Sex;
-            FotoJPGBase64 = aSpeaker.FotoJPGBase64;
+            ImgBase64 = aSpeaker.ImgBase64;
             Comment = aSpeaker.Comment;
             DefaultLang = aSpeaker.DefaultLang;
         }
@@ -247,7 +252,7 @@ namespace NanoTrans.Core
             FirstName = aSpeakerFirstname;
             Surname = aSpeakerSurname;
             Sex = aPohlavi;
-            FotoJPGBase64 = aSpeakerFotoBase64;
+            ImgBase64 = aSpeakerFotoBase64;
             Comment = aPoznamka;
         }
 

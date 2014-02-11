@@ -12,7 +12,7 @@
         <ObjectDataProvider x:Key="provider" ObjectInstance="{x:Static my:MySetup.Refresher}"/>
     </UserControl.Resources>
     <Grid>
-        <ListBox Name="listbox" ItemsSource="{Binding Subtitles, ElementName=Vizualizer}" Background="{Binding Source={StaticResource provider},Path=Setup.BarvaTextBoxuOdstavce}"
+        <ListBox Name="listbox" ItemsSource="{Binding Transcription, ElementName=Vizualizer}" Background="{Binding Source={StaticResource provider},Path=Setup.BarvaTextBoxuOdstavce}"
             VirtualizingPanel.ScrollUnit="Pixel" 
             VirtualizingPanel.IsVirtualizing="True" 
             VirtualizingPanel.CacheLength="2,3" 

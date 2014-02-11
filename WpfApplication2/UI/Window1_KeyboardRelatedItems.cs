@@ -210,9 +210,9 @@ namespace NanoTrans
                     LoadSubtitlesData( m_ImportPlugins[opf.FilterIndex - 2].ExecuteImport(opf.FileName));
                 }
 
-                if (myDataSource != null)
+                if (Transcription != null)
                 {
-                    myDataSource.FileName += ".trsx";
+                    Transcription.FileName += ".trsx";
                 }
             }
         }
@@ -228,19 +228,19 @@ namespace NanoTrans
 
             if (sf.ShowDialog() == true)
             {
-                m_ExportPlugins[sf.FilterIndex - 1].ExecuteExport(myDataSource,sf.FileName);
+                m_ExportPlugins[sf.FilterIndex - 1].ExecuteExport(Transcription,sf.FileName);
             }
         }
 
 
         private void CJumpToBegin(object sender, ExecutedRoutedEventArgs e)
         {
-           VirtualizingListBox.ActiveTransctiption =  VirtualizingListBox.Subtitles.First();
+           VirtualizingListBox.ActiveTransctiption =  VirtualizingListBox.Transcription.First();
         }
 
         private void CJumpToEnd(object sender, ExecutedRoutedEventArgs e)
         {
-            VirtualizingListBox.ActiveTransctiption = VirtualizingListBox.Subtitles.Last();
+            VirtualizingListBox.ActiveTransctiption = VirtualizingListBox.Transcription.Last();
         }
 
 
@@ -299,7 +299,7 @@ namespace NanoTrans
             TranscriptionParagraph p = new TranscriptionParagraph();
             p.Add(new TranscriptionPhrase());
             s.Add(p);
-            myDataSource.Add(s);
+            Transcription.Add(s);
             VirtualizingListBox.ActiveTransctiption = s;
         }
         private void CInsertNewSection(object sender, ExecutedRoutedEventArgs e)
@@ -345,7 +345,7 @@ namespace NanoTrans
             p.Add(new TranscriptionPhrase());
             s.Add(p);
             c.Add(s);
-            myDataSource.Add(c);
+            Transcription.Add(c);
             VirtualizingListBox.ActiveTransctiption = c;
         }
         private void CDeleteElement(object sender, ExecutedRoutedEventArgs e)
@@ -360,7 +360,9 @@ namespace NanoTrans
             if (VirtualizingListBox.ActiveTransctiption == null || !VirtualizingListBox.ActiveTransctiption.IsParagraph)
                 return;
 
-            new WinSpeakers(VirtualizingListBox.ActiveTransctiption as TranscriptionParagraph, MySetup.Setup, this.myDatabazeMluvcich, myDataSource, null).ShowDialog();
+            new SpeakersManager(Transcription.Speakers,SpeakersDatabase).ShowDialog();
+
+            //new WinSpeakers(VirtualizingListBox.ActiveTransctiption as TranscriptionParagraph, MySetup.Setup, this.myDatabazeMluvcich, myDataSource, null).ShowDialog();
             VirtualizingListBox.SpeakerChanged(VirtualizingListBox.ActiveElement);
         }
 
@@ -606,7 +608,7 @@ namespace NanoTrans
                 string pBase = MyKONST.JpgToBase64(pFrame);
 
 
-                WinSpeakers.ZiskejMluvciho(this.myDatabazeMluvcich, null, pBase);
+                WinSpeakers.ZiskejMluvciho(this.SpeakersDatabase, null, pBase);
             }
             else
             {
@@ -626,15 +628,15 @@ namespace NanoTrans
        
         private void CSaveTranscription(object sender, ExecutedRoutedEventArgs e)
         {
-            if (myDataSource != null)
+            if (Transcription != null)
             {
-                if (myDataSource.FileName != null)
+                if (Transcription.FileName != null)
                 {
-                    UlozitTitulky(false, myDataSource.FileName);
+                    UlozitTitulky(false, Transcription.FileName);
                 }
                 else
                 {
-                    UlozitTitulky(true, myDataSource.FileName);
+                    UlozitTitulky(true, Transcription.FileName);
                 }
             }
         }
@@ -677,10 +679,10 @@ namespace NanoTrans
 
             TranscriptionElement pr = tag;
             if (pr == null)
-                tag = myDataSource.Chapters[0];
+                tag = Transcription.Chapters[0];
 
             int len;
-            if (myDataSource.FindNext(ref tag, ref searchtextoffset, out len, pattern, isregex, CaseSensitive, searchinspeakers))
+            if (Transcription.FindNext(ref tag, ref searchtextoffset, out len, pattern, isregex, CaseSensitive, searchinspeakers))
             {
                 TranscriptionElement p = tag;
                 waveform1.CaretPosition = p.Begin;

@@ -353,7 +353,7 @@ namespace NanoTrans.Core
                     {
                         for (int i = 0; i < co.m_speakers.Speakers.Count; i++)
                         {
-                            co.m_speakers.Speakers[i].FotoJPGBase64 = null;
+                            co.m_speakers.Speakers[i].ImgBase64 = null;
                         }
                     }
                 }
