@@ -208,7 +208,7 @@ namespace Updater
                                 };
                             string targetf = System.IO.Path.Combine(App.ExeDir, path);
                             Directory.CreateDirectory(System.IO.Path.GetDirectoryName(targetf));
-                            using (Stream s = File.OpenWrite(targetf))
+                            using (Stream s = File.Create(targetf))
                                 zf.Entries.First().Extract(s);
                         }
                         ae.Set();
