@@ -55,22 +55,72 @@ namespace TrsxV1Plugin
 
                 var second  = TimeSpan.FromSeconds(0.5);
                 MyParagraph pah = new MyParagraph();
+                List<MyPhrase> silence = new List<MyPhrase>();
+                TimeSpan sec20 = TimeSpan.FromSeconds(20);
                 while (phrazes.Count > 0)
                 {
-                    pah.Phrases.Add(phrazes[0]);
-                    if (phrazes.Count > 1 && (phrazes[0].End + second < phrazes[1].Begin || phrazes[0].Phonetics=="-"))
+                    string tt = phrazes[0].Text.Trim();
+                    if(tt.First() == '[' && tt.Last() == ']')//nerecova udalost
                     {
-                        sec.Paragraphs.Add(pah);
-                        pah.Begin = pah.Phrases.First().Begin;
-                        pah.End = pah.Phrases.Last().End;
-                        pah  = new MyParagraph();
+                        silence.Add(phrazes[0]);
+                        TimeSpan begin;
+                        TimeSpan end;
+
+                        if(pah.Phrases.Count > 0)//pokud uz jsou sestavene enkae fraze spocitam jestli presahnou spolu s tichy 20s
+                        {
+                            begin = pah.Phrases.First().Begin;
+                            end = silence.Last().End;
+                            if(end-begin >= sec20)//pokud ano reknu, ze pred tichy mel odstavec zkoncit
+                            {
+                                 pah.Begin = pah.Phrases.First().Begin;
+                                 pah.End = pah.Phrases.Last().End;
+                                 sec.Paragraphs.Add(pah);
+                                 pah  = new MyParagraph();
+                            }
+                        }
+
+                        
+                    }else if(silence.Count > 0)//mam nejaky nerecovy udalosti a prislo neco jinyho
+                    {
+                        if(silence.Last().End-silence.First().Begin >= TimeSpan.FromSeconds(2)) //mam vic nereci nez 2 sekundy udelat z ni samostatnej segment
+                        {
+                            if(pah.Phrases.Count > 0)
+                            {
+                                pah.Begin = pah.Phrases.First().Begin;
+                                pah.End = pah.Phrases.Last().End;
+                                sec.Paragraphs.Add(pah);
+                                pah  = new MyParagraph();
+                            }
+
+                            foreach (var ss in silence)
+                                pah.Phrases.Add(ss);
+                            silence.Clear();
+
+                            pah.Begin = pah.Phrases.First().Begin;
+                            pah.End = pah.Phrases.Last().End;
+                            sec.Paragraphs.Add(pah);
+                            pah = new MyParagraph();
+
+
+                            pah.Phrases.Add(phrazes[0]);
+                        }else//mam ji malo -  prilepit nerecovy udalosti k odstavci
+                        {
+                            foreach(var ss in silence)
+                                pah.Phrases.Add(ss);
+                            silence.Clear();
+                            pah.Phrases.Add(phrazes[0]);
+                        }
+                    }else//prisla recova fraze a nemam nic v tichu pridat do paragrafu
+                    {
+                        pah.Phrases.Add(phrazes[0]);
                     }
+
                     phrazes.RemoveAt(0);
                 }
 
+                //dosyp zbytek do prepisu
                 pah.Begin = pah.Phrases.First().Begin;
                 pah.End = pah.Phrases.Last().End;
-
                 sec.Paragraphs.Add(pah);
                 c.Sections.Add(sec);
                 data.Chapters.Add(c);
