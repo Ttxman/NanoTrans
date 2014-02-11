@@ -322,7 +322,7 @@ namespace NanoTrans
                 if (data != null && data.Length > 0)
                     WriteNextData(data,timems);
             }
-            m_soundBuffer.SetCurrentPosition(300);
+            m_soundBuffer.SetCurrentPosition(0);
             m_samplesPlayed = 0;
             m_soundBuffer.Frequency = (int)(spedmodification * m_buffDescription.Format.SamplesPerSecond);
             m_soundBuffer.Play(0, BufferPlayFlags.Looping);

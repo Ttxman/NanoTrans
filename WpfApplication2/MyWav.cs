@@ -534,8 +534,8 @@ namespace NanoTrans
 
                 //nacteni hlavicky - a alokovani pomocnych bufferu pro tuto operaci cteni
 
-                byte[] buffer2 = new byte[2];
-
+                byte[] buffer2 = new byte[4096];
+                short[] buffer2s = new short[buffer2.Length/2];
 
                 pPocetKanalu = 1;
 
@@ -561,8 +561,9 @@ namespace NanoTrans
                 //prvni docasny wav soubor tmp
                 pIndexDocasneho = 0;
                 docasneZvukoveSoubory.Add(CestaDocasnychWAV + pIndexDocasneho.ToString() + ".wav");
-                output = new BinaryWriter(new FileStream(docasneZvukoveSoubory[pIndexDocasneho], FileMode.Create));
 
+                output = new BinaryWriter(new FileStream(docasneZvukoveSoubory[pIndexDocasneho], FileMode.Create));
+                Stream outputbase = output.BaseStream;
                 //prazdna hlavicka
                 byte[] pPrazdnaHlavicka = new byte[44];
                 output.Write(pPrazdnaHlavicka);
@@ -573,61 +574,81 @@ namespace NanoTrans
                 
                 int pPocetNactenych = 1;    //pocatecni inicializace nacitani,aby neskoncil cyklus
                 long j = 0; //pomocna pro indexaci v souborech
-                for (i = 0; pPocetNactenych > 0; i++)
+
+                Stream outstream = prPrevod.StandardOutput.BaseStream;
+                for (i = 0; pPocetNactenych > 0;)
                 {
                     //musime dat vlaknu sanci se ukoncit
 
-                    pPocetNactenych = prPrevod.StandardOutput.BaseStream.Read(buffer2, 0, 2);
-
-                    dato = BitConverter.ToInt16(buffer2, 0);
-                    pPocetNactenychVzorkuCelkem++;
-
-                    if (i == pPocetVzorku) //nacten ramec prvni ramec
+                    pPocetNactenych = outstream.Read(buffer2, 0, buffer2.Length);
+                    Buffer.BlockCopy(buffer2,0,buffer2s,0,pPocetNactenych);
+                    int writeoffset = 0;
+                    int writecnt = 0;
+                    for (int k = 0; k < pPocetNactenych/2; k++, i++)
                     {
-                        //poslani zpravy s daty bufferu
-                        MyEventArgs e = new MyEventArgs(this.pDataNacitana, this.pDataNacitana.Length, 0, pPocetVzorku / this.pFrekvence * 1000, MyKONST.ID_ZOBRAZOVACIHO_BUFFERU_VLNY);
-                        if (HaveData != null)
-                            HaveData(this, e); // nacten ramec k zobrazeni a poslani tohoto ramce ven z tridy pomoci e
-                        this._Nacteno = true;
-                        if (pPocetVzorku + pPocetVzorku2Delta <= pPocetVzorku2 - 1)
+                        //dato = BitConverter.ToInt16(buffer2, k*2);
+                        dato = buffer2s[k];
+                        pPocetNactenychVzorkuCelkem++;
+                        
+                        if (i == pPocetVzorku) //nacten ramec prvni ramec
                         {
-                            pPocetVzorku += pPocetVzorku2Delta;
+                            //poslani zpravy s daty bufferu
+                            MyEventArgs e = new MyEventArgs(this.pDataNacitana, this.pDataNacitana.Length, 0, pPocetVzorku / this.pFrekvence * 1000, MyKONST.ID_ZOBRAZOVACIHO_BUFFERU_VLNY);
+                            if (HaveData != null)
+                                HaveData(this, e); // nacten ramec k zobrazeni a poslani tohoto ramce ven z tridy pomoci e
+                            this._Nacteno = true;
+                            if (pPocetVzorku + pPocetVzorku2Delta <= pPocetVzorku2 - 1)
+                            {
+                                pPocetVzorku += pPocetVzorku2Delta;
+                            }
                         }
+
+                        if (i < pPocetVzorku)
+                        {
+                            pDataNacitana[i] = dato;
+                        }
+
+
+                        if (j >= delkaDocasnehoWav)
+                        {
+                            // zapsani bufferu jako bytu..
+                            outputbase.Write(buffer2, writeoffset * 2, writecnt * 2);
+                            writeoffset = writecnt;
+                            writecnt = 0;
+
+
+                            j = 0;
+                            //zapsani skutecne hlavicky WAV
+                            output.Seek(0, SeekOrigin.Begin);
+                            output.Write((VytvorHlavickukWav((Int32)output.BaseStream.Length - 44)));
+
+                            output.Close();
+                            output = null;
+                            pIndexDocasneho++;
+                            docasneZvukoveSoubory.Add(CestaDocasnychWAV + pIndexDocasneho.ToString() + ".wav");
+
+                            MyEventArgs2 e2 = new MyEventArgs2(pIndexDocasneho, (pIndexDocasneho + 1) * this.delkaDocasnehoWavMS);
+                            if (HaveFileNumber != null)
+                                HaveFileNumber(this, e2);
+                            output = new BinaryWriter(new FileStream(docasneZvukoveSoubory[pIndexDocasneho], FileMode.Create));
+                            outputbase = output.BaseStream;
+                            //pridani hlavicky-prazdne-zatim-pozdeji dodelat
+                            output.Write(pPrazdnaHlavicka);
+                            //
+                        }
+
+                        if (pPocetNactenych > 0)
+                        {
+                            writecnt++;
+                            //output.Write(dato);     //zapsani do docasneho souboru
+                        }
+                        j++;
                     }
 
-                    if (i < pPocetVzorku)
-                    {
-                        pDataNacitana[i] = dato;
-                    }
-
-
-                    if (j >= delkaDocasnehoWav)
-                    {
-                        j = 0;
-                        //zapsani skutecne hlavicky WAV
-                        output.Seek(0, SeekOrigin.Begin);
-                        output.Write((VytvorHlavickukWav((Int32)output.BaseStream.Length - 44)));
-
-                        output.Close();
-                        output = null;
-                        pIndexDocasneho++;
-                        docasneZvukoveSoubory.Add(CestaDocasnychWAV + pIndexDocasneho.ToString() + ".wav");
-
-                        MyEventArgs2 e2 = new MyEventArgs2(pIndexDocasneho, (pIndexDocasneho + 1) * this.delkaDocasnehoWavMS);
-                        if (HaveFileNumber != null)
-                            HaveFileNumber(this, e2);
-                        output = new BinaryWriter(new FileStream(docasneZvukoveSoubory[pIndexDocasneho], FileMode.Create));
-
-                        //pridani hlavicky-prazdne-zatim-pozdeji dodelat
-                        output.Write(pPrazdnaHlavicka);
-                        //
-                    }
-                    if (pPocetNactenych > 0)
-                    {
-                        output.Write(dato);     //zapsani do docasneho souboru
-                    }
-                    j++;
+                    // zapsani bufferu jako bytu..
+                    outputbase.Write(buffer2, writeoffset * 2, writecnt * 2);
                 }
+
                 prPrevod.Close();
                 prPrevod = null;
                 this._DelkaSouboruMS = (long)((float)(pPocetNactenychVzorkuCelkem) / (this.pFrekvence / 1000));
