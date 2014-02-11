@@ -148,7 +148,7 @@
                 
             </ListBox-->
             
-            <TabControl Grid.Column="1" Margin="5,5,5,5" Name="tabControl1" SelectedIndex="3" Focusable="False">
+            <TabControl Grid.Column="1" Margin="5,5,5,5" Name="tabControl1" SelectedIndex="0" Focusable="False">
                 <TabItem Name="tiVideo">
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">

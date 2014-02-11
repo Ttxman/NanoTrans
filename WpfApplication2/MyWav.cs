@@ -212,7 +212,6 @@ namespace NanoTrans
         private void AsynchronniPrevodMultimedialnihoSouboruNaDocasne()
         {
              this.ZacniPrevodSouboruNaDocasneWav(_CestaSouboru, MyKONST.CESTA_DOCASNYCH_SOUBORU_ZVUKU, MyKONST.DELKA_DOCASNEHO_SOUBORU_ZVUKU_MS);    //nastaveni bufferu
-           // this.ZacniPrevodSouboruNaDocasneWav(_CestaSouboru, this._AbsolutniCestaAdresareProgramu + MyKONST.CESTA_DOCASNYCH_SOUBORU_ZVUKU, MyKONST.DELKA_DOCASNEHO_SOUBORU_ZVUKU_MS);    //nastaveni bufferu
         }
 
         /// <summary>
@@ -493,7 +492,7 @@ namespace NanoTrans
         }
 
 
-
+        
         //spusti prevod souboru na wav,ktery je mozno vykreslovat - skonci po naplneni zobrazovaciho bufferu, pot
         public bool ZacniPrevodSouboruNaDocasneWav(string aCesta, string aCestaDocasnychWAV, long aDelkaJednohoSouboruMS)
         {
@@ -576,6 +575,8 @@ namespace NanoTrans
                 long j = 0; //pomocna pro indexaci v souborech
                 for (i = 0; pPocetNactenych > 0; i++)
                 {
+                    //musime dat vlaknu sanci se ukoncit
+
                     pPocetNactenych = prPrevod.StandardOutput.BaseStream.Read(buffer2, 0, 2);
 
                     dato = BitConverter.ToInt16(buffer2, 0);
@@ -665,12 +666,6 @@ namespace NanoTrans
                         HaveData(this, e); // nacten ramec k zobrazeni a poslani tohoto ramce ven z tridy pomoci e
                 }
                 this.pPocetVzorku = i;
-
-                //this._CestaSouboru = aCesta;
-                //this.pPocetVzorku = i;
-                //this._Prevedeno = true;  //dokoncen prevod audio souboru
-
-
                 return true;
             }
             catch (Exception ex)
@@ -764,21 +759,6 @@ namespace NanoTrans
                                         break;
                                     }
                                 }
-                                if (pIndexDocasneho < docasneZvukoveSoubory.Count - 1) pIndexDocasneho++;
-                                else
-                                {
-                                    /*
-                                    hotovo = true;
-                                    short[] pDataNacitana2 = new short[pPocetNactenych / 2];
-                                    for (int k = 0; k < pPocetNactenych / 2; k++)
-                                    {
-                                        pDataNacitana2[k] = pDataNacitana[k];
-                                    }
-                                    this.pDataNacitana = pDataNacitana2;
-                                    aDelkaMS = (pDataNacitana2.Length * 1000) / 16000;
-                                     * */
-                                    
-                                }
 
                                 if (pIndexDocasneho >= docasneZvukoveSoubory.Count - 1 && !this.Prevedeno)
                                 {
@@ -841,6 +821,7 @@ namespace NanoTrans
         /// </summary>
         public void Dispose()
         {
+            //TODO: chybi GC.SupressFinalize(this).. to neni tak strasny, ale ten comment na dispose musim proverit kde se to vola
             try
             {
                                 
@@ -848,6 +829,7 @@ namespace NanoTrans
                 if (this.tPrevodNaDocasneSoubory != null && this.tPrevodNaDocasneSoubory.ThreadState == System.Threading.ThreadState.Running)
                 {
                     tPrevodNaDocasneSoubory.Abort();
+                    tPrevodNaDocasneSoubory.Join();
 
                 }
                 if (this.tNacitaniBufferu1 != null && tNacitaniBufferu1.ThreadState == System.Threading.ThreadState.Running)
@@ -856,12 +838,14 @@ namespace NanoTrans
                     if (tNacitaniBufferu2 != null && tNacitaniBufferu2.ThreadState == System.Threading.ThreadState.Running)
                     {
                         tNacitaniBufferu2.Abort();
+                        tNacitaniBufferu2.Join();
                     }
                 }
                 //zruseni procesu prevodu souboru na wav
                 if (prPrevod != null && !prPrevod.HasExited)
                 {
                     prPrevod.Kill();
+                    prPrevod.WaitForExit();
                 }
 
                 //smazani vsech docasnych souboru z temp adresare

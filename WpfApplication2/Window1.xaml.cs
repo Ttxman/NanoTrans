@@ -4453,10 +4453,6 @@ namespace NanoTrans
                         myDataSource.audioFileName = fi.Name;
                     }
 
-
-                    ///mediaElement1.Source = new Uri(aFileName);
-                    ///mediaElement1.Play();
-                    ///mediaElement1.Pause();
                     ////////////
                     long pDelkaSouboruMS = oWav.VratDelkuSouboruMS(aFileName);
 
@@ -4465,7 +4461,6 @@ namespace NanoTrans
                         if (oWav != null)
                         {
                             oWav.Dispose();
-                            //oWav.CestaSouboru = openDialog.FileName;
                         }
 
                         //nastaveni pocatku prehravani
@@ -6325,7 +6320,7 @@ namespace NanoTrans
 
 
                 }
-                else if (oknoNapovedy.IsLoaded)
+                else if (oknoNapovedy!=null && oknoNapovedy.IsLoaded)
                 {
                     oknoNapovedy.Close();
                 }
@@ -6404,6 +6399,8 @@ namespace NanoTrans
                         nastaveniAplikace.Serializovat(nastaveniAplikace.absolutniCestaEXEprogramu + MyKONST.KONFIGURACNI_SOUBOR, nastaveniAplikace);
                     }
 
+
+
                 }
 
 
@@ -6417,7 +6414,7 @@ namespace NanoTrans
             catch (Exception ex)
             {
                 MyLog.LogujChybu(ex);
-
+                throw (ex);
             }
         }
 
@@ -6599,98 +6596,6 @@ namespace NanoTrans
                     ZmenStavTlacitekRozpoznavace(false, true, false, true);
                 }
             }
-
-            /*
-            //nahravani/ nenahravani
-
-            if (recording)
-            {
-                recording = false;
-                if (MWR != null) MWR.Dispose();
-                MWR = null;
-            }
-            else
-            {
-                recording = true;
-                if (MWR == null) MWR = new MyWaveRecorder(0, new WaveFormat(16000, 16, 1), 4800, 3, new BufferDoneEventHandler(MWR_MamData));
-                pIndexBufferuProHlasoveOvladaniMS = 0;
-                oPrepisovac.bufferProHlasoveOvladani.SmazBuffer();
-                    
-                //WOP = new WaveOutPlayer(0, new WaveFormat(16000, 16, 1), 4800, 3, new BufferFillEventHandler(WOP_ChciData));
-            }
-            
-            */
-
-            /*
-            GeometryGroup myGeometryGroup = new GeometryGroup();
-            int Xsouradnice =0;
-            for (int i = 1; i < oVlna.bufferCeleVlny.dataF.Length/2; i ++)
-            {
-                Xsouradnice++;
-                myGeometryGroup.Children.Add(new LineGeometry(new Point(Xsouradnice - 1, oVlna.bufferCeleVlny.dataF[Xsouradnice - 1]), new Point(Xsouradnice, oVlna.bufferCeleVlny.dataF[Xsouradnice])));
-
-            }
-            GeometryDrawing myGeometryDrawing = new GeometryDrawing();
-            myGeometryDrawing.Geometry = myGeometryGroup;
-            // Add the GeometryDrawing to a DrawingGroup.
-            DrawingGroup myDrawingGroup = new DrawingGroup();
-            myDrawingGroup.Children.Add(myGeometryDrawing);
-            // Create a Pen to add to the GeometryDrawing created above.
-            Pen myPen = new Pen();
-            myPen.Thickness = 1;
-            //myPen.LineJoin = PenLineJoin.Round;
-            //myPen.EndLineCap = PenLineCap.Round;
-
-            myPen.Brush = Brushes.Red;
-
-            myGeometryDrawing.Pen = myPen;
-            
-
-            DrawingImage myDrawingImage = new DrawingImage();
-            myDrawingImage.Drawing = myDrawingGroup;
-
-            
-            Image im = new Image();
-            im.Width = Xsouradnice;
-            im.Height = 100;
-            im.Source = myDrawingImage;
-            im.Stretch = Stretch.Fill;
-            im.StretchDirection = StretchDirection.Both;
-            listBox1.Items.Add(im);
-            
-            
-            
-            
-            //timerRozpoznavace.IsEnabled = false;
-            /*
-            Size dpi = new Size(96, 96);
-            RenderTargetBitmap bmp =
-              new RenderTargetBitmap(600, 200,
-                dpi.Width, dpi.Height, PixelFormats.Pbgra32);
-            bmp.Render(meVideo);
-
-            JpegBitmapEncoder encoder = new JpegBitmapEncoder();
-            encoder.Frames.Add(BitmapFrame.Create(bmp));
-
-            //string filename = Guid.NewGuid().ToString() + ".jpg";
-            string filename = "e:\\foto.jpg";
-            FileStream fs = new FileStream(filename, FileMode.Create);
-            encoder.Save(fs);
-            fs.Close();
-
-            //Process.Start(filename);
-             */
-
-            /*
-            oWav.NastavPocatecniCasNovehoRamce(30000);
-            BufferThread = new Thread(new ThreadStart(oWav.AsynchronniNacteniRamce));
-            BufferThread.Start();
-            */
-
-
-
-
-
         }
 
         /// <summary>
