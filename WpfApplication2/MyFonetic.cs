@@ -228,18 +228,7 @@ namespace NanoTrans
         /// </summary>
         public List<MyRule> prepisovaciPravidlaNormalizace;
 
-        /// <summary>
-        /// buffer pro audio, ktere ze ktereho se vytvori wav a dojde k jeho rozpoznani na foneticky prepis
-        /// </summary>
-        private MyBuffer16 _BufferAudia;
         private string _CestaAdresareProgramu;
-
-        
-        private bool _Prepisovani;
-        /// <summary>
-        /// info zda uz dochazi k prepisovani jineho elementu
-        /// </summary>
-        public bool Prepisovani { get { return _Prepisovani; } }
 
         public MyFonetic(string aAbsolutniCestaAdresareProgramu)
         {

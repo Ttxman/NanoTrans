@@ -1288,7 +1288,7 @@ namespace NanoTrans
 
         private bool r2drag = false;
         private bool r2dragLeft = false;
-        private MyParagraph r2dragelement = null;
+
 
         private void rectangle2_MouseMove(object sender, MouseEventArgs e)
         {
@@ -1328,7 +1328,7 @@ namespace NanoTrans
         {
             TimeSpan selbeg = SelectionBegin;
             TimeSpan selend = SelectionEnd;
-            r2dragelement = null;
+
             Point p = e.GetPosition(rectangle2);
             rectangle2.CaptureMouse();
             if (p.X <= 4)

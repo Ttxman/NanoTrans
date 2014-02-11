@@ -970,7 +970,7 @@ namespace NanoTrans
         }
 
         int m_forcesellength = 0;
-        int m_forceselbegin = 0;
+        //int m_forceselbegin = 0;
         public void SetSelection(int offset, int length, int carretoffset)
         {
             m_forceCarretpositionOnLoad = -1;

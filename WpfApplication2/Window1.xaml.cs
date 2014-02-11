@@ -20,7 +20,6 @@ using System.Threading;
 using System.Diagnostics;
 using System.Windows.Threading;
 using System.Text.RegularExpressions;
-using USBHIDDRIVER;
 using dbg = System.Diagnostics.Debug;
 using System.Security.Permissions;
 using System.Security;
@@ -85,7 +84,6 @@ namespace NanoTrans
         /// </summary>
         private MyFonetic bFonetika = null;
 
-        bool slPoziceMedia_mouseDown = false; //promenna pro detekci stisknuti mysi na posuvniku videa
         /// <summary>
         /// info zda je nacitan audio soubor kvuli davce
         /// </summary>
@@ -98,7 +96,6 @@ namespace NanoTrans
         /// </summary>
 
 
-        static long mSekundyKonec = 0;   //informace o pozici konce vykreslene vlny...
         short pocetTikuTimeru = 0;    //pomocna pro deleni tiku timeru
 
         /// <summary>
@@ -1526,6 +1523,8 @@ namespace NanoTrans
         //osetreni ulozeni pri ukonceni aplikace
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            if (Pedalthread != null)
+                Pedalthread.Abort();
             if (myDataSource != null && !myDataSource.Ulozeno)
             {
                 MessageBoxResult mbr = MessageBox.Show("Přepis není uložený. Chcete ho nyní uložit? ", "Varování", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
@@ -1746,7 +1745,7 @@ namespace NanoTrans
             phoneticTranscription.editor.OverridesDefaultStyle = false;
             phoneticTranscription.editor.TextArea.TextView.LineTransformers.Remove(Element.DefaultSpellchecker);
 
-            HidInit();
+            PedalsInit();
 
             string foldername = System.IO.Path.GetRandomFileName();
             string temppath = System.IO.Path.GetTempPath() + "NanoTrans\\";
@@ -1775,6 +1774,74 @@ namespace NanoTrans
             VirtualizingListBox.RequestTimePosition += delegate(out TimeSpan value) { value = waveform1.CaretPosition; };
             VirtualizingListBox.RequestPlaying += delegate(out bool value) { value = Playing; };
             VirtualizingListBox.RequestPlayPause += delegate() { CommandPlayPause.Execute(null, null); };
+        }
+
+
+        Thread Pedalthread = null;
+        Process PedalProcess = null;
+        private void PedalsInit()
+        {
+            string pedalsexe = MySetup.Setup.absolutniCestaEXEprogramu + "\\Pedals.exe";
+
+            if (File.Exists(pedalsexe))
+            {
+                
+                var StartInfo = new ProcessStartInfo(pedalsexe)
+                {
+                    Arguments = "-nokeypress",
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardInput = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true
+
+                };
+
+                Process p = new Process();
+                p.StartInfo = StartInfo;
+                PedalProcess = p;
+
+                Pedalthread = new Thread(new ThreadStart(() =>
+                {
+                    try
+                    {
+                        PedalProcess.Start();
+                        while (true)
+                        {
+                            if (PedalProcess.HasExited)
+                                throw new Exception();
+                            string s = PedalProcess.StandardOutput.ReadLine();
+                            if (s == "+L")
+                                this.Dispatcher.Invoke(new Action(() => CommandSmallJumpLeft.Execute(null, this)));
+                            if (s == "+M")
+                                this.Dispatcher.Invoke(new Action(() => CommandPlayPause.Execute(null, this)));
+                            if (s == "+R")
+                                this.Dispatcher.Invoke(new Action(() => CommandSmallJumpRight.Execute(null, this)));
+                        }
+                    }
+                    finally
+                    {
+                        PedalProcess.StandardInput.WriteLine("exit");
+                        PedalProcess.WaitForExit();
+                        PedalProcess = null;
+                        Pedalthread = null;
+                    }
+
+                }));
+
+                p.Exited += (sender, e) =>
+                {
+                    if (Pedalthread.IsAlive)
+                    {
+                        Pedalthread.Abort();
+                        Pedalthread.Join(100);
+                    }
+                    Pedalthread = null;
+                    PedalProcess = null;
+                };
+
+                Pedalthread.Start();
+            }
         }
 
         void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)

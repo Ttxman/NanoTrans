@@ -20,7 +20,6 @@ using System.Threading;
 using System.Diagnostics;
 using System.Windows.Threading;
 using System.Text.RegularExpressions;
-using USBHIDDRIVER;
 using dbg = System.Diagnostics.Debug;
 
 

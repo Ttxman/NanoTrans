@@ -1863,7 +1863,7 @@ namespace NanoTrans
                 while (reader.Name == "Speaker")
                 {
                     bool end = false;
-                    bool id;
+
                     MySpeaker sp = new MySpeaker();
                     reader.ReadStartElement("Speaker");
                     while (!end)
@@ -1871,7 +1871,7 @@ namespace NanoTrans
                         switch (reader.Name)
                         {
                             case "ID":
-                                id = true;
+
                                 sp.ID = XmlConvert.ToInt32(reader.ReadElementString("ID"));
                                 break;
                             case "Surname":

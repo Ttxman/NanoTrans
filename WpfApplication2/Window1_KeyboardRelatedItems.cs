@@ -20,7 +20,6 @@ using System.Threading;
 using System.Diagnostics;
 using System.Windows.Threading;
 using System.Text.RegularExpressions;
-using USBHIDDRIVER;
 using dbg = System.Diagnostics.Debug;
 
 
@@ -624,76 +623,6 @@ namespace NanoTrans
         public FindDialog m_findDialog;
         #endregion
 
-
-        #endregion
-        #region usb HID pedals
-        static USBHIDDRIVER.USBInterface usbI = new USBInterface("vid_05f3", "pid_00ff");
-        EventHandler savehandle;
-        public void HidInit()
-        {
-            savehandle = new EventHandler(HIDhandler);
-            bool conn = usbI.Connect();
-            if (conn)
-            {
-                usbI.enableUsbBufferEvent(savehandle);
-                Thread.Sleep(5);
-                usbI.startRead();
-            }
-
-        }
-        FCPedal FCstatus = FCPedal.None;
-        [Flags]
-        public enum FCPedal : byte
-        {
-            None = 0x0,
-            Left = 0x1,
-            Middle = 0x2,
-            Right = 0x4,
-            Invalid = 0xFF
-        }
-        
-        public void HIDhandler(object sender, System.EventArgs e)
-        {
-            USBHIDDRIVER.List.ListWithEvent ev = (USBHIDDRIVER.List.ListWithEvent)sender;
-            foreach (object o in ev)
-            {
-                if (o is byte[])
-                {
-                    byte[] data = (byte[])o;
-                    byte stat = data[1];
-                    if (FCstatus != FCPedal.Invalid)
-                    {
-                        if ((((byte)FCPedal.Left) & stat) != 0)
-                        {
-                            if ((byte)(FCPedal.Left & FCstatus) == 0) //down event
-                            {
-                                this.Dispatcher.Invoke(new Action(()=>CommandSmallJumpLeft.Execute(null, this)));
-                            }
-                        }
-                        else if ((((byte)FCPedal.Middle) & stat) != 0)
-                        {
-                            if ((byte)(FCPedal.Middle & FCstatus) == 0) //down event
-                            {
-                                this.Dispatcher.Invoke(new Action(() => CommandPlayPause.Execute(null, this)));
-
-                            }
-
-                        }
-                        else if ((((byte)FCPedal.Right) & stat) != 0)
-                        {
-                            if ((byte)(FCPedal.Right & FCstatus) == 0) //down event
-                            {
-                                this.Dispatcher.Invoke(new Action(() => CommandSmallJumpRight.Execute(null, this)));
-                            }
-
-                        }
-                    }
-
-                    FCstatus = (FCPedal)stat;
-                }
-            }
-            ev.Clear();
-        }
 
         #endregion
 
