@@ -59,6 +59,7 @@ namespace TrsxV1Plugin
         public TimeSpan[] STOP;
         public string[] PRON;
         public string[] ORTOTP;
+        public string ORTO;
 
         public ResFileSegment(string[] segment)
         {
@@ -69,6 +70,8 @@ namespace TrsxV1Plugin
             START = segment.First(l => l.StartsWith("START:")).Substring(7).Split('|').Select(t => TimeSpan.FromSeconds(double.Parse(t, CultureInfo.InvariantCulture) * TRES.TotalSeconds)).ToArray();
             STOP = segment.First(l => l.StartsWith("STOP:")).Substring(6).Split('|').Select(t => TimeSpan.FromSeconds(double.Parse(t, CultureInfo.InvariantCulture) * TRES.TotalSeconds)).ToArray();
             PRON = segment.First(l => l.StartsWith("PRON:")).Substring(6).Split('|').ToArray();
+
+            ORTO = segment.First(l => l.StartsWith("ORTO:")).Substring(6);
 
             var ortop = segment.FirstOrDefault(l => l.StartsWith("ORTOTP:"));
             if (ortop != null)

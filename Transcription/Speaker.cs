@@ -51,6 +51,7 @@ namespace NanoTrans.Core
         public string RozpoznavacPrepisovaciPravidla;
         public string FotoJPGBase64;
         public string Comment;
+        public int DefaultLang = 0;
 
 
 
@@ -66,9 +67,12 @@ namespace NanoTrans.Core
             RozpoznavacPrepisovaciPravidla = null;
             FotoJPGBase64 = null;
             Comment = null;
+            DefaultLang = 0;
         }
         #region serializace nova
 
+
+        public static readonly List<string> Langs = new List<string>{"CZ","SK","RU","HR","PL"};
         [XmlIgnore]
         public Dictionary<string, string> Elements = new Dictionary<string, string>();
         private static readonly XAttribute EmptyAttribute = new XAttribute("empty", "");
@@ -99,11 +103,18 @@ namespace NanoTrans.Core
                 this.Comment = rem;
             }
 
+            if (Elements.TryGetValue("lang", out rem))
+            {
+                int idx = Langs.IndexOf(rem);
+                DefaultLang = (idx < 0) ? 0 : idx;
+            }
+
             Elements.Remove("id");
             Elements.Remove("firstname");
             Elements.Remove("surname");
             Elements.Remove("sex");
             Elements.Remove("comment");
+            Elements.Remove("lang");
 
         }
 
@@ -126,6 +137,8 @@ namespace NanoTrans.Core
                 elm.Add( new XAttribute("comment",Comment));
             }
 
+            elm.Add(new XAttribute("lang", Langs[DefaultLang]));
+
             return elm;
         }
         #endregion
@@ -147,6 +160,7 @@ namespace NanoTrans.Core
             RozpoznavacPrepisovaciPravidla = aSpeaker.RozpoznavacPrepisovaciPravidla;
             FotoJPGBase64 = aSpeaker.FotoJPGBase64;
             Comment = aSpeaker.Comment;
+            DefaultLang = aSpeaker.DefaultLang;
         }
 
         public Speaker(string aSpeakerFirstname, string aSpeakerSurname, Sexes aPohlavi, string aRozpoznavacMluvci, string aRozpoznavacJazykovyModel, string aRozpoznavacPrepisovaciPravidla, string aSpeakerFotoBase64, string aPoznamka) //constructor ktery vytvori speakera

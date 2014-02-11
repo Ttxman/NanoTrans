@@ -12,11 +12,13 @@ namespace ExePlugin
     {
         static System.Reflection.Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
         {
-            if (args.Name.StartsWith("NanoTrans"))
+            Console.WriteLine(args.Name);
+            Console.ReadLine();
+            if (args.Name.StartsWith("NanoTransCore"))
             {
                 string path = Assembly.GetExecutingAssembly().Location;
                 string assembliesDir = Directory.GetParent(Path.GetDirectoryName(path)).FullName;
-                Assembly asm = Assembly.LoadFrom(Path.Combine(assembliesDir, "NanoTrans.exe"));
+                Assembly asm = Assembly.LoadFrom(Path.Combine(assembliesDir, "NanoTransCore.dll"));
                 return asm;
             }
             return null;
