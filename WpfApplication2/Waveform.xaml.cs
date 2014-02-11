@@ -1391,7 +1391,8 @@ namespace NanoTrans
                     double bmarginl = p.X;
 
                     TimeSpan ts = new TimeSpan((long)(WaveLength.Ticks * (bmarginl / grid1.ActualWidth))) + WaveBegin;
-
+                    if (pAktualni.End - TimeSpan.FromSeconds(.5) < ts)
+                        return;
                     if ((bp != null && bmarginl < bp.Margin.Left + bp.Width) || btnrozhr) //kolize
                     {
                         if (sekce == sekcepred)
@@ -1399,6 +1400,8 @@ namespace NanoTrans
                             btnrozhr = true;
                             if ((Keyboard.Modifiers & ModifierKeys.Shift) == 0)
                             {
+                                if (pPredchozi.Begin + TimeSpan.FromSeconds(.5) > ts)
+                                    return;
                                 bp.Width = p.X - bp.Margin.Left;
                                 pPredchozi.End = ts;
                                 if (ElementChanged != null)
@@ -1422,7 +1425,8 @@ namespace NanoTrans
                     double bwi = p.X - b.Margin.Left;
 
                     TimeSpan ts = new TimeSpan((long)(WaveLength.Ticks * ((bwi + b.Margin.Left) / grid1.ActualWidth))) + WaveBegin;
-
+                    if (ts <= pAktualni.Begin + TimeSpan.FromSeconds(.5))
+                        return;
 
                     if ((bn != null && b.Margin.Left + b.Width > bn.Margin.Left) || btnrozhr)
                     {
@@ -1431,6 +1435,9 @@ namespace NanoTrans
                             btnrozhr = true;
                             if ((Keyboard.Modifiers & ModifierKeys.Shift) == 0)
                             {
+                                if (pNasledujici.End - TimeSpan.FromSeconds(.5) <= ts)
+                                    return;
+
                                 bn.Width = bn.Width + (bn.Margin.Left - p.X);
                                 bn.Margin = new Thickness(p.X, bn.Margin.Top, bn.Margin.Right, bn.Margin.Bottom);
                                 pNasledujici.Begin = ts;

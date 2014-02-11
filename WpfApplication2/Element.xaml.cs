@@ -129,23 +129,7 @@ namespace NanoTrans
                 el.BeginChanged(el, null);
                 el.EndChanged(el, null);
 
-                MyParagraph par = val as MyParagraph;
-                if (par != null)
-                {
-                    int i = 0;
-                    foreach (Rectangle r in el.stackPanel1.Children)
-                    {
-                        if ((par.DataAttributes & all[i]) != 0)
-                        {
-                            r.Fill = GetRectangleInnenrColor(all[i]);
-                        }
-                        else
-                        {
-                            r.Fill = GetRectangleBgColor(all[i]);
-                        }
-                        i++;
-                    }
-                }
+                el.RepaintAttributes();
             }
 
             el.updating = false;
@@ -218,8 +202,13 @@ namespace NanoTrans
                         r.ToolTip = nam;
                         r.Margin = new Thickness(0, 0, 0, 1);
 
-                        r.Fill = GetRectangleBgColor(at);
+                        MyParagraph par = ValueElement as MyParagraph;
+                        if (par != null && (par.DataAttributes & at) != 0)
+                            r.Fill = GetRectangleInnenrColor(at);
+                        else
+                            r.Fill = GetRectangleBgColor(at);
                         r.MouseLeftButtonDown += new MouseButtonEventHandler(attributes_MouseLeftButtonDown);
+                        r.Tag = at;
                         stackPanel1.Children.Add(r);
                     }
                 }
@@ -228,19 +217,25 @@ namespace NanoTrans
 
         void attributes_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            int i = ((sender as Rectangle).Parent as StackPanel).Children.IndexOf(sender as UIElement) + 1;
+            //int i = ((sender as Rectangle).Parent as StackPanel).Children.IndexOf(sender as UIElement) + 1;
             MyParagraph par = ValueElement as MyParagraph;
-
             if (par != null)
             {
-                par.DataAttributes ^= all[i];
-                if ((par.DataAttributes & all[i]) != 0)
+                MyEnumParagraphAttributes attr = (MyEnumParagraphAttributes)(sender as Rectangle).Tag;
+
+                par.DataAttributes ^= attr;
+
+                foreach (Rectangle r in ((sender as Rectangle).Parent as StackPanel).Children)
                 {
-                    (sender as Rectangle).Fill = GetRectangleInnenrColor(all[i]);
-                }
-                else
-                {
-                    (sender as Rectangle).Fill = GetRectangleBgColor(all[i]);
+                    attr = (MyEnumParagraphAttributes)r.Tag;
+                    if ((par.DataAttributes & attr) != 0)
+                    {
+                        r.Fill = GetRectangleInnenrColor(attr);
+                    }
+                    else
+                    {
+                        r.Fill = GetRectangleBgColor(attr);
+                    }
                 }
             }
         }
@@ -309,7 +304,7 @@ namespace NanoTrans
         public static readonly SpellChecker DefaultSpellchecker = new SpellChecker();
         public static readonly NonEditableBlockGenerator DefaultNonEditableBlockGenerator = new NonEditableBlockGenerator();
 
-        private PositionHighlighter BackgroundHiglighter=null;
+        private PositionHighlighter BackgroundHiglighter = null;
 
         void TextArea_TextEntered(object sender, TextCompositionEventArgs e)
         {
@@ -603,14 +598,20 @@ namespace NanoTrans
 
         private void BeginChanged(object sendet, EventArgs value)
         {
-            TimeSpan val = ValueElement.Begin;
-            this.textbegin.Text = string.Format("{0}:{1:00}:{2:00},{3}", val.Hours, val.Minutes, val.Seconds, val.Milliseconds.ToString("00").Substring(0, 2));
+            if (ValueElement != null)
+            {
+                TimeSpan val = ValueElement.Begin;
+                this.textbegin.Text = string.Format("{0}:{1:00}:{2:00},{3}", val.Hours, val.Minutes, val.Seconds, val.Milliseconds.ToString("00").Substring(0, 2));
+            }
         }
 
         private void EndChanged(object sendet, EventArgs value)
         {
-            TimeSpan val = ValueElement.End;
-            this.textend.Text = string.Format("{0}:{1:00}:{2:00},{3}", val.Hours, val.Minutes, val.Seconds, val.Milliseconds.ToString("00").Substring(0, 2));
+            if (ValueElement != null)
+            {
+                TimeSpan val = ValueElement.End;
+                this.textend.Text = string.Format("{0}:{1:00}:{2:00},{3}", val.Hours, val.Minutes, val.Seconds, val.Milliseconds.ToString("00").Substring(0, 2));
+            }
         }
 
         internal void UserControl_GotFocus(object sender, RoutedEventArgs e)
@@ -910,7 +911,7 @@ namespace NanoTrans
                     par.Children.Remove(v); //bezeventovy mazani; nedojde k prekresleni celeho seznamu elementu
 
             }
-            
+            offset = e.Offset;
             if (addedl > 0)
             {
                 int pos = 0;
@@ -927,6 +928,11 @@ namespace NanoTrans
                     }
                     pos += (EditPhonetics ? p.Phonetics.Length : p.Text.Length);
                 }
+            }
+
+            if (par.Text != editor.Text)
+            {
+                editor.Background = Brushes.Red;
             }
 
         }
@@ -955,7 +961,8 @@ namespace NanoTrans
         }
 
         int m_forcesellength = 0;
-        public void SetSelection(int offset, int length)
+        int m_forceselbegin = 0;
+        public void SetSelection(int offset, int length, int carretoffset)
         {
             m_forceCarretpositionOnLoad = -1;
             m_forcesellength = 0;
@@ -980,7 +987,7 @@ namespace NanoTrans
 
         public void SetCaretOffset(int offset)
         {
-            SetSelection(offset, 0);
+            SetSelection(offset, 0,offset);
         }
 
         public int TextLength
