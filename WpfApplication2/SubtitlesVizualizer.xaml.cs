@@ -41,7 +41,7 @@ namespace NanoTrans
             if (data != null)
             {
                 data.SubtitlesChanged += vis.SubtitlesContentChanged;
-                
+
             }
 
             vis.gridscrollbar.Value = 0;
@@ -58,13 +58,13 @@ namespace NanoTrans
             }
             set
             {
-                
+
                 SetValue(SubtitlesProperty, value);
             }
         }
 
 
-        public delegate void TimespanRequestDelegate(out TimeSpan value); 
+        public delegate void TimespanRequestDelegate(out TimeSpan value);
         public event TimespanRequestDelegate RequestTimePosition;
 
 
@@ -118,14 +118,14 @@ namespace NanoTrans
         {
             m_Updating = false;
             if (m_updated)
-                RecreateElements(gridscrollbar.Value,true);
+                RecreateElements(gridscrollbar.Value, true);
             m_updated = false;
         }
 
         void l_NewRequest(object sender, EventArgs e)
         {
             BeginUpdate();
-            Element el = (Element)sender; 
+            Element el = (Element)sender;
             MyParagraph p = new MyParagraph();
             p.Add(new MyPhrase());
             if (el.ValueElement is MyParagraph)
@@ -188,7 +188,7 @@ namespace NanoTrans
             el = GetVisualForTransctiption(tr);
             if (n != null)
             {
-                Point p = el.editor.TextArea.TextView.GetVisualPosition(twpos,VisualYPosition.LineMiddle);
+                Point p = el.editor.TextArea.TextView.GetVisualPosition(twpos, VisualYPosition.LineMiddle);
                 p = el.editor.PointToScreen(p);
 
                 VisualLine last = n.editor.TextArea.TextView.VisualLines.Last();
@@ -197,7 +197,7 @@ namespace NanoTrans
                 Point p2 = n.editor.TextArea.TextView.GetVisualPosition(new TextViewPosition(n.editor.Document.GetLocation(len)), VisualYPosition.LineMiddle);
                 p2 = n.editor.PointToScreen(p2);
 
-                Point loc = new Point(p.X,p2.Y);
+                Point loc = new Point(p.X, p2.Y);
 
                 p2 = n.editor.PointFromScreen(loc);
                 var tpos = n.editor.TextArea.TextView.GetPosition(p2);
@@ -205,7 +205,7 @@ namespace NanoTrans
                 int pos = 0;
                 if (tpos.HasValue)
                 {
-                    pos = n.editor.Document.Lines[tpos.Value.Line-1].Offset + tpos.Value.Column -1;
+                    pos = n.editor.Document.Lines[tpos.Value.Line - 1].Offset + tpos.Value.Column - 1;
                 }
                 else
                 {
@@ -219,7 +219,7 @@ namespace NanoTrans
         {
             Element el = (Element)sender;
             TranscriptionElement tr = el.ValueElement;
-            
+
             if (tr == null)
                 return;
             TextViewPosition twpos = el.editor.TextArea.Caret.Position;
@@ -266,10 +266,10 @@ namespace NanoTrans
                 }
                 t.Parent.Remove(t);
             }
-            
+
             ActiveTransctiption = p;
             EndUpdate();
-            var vis =  GetVisualForTransctiption(p);
+            var vis = GetVisualForTransctiption(p);
             vis.editor.CaretOffset = vis.editor.Text.Length;
         }
 
@@ -299,20 +299,33 @@ namespace NanoTrans
                 {
 
                     MyParagraph par = (MyParagraph)el.ValueElement;
+                    TimeSpan end = par.End;
+                    MyParagraph par2 = new MyParagraph();
+                    MyParagraph par1 = new MyParagraph();
+
+                    par2.End = end;
                     int where = el.editor.CaretOffset;
 
                     int sum = 0;
                     for (int i = 0; i < par.Phrases.Count; i++)
                     {
                         MyPhrase p = par.Phrases[i];
-                        if (sum <= where && sum + p.Text.Length > where) //uvnitr fraze
+
+                        if (sum + p.Text.Length <= where) //patri do prvniho
+                        {
+                            par1.Add(new MyPhrase(p));
+                        }
+                        else if (sum >= where)
+                        {
+                            par2.Add(new MyPhrase(p));
+                        }
+                        else if (sum <= where && sum + p.Text.Length > where) //uvnitr fraze
                         {
                             int offs = where - sum;
                             double ratio = offs / (double)p.Text.Length;
 
 
                             TimeSpan length = p.End - p.Begin;
-                            TimeSpan end = p.End;
                             TimeSpan l1 = new TimeSpan((long)(ratio * length.Ticks));
 
                             MyPhrase p1 = new MyPhrase();
@@ -323,50 +336,44 @@ namespace NanoTrans
                             if (p1.End <= par.Begin)
                                 p1.End = par.Begin + TimeSpan.FromMilliseconds(100); //pojistka kvuli nezarovnanejm textum
                             int idx = i;
-                            par.RemoveAt(i);
-                            par.Insert(i, p1);
+                            par1.Add(p1);
 
                             MyPhrase p2 = new MyPhrase();
                             p2.Text = p.Text.Substring(offs);
                             p2.Begin = p1.End;
                             p2.End = p.End;
 
-                            MyParagraph par2 = new MyParagraph();
+
                             par2.Add(p2);
                             par2.Begin = p2.Begin;
-                            par2.End = end;
-                            par.End = p1.End;
-                            par.BeginUpdate();
-                            i++;
-                            par.BeginUpdate();
-                            while (par.Phrases.Count > i)
-                            {
-                                MyPhrase ph = par.Phrases[i];
-                                par.RemoveAt(i);
-                                par2.Add(ph);
-                            }
-                            par.EndUpdate();
 
-                            if (!Keyboard.Modifiers.HasFlag(ModifierKeys.Control))
-                            { 
-                                
-                                if (RequestTimePosition != null)
-                                {
-                                    TimeSpan pos;
-                                    RequestTimePosition(out pos);
-
-                                    par.End = pos;
-                                    par2.Begin = pos;
-                                }
-                            }
-
-                            par.Parent.Insert(par.ParentIndex + 1, par2);
-                            ActiveTransctiption = par2;
-                            return;
+                            par1.End = p1.End;
+   
                         }
                         sum += p.Text.Length;
+                    }//for
+
+                    if (!Keyboard.Modifiers.HasFlag(ModifierKeys.Control))//TODO: hodit to nejak jinak do funkci... :P
+                    {
+
+                        if (RequestTimePosition != null)
+                        {
+                            TimeSpan pos;
+                            RequestTimePosition(out pos);
+
+                            par1.End = pos;
+                            par2.Begin = pos;
+                        }
+
                     }
 
+                    var parent = par.Parent;
+                    int indx = par.ParentIndex;
+                    parent.Remove(par);
+                    parent.Insert(indx, par2);
+                    parent.Insert(indx, par1);
+                    ActiveTransctiption = par2;
+                    return;
                 }
             }
             finally
@@ -375,7 +382,7 @@ namespace NanoTrans
             }
         }
 
-       
+
         void l_LostFocus(object sender, RoutedEventArgs e)
         {
             //m_activeTranscription = null;
@@ -384,12 +391,12 @@ namespace NanoTrans
 
         void l_GotFocus(object sender, RoutedEventArgs e)
         {
-            
+
             var el = sender as Element;
             if (m_activeTranscription == el.ValueElement || el == null)
                 return;
             ActiveTransctiption = el.ValueElement;
-            
+
             if (SelectedElementChanged != null)
             {
                 SelectedElementChanged(this, new EventArgs());
@@ -402,7 +409,7 @@ namespace NanoTrans
             {
                 double delta = e.NewSize.Height - ((Element)sender).ValueElement.height;
                 ((Element)sender).ValueElement.height = e.NewSize.Height;
-                
+
                 Subtitles.TotalHeigth += delta;
                 gridscrollbar.Maximum = Subtitles.TotalHeigth - ActualHeight;
             }
@@ -411,7 +418,7 @@ namespace NanoTrans
         private void UserControl_MouseWheel(object sender, MouseWheelEventArgs e)
         {
             double value = gridscrollbar.Value;
-            value -= (e.Delta > 0 ? 1 : -1) *gridscrollbar.SmallChange;
+            value -= (e.Delta > 0 ? 1 : -1) * gridscrollbar.SmallChange;
 
             if (value < gridscrollbar.Minimum)
                 value = gridscrollbar.Minimum;
@@ -433,17 +440,17 @@ namespace NanoTrans
         private int m_activetransctiptionSelectionStart = -1;
         public TranscriptionElement ActiveTransctiption
         {
-            get 
+            get
             {
                 return m_activeTranscription;
             }
 
-            set 
+            set
             {
                 var e = ActiveElement;
                 if (e != null)
                     e.maingrid.Background = null;
-                
+
                 m_activeTranscription = value;
                 e = SetActiveTranscription(value);
 
@@ -480,13 +487,13 @@ namespace NanoTrans
 
 
             Element e = GetVisualForTransctiption(el);
-            
+
             if (e != null)
             {
                 TranscriptionElement t = e.ValueElement;
                 double h = e.TransformToAncestor(this).Transform(new Point(0, 0)).Y + e.ValueElement.height;
 
-                if(e.ValueElement.height > ActualHeight)
+                if (e.ValueElement.height > ActualHeight)
                 {
                     double delta = 0;
                     if (Subtitles != null)
@@ -502,7 +509,7 @@ namespace NanoTrans
                     UpdateLayout();
                     e = GetVisualForTransctiption(t);
                 }
-                else if (h  > ActualHeight)
+                else if (h > ActualHeight)
                 {
                     double delta = h - ActualHeight + 10;
                     gridscrollbar.Value += delta;
@@ -521,7 +528,7 @@ namespace NanoTrans
                 {
                     ee.SetCaretOffset(-1);
                 }
-                if(e!=null)
+                if (e != null)
                     e.SetCaretOffset(0);
                 return e;
             }
@@ -534,7 +541,7 @@ namespace NanoTrans
                 {
                     if (tr == el)
                         break;
-                    totalh += tr.height; 
+                    totalh += tr.height;
                 }
             }
             totalh -= 20;
@@ -550,7 +557,7 @@ namespace NanoTrans
             e.GotFocus -= l_GotFocus;
             e.LostFocus -= l_LostFocus;
             e.editor.TextArea.SelectionChanged -= TextArea_SelectionChanged;
-            e.editor.TextArea.Caret.PositionChanged-=Caret_PositionChanged;
+            e.editor.TextArea.Caret.PositionChanged -= Caret_PositionChanged;
             e.ClearEvents();
             e.ClearBindings();
             e.ValueElement = null;
@@ -717,14 +724,14 @@ namespace NanoTrans
         void Caret_PositionChanged(object sender, EventArgs e)
         {
             var l = sender as ICSharpCode.AvalonEdit.Editing.Caret;
-            m_activeTranscriptionOffset = l.Offset; 
+            m_activeTranscriptionOffset = l.Offset;
         }
 
         void TextArea_SelectionChanged(object sender, EventArgs e)
         {
             var l = sender as ICSharpCode.AvalonEdit.Editing.TextArea;
             m_activetransctiptionSelectionLength = l.Selection.Length;
-            if (l.Selection.Length > 0 && l.Selection.Segments.Count() >0)
+            if (l.Selection.Length > 0 && l.Selection.Segments.Count() > 0)
                 m_activetransctiptionSelectionStart = l.Selection.Segments.First().Offset;
             else
                 m_activetransctiptionSelectionStart = 0;
@@ -756,8 +763,8 @@ namespace NanoTrans
 
         private void gridscrollbar_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            if(!updating)
-            RecreateElements(e.NewValue);
+            if (!updating)
+                RecreateElements(e.NewValue);
         }
 
         private void UserControl_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -772,9 +779,9 @@ namespace NanoTrans
 
 
         private TimeSpan m_higlightedPostion = new TimeSpan(-1);
-        public TimeSpan HiglightedPostion 
+        public TimeSpan HiglightedPostion
         {
-            get 
+            get
             {
                 return m_higlightedPostion;
             }
