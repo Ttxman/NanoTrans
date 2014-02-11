@@ -13,25 +13,25 @@ namespace NanoTrans.Core
     //nejmensi textovy usek - muze byt veta, vice slov nebo samotne slovo
     public sealed class TranscriptionPhrase : TranscriptionElement
     {
-        private string m_text = "";//slovo/a ktere obsahuji i mezery na konci
+        private string _text = "";//slovo/a ktere obsahuji i mezery na konci
 
         public override string Text
         {
-            get { return m_text; }
-            set { m_text = value; }
+            get { return _text; }
+            set { _text = value; }
         }
 
-        private string m_phonetics = "";
+        private string _phonetics = "";
 
         public override string Phonetics
         {
             get
             {
-                return m_phonetics;
+                return _phonetics;
             }
             set
             {
-                m_phonetics = value;
+                _phonetics = value;
             }
         }
 
@@ -46,19 +46,58 @@ namespace NanoTrans.Core
         /// </summary>
         /// <param name="e"></param>
         /// <param name="isStrict"></param>
-        public TranscriptionPhrase(XElement e, bool isStrict)
+        public static TranscriptionPhrase DeserializeV2(XElement e, bool isStrict)
         {
-            elements = e.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
-            elements.Remove(isStrict ? "begin" : "b");
-            elements.Remove(isStrict ? "end" : "e");
-            elements.Remove(isStrict ? "fon" : "f");
+            TranscriptionPhrase phr = new TranscriptionPhrase();
+            phr.elements = e.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
+            phr.elements.Remove(isStrict ? "begin" : "b");
+            phr.elements.Remove(isStrict ? "end" : "e");
+            phr.elements.Remove(isStrict ? "fon" : "f");
 
 
-            this.m_phonetics = (e.Attribute(isStrict ? "fon" : "f") ?? EmptyAttribute).Value;
-            this.m_text = e.Value.Trim('\r', '\n');
+            phr._phonetics = (e.Attribute(isStrict ? "fon" : "f") ?? EmptyAttribute).Value;
+            phr._text = e.Value.Trim('\r', '\n');
             if (e.Attribute(isStrict ? "begin" : "b") != null)
             {
                 string val = e.Attribute(isStrict ? "begin" : "b").Value;
+                int ms;
+                if (int.TryParse(val, out ms))
+                    phr.Begin = TimeSpan.FromMilliseconds(ms);
+                else
+                    phr.Begin = XmlConvert.ToTimeSpan(val);
+
+            }
+
+            if (e.Attribute(isStrict ? "end" : "e") != null)
+            {
+                string val = e.Attribute(isStrict ? "end" : "e").Value;
+                int ms;
+                if (int.TryParse(val, out ms))
+                    phr.End = TimeSpan.FromMilliseconds(ms);
+                else
+                    phr.End = XmlConvert.ToTimeSpan(val);
+            }
+
+            return phr;
+        }
+
+        /// <summary>
+        /// v3 serialization
+        /// </summary>
+        /// <param name="e"></param>
+        public TranscriptionPhrase(XElement e)
+        {
+            elements = e.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
+            elements.Remove("b");
+            elements.Remove("e");
+            elements.Remove("f");
+
+
+            this._phonetics = (e.Attribute("f") ?? EmptyAttribute).Value;
+            this._text = e.Value.Trim('\r', '\n');
+            if (e.Attribute("b") != null)
+            {
+                string val = e.Attribute("b").Value;
                 int ms;
                 if (int.TryParse(val, out ms))
                 {
@@ -69,9 +108,9 @@ namespace NanoTrans.Core
 
             }
 
-            if (e.Attribute(isStrict ? "end" : "e") != null)
+            if (e.Attribute("e") != null)
             {
-                string val = e.Attribute(isStrict ? "end" : "e").Value;
+                string val = e.Attribute("e").Value;
                 int ms;
                 if (int.TryParse(val, out ms))
                 {
@@ -80,29 +119,20 @@ namespace NanoTrans.Core
                 else
                     End = XmlConvert.ToTimeSpan(val);
             }
-
         }
 
-        /// <summary>
-        /// v3 serialization
-        /// </summary>
-        /// <param name="e"></param>
-        public TranscriptionPhrase(XElement e)
-        { 
 
-        }
-
-        public XElement Serialize(bool strict)
+        public XElement Serialize()
         {
-            XElement elm = new XElement(strict ? "phrase" : "p",
+            XElement elm = new XElement("p",
                 elements.Select(e =>
                     new XAttribute(e.Key, e.Value))
                     .Union(new[]{ 
-                    new XAttribute(strict?"begin":"b", Begin),
-                    new XAttribute(strict?"end":"e", End),
-                    new XAttribute(strict?"fon":"f", m_phonetics),
+                    new XAttribute("b", Begin),
+                    new XAttribute("e", End),
+                    new XAttribute("f", _phonetics),
                     }),
-                    m_text.Trim('\r', '\n')
+                    _text.Trim('\r', '\n')
             );
 
             return elm;
@@ -112,10 +142,10 @@ namespace NanoTrans.Core
 
         public TranscriptionPhrase(TranscriptionPhrase kopie)
         {
-            this.m_begin = kopie.m_begin;
-            this.m_end = kopie.m_end;
-            this.m_text = kopie.m_text;
-            this.m_phonetics = kopie.m_phonetics;
+            this._begin = kopie._begin;
+            this._end = kopie._end;
+            this._text = kopie._text;
+            this._phonetics = kopie._phonetics;
             this.height = kopie.height;
         }
 

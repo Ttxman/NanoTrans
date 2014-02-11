@@ -9,15 +9,15 @@ namespace NanoTrans.Core
 {
     public class VirtualTypeList<T> : IList<T> where T : TranscriptionElement
     {
-        List<TranscriptionElement> m_elementlist;
-        TranscriptionElement m_parent;
+        List<TranscriptionElement> _elementlist;
+        TranscriptionElement _parent;
         public VirtualTypeList(TranscriptionElement parent)
         {
             if (parent == null)
                 throw new ArgumentNullException();
 
-            m_elementlist = parent.Children;
-            m_parent = parent;
+           _elementlist = parent.Children;
+           _parent = parent;
         }
 
         public void AddMany(IEnumerable<T> elements)
@@ -31,24 +31,24 @@ namespace NanoTrans.Core
 
         public int IndexOf(T item)
         {
-            return m_elementlist.IndexOf(item);
+            return _elementlist.IndexOf(item);
         }
 
         public void Insert(int index, T item)
         {
-            m_parent.Insert(index, item);
+           _parent.Insert(index, item);
         }
 
         public void RemoveAt(int index)
         {
-            m_parent.RemoveAt(index);
+           _parent.RemoveAt(index);
         }
 
         public T this[int index]
         {
             get
             {
-                return (T)m_elementlist[index];
+                return (T)_elementlist[index];
             }
             set
             {
@@ -62,38 +62,38 @@ namespace NanoTrans.Core
 
         public void Add(T item)
         {
-            m_parent.Add(item);
+           _parent.Add(item);
         }
 
         public void Clear()
         {
 
-            m_elementlist.Clear();
+           _elementlist.Clear();
         }
 
         public bool Contains(T item)
         {
-            return m_elementlist.Contains(item);
+            return _elementlist.Contains(item);
         }
 
         public void CopyTo(T[] array, int arrayIndex)
         {
-            m_elementlist.CopyTo(array, arrayIndex);
+           _elementlist.CopyTo(array, arrayIndex);
         }
 
         public int Count
         {
-            get { return m_elementlist.Count; }
+            get { return _elementlist.Count; }
         }
 
         public bool IsReadOnly
         {
-            get { return ((IList<TranscriptionElement>)m_elementlist).IsReadOnly; }
+            get { return ((IList<TranscriptionElement>)_elementlist).IsReadOnly; }
         }
 
         public bool Remove(T item)
         {
-            return m_parent.Remove(item);
+            return _parent.Remove(item);
         }
 
         #endregion
@@ -102,7 +102,7 @@ namespace NanoTrans.Core
 
         public IEnumerator<T> GetEnumerator()
         {
-            return new VirtualEnumerator<T>(m_elementlist);
+            return new VirtualEnumerator<T>(_elementlist);
         }
 
         #endregion
@@ -111,7 +111,7 @@ namespace NanoTrans.Core
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return new VirtualEnumerator<T>(m_elementlist);
+            return new VirtualEnumerator<T>(_elementlist);
         }
 
         class VirtualEnumerator<R> : IEnumerator<R> where R : TranscriptionElement

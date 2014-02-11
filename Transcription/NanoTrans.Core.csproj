@@ -44,7 +44,7 @@
     <Compile Include="Speaker.cs" />
     <Compile Include="ElementType.cs" />
     <Compile Include="ParagraphAttributes.cs" />
-    <Compile Include="MySpeakers.cs" />
+    <Compile Include="SpeakerCollection.cs" />
     <Compile Include="SpeakerAttribute.cs" />
     <Compile Include="ToolsAndExtensions.cs" />
     <Compile Include="Transcription.cs" />

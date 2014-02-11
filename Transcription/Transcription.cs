@@ -85,23 +85,21 @@ namespace NanoTrans.Core
 
         public string FileName { get; set; }
 
-        private bool m_saved;
+        private bool _saved;
         public bool Saved
         {
             get
             {
-                return m_saved;
+                return _saved;
             }
             set
             {
-                m_saved = value;
+                _saved = value;
             }
         }
 
-        /// <summary>
-        /// datum a cas poradu, ktery je v transkripci zpracovan - napr. pocatecni cas audio souboru 
-        /// </summary>
-        public DateTime dateTime { get; set; }
+        public string DocumentID { get; set; }
+        public DateTime Created { get; set; }
         /// <summary>
         /// zdroj odkud je transkripce - radio - nazev kanalu, televize, mikrofon, atd...
         /// </summary>
@@ -125,13 +123,13 @@ namespace NanoTrans.Core
         public VirtualTypeList<TranscriptionChapter> Chapters;    //vsechny kapitoly streamu
 
         [XmlElement("SpeakersDatabase")]
-        public MySpeakers m_speakers = new MySpeakers();
+        public SpeakerCollection _speakers = new SpeakerCollection();
 
         [XmlIgnore]
-        public MySpeakers Speakers
+        public SpeakerCollection Speakers
         {
-            get { return m_speakers; }
-            set { m_speakers = value; }
+            get { return _speakers; }
+            set { _speakers = value; }
         }
 
 
@@ -140,8 +138,9 @@ namespace NanoTrans.Core
         {
             FileName = null;
             Saved = false;
-
+            DocumentID = Guid.NewGuid().ToString();
             Chapters = new VirtualTypeList<TranscriptionChapter>(this);
+            Created = DateTime.UtcNow;
             //constructor  
         }
 
@@ -151,9 +150,8 @@ namespace NanoTrans.Core
         /// vytvori kopii objektu
         /// </summary>
         /// <param name="aKopie"></param>
-        public Transcription(Transcription aKopie)
+        public Transcription(Transcription aKopie):this()
         {
-            this.dateTime = aKopie.dateTime;
             this.source = aKopie.source;
             this.mediaURI = aKopie.mediaURI;
             this.videoFileName = aKopie.videoFileName;
@@ -167,7 +165,7 @@ namespace NanoTrans.Core
                 }
             }
             this.FileName = aKopie.FileName;
-            this.m_speakers = new MySpeakers(aKopie.m_speakers);
+            this._speakers = new SpeakerCollection(aKopie._speakers);
             this.Saved = aKopie.Saved;
         }
 
@@ -248,7 +246,7 @@ namespace NanoTrans.Core
             {
                 if (aSpeaker.FullName != null && aSpeaker.FullName != "")
                 {
-                    if (this.m_speakers.RemoveSpeaker(aSpeaker))
+                    if (this._speakers.RemoveSpeaker(aSpeaker))
                     {
                         Saved = false;
                         for (int k = 0; k < Chapters.Count; k++)
@@ -288,7 +286,7 @@ namespace NanoTrans.Core
         /// <returns></returns>
         public bool AddSpeaker(Speaker aSpeaker)
         {
-            if (m_speakers.AddSpeaker(aSpeaker, false))
+            if (_speakers.AddSpeaker(aSpeaker, false))
             {
                 this.Saved = false;
                 return true;
@@ -299,12 +297,12 @@ namespace NanoTrans.Core
 
         public Speaker GetSpeakerByID(int ID)
         {
-            return this.m_speakers.GetSpeakerByID(ID);
+            return this._speakers.GetSpeakerByID(ID);
         }
 
         public Speaker GetSpeakerByName(string fullname)
         {
-            return this.m_speakers.GetSpeakerByName(fullname);
+            return this._speakers.GetSpeakerByName(fullname);
         }
 
         /// <summary>
@@ -353,7 +351,7 @@ namespace NanoTrans.Core
 
 
                 writer.WriteStartElement("Transcription");
-                writer.WriteAttributeString("dateTime", XmlConvert.ToString(co.dateTime, XmlDateTimeSerializationMode.Local));
+                writer.WriteAttributeString("dateTime", XmlConvert.ToString(co.Created, XmlDateTimeSerializationMode.Local));
                 writer.WriteAttributeString("audioFileName", co.mediaURI);
 
                 writer.WriteStartElement("Chapters");
@@ -452,7 +450,7 @@ namespace NanoTrans.Core
 
 
 
-                foreach (Speaker sp in co.m_speakers.Speakers)
+                foreach (Speaker sp in co._speakers.Speakers)
                 {
                     writer.WriteStartElement("Speaker");
                     writer.WriteElementString("ID", XmlConvert.ToString(sp.ID));
@@ -487,13 +485,22 @@ namespace NanoTrans.Core
         /// <returns></returns>
         public bool Serialize(Stream datastream, bool aUkladatKompletMluvci = false, bool StrictFormat = false)
         {
-            XDocument xdoc =
-                new XDocument(new XDeclaration("1.0", "utf-8", "yes"),
-                    new XElement("transcription", elements.Select(e => new XAttribute(e.Key, e.Value)).Union(new[] { new XAttribute("version", "3.0"), new XAttribute("mediaURI", mediaURI ?? "") }),
+            XElement pars = new XElement("transcription", elements.Select(e => new XAttribute(e.Key, e.Value)).Union(new[] { 
+                        new XAttribute("version", "3.0"), 
+                        new XAttribute("mediauri", mediaURI ?? ""),
+                        new XAttribute("created",Created)
+                        }),
                         this.Meta,
                         Chapters.Select(c => c.Serialize(StrictFormat)),
                         Speakers.Serialize()
-                    )
+                    );
+
+            if(!string.IsNullOrWhiteSpace(this.DocumentID))
+                pars.Add(new XAttribute("documentid",this.DocumentID));
+
+            XDocument xdoc =
+                new XDocument(new XDeclaration("1.0", "utf-8", "yes"),
+                    pars
                 );
 
             xdoc.Save(datastream);
@@ -540,6 +547,10 @@ namespace NanoTrans.Core
                 reader.Read();
                 string version = reader.GetAttribute("version");
 
+                if (version == "3.0")
+                {
+                    DeserializeV3(reader, storage);
+                }
                 if (version == "2.0")
                 {
                     DeserializeV2_0(reader, storage);
@@ -553,7 +564,7 @@ namespace NanoTrans.Core
         }
 
         public XElement Meta = EmptyMeta;
-        private static readonly XElement EmptyMeta = new XElement("Meta");
+        private static readonly XElement EmptyMeta = new XElement("meta");
         private Dictionary<string, string> elements = new Dictionary<string, string>();
 
         /// <summary>
@@ -583,10 +594,48 @@ namespace NanoTrans.Core
             data.elements.Remove("mediaURI");
             data.elements.Remove("version");
 
-            chapters.Select(c => (TranscriptionElement)new TranscriptionChapter(c, isStrict)).ToList().ForEach(c => data.Add(c));
+            chapters.Select(c => (TranscriptionElement)TranscriptionChapter.DeserializeV2(c, isStrict)).ToList().ForEach(c => data.Add(c));
 
             var speakers = transcription.Element(isStrict ? "speakers" : "sp");
             data.Speakers.Speakers = new List<Speaker>(speakers.Elements(isStrict ? "speaker" : "s").Select(s => Speaker.DeserializeV2(s, isStrict)));
+            storage.AssingSpeakersByID();
+            data.EndUpdate();
+        }
+
+        /// <summary>
+        /// deserialize transcription in v3 format
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <param name="storage">data will be deserialized into this object, useful for overrides </param>
+        private static void DeserializeV3(XmlTextReader reader, Transcription storage)
+        {
+
+            Transcription data = storage;
+            data.BeginUpdate();
+            var document = XDocument.Load(reader);
+            var transcription = document.Elements().First();
+
+            string version = transcription.Attribute("version").Value;
+            string mediaURI = transcription.Attribute("mediauri").Value;
+            data.mediaURI = mediaURI;
+            data.Meta = transcription.Element("meta") ?? EmptyMeta;
+            var chapters = transcription.Elements("ch");
+            string did;
+            if (data.elements.TryGetValue("documentid", out did))
+                data.DocumentID = did;
+            if (data.elements.TryGetValue("created", out did))
+                data.Created = XmlConvert.ToDateTime(did);
+
+            data.elements = transcription.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
+            data.elements.Remove("style");
+            data.elements.Remove("mediauri");
+            data.elements.Remove("version");
+            data.elements.Remove("documentid");
+
+            foreach(var c in chapters.Select(c => new TranscriptionChapter(c)))
+                data.Add(c);
+
+            data.Speakers = new SpeakerCollection(transcription.Element("sp"));
             storage.AssingSpeakersByID();
             data.EndUpdate();
         }
@@ -610,7 +659,7 @@ namespace NanoTrans.Core
                 data.mediaURI = reader.GetAttribute("audioFileName");
                 string val = reader.GetAttribute("dateTime");
                 if (val != null)
-                    data.dateTime = XmlConvert.ToDateTime(val, XmlDateTimeSerializationMode.Local);
+                    data.Created = XmlConvert.ToDateTime(val, XmlDateTimeSerializationMode.Local);
 
                 reader.ReadStartElement("Transcription");
 
@@ -1031,7 +1080,7 @@ namespace NanoTrans.Core
                                 break;
                         }
                     }
-                    data.m_speakers.Speakers.Add(sp);
+                    data._speakers.Speakers.Add(sp);
                     storage.AssingSpeakersByID();
                 }
             }
@@ -1155,11 +1204,11 @@ namespace NanoTrans.Core
             }
             else if (item is TranscriptionSection)
             {
-                m_children[m_children.Count - 1].Add(item);
+                _children[_children.Count - 1].Add(item);
             }
             else if (item is TranscriptionParagraph)
             {
-                m_children[m_children.Count - 1].Children[m_children[m_children.Count - 1].Children.Count - 1].Add(item);
+                _children[_children.Count - 1].Children[_children[_children.Count - 1].Children.Count - 1].Add(item);
             }
         }
 

@@ -119,39 +119,39 @@ namespace NanoTrans.Core
 
         public void SilentEndUpdate()
         {
-            m_updated = false;
+            _updated = false;
             EndUpdate();
         }
 
-        private int m_speakerID = Speaker.DefaultID;
+        private int _speakerID = Speaker.DefaultID;
         public int SpeakerID
         {
             get
             {
-                if (m_speaker == null)
-                    return m_speakerID;
+                if (_speaker == null)
+                    return _speakerID;
                 else
-                    return m_speaker.ID;
+                    return _speaker.ID;
             }
             set
             {
-                if (m_speaker != null && m_speakerID != Speaker.DefaultID)
+                if (_speaker != null && _speakerID != Speaker.DefaultID)
                     throw new ArgumentException("cannot set speaker ID while Speaker is set");
-                m_speakerID = value;
+                _speakerID = value;
             }
         }
 
-        Speaker m_speaker = null;
+        Speaker _speaker = null;
         public Speaker Speaker
         {
             get
             {
-                return m_speaker;
+                return _speaker;
             }
             set
             {
-                m_speaker = value;
-                m_speakerID = value.ID;
+                _speaker = value;
+                _speakerID = value.ID;
             }
         }
 
@@ -179,43 +179,44 @@ namespace NanoTrans.Core
         #region serializace nova
         private Dictionary<string, string> elements = new Dictionary<string, string>();
         private static readonly XAttribute EmptyAttribute = new XAttribute("empty", "");
-        public TranscriptionParagraph(XElement e, bool isStrict)
+
+        /// <summary>
+        /// V2 deserialization beware of local variable names
+        /// </summary>
+        /// <param name="e"></param>
+        /// <param name="isStrict"></param>
+        /// <returns></returns>
+        public static TranscriptionParagraph DeserializeV2(XElement e, bool isStrict)
         {
-            Phrases = new VirtualTypeList<TranscriptionPhrase>(this);
-            m_speakerID = int.Parse(e.Attribute(isStrict ? "speakerid" : "s").Value);
-            Attributes = (e.Attribute(isStrict ? "attributes" : "a") ?? EmptyAttribute).Value;
+            TranscriptionParagraph par = new TranscriptionParagraph();
+            par._speakerID = int.Parse(e.Attribute(isStrict ? "speakerid" : "s").Value);
+            par.Attributes = (e.Attribute(isStrict ? "attributes" : "a") ?? EmptyAttribute).Value;
 
-            elements = e.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
-            elements.Remove(isStrict ? "begin" : "b");
-            elements.Remove(isStrict ? "end" : "e");
-            elements.Remove(isStrict ? "attributes" : "a");
-            elements.Remove(isStrict ? "speakerid" : "s");
+            par.elements = e.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
+            par.elements.Remove(isStrict ? "begin" : "b");
+            par.elements.Remove(isStrict ? "end" : "e");
+            par.elements.Remove(isStrict ? "attributes" : "a");
+            par.elements.Remove(isStrict ? "speakerid" : "s");
 
 
-            e.Elements(isStrict ? "phrase" : "p").Select(p => (TranscriptionElement)new TranscriptionPhrase(p, isStrict)).ToList().ForEach(p => Add(p)); ;
+            e.Elements(isStrict ? "phrase" : "p").Select(p => (TranscriptionElement)TranscriptionPhrase.DeserializeV2(p, isStrict)).ToList().ForEach(p => par.Add(p)); ;
 
             if (e.Attribute(isStrict ? "attributes" : "a") != null)
-            {
-                this.Attributes = e.Attribute(isStrict ? "attributes" : "a").Value;
-
-            }
+                par.Attributes = e.Attribute(isStrict ? "attributes" : "a").Value;
 
             if (e.Attribute(isStrict ? "begin" : "b") != null)
             {
                 string val = e.Attribute(isStrict ? "begin" : "b").Value;
                 int ms;
                 if (int.TryParse(val, out ms))
-                {
-                    Begin = TimeSpan.FromMilliseconds(ms);
-                }
+                    par.Begin = TimeSpan.FromMilliseconds(ms);
                 else
-                    Begin = XmlConvert.ToTimeSpan(val);
-
+                    par.Begin = XmlConvert.ToTimeSpan(val);
             }
             else
             {
-                var ch = m_children.FirstOrDefault();
-                Begin = ch == null ? TimeSpan.Zero : ch.Begin;
+                var ch = par._children.FirstOrDefault();
+                par.Begin = ch == null ? TimeSpan.Zero : ch.Begin;
             }
 
             if (e.Attribute(isStrict ? "end" : "e") != null)
@@ -223,24 +224,95 @@ namespace NanoTrans.Core
                 string val = e.Attribute(isStrict ? "end" : "e").Value;
                 int ms;
                 if (int.TryParse(val, out ms))
-                {
-                    End = TimeSpan.FromMilliseconds(ms);
-                }
+                    par.End = TimeSpan.FromMilliseconds(ms);
                 else
-                    End = XmlConvert.ToTimeSpan(val);
+                    par.End = XmlConvert.ToTimeSpan(val);
             }
             else
             {
-                var ch = m_children.LastOrDefault();
+                var ch = par._children.LastOrDefault();
+                par.End = ch == null ? TimeSpan.Zero : ch.Begin;
+            }
+
+            return par;
+        }
+
+        public TranscriptionParagraph(XElement e)
+        {
+
+            if (!e.CheckRequiredAtributes("b", "e", "s"))
+                throw new ArgumentException("required attribute missing on paragraph (b,e,s)");
+
+            Phrases = new VirtualTypeList<TranscriptionPhrase>(this);
+            _speakerID = int.Parse(e.Attribute( "s").Value);
+            Attributes = (e.Attribute( "a") ?? EmptyAttribute).Value;
+
+            elements = e.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
+
+
+
+            foreach (var p in e.Elements("p").Select(p => (TranscriptionElement)new TranscriptionPhrase(p)))
+                Add(p);
+
+            string bfr;
+            if (elements.TryGetValue("a", out bfr))
+                this.Attributes = bfr;
+
+            if (elements.TryGetValue("b", out bfr))
+            {
+                int ms;
+                if (int.TryParse(bfr, out ms))
+                    Begin = TimeSpan.FromMilliseconds(ms);
+                else
+                    Begin = XmlConvert.ToTimeSpan(bfr);
+            }
+            else
+            {
+                var ch = _children.FirstOrDefault();
+                Begin = ch == null ? TimeSpan.Zero : ch.Begin;
+            }
+
+            if (elements.TryGetValue("e", out bfr))
+            {
+                int ms;
+                if (int.TryParse(bfr, out ms))
+                    End = TimeSpan.FromMilliseconds(ms);
+                else
+                    End = XmlConvert.ToTimeSpan(bfr);
+            }
+            else
+            {
+                var ch = _children.LastOrDefault();
                 End = ch == null ? TimeSpan.Zero : ch.Begin;
             }
 
+
+
+            
+            if (elements.TryGetValue("l", out bfr))
+            {
+                int idx = Speaker.Langs.IndexOf(bfr);
+                Language = (idx < 0) ? 0 : idx;
+            }
+
+            elements.Remove("b");
+            elements.Remove("e");
+            elements.Remove("s");
+            elements.Remove("a");
+            elements.Remove("l");
+
         }
 
-        public XElement Serialize(bool strict)
+        public XElement Serialize()
         {
-            XElement elm = new XElement(strict ? "paragraph" : "pa",
-                elements.Select(e => new XAttribute(e.Key, e.Value)).Union(new[] { new XAttribute(strict ? "begin" : "b", Begin), new XAttribute(strict ? "end" : "e", End), new XAttribute(strict ? "attributes" : "a", Attributes), new XAttribute(strict ? "speakerid" : "s", m_speakerID), }),
+            XElement elm = new XElement("pa",
+                elements.Select(e => new XAttribute(e.Key, e.Value)).Union(new[] { 
+                    new XAttribute("b", Begin), 
+                    new XAttribute("e", End), 
+                    new XAttribute("a", Attributes), 
+                    new XAttribute("s", _speakerID),
+                    new XAttribute("l", Speaker.Langs[Language]),
+                }),
                 Phrases.Select(p => p.Serialize())
             );
 
@@ -268,7 +340,7 @@ namespace NanoTrans.Core
                     this.Phrases.Add(new TranscriptionPhrase(aKopie.Phrases[i]));
                 }
             }
-            this.m_speakerID = aKopie.m_speakerID;
+            this._speakerID = aKopie._speakerID;
         }
 
         public TranscriptionParagraph(List<TranscriptionPhrase> phrases)
@@ -313,9 +385,9 @@ namespace NanoTrans.Core
         {
             get
             {
-                if (m_Parent != null)
+                if (_Parent != null)
                 {
-                    int sum = m_Parent.AbsoluteIndex + m_ParentIndex + 1;
+                    int sum = _Parent.AbsoluteIndex + _ParentIndex + 1;
                     //this.Phrases.Clear();
                   //  this.Add(new TranscriptionPhrase(){Text = sum.ToString()});
                     return sum;
@@ -325,6 +397,12 @@ namespace NanoTrans.Core
             }
         }
 
+        int? _lang = null;
+        public int Language 
+        { 
+            get; 
+            set; 
+        }
     }
 
 }

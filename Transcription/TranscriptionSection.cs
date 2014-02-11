@@ -53,21 +53,34 @@ namespace NanoTrans.Core
         #region serializace nova
         private Dictionary<string, string> elements = new Dictionary<string, string>();
         private static readonly XAttribute EmptyAttribute = new XAttribute("empty", "");
-        public TranscriptionSection(XElement e, bool isStrict)
+        public static TranscriptionSection DeserializeV2(XElement e, bool isStrict)
+        {
+            TranscriptionSection tsec = new TranscriptionSection();
+            tsec.name = e.Attribute("name").Value;
+            tsec.elements = e.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
+            tsec.elements.Remove("name");
+            foreach (var p in e.Elements(isStrict ? "paragraph" : "pa").Select(p => (TranscriptionElement)TranscriptionParagraph.DeserializeV2(p, isStrict)))
+                tsec.Add(p);
+
+            return tsec;
+        }
+
+        public TranscriptionSection(XElement e)
         {
             this.Paragraphs = new VirtualTypeList<TranscriptionParagraph>(this);
             name = e.Attribute("name").Value;
             elements = e.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
             elements.Remove("name");
-            e.Elements(isStrict ? "paragraph" : "pa").Select(p => (TranscriptionElement)new TranscriptionParagraph(p, isStrict)).ToList().ForEach(p => Add(p));
+            foreach(var p in e.Elements("pa").Select(p => (TranscriptionElement)new TranscriptionParagraph(p)))
+                Add(p);
 
         }
 
         public XElement Serialize(bool strict)
         {
 
-            XElement elm = new XElement(strict ? "section" : "se", elements.Select(e => new XAttribute(e.Key, e.Value)).Union(new[] { new XAttribute("name", name), }),
-                Paragraphs.Select(p => p.Serialize(strict))
+            XElement elm = new XElement("se", elements.Select(e => new XAttribute(e.Key, e.Value)).Union(new[] { new XAttribute("name", name), }),
+                Paragraphs.Select(p => p.Serialize())
             );
 
             return elm;
@@ -116,7 +129,7 @@ namespace NanoTrans.Core
 
         public override int GetTotalChildrenCount()
         {
-            return m_children.Count;
+            return _children.Count;
         }
 
         public override int AbsoluteIndex
@@ -124,11 +137,11 @@ namespace NanoTrans.Core
             get
             {
 
-                if (m_Parent != null)
+                if (_Parent != null)
                 {
                     
-                    int sum = m_Parent.AbsoluteIndex;//parent absolute index index
-                    sum += m_Parent.Children.Take(this.ParentIndex) //take previous siblings
+                    int sum = _Parent.AbsoluteIndex;//parent absolute index index
+                    sum += _Parent.Children.Take(this.ParentIndex) //take previous siblings
                         .Sum(s => s.GetTotalChildrenCount()); //+ all pre siblings counts (index on sublayers)
 
                     sum += ParentIndex; //+ parent index (index on sibling layer)

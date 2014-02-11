@@ -29,15 +29,15 @@ namespace Updater
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
 
-        float m_TotalKBytes = 0;
+        float _TotalKBytes = 0;
         public float TotalKBytes
         {
-            get { lock (this) { return m_TotalKBytes; } }
+            get { lock (this) { return _TotalKBytes; } }
             set
             {
                 lock (this)
                 {
-                    m_TotalKBytes = value;
+                   _TotalKBytes = value;
                 }
                 if (PropertyChanged != null)
                     PropertyChanged(this, new PropertyChangedEventArgs("TotalKBytes"));
@@ -85,30 +85,30 @@ namespace Updater
         }
 
 
-        string m_statusMessage;
+        string _statusMessage;
         public string StatusMessage
         {
-            get { lock (this) { return m_statusMessage; } }
+            get { lock (this) { return _statusMessage; } }
             set
             {
                 lock (this)
                 {
-                    m_statusMessage = value;
+                   _statusMessage = value;
                 }
                 if (PropertyChanged != null)
                     PropertyChanged(this, new PropertyChangedEventArgs("StatusMessage"));
             }
         }
 
-        bool m_preparingDownload = true;
+        bool _preparingDownload = true;
         public bool PreparingDownload
         {
-            get { lock (this) { return m_preparingDownload; } }
+            get { lock (this) { return _preparingDownload; } }
             set
             {
                 lock (this)
                 {
-                    m_preparingDownload = value;
+                   _preparingDownload = value;
                 }
                 if (PropertyChanged != null)
                     PropertyChanged(this, new PropertyChangedEventArgs("PreparingDownload"));
@@ -256,7 +256,7 @@ namespace Updater
             t.Start();
         }
 
-        int m_counter =0;
+        int _counter =0;
         private void FilesLoaded(Task<List<XElement>> val)
         {
             StatusMessage = "Stahuji soubory k aktualizaci...";
@@ -277,7 +277,7 @@ namespace Updater
                 XElement xl = f;
                 var t = new Task(() => DownloadAndUnpackFile(xl), App.CancelWork.Token);
                 t.ContinueWith((tsk) => Decrement());
-                m_counter++;
+               _counter++;
                 t.Start();
             }
         }
@@ -285,14 +285,14 @@ namespace Updater
         {
             lock (this)
             {
-                m_counter--;
+               _counter--;
             }
             RunNanoTransAndExit();
         }
 
         private void RunNanoTransAndExit()
         {
-            if (m_counter == 0)
+            if (_counter == 0)
             {
                 StatusMessage = "Update dokončen spouštím NanoTrans";
                 Process p = new Process();

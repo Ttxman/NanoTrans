@@ -10,21 +10,21 @@ namespace NanoTrans.Core
     public abstract class TranscriptionElement
     {
         public double height;
-        protected TimeSpan m_begin = new TimeSpan(-1);
+        protected TimeSpan _begin = new TimeSpan(-1);
         public TimeSpan Begin
         {
             get
             {
-                if (m_begin == new TimeSpan(-1))
+                if (_begin == new TimeSpan(-1))
                 {
-                    if (m_Parent != null && m_ParentIndex == 0)
+                    if (_Parent != null && _ParentIndex == 0)
                     {
-                        if (m_Parent.Begin != new TimeSpan(-1))
-                            return m_Parent.Begin;
+                        if (_Parent.Begin != new TimeSpan(-1))
+                            return _Parent.Begin;
                     }
 
                     TranscriptionElement elm = this.Previous();
-                    while (elm != null && elm.m_end == new TimeSpan(-1))
+                    while (elm != null && elm._end == new TimeSpan(-1))
                     {
                         elm = elm.Previous();
                     }
@@ -34,32 +34,32 @@ namespace NanoTrans.Core
                         return TimeSpan.Zero;
                 }
 
-                return m_begin;
+                return _begin;
             }
             set
             {
-                m_begin = value;
+                _begin = value;
                 if (BeginChanged != null)
                     BeginChanged(this, new EventArgs());
             }
         }
-        protected TimeSpan m_end = new TimeSpan(-1);
+        protected TimeSpan _end = new TimeSpan(-1);
         public TimeSpan End
         {
             get
             {
-                if (m_end == new TimeSpan(-1))
+                if (_end == new TimeSpan(-1))
                 {
 
-                    if (m_Parent != null && m_ParentIndex == m_Parent.Children.Count - 1)
+                    if (_Parent != null && _ParentIndex == _Parent.Children.Count - 1)
                     {
-                        if (m_Parent.End != new TimeSpan(-1))
-                            return m_Parent.End;
+                        if (_Parent.End != new TimeSpan(-1))
+                            return _Parent.End;
                     }
 
 
                     TranscriptionElement elm = this.Next();
-                    while (elm != null && elm.m_begin == new TimeSpan(-1))
+                    while (elm != null && elm._begin == new TimeSpan(-1))
                     {
                         elm = elm.Next();
                     }
@@ -67,11 +67,11 @@ namespace NanoTrans.Core
                         return elm.Begin;
                 }
 
-                return m_end;
+                return _end;
             }
             set
             {
-                m_end = value;
+                _end = value;
                 if (EndChanged != null)
                     EndChanged(this, new EventArgs());
             }
@@ -110,40 +110,40 @@ namespace NanoTrans.Core
 
         public TranscriptionElement()
         {
-            m_children = new List<TranscriptionElement>();
+            _children = new List<TranscriptionElement>();
         }
 
         public virtual TranscriptionElement this[int Index]
         {
             get
             {
-                return m_children[Index];
+                return _children[Index];
             }
 
             set
             {
-                m_children[Index] = value;
+                _children[Index] = value;
             }
 
         }
 
-        protected TranscriptionElement m_Parent;
-        protected int m_ParentIndex;
+        protected TranscriptionElement _Parent;
+        protected int _ParentIndex;
         public int ParentIndex
         {
-            get { return m_ParentIndex; }
+            get { return _ParentIndex; }
         }
 
         public TranscriptionElement Parent
         {
-            get { return m_Parent; }
+            get { return _Parent; }
         }
 
 
-        protected List<TranscriptionElement> m_children;
+        protected List<TranscriptionElement> _children;
         public List<TranscriptionElement> Children
         {
-            get { return m_children; }
+            get { return _children; }
         }
 
         public bool HaveChildren
@@ -160,15 +160,15 @@ namespace NanoTrans.Core
 
         public virtual void ElementInserted(TranscriptionElement element, int absoluteindex)
         {
-            if (m_Parent != null)
-                m_Parent.ElementInserted(element, absoluteindex);//+1 for this
+            if (_Parent != null)
+                _Parent.ElementInserted(element, absoluteindex);//+1 for this
         }
 
         public virtual void Add(TranscriptionElement data)
         {
-            m_children.Add(data);
-            data.m_Parent = this;
-            data.m_ParentIndex = m_children.Count - 1;
+            _children.Add(data);
+            data._Parent = this;
+            data._ParentIndex = _children.Count - 1;
 
             ElementInserted(data, data.AbsoluteIndex);
             ChildrenCountChanged(ChangedAction.Add);
@@ -179,11 +179,11 @@ namespace NanoTrans.Core
             if (index < 0 || index > Children.Count)
                 throw new IndexOutOfRangeException();
 
-            m_children.Insert(index, data);
-            data.m_Parent = this;
-            for (int i = index; i < m_children.Count; i++)
+            _children.Insert(index, data);
+            data._Parent = this;
+            for (int i = index; i < _children.Count; i++)
             {
-                m_children[i].m_ParentIndex = i;
+                _children[i]._ParentIndex = i;
             }
             ElementInserted(data, data.AbsoluteIndex);
             ChildrenCountChanged(ChangedAction.Add);
@@ -196,16 +196,16 @@ namespace NanoTrans.Core
             if (index < 0 || index >= Children.Count)
                 throw new IndexOutOfRangeException();
 
-            TranscriptionElement element = m_children[index];
+            TranscriptionElement element = _children[index];
             int indexabs = element.AbsoluteIndex;
-            var c = m_children[index];
-            c.m_Parent = null;
-            c.m_ParentIndex = -1;
-            m_children.RemoveAt(index);
+            var c = _children[index];
+            c._Parent = null;
+            c._ParentIndex = -1;
+            _children.RemoveAt(index);
 
-            for (int i = index; i < m_children.Count; i++)
+            for (int i = index; i < _children.Count; i++)
             {
-                m_children[i].m_ParentIndex = i;
+                _children[i]._ParentIndex = i;
             }
             ElementRemoved(element, indexabs);
             ChildrenCountChanged(ChangedAction.Remove);
@@ -214,22 +214,22 @@ namespace NanoTrans.Core
 
         public virtual void ElementRemoved(TranscriptionElement element, int absoluteindex)
         {
-            if (m_Parent != null)
-                m_Parent.ElementRemoved(element, absoluteindex);//+1 for this
+            if (_Parent != null)
+                _Parent.ElementRemoved(element, absoluteindex);//+1 for this
         }
 
         public virtual bool Remove(TranscriptionElement value)
         {
-            RemoveAt(m_children.IndexOf(value));
+            RemoveAt(_children.IndexOf(value));
             return true;
         }
 
         public virtual bool Replace(TranscriptionElement oldelement, TranscriptionElement newelement)
         {
-            int index = m_children.IndexOf(oldelement);
+            int index = _children.IndexOf(oldelement);
             if (index >= 0)
             {
-                m_children[index] = newelement;
+                _children[index] = newelement;
 
                 ChildrenCountChanged(ChangedAction.Replace);
                 return true;
@@ -240,27 +240,27 @@ namespace NanoTrans.Core
 
         public virtual void ElementReplaced(TranscriptionElement oldelement, TranscriptionElement newelement)
         {
-            if (m_Parent != null)
-                m_Parent.ElementReplaced(oldelement, newelement);
+            if (_Parent != null)
+                _Parent.ElementReplaced(oldelement, newelement);
         }
 
         public virtual void ElementChanged(TranscriptionElement element)
         {
-            if (m_Parent != null)
-                m_Parent.ElementChanged(element);
+            if (_Parent != null)
+                _Parent.ElementChanged(element);
         }
 
         public TranscriptionElement Next()
         {
 
-            if (m_children.Count > 0 && !IsParagraph)
-                return m_children[0];
+            if (_children.Count > 0 && !IsParagraph)
+                return _children[0];
 
-            if (m_Parent == null)
+            if (_Parent == null)
                 return null;
-            if (m_ParentIndex == m_Parent.m_children.Count - 1)
+            if (_ParentIndex == _Parent._children.Count - 1)
             {
-                TranscriptionElement te = m_Parent.NextSibling();
+                TranscriptionElement te = _Parent.NextSibling();
                 if (te != null)
                     return te.Next();
 
@@ -268,7 +268,7 @@ namespace NanoTrans.Core
             }
             else
             {
-                return m_Parent.m_children[m_ParentIndex + 1];
+                return _Parent._children[_ParentIndex + 1];
             }
 
         }
@@ -289,19 +289,19 @@ namespace NanoTrans.Core
         public TranscriptionElement NextSibling()
         {
 
-            if (m_Parent == null)
+            if (_Parent == null)
                 return null;
-            if (m_ParentIndex == m_Parent.m_children.Count - 1)
+            if (_ParentIndex == _Parent._children.Count - 1)
             {
-                TranscriptionElement te = m_Parent.NextSibling();
+                TranscriptionElement te = _Parent.NextSibling();
                 if (te != null && te.Children.Count > 0)
-                    return te.m_children[0];
+                    return te._children[0];
                 else
                     return null;
             }
             else
             {
-                return m_Parent.m_children[m_ParentIndex + 1];
+                return _Parent._children[_ParentIndex + 1];
             }
 
         }
@@ -322,19 +322,19 @@ namespace NanoTrans.Core
         public TranscriptionElement PreviousSibling()
         {
 
-            if (m_Parent == null)
+            if (_Parent == null)
                 return null;
-            if (m_ParentIndex == 0)
+            if (_ParentIndex == 0)
             {
-                TranscriptionElement te = m_Parent.PreviousSibling();
+                TranscriptionElement te = _Parent.PreviousSibling();
                 if (te != null && te.Children.Count > 0)
-                    return te.m_children[te.m_children.Count - 1];
+                    return te._children[te._children.Count - 1];
                 else
                     return null;
             }
             else
             {
-                return m_Parent.m_children[m_ParentIndex - 1];
+                return _Parent._children[_ParentIndex - 1];
             }
 
         }
@@ -355,17 +355,17 @@ namespace NanoTrans.Core
         public TranscriptionElement Previous()
         {
 
-            if (m_Parent == null)
+            if (_Parent == null)
                 return null;
-            if (m_ParentIndex == 0)
+            if (_ParentIndex == 0)
             {
                 if (IsChapter)
                     return null;
-                return m_Parent;
+                return _Parent;
             }
             else
             {
-                return m_Parent.m_children[m_ParentIndex - 1];
+                return _Parent._children[_ParentIndex - 1];
             }
 
         }
@@ -385,8 +385,8 @@ namespace NanoTrans.Core
 
         public virtual int GetTotalChildrenCount()
         {
-            int c = m_children.Count;
-            foreach (var ch in m_children)
+            int c = _children.Count;
+            foreach (var ch in _children)
                 c += ch.GetTotalChildrenCount();
 
             return c;
@@ -394,28 +394,28 @@ namespace NanoTrans.Core
 
         public virtual void ChildrenCountChanged(ChangedAction action)
         {
-            if (!m_Updating)
+            if (!_Updating)
             {
                 if (Parent != null)
                     Parent.ChildrenCountChanged(action);
             }
             else
-                m_updated = true;
+                _updated = true;
         }
 
-        private bool m_Updating = false;
-        protected bool m_updated = false;
+        private bool _Updating = false;
+        protected bool _updated = false;
         public void BeginUpdate()
         {
-            m_Updating = true;
+            _Updating = true;
         }
 
         public void EndUpdate()
         {
-            m_Updating = false;
-            if (m_updated)
+            _Updating = false;
+            if (_updated)
                 ChildrenCountChanged(ChangedAction.Reset);
-            m_updated = false;
+            _updated = false;
         }
     }
 

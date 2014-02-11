@@ -48,13 +48,28 @@ namespace NanoTrans.Core
         #region serializace nova
         private Dictionary<string, string> elements = new Dictionary<string, string>();
         private static readonly XAttribute EmptyAttribute = new XAttribute("empty", "");
-        public TranscriptionChapter(XElement c, bool isStrict)
+
+        public static TranscriptionChapter DeserializeV2(XElement c, bool isStrict)
+        {
+            TranscriptionChapter chap = new TranscriptionChapter();
+            chap.name = c.Attribute("name").Value;
+            chap.elements = c.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
+            chap.elements.Remove("name");
+            foreach(var s in c.Elements(isStrict ? "section" : "se").Select(s => (TranscriptionElement)TranscriptionSection.DeserializeV2(s, isStrict)))
+                chap.Add(s);
+
+            return chap;
+
+        }
+
+        public TranscriptionChapter(XElement c)
         {
             Sections = new VirtualTypeList<TranscriptionSection>(this);
             name = c.Attribute("name").Value;
             elements = c.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
             elements.Remove("name");
-            c.Elements(isStrict ? "section" : "se").Select(s => (TranscriptionElement)new TranscriptionSection(s, isStrict)).ToList().ForEach(s => Add(s));
+            foreach(var s in c.Elements("se").Select(s => (TranscriptionElement)new TranscriptionSection(s)))
+                Add(s);
 
         }
 
@@ -117,10 +132,10 @@ namespace NanoTrans.Core
             get
             {
 
-                if (m_Parent != null)
+                if (_Parent != null)
                 {
                     int sum = 0; //transcription (parent) is root element
-                    sum += m_Parent.Children.Take(this.ParentIndex) //take previous siblings
+                    sum += _Parent.Children.Take(this.ParentIndex) //take previous siblings
                         .Sum(s => s.GetTotalChildrenCount()); //+ all pre siblings counts (index on sublayers)
 
                     sum += ParentIndex; //+ parent index (index on sibling layer)

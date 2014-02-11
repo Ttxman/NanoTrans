@@ -69,7 +69,7 @@ namespace NvxPlugin
                 if (ids != null && ids.Count() > 0)
                 {
                     var speakers = ids.Select(i => new Speaker() { ID = XmlConvert.ToInt32(i.Attribute("id").Value), Surname = i.Attribute("label").Value });
-                    tr.Speakers = new MySpeakers(speakers);
+                    tr.Speakers = new SpeakerCollection(speakers);
                 }
             }
 

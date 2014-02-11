@@ -24,18 +24,18 @@ namespace NvxPlugin
             get;
             set;
         }
-        List<string> m_data;
+        List<string> _data;
         public SelectFile(List<string> data)
         {
             InitializeComponent();
-            box.ItemsSource = m_data = data;
+            box.ItemsSource = _data = data;
         }
 
         public int SelectedIndex = 0;
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            SelectedIndex = m_data.IndexOf(box.SelectedItem.ToString());
+            SelectedIndex = _data.IndexOf(box.SelectedItem.ToString());
 
             this.DialogResult = true;
             Close();
@@ -57,11 +57,11 @@ namespace NvxPlugin
         {
             if (string.IsNullOrEmpty(textBox1.Text))
             {
-                box.ItemsSource = m_data;
+                box.ItemsSource = _data;
             }
             else
             {
-                box.ItemsSource = m_data.Where(s => s.Contains(textBox1.Text));
+                box.ItemsSource = _data.Where(s => s.Contains(textBox1.Text));
             }
         }
 

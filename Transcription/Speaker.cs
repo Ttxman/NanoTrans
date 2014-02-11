@@ -16,7 +16,7 @@ namespace NanoTrans.Core
         //TODO: what about other fields?
         public override int GetHashCode()
         {
-            return this.FullName.GetHashCode() ^ this.m_ID.GetHashCode();
+            return this.FullName.GetHashCode() ^ this._ID.GetHashCode();
         }
 
 
@@ -25,7 +25,7 @@ namespace NanoTrans.Core
             if (s == null)
                 return false;
 
-            if (s.m_ID == this.m_ID && s.FullName == this.FullName)
+            if (s._ID == this._ID && s.FullName == this.FullName)
                 return true;
 
             return false;
@@ -61,18 +61,18 @@ namespace NanoTrans.Core
         }
         #endregion
 
-        private int m_ID;
-        private bool m_IDFixed = false;
+        private int _ID;
+        private bool _IDFixed = false;
         public bool IDFixed
         {
-            get { return m_IDFixed; }
+            get { return _IDFixed; }
             set
             {
                 if (value)
                 {
-                    m_IDFixed = true;
+                    _IDFixed = true;
                 }
-                else if (m_IDFixed)
+                else if (_IDFixed)
                 {
 
                 }
@@ -80,14 +80,14 @@ namespace NanoTrans.Core
         }
         public void FixID()
         {
-            m_IDFixed = true;
+            _IDFixed = true;
         }
         public int ID
         {
-            get { return m_ID; }
+            get { return _ID; }
             set
             {
-                if (m_IDFixed)
+                if (_IDFixed)
                 {
 
                     throw new ArgumentException("cannot chabge fixed speaker ID");
@@ -97,7 +97,7 @@ namespace NanoTrans.Core
                 {
                     speakersIndexCounter = value + 1;
                 }
-                m_ID = value;
+                _ID = value;
             }
         }
 
@@ -147,7 +147,7 @@ namespace NanoTrans.Core
         public Speaker()
         {
 
-            m_ID = speakersIndexCounter++;
+            _ID = speakersIndexCounter++;
             FirstName = null;
             Surname = null;
             Sex = Sexes.X;
@@ -165,7 +165,7 @@ namespace NanoTrans.Core
         public static Speaker DeserializeV2(XElement s, bool isStrict)
         {
             Speaker sp = new Speaker();
-            sp.m_ID = int.Parse(s.Attribute("id").Value);
+            sp._ID = int.Parse(s.Attribute("id").Value);
             sp.Surname = s.Attribute("surname").Value;
             sp.FirstName = (s.Attribute("firstname") ?? EmptyAttribute).Value;
 
@@ -212,7 +212,7 @@ namespace NanoTrans.Core
             if (!s.CheckRequiredAtributes("id", "surname", "firstname", "sex", "lang"))
                 throw new ArgumentException("required attribute missing on speaker (id, surname, firstname, sex, lang)");
 
-            m_ID = int.Parse(s.Attribute("id").Value);
+            _ID = int.Parse(s.Attribute("id").Value);
             Surname = s.Attribute("surname").Value;
             FirstName = (s.Attribute("firstname") ?? EmptyAttribute).Value;
 
@@ -297,14 +297,14 @@ namespace NanoTrans.Core
                 Elements.Select(e =>
                     new XAttribute(e.Key, e.Value))
                     .Union(new[]{ 
-                    new XAttribute("id", m_ID.ToString()),
+                    new XAttribute("id", _ID.ToString()),
                     new XAttribute("surname",Surname),
                     new XAttribute("firstname",FirstName),
-                    new XAttribute("sex",(Sex==Sexes.Male)?"m":(Sex==Sexes.Female)?"f":"x")
+                    new XAttribute("sex",(Sex==Sexes.Male)?"m":(Sex==Sexes.Female)?"f":"x"),
+                    new XAttribute("lang",Langs[DefaultLang])
+
                     })
             );
-
-            
 
             string val = "file";
             if (DataBase != DBType.File)
@@ -345,7 +345,7 @@ namespace NanoTrans.Core
         {
 
             if (aSpeaker == null) aSpeaker = new Speaker();
-            m_ID = speakersIndexCounter++;
+            _ID = speakersIndexCounter++;
             FirstName = aSpeaker.FirstName;
             Surname = aSpeaker.Surname;
             Sex = aSpeaker.Sex;
@@ -355,7 +355,7 @@ namespace NanoTrans.Core
 
         public Speaker(string aSpeakerFirstname, string aSpeakerSurname, Sexes aPohlavi, string aSpeakerFotoBase64) //constructor ktery vytvori speakera
         {
-            m_ID = speakersIndexCounter++;
+            _ID = speakersIndexCounter++;
             FirstName = aSpeakerFirstname;
             Surname = aSpeakerSurname;
             Sex = aPohlavi;
@@ -368,7 +368,7 @@ namespace NanoTrans.Core
         }
 
         public static readonly int DefaultID = int.MinValue;
-        public static readonly Speaker DefaultSpeaker = new Speaker() { m_ID = DefaultID };
+        public static readonly Speaker DefaultSpeaker = new Speaker() { _ID = DefaultID };
 
         public Speaker Copy()
         {
