@@ -56,41 +56,29 @@ namespace NanoTrans
         //obsluha kontextoveho menu image vlny
         private void menuItemVlna1_prirad_zacatek_Click(object sender, RoutedEventArgs e)
         {
-            UpravCasZobraz(nastaveniAplikace.RichTag,(long)waveform1.CarretPosition.TotalMilliseconds, -2);
-
-            UpdateXMLData();
-            ZobrazInformaceElementu(nastaveniAplikace.RichTag);
-            waveform1.SelectionBegin = TimeSpan.FromMilliseconds(myDataSource.VratCasElementuPocatek(nastaveniAplikace.RichTag));
-            waveform1.SelectionEnd = TimeSpan.FromMilliseconds(myDataSource.VratCasElementuKonec(nastaveniAplikace.RichTag));
+            UpravCasZobraz(nastaveniAplikace.RichTag,(long)waveform1.CaretPosition.TotalMilliseconds, -2);
         }
         private void menuItemVlna1_prirad_konec_Click(object sender, RoutedEventArgs e)
         {
-            UpravCasZobraz(nastaveniAplikace.RichTag, -2,(long)waveform1.CarretPosition.TotalMilliseconds);
-            UpdateXMLData();
-            ZobrazInformaceElementu(nastaveniAplikace.RichTag);
-
-            waveform1.SelectionBegin = TimeSpan.FromMilliseconds(myDataSource.VratCasElementuPocatek(nastaveniAplikace.RichTag));
-            waveform1.SelectionEnd = TimeSpan.FromMilliseconds(myDataSource.VratCasElementuKonec(nastaveniAplikace.RichTag));
+           UpravCasZobraz(nastaveniAplikace.RichTag, -2, (long)waveform1.CaretPosition.TotalMilliseconds);
         }
 
         private void menuItemVlna1_prirad_vyber_Click(object sender, RoutedEventArgs e)
         {
             UpravCasZobraz(nastaveniAplikace.RichTag, (long)waveform1.SelectionBegin.TotalMilliseconds, (long)waveform1.SelectionEnd.TotalMilliseconds);
-            UpdateXMLData();
-            ZobrazInformaceElementu(nastaveniAplikace.RichTag);
         }
 
         private void menuItemVlna1_prirad_casovou_znacku_Click(object sender, RoutedEventArgs e)
         {
            int pPoziceKurzoru = ((TextBox)nastaveniAplikace.RichTag.tSender).SelectionStart;
 
-            MyCasovaZnacka pCZ = new MyCasovaZnacka((long)waveform1.CarretPosition.TotalMilliseconds, pPoziceKurzoru - 1, pPoziceKurzoru);
+            MyCasovaZnacka pCZ = new MyCasovaZnacka((long)waveform1.CaretPosition.TotalMilliseconds, pPoziceKurzoru - 1, pPoziceKurzoru);
 
-            MyParagraph pOdstavec = myDataSource.VratOdstavec(nastaveniAplikace.RichTag);
+            MyParagraph pOdstavec = myDataSource[nastaveniAplikace.RichTag];
             pOdstavec.PridejCasovouZnacku(pCZ);
 
-            nastaveniAplikace.CasoveZnacky = myDataSource.VratOdstavec(nastaveniAplikace.RichTag).VratCasoveZnackyTextu;
-            ((TextBox)nastaveniAplikace.RichTag.tSender).Text = myDataSource.VratOdstavec(nastaveniAplikace.RichTag).Text;
+            nastaveniAplikace.CasoveZnacky = myDataSource[nastaveniAplikace.RichTag].VratCasoveZnackyTextu;
+            ((TextBox)nastaveniAplikace.RichTag.tSender).Text = myDataSource[nastaveniAplikace.RichTag].Text;
             //vraceni kurzoru do spravne pozice
 
 
@@ -124,6 +112,30 @@ namespace NanoTrans
         private void btPriraditVyber_Click(object sender, RoutedEventArgs e)
         {
             menuItemVlna1_prirad_vyber_Click(null, new RoutedEventArgs());
+        }
+
+
+        private bool UpravCasZobraz(MyTag aTag, long aBegin, long aEnd)
+        {
+            return UpravCasZobraz(aTag, aBegin, aEnd, false);
+        }
+
+
+        private bool UpravCasZobraz(MyTag aTag, long aBegin, long aEnd, bool aIgnorovatPrekryv)
+        {
+            MyTag ret = myDataSource.UpravCasZobraz(aTag, aBegin, aEnd, aIgnorovatPrekryv);
+
+            if (ret != null)
+            {
+                UpdateXMLData();
+                ZobrazInformaceElementu(aTag);
+
+                waveform1.SelectionBegin = TimeSpan.FromMilliseconds(myDataSource.VratCasElementuPocatek(aTag));
+                waveform1.SelectionEnd = TimeSpan.FromMilliseconds(myDataSource.VratCasElementuKonec(aTag));
+                return true;
+            }
+
+            return false;
         }
 
     }

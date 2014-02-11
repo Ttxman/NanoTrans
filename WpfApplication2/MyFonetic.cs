@@ -671,7 +671,7 @@ namespace NanoTrans
                 if (!aTag.JeOdstavec) return false;
                 MyTag pTag = new MyTag(aTag);
                 pTag.tTypElementu = MyEnumTypElementu.foneticky;
-                MyParagraph pP = aDokument.VratOdstavec(pTag);
+                MyParagraph pP = aDokument[pTag];
                 if (pP == null) return false;
                 bool pPredchoziMezera = true;
                 for (int i = 0; i < pP.Phrases.Count; i++)

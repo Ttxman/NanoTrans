@@ -21,6 +21,15 @@ namespace NanoTrans
     public class MyTextBox : TextBox
     {
         private bool m_supressTextChangedEvent = false;
+        public class IntEventArgs : EventArgs
+        {
+            public int Value;
+            public IntEventArgs(int value)
+            {
+                Value = value;
+            }
+        }
+        public event EventHandler<IntEventArgs> CarretPositionJump;
         public MyTextBox():base()
         {
             this.Background = new SolidColorBrush(Color.FromArgb(0,255,255,255));
@@ -257,6 +266,7 @@ namespace NanoTrans
 
         //oznacovani pomoci sipek
         bool i_backSelect = false;
+        public EventHandler<IntEventArgs> CaretPositionJump;
         protected override void OnPreviewKeyDown(KeyEventArgs e)
         {
             //Console.WriteLine("key");
@@ -336,9 +346,9 @@ namespace NanoTrans
                                 Match m = mc[i];
                                 if (i< mc.Count-1 && m.Index <= pos && m.Index + m.Length >= pos)
                                 {
-                                    //m = mc[i+1];
                                     this.CaretIndex = m.Index + m.Length;
-                                    //this.SelectionLength = m.Length;
+                                    if (CarretPositionJump != null)
+                                        CarretPositionJump(this, new IntEventArgs(CaretIndex));
                                     break;
                                 }
                             }

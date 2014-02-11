@@ -24,8 +24,9 @@ namespace NanoTrans
         /// GET vraci cele jmeno slozene z krestniho+prijmeni
         /// </summary>
         [XmlIgnore]
-        public string FullName { 
-            get 
+        public string FullName
+        {
+            get
             {
                 string pJmeno = "";
                 if (FirstName != null && FirstName.Length > 0)
@@ -38,7 +39,7 @@ namespace NanoTrans
                     pJmeno += Surname;
                 }
                 return pJmeno;
-            } 
+            }
         }
         public string FirstName;
         public string Surname;
@@ -48,12 +49,12 @@ namespace NanoTrans
         public string RozpoznavacPrepisovaciPravidla;
         public string FotoJPGBase64;
         public string Comment;
-             
-        
-        
+
+
+
         public MySpeaker()
         {
-            
+
             ID = -1;
             FirstName = null;
             Surname = null;
@@ -109,8 +110,8 @@ namespace NanoTrans
         }
 
     }
-        
-        
+
+
     //nejmensi textovy usek - muze byt veta, vice slov nebo samotne slovo
     [XmlType("Phrase")]
     public class MyPhrase
@@ -121,17 +122,17 @@ namespace NanoTrans
         /// text ze ktereho vznikl foneticky prepis
         /// </summary>
         public string TextPrepisovany;
-        
+
         //[XmlAttribute]
         [XmlIgnore]
         public int speakerID;  //index mluvciho v seznamu dole
         [XmlAttribute]
         public long begin;     //zacatek vety v ms
-        
+
         //[XmlIgnore]
         [XmlAttribute]
         public long end;       //konec vety v ms - zatim je ignorovan
-        
+
         public MyPhrase()
         {
         }
@@ -172,9 +173,9 @@ namespace NanoTrans
             }
             this.speakerID = aSpeakerIndex;
         }
-        
+
     }
-        
+
 
     /// <summary>
     /// odstavec slozeny z mensich textovych useku (vet, nebo i jednotlivych slov zvlast)
@@ -204,7 +205,7 @@ namespace NanoTrans
                         ret += this.Phrases[i].Text;
                     }
                 }
-                
+
                 return ret;
             }
         }
@@ -224,7 +225,7 @@ namespace NanoTrans
                 {
                     if (attr != MyEnumParagraphAttributes.None)
                     {
-                        if ((DataAttributes & attr)!=0)
+                        if ((DataAttributes & attr) != 0)
                         {
                             string val = Enum.GetName(typeof(MyEnumParagraphAttributes), attr);
                             if (s.Length > 0)
@@ -283,6 +284,8 @@ namespace NanoTrans
             }
         }
 
+
+
         /// <summary>
         /// kopie objektu
         /// </summary>
@@ -311,7 +314,7 @@ namespace NanoTrans
             this.end = -1;
             this.trainingElement = false;
             this.speakerID = -1;
-            
+
         }
         public MyParagraph(String aText, List<MyCasovaZnacka> aCasoveZnacky)
         {
@@ -342,14 +345,14 @@ namespace NanoTrans
         {
             return UlozTextOdstavce(aText, pZnacky, MyEnumTypElementu.normalni);
         }
-        
+
         /// <summary>
         /// ulozi text odstavce a provede jeho rozdeleni podle casovych znacek - casove znacky jsou mimo pocatek a konec odstavce?
         /// </summary>
         /// <param name="aText"></param>
         /// <param name="pZnacky"></param>
         /// <returns></returns>
-        public bool UlozTextOdstavce(string aText, List<MyCasovaZnacka> pZnacky, MyEnumTypElementu aTypOdstavce)  
+        public bool UlozTextOdstavce(string aText, List<MyCasovaZnacka> pZnacky, MyEnumTypElementu aTypOdstavce)
         {
             try
             {
@@ -365,7 +368,7 @@ namespace NanoTrans
                     for (int i = 0; i < pZnacky.Count; i++)
                     {
                         string pText1 = "";
-                        if (pZnacky[i].Index1 >= aText.Length ) break; //pokud jsou casove znacky mimo text, jsou ignorovany a vymazany
+                        if (pZnacky[i].Index1 >= aText.Length) break; //pokud jsou casove znacky mimo text, jsou ignorovany a vymazany
 
                         if (pZnacky[i].Index2 >= 0)
                         {
@@ -387,7 +390,7 @@ namespace NanoTrans
                                             pPhrases.Add(new MyPhrase(-1, -1, pText1, this.speakerID, aTypOdstavce));
                                         }
                                     }
-                                    
+
                                     if (pZnacky[i + 1].Index2 - pZnacky[i].Index2 >= 0) //ohlidani zda nejsou znacky posunuty
                                     {
                                         pText1 = aText.Substring(pZnacky[i].Index2, pZnacky[i + 1].Index2 - pZnacky[i].Index2);
@@ -400,7 +403,7 @@ namespace NanoTrans
                             else
                             {
                                 //jestli existuje jen 1 znacka,tak musi byt ulozen pocatek odstavce,ktery muze byt bez znacky
-                                if (i == 0 && pZnacky[i].Index2>0)
+                                if (i == 0 && pZnacky[i].Index2 > 0)
                                 {
                                     pText1 = aText.Substring(0, pZnacky[i].Index2);
                                     if (pText1 != null && pText1 != "")
@@ -414,7 +417,7 @@ namespace NanoTrans
                             }
                         }
 
-                        
+
                     }
 
                     if (pPhrases.Count <= Phrases.Count)
@@ -435,9 +438,9 @@ namespace NanoTrans
                         }
                         int pKamSesloKopirovaniOdKonce = pPhrases.Count;
                         int pI = Phrases.Count - 1;
-                        for (int i = pPhrases.Count-1; i > pKamDosloKopirovani; i--)
+                        for (int i = pPhrases.Count - 1; i > pKamDosloKopirovani; i--)
                         {
-                            if (pPhrases[i].Text == Phrases[pI].Text && pI>=0)
+                            if (pPhrases[i].Text == Phrases[pI].Text && pI >= 0)
                             {
                                 pPhrases[i].TextPrepisovany = Phrases[pI].TextPrepisovany;
                                 pKamSesloKopirovaniOdKonce = i;
@@ -455,7 +458,7 @@ namespace NanoTrans
                         }
                         else
                         {
-                            if (pKamDosloKopirovani + 2 == pKamSesloKopirovaniOdKonce && Phrases.Count==pPhrases.Count)
+                            if (pKamDosloKopirovani + 2 == pKamSesloKopirovaniOdKonce && Phrases.Count == pPhrases.Count)
                             {
                                 pPhrases[pKamDosloKopirovani + 1].TextPrepisovany = Phrases[pKamDosloKopirovani + 1].TextPrepisovany;
                             }
@@ -465,7 +468,7 @@ namespace NanoTrans
                     {
 
                     }
-                    
+
                 }
                 Phrases.Clear();
                 Phrases = pPhrases;
@@ -558,10 +561,10 @@ namespace NanoTrans
             }
         }
 
-         
+
     }
 
-    
+
 
     //sekce textu nadrazena odstavci
     [XmlType("Section")]
@@ -664,7 +667,7 @@ namespace NanoTrans
                 }
             }
         }
-        
+
         public MySection()
         {
             this.begin = -1;
@@ -697,7 +700,7 @@ namespace NanoTrans
         [XmlAttribute]
         public String type;
 
-        
+
         public List<MySection> Sections = new List<MySection>();
         [XmlAttribute]
         public long begin;     //zacatek v ms
@@ -731,7 +734,7 @@ namespace NanoTrans
                 }
             }
         }
-        
+
         public MyChapter()
         {
             this.begin = -1;
@@ -750,8 +753,8 @@ namespace NanoTrans
             this.end = aEnd;
         }
     }
-    
-    
+
+
     //hlavni trida s titulky a se vsemi potrebnymi metodami pro serializaci
 
     [XmlType("Transcription")]
@@ -789,14 +792,14 @@ namespace NanoTrans
         [XmlAttribute]
         public string videoFileName { get; set; }
 
-/*        [XmlAttribute]
-        [DefaultValueAttribute(0)]
-        public int SecondsSpendWriting { get; set; }
+        /*        [XmlAttribute]
+                [DefaultValueAttribute(0)]
+                public int SecondsSpendWriting { get; set; }
 
-        [XmlAttribute]
-        [DefaultValueAttribute(0)]
-        public TimeSpan SecondsSpendPlaying { get; set; }
-        */
+                [XmlAttribute]
+                [DefaultValueAttribute(0)]
+                public TimeSpan SecondsSpendPlaying { get; set; }
+                */
         /// <summary>
         /// vsechny kapitoly streamu
         /// </summary>
@@ -805,8 +808,8 @@ namespace NanoTrans
         [XmlElement("SpeakersDatabase")]
         public MySpeakers SeznamMluvcich = new MySpeakers();
 
-        
-               
+
+
         public MySubtitlesData()
         {
             JmenoSouboru = null;
@@ -815,7 +818,17 @@ namespace NanoTrans
             //constructor  
         }
 
+
+        public MyParagraph this[MyTag tag]
+        {
+            get 
+            {
+                return this.VratOdstavec(tag);
+            }
         
+        }
+
+
         /// <summary>
         /// vytvori kopii objektu
         /// </summary>
@@ -827,7 +840,7 @@ namespace NanoTrans
             this.audioFileName = aKopie.audioFileName;
             this.videoFileName = aKopie.videoFileName;
             this.type = aKopie.type;
-            if (aKopie.Chapters!=null)
+            if (aKopie.Chapters != null)
             {
                 this.Chapters = new List<MyChapter>();
                 for (int i = 0; i < aKopie.Chapters.Count; i++)
@@ -885,8 +898,8 @@ namespace NanoTrans
                 return aIndexNoveKapitoly;
             }
         }
-       
-        
+
+
         public int NovaSekce(int kapitola, string nazev, int index, long begin, long end)
         {
             try
@@ -914,7 +927,7 @@ namespace NanoTrans
                 return -1;
             }
         }
-        
+
 
         public int NovyOdstavec(int kapitola, int sekce, int index)
         {
@@ -979,7 +992,7 @@ namespace NanoTrans
                 return false;
             }
         }
-        
+
         public bool SmazOdstavec(int kapitola, int sekce, int index)
         {
             try
@@ -1012,7 +1025,7 @@ namespace NanoTrans
                 else
                 {
                     index++;
-                    Chapters[kapitola].Sections[sekce].Paragraphs.Insert(index, new MyParagraph(text,aCasoveZnacky));
+                    Chapters[kapitola].Sections[sekce].Paragraphs.Insert(index, new MyParagraph(text, aCasoveZnacky));
                     Chapters[kapitola].Sections[sekce].PhoneticParagraphs.Insert(index, new MyParagraph());
                     Ulozeno = false;
                     return index;
@@ -1025,7 +1038,7 @@ namespace NanoTrans
                 return -1;
             }
         }
-        public int NovyOdstavec(Int32 kapitola, int sekce, String text, List<MyCasovaZnacka>aCasoveZnacky, long begin, long end, int index)
+        public int NovyOdstavec(Int32 kapitola, int sekce, String text, List<MyCasovaZnacka> aCasoveZnacky, long begin, long end, int index)
         {
             try
             {
@@ -1073,7 +1086,7 @@ namespace NanoTrans
         {
             return UpravElement(aTag.tKapitola, aTag.tSekce, aTag.tOdstavec, text);
         }
-        
+
         /// <summary>
         /// upravi nazev kapitoly nebo sekce
         /// </summary>
@@ -1099,13 +1112,13 @@ namespace NanoTrans
                     Ulozeno = false;
                     return true;
                 }
-                else if (kapitola>-1)
+                else if (kapitola > -1)
                 {
                     Chapters[kapitola].name = text;
                     Ulozeno = false;
                     return true;
                 }
-                else 
+                else
                 {
                     return false;
                 }
@@ -1224,63 +1237,62 @@ namespace NanoTrans
         /// <returns></returns>
         public long VratCasElementuPocatek(MyTag aTag)
         {
-            try
+            if (aTag.tKapitola >= 0)
             {
-                if ( aTag.tOdstavec > -1)
-                {
-                    return Chapters[aTag.tKapitola].Sections[aTag.tSekce].Paragraphs[aTag.tOdstavec].begin;
-                }
-                else if (aTag.tSekce > -1)
-                {
-                    return Chapters[aTag.tKapitola].Sections[aTag.tSekce].begin;
-                }
-                else if (aTag.tKapitola > -1)
-                {
-                    return Chapters[aTag.tKapitola].begin;
-                }
-                else
-                {
+                if (aTag.tKapitola >= Chapters.Count)
                     return -1;
+
+                MyChapter chapter = Chapters[aTag.tKapitola];
+                if (aTag.tSekce >= 0)
+                {
+                    if (aTag.tSekce >= chapter.Sections.Count)
+                        return -1;
+
+                    MySection section = chapter.Sections[aTag.tSekce];
+                    if (aTag.tOdstavec >= 0)
+                    {
+                        if (aTag.tOdstavec >= section.Paragraphs.Count)
+                            return -1;
+
+                        return section.Paragraphs[aTag.tOdstavec].begin;
+                    }
+                    return section.begin;
                 }
-
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-                return -1;
+                return chapter.begin;
             }
 
+            return -1;
         }
 
 
         //podle tagu vraci cas elementu...end
         public long VratCasElementuKonec(MyTag aTag)
         {
-            try
+            if (aTag.tKapitola >= 0)
             {
-                if (aTag.tOdstavec > -1)
-                {
-                    return ((MyParagraph)((MySection)((MyChapter)Chapters[aTag.tKapitola]).Sections[aTag.tSekce]).Paragraphs[aTag.tOdstavec]).end;
-                }
-                else if (aTag.tSekce > -1)
-                {
-                    return ((MySection)((MyChapter)Chapters[aTag.tKapitola]).Sections[aTag.tSekce]).end;
-                }
-                else if (aTag.tKapitola > -1)
-                {
-                    return ((MyChapter)Chapters[aTag.tKapitola]).end;
-                }
-                else
-                {
+                if (aTag.tKapitola >= Chapters.Count)
                     return -1;
-                }
 
+                MyChapter chapter = Chapters[aTag.tKapitola];
+                if (aTag.tSekce >= 0)
+                {
+                    if (aTag.tSekce >= chapter.Sections.Count)
+                        return -1;
+
+                    MySection section = chapter.Sections[aTag.tSekce];
+                    if (aTag.tOdstavec >= 0)
+                    {
+                        if (aTag.tOdstavec >= section.Paragraphs.Count)
+                            return -1;
+
+                        return section.Paragraphs[aTag.tOdstavec].end;
+                    }
+                    return section.end;
+                }
+                return chapter.end;
             }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-                return -1;
-            }
+
+            return -1;
 
         }
 
@@ -1384,7 +1396,7 @@ namespace NanoTrans
                                     pRet.Add(new MyTag(i, j, k));
 
                                 }
-                                else if (aPoziceKurzoruMS<pP.begin)
+                                else if (aPoziceKurzoruMS < pP.begin)
                                 {
                                     return pRet;
                                 }
@@ -1403,8 +1415,8 @@ namespace NanoTrans
             }
 
         }
-        
-        
+
+
 
         //smazani speakera ze seznamu speakeru a odstraneni speakera v pouzitych odstavcich
         public bool OdstranSpeakera(MySpeaker aSpeaker)
@@ -1436,7 +1448,7 @@ namespace NanoTrans
                         Ulozeno = false;
                         return true;
                     }
-                    
+
                     return false;
 
                 }
@@ -1460,24 +1472,24 @@ namespace NanoTrans
             if (i >= 0) this.Ulozeno = false;
             return i;
         }
-        
+
         /// <summary>
         /// zadani speakera do datove struktury
         /// </summary>
         /// <param name="aTag"></param>
         /// <param name="indexSpeakera"></param>
         /// <returns></returns>
-        public bool ZadejSpeakera(MyTag aTag,int aIDSpeakera)
+        public bool ZadejSpeakera(MyTag aTag, int aIDSpeakera)
         {
 
-            
+
             try
             {
                 MySpeaker aSpeaker = new MySpeaker();
-                
+
                 aSpeaker = this.SeznamMluvcich.VratSpeakera(aIDSpeakera);
-                
-                
+
+
                 if (aTag.tOdstavec > -1)
                 {
                     //nastavi mluvciho pro odstavec podle tagu
@@ -1502,7 +1514,7 @@ namespace NanoTrans
                     }
                     else return false;
 
-                    
+
                 }
                 else if (aTag.tKapitola > -1)
                 {
@@ -1511,7 +1523,7 @@ namespace NanoTrans
                 }
                 else
                 {
-                    
+
                     return false;
                 }
 
@@ -1524,7 +1536,7 @@ namespace NanoTrans
 
         }
 
-        
+
 
         /// <summary>
         /// vraci speakera z datove struktury podle tagu
@@ -1535,13 +1547,13 @@ namespace NanoTrans
         {
             try
             {
-                
+
                 if (aTag.tOdstavec > -1)
                 {
-                    
+
                     int ms = Chapters[aTag.tKapitola].Sections[aTag.tSekce].Paragraphs[aTag.tOdstavec].speakerID;
                     return this.SeznamMluvcich.VratSpeakera(ms);
-                    
+
                 }
                 else if (aTag.tSekce > -1)
                 {
@@ -1580,32 +1592,39 @@ namespace NanoTrans
             return this.SeznamMluvcich.NajdiSpeakeraID(aJmeno);
         }
 
-        
+
         /// <summary>
         /// vrati odstavec podle typu
         /// </summary>
         /// <param name="aTag"></param>
         /// <param name="aTypOdstavce"></param>
         /// <returns></returns>
-        public MyParagraph VratOdstavec(MyTag aTag)
+        private MyParagraph VratOdstavec(MyTag aTag)
         {
-            try
+            if (aTag == null || aTag.tKapitola < 0 || aTag.tSekce < 0 || aTag.tOdstavec < 0) return null;
+
+            if (aTag.tKapitola < Chapters.Count)
             {
-                if (aTag.tKapitola < 0 || aTag.tSekce < 0 || aTag.tOdstavec < 0) return null;
-                if (aTag.tTypElementu == MyEnumTypElementu.normalni)
+                MyChapter chapter = Chapters[aTag.tKapitola];
+                if (aTag.tSekce < chapter.Sections.Count)
                 {
-                    return Chapters[aTag.tKapitola].Sections[aTag.tSekce].Paragraphs[aTag.tOdstavec];
+                    MySection section = chapter.Sections[aTag.tSekce];
+
+                    if (aTag.tOdstavec < section.Paragraphs.Count)
+                    {
+                        if (aTag.tTypElementu == MyEnumTypElementu.normalni)
+                        {
+                            return section.Paragraphs[aTag.tOdstavec];
+                        }
+                        else if (aTag.tTypElementu == MyEnumTypElementu.foneticky)
+                        {
+                            return section.PhoneticParagraphs[aTag.tOdstavec];
+                        }
+                    }
                 }
-                else if (aTag.tTypElementu == MyEnumTypElementu.foneticky)
-                {
-                    return Chapters[aTag.tKapitola].Sections[aTag.tSekce].PhoneticParagraphs[aTag.tOdstavec];
-                }
-                return null;
             }
-            catch
-            {
-                return null;
-            }
+
+            return null;
         }
 
         /// <summary>
@@ -1656,14 +1675,14 @@ namespace NanoTrans
                 if (aTag.tKapitola < 0 || aTag.tSekce < 0 || aTag.tOdstavec < 0) return null;
                 int pPocetSekci = Chapters[aTag.tKapitola].Sections.Count;
                 int pPocetOdstavcu = Chapters[aTag.tKapitola].Sections[aTag.tSekce].Paragraphs.Count;
-                if (aTag.tOdstavec>0)
+                if (aTag.tOdstavec > 0)
                 {
                     //return Chapters[aTag.tKapitola].Sections[aTag.tSekce].Paragraphs[aTag.tOdstavec - 1];
                     return new MyTag(aTag.tKapitola, aTag.tSekce, aTag.tOdstavec - 1);
                 }
                 else
                 {
-                    if (aTag.tSekce>0)
+                    if (aTag.tSekce > 0)
                     {
                         if (Chapters[aTag.tKapitola].Sections[aTag.tSekce - 1].hasParagraph)
                         {
@@ -1698,7 +1717,7 @@ namespace NanoTrans
                 return null;
             }
         }
-               
+
 
         /// <summary>
         /// Vraci kapitolu podle tagu, pokud neexistuje, vraci null
@@ -1719,10 +1738,10 @@ namespace NanoTrans
             }
         }
 
-               
-        
-        
-        
+
+
+
+
 
         /// <summary>
         /// Serializuje tuto tridu a ulozi data do xml souboru - muze ulozit mluvci bez fotky
@@ -1732,8 +1751,8 @@ namespace NanoTrans
         /// <returns></returns>
         public bool Serializovat(string jmenoSouboru, MySubtitlesData co, bool aUkladatKompletMluvci)
         {
-            Stream s = File.Open(jmenoSouboru,FileMode.Create);
-            bool output = Serializovat(s,co,aUkladatKompletMluvci);
+            Stream s = File.Open(jmenoSouboru, FileMode.Create);
+            bool output = Serializovat(s, co, aUkladatKompletMluvci);
 
             if (output)
             {
@@ -1747,7 +1766,7 @@ namespace NanoTrans
                 return false;
             }
         }
-        
+
         /// <summary>
         /// Serializuje tuto tridu a ulozi data do xml souboru - muze ulozit mluvci bez fotky
         /// </summary>
@@ -1756,12 +1775,12 @@ namespace NanoTrans
         /// <returns></returns>
         public bool Serializovat(Stream datastream, MySubtitlesData co, bool aUkladatKompletMluvci)
         {
-            try 
+            try
             {
                 MySpeakers pKopieMluvcich = new MySpeakers(co.SeznamMluvcich);
                 if (!aUkladatKompletMluvci)
                 {
-                    if (co != null && co.SeznamMluvcich!=null)
+                    if (co != null && co.SeznamMluvcich != null)
                     {
                         for (int i = 0; i < co.SeznamMluvcich.Speakers.Count; i++)
                         {
@@ -1793,15 +1812,15 @@ namespace NanoTrans
 
                 TextWriter writer = new StreamWriter(datastream);
                 XmlSerializer serializer = new XmlSerializer(typeof(MySubtitlesData));
-                
+
                 //XmlTextWriter writer = new XmlTextWriter(jmenoSouboru, Encoding.UTF8);
-                
+
                 serializer.Serialize(writer, pCopy);
                 writer.Close();
 
                 if (!aUkladatKompletMluvci)
                 {
-                    if (co != null )
+                    if (co != null)
                     {
                         co.SeznamMluvcich = pKopieMluvcich;
                     }
@@ -1809,7 +1828,7 @@ namespace NanoTrans
                 }
 
 
-                return true;                
+                return true;
             }
             catch (Exception ex)
             {
@@ -1817,14 +1836,14 @@ namespace NanoTrans
                 MyLog.LogujChybu(ex);
                 return false;
             }
-            
+
         }
-        
+
 
         //Deserializuje soubor             
         public MySubtitlesData Deserializovat(String jmenoSouboru)
         {
-            Stream s = File.Open(jmenoSouboru,FileMode.Open);
+            Stream s = File.Open(jmenoSouboru, FileMode.Open);
             MySubtitlesData dta = Deserializovat(s);
 
             if (dta != null)
@@ -1850,8 +1869,8 @@ namespace NanoTrans
                 XmlTextReader xreader = new XmlTextReader(datastream);
                 md = (MySubtitlesData)serializer.Deserialize(xreader);
                 xreader.Close();
-                
-                
+
+
                 //pokud nebyly v souboru ulozeny foneticke prepisy odstavcu, jsou automaticky vytvoreny podle struktury
                 for (int i = 0; i < md.Chapters.Count; i++)
                 {
@@ -1882,7 +1901,126 @@ namespace NanoTrans
                 return null;
             }
 
-        } 
+        }
+
+        public MyTag UpravCasZobraz(MyTag aTag, long aBegin, long aEnd)
+        {
+            return UpravCasZobraz(aTag, aBegin, aEnd, false);
+        }
+
+        /// <summary>
+        /// upravi a zobrazi cas u textboxu....begin a end.. pokud -2 tak se nemeni hodnoty casu..., -1 znamena vynulovani hodnot casu pocatku nebo konce
+        /// </summary>
+        /// <param name="aTag"></param>
+        /// <param name="aBegin"></param>
+        /// <param name="aEnd"></param>
+        /// <returns></returns>
+        public MyTag UpravCasZobraz(MyTag aTag, long aBegin, long aEnd, bool aIgnorovatPrekryv)
+        {
+
+            MyTag pTagPredchozi = new MyTag(-1, -1, -1);     //predchozi element
+            MyTag newTag2 = new MyTag(-1, -1, -1);  //nasledujici element
+            MyParagraph pParPredchozi = null;
+            MyParagraph pParAktualni = VratOdstavec(aTag);
+            MyParagraph pParNasledujici = null;
+
+
+            if (aTag.tOdstavec > 0)
+            {
+                pTagPredchozi = new MyTag(aTag.tKapitola, aTag.tSekce, aTag.tOdstavec - 1);
+                pParPredchozi = VratOdstavec(pTagPredchozi);
+
+            }
+            if (aTag.tOdstavec > -1)
+            {
+                newTag2 = new MyTag(aTag.tKapitola, aTag.tSekce, aTag.tOdstavec + 1);
+                pParNasledujici = VratOdstavec(newTag2);
+            }
+
+            long pKonecPredchoziho = VratCasElementuKonec(pTagPredchozi);
+            long pZacatekSoucasneho = VratCasElementuPocatek(aTag);
+            long pKonecSoucasneho = VratCasElementuKonec(aTag);
+            long pZacatekNasledujiciho = VratCasElementuPocatek(newTag2);
+
+
+            if (VratCasElementuPocatek(pTagPredchozi) > -1 && aBegin > -1)
+            {
+                long pCasElementuKonec = VratCasElementuKonec(aTag);
+
+                if (pCasElementuKonec >= 0 && pCasElementuKonec < aBegin && aEnd < aBegin)
+                {
+                    MessageBox.Show("Nelze nastavit počáteční čas bloku větší než jeho konec. ", "Varování", MessageBoxButton.OK);
+                    return null;
+                }
+
+                if (VratCasElementuPocatek(pTagPredchozi) <= aBegin) //dopsano ==
+                {
+                    if (VratCasElementuKonec(pTagPredchozi) > aBegin)
+                    {
+                        if (VratSpeakera(aTag).FullName == VratSpeakera(pTagPredchozi).FullName && !aIgnorovatPrekryv)
+                        {
+                            MessageBox.Show("Nelze nastavit počáteční čas bloku nižší než konec předchozího pro stejného mluvčího ", "Varování", MessageBoxButton.OK);
+                            return null;
+                        }
+                        else
+                        {
+                            MessageBoxResult mbr = MessageBoxResult.Yes;
+                            bool pZobrazitHlasku = pKonecPredchoziho <= pZacatekSoucasneho;
+                            if (!aIgnorovatPrekryv && pZobrazitHlasku) mbr = MessageBox.Show("Mluvčí se bude překrývat s předchozím, chcete toto povolit?", "Varování", MessageBoxButton.YesNoCancel);
+                            if (mbr != MessageBoxResult.Yes)
+                            {
+                                aBegin = pKonecPredchoziho;
+                            }
+
+                        }
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Nelze nastavit počáteční čas bloku nižší než začátek předchozího. ", "Varování", MessageBoxButton.OK);
+                    return aTag;
+                }
+
+            }
+
+
+
+           // UpravCasElementu(aTag, aBegin, -2);
+
+            if (VratCasElementuKonec(newTag2) > -1 && aEnd > -1)
+            {
+                if (VratCasElementuPocatek(aTag) > aEnd)
+                {
+                    MessageBox.Show("Nelze nastavit koncový čas bloku menší než jeho počátek. ", "Varování", MessageBoxButton.OK);
+                    return null;
+                }
+                else
+                {
+                    if (VratCasElementuPocatek(newTag2) < aEnd)
+                    {
+                        if (VratSpeakera(aTag).FullName == VratSpeakera(newTag2).FullName && !aIgnorovatPrekryv)
+                        {
+                            MessageBox.Show("Nelze nastavit koncový čas bloku vyšší než počátek následujícího pro stejného mluvčího ", "Varování", MessageBoxButton.OK);
+                            return aTag;
+                        }
+                        else
+                        {
+                            MessageBoxResult mbr = MessageBoxResult.Yes;
+                            bool pZobrazitHlasku = pKonecSoucasneho <= pZacatekNasledujiciho;
+                            if (!aIgnorovatPrekryv && pZobrazitHlasku) mbr = MessageBox.Show("Mluvčí se bude překrývat s následujícím, chcete toto povolit?", "Varování", MessageBoxButton.YesNoCancel);
+                            if (mbr != MessageBoxResult.Yes)
+                            {
+                                aEnd = pZacatekNasledujiciho;
+                            }
+                        }
+                    }
+                }
+            }
+
+
+            UpravCasElementu(aTag, aBegin, aEnd);
+            return aTag;
+        }
     }
 
     //trida ktera obsahuje informace o casove znacce jednotlicych useku - pocatek a konec a index pozice v textu
@@ -1905,5 +2043,5 @@ namespace NanoTrans
             this.Index2 = aIndexTextu2;
         }
     }
-    
+
 }

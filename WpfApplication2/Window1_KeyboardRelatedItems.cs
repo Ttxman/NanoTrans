@@ -152,11 +152,11 @@ namespace NanoTrans
                 {
 
                     MyTag x = (MyTag)((TextBox)(sender)).Tag;
-                    MyParagraph para = myDataSource.VratOdstavec(x);
+                    MyParagraph para = myDataSource[x];
                     MyTag next = myDataSource.VratOdstavecNasledujiciTag(x);
 
-                    if (next != null)
-                        return;
+                    //if (next != null)
+                    //    return;
 
 
                     //prida do seznamu richtextboxu novou komponentu
@@ -170,12 +170,12 @@ namespace NanoTrans
                     {
                         if (!e.IsRepeat)
                         {
-                            MyParagraph pPuvodniOdstavec = myDataSource.VratOdstavec(x);
+                            MyParagraph pPuvodniOdstavec = myDataSource[x];
                             if (string.IsNullOrEmpty(pTB.Text))
                                 return;
 
                             long pocatek = myDataSource.VratCasElementuPocatek(x);
-                            if (pocatek + 20 >= waveform1.CarretPosition.TotalMilliseconds) //minuly elment nema konec
+                            if (pocatek + 20 >= waveform1.CaretPosition.TotalMilliseconds) //minuly elment nema konec
                                 return;
 
                             this.pUpravitOdstavec = false; //odstavec je upraven jiz zde, a nebude dale upravovan v udalosti text change
@@ -190,7 +190,7 @@ namespace NanoTrans
                             string trDalsi = "";
                             if (((TextBox)sender).Text.Length > ((TextBox)sender).SelectionStart) trDalsi = ((TextBox)sender).Text.Substring(((TextBox)sender).SelectionStart);
                             //casove znacky budouciho odstavce
-                            List<MyCasovaZnacka> pNoveZnacky = myDataSource.VratOdstavec(x).VratCasoveZnackyTextu;
+                            List<MyCasovaZnacka> pNoveZnacky = myDataSource[x].VratCasoveZnackyTextu;
 
 
 
@@ -210,9 +210,8 @@ namespace NanoTrans
 
                             //vytvoreni noveho odstavce, jeho textboxu a jeho zobrazeni
                             long pomKon = myDataSource.VratCasElementuKonec(x); //pokud mel puvodni element index konce,je prirazen novemu elementu
-                            //PridejOdstavec(x.tKapitola, x.tSekce, "", null, x.tOdstavec, -1, -1, new MySpeaker());
-                            //return;
-                            if (UpravCasZobraz(x, -2,(long) waveform1.CarretPosition.TotalMilliseconds))
+
+                            if (UpravCasZobraz(x, -2,(long) waveform1.CaretPosition.TotalMilliseconds))
                             {
 
 
@@ -248,19 +247,19 @@ namespace NanoTrans
                             //myDataSource.UpravElementOdstavce(x.tKapitola, x.tSekce, x.tOdstavec, trAktualni.Text, nastaveniAplikace.CasoveZnacky);
                             MyTag x2 = new MyTag(x);
                             x.tTypElementu = MyEnumTypElementu.normalni;
-                            myDataSource.UpravElementOdstavce(x2, trAktualni, myDataSource.VratOdstavec(x).VratCasoveZnackyTextu);
+                            myDataSource.UpravElementOdstavce(x2, trAktualni, myDataSource[x].VratCasoveZnackyTextu);
 
-                            ///flowDoc = VytvorFlowDocumentOdstavce(myDataSource.VratOdstavec(x));
+                            ///flowDoc = VytvorFlowDocumentOdstavce(myDataSource[x));
                             //nastaveni aktualnich dat textboxu odstavce,aby nedochazelo ke zmenam
-                            nastaveniAplikace.CasoveZnacky = myDataSource.VratOdstavec(x).VratCasoveZnackyTextu;
-                            nastaveniAplikace.CasoveZnackyText = myDataSource.VratOdstavec(x).Text;
+                            nastaveniAplikace.CasoveZnacky = myDataSource[x].VratCasoveZnackyTextu;
+                            nastaveniAplikace.CasoveZnackyText = myDataSource[x].Text;
 
 
 
 
 
                             ///((RichTextBox)(sender)).Document = flowDoc;
-                            ((TextBox)sender).Text = myDataSource.VratOdstavec(x).Text;
+                            ((TextBox)sender).Text = myDataSource[x].Text;
 
                             if ((x.tOdstavec > -1) || (x.tSekce > -1))
                             {
@@ -275,10 +274,10 @@ namespace NanoTrans
                     }
                     else if (x.tSekce > -1)
                     {
-                        if (waveform1.CarretPosition < TimeSpan.Zero)
+                        if (waveform1.CaretPosition < TimeSpan.Zero)
                             return;
 
-                        MyTag pMT = PridejOdstavec(x.tKapitola, x.tSekce, "", null, -2,(long) waveform1.CarretPosition.TotalMilliseconds, -1, new MySpeaker());
+                        MyTag pMT = PridejOdstavec(x.tKapitola, x.tSekce, "", null, -2,(long) waveform1.CaretPosition.TotalMilliseconds, -1, new MySpeaker());
                         try
                         {
                             ((TextBox)pMT.tSender).Focus();
@@ -655,7 +654,7 @@ namespace NanoTrans
                         s = s.Replace("\r\n", "\r");       //nahrazeni \n za \r kvuli odradkovani
                         s = s.Replace("\n", "\r");       //nahrazeni \n za \r kvuli odradkovani
 
-                        List<MyCasovaZnacka> pCasoveZnackyMazaneho = myDataSource.VratOdstavec(mT).VratCasoveZnackyTextu;
+                        List<MyCasovaZnacka> pCasoveZnackyMazaneho = myDataSource[mT].VratCasoveZnackyTextu;
 
 
                         if (mT.tOdstavec > 0 || s.Length == 0)
@@ -683,7 +682,7 @@ namespace NanoTrans
 
                                     //casove znacky predchoziho odstavce, ke kteremu se budou pridavat nasledujici
                                     MyTag pTagPredchoziho = new MyTag(mT.tKapitola, mT.tSekce, mT.tOdstavec - 1);
-                                    List<MyCasovaZnacka> pCasoveZnackyPredchoziho = myDataSource.VratOdstavec(pTagPredchoziho).VratCasoveZnackyTextu;
+                                    List<MyCasovaZnacka> pCasoveZnackyPredchoziho = myDataSource[pTagPredchoziho].VratCasoveZnackyTextu;
 
                                     myDataSource.UpravCasElementu(pTagPredchoziho, -2, myDataSource.VratCasElementuKonec(mT));    //koncovy cas elementu je nastaven podle aktualniho
 
@@ -696,7 +695,7 @@ namespace NanoTrans
                                         pCasoveZnackyMazaneho[i].Index2 += t.Length;
                                     }
                                     pCasoveZnackyPredchoziho.AddRange(pCasoveZnackyMazaneho);
-                                    myDataSource.VratOdstavec(pTagPredchoziho).UlozTextOdstavce(t + s, pCasoveZnackyPredchoziho);
+                                    myDataSource[pTagPredchoziho].UlozTextOdstavce(t + s, pCasoveZnackyPredchoziho);
                                     //kvuli pozdejsi editaci
                                     if (s == null || s == "")
                                     {
@@ -708,8 +707,8 @@ namespace NanoTrans
                                     //((RichTextBox)((Grid)spSeznam.Children[index - 1]).Children[0]).Document = new FlowDocument(new Paragraph(new Run(t + s)));
                                     nastaveniAplikace.CasoveZnackyText = t + s;
                                     nastaveniAplikace.CasoveZnacky = pCasoveZnackyPredchoziho;
-                                    ///((RichTextBox)((Grid)spSeznam.Children[index - 1]).Children[0]).Document = VytvorFlowDocumentOdstavce(myDataSource.VratOdstavec(pTagPredchoziho));
-                                    ((TextBox)((Grid)spSeznam.Children[index - 1]).Children[0]).Text = myDataSource.VratOdstavec(pTagPredchoziho).Text;
+                                    ///((RichTextBox)((Grid)spSeznam.Children[index - 1]).Children[0]).Document = VytvorFlowDocumentOdstavce(myDataSource[pTagPredchoziho));
+                                    ((TextBox)((Grid)spSeznam.Children[index - 1]).Children[0]).Text = myDataSource[pTagPredchoziho].Text;
 
                                     ///TextPointer sel ;
 
@@ -749,7 +748,7 @@ namespace NanoTrans
                         s2 = s2.Replace("\r\n", "\r");       //nahrazeni \n za \r kvuli odradkovani
                         s2 = s2.Replace("\n", "\r");       //nahrazeni \n za \r kvuli odradkovani
 
-                        List<MyCasovaZnacka> pCasoveZnackyAktualniho = myDataSource.VratOdstavec(mT).VratCasoveZnackyTextu;
+                        List<MyCasovaZnacka> pCasoveZnackyAktualniho = myDataSource[mT].VratCasoveZnackyTextu;
 
                         ///int pDelka2 = flowDoc2.ContentStart.GetOffsetToPosition(flowDoc2.ContentEnd);  //delka ve "znacich" kvuli nastaveni kurzoru
                         int pDelka2 = ((TextBox)(sender)).Text.Length;  //delka ve "znacich" kvuli nastaveni kurzoru
@@ -771,7 +770,7 @@ namespace NanoTrans
                                 t2 = t2.Replace("\n\r", "\r");       //nahrazeni \n za \r kvuli odradkovani
                                 t2 = t2.Replace("\r\n", "\r");       //nahrazeni \n za \r kvuli odradkovani
                                 t2 = t2.Replace("\n", "\r");       //nahrazeni \n za \r kvuli odradkovani
-                                List<MyCasovaZnacka> pCasoveZnackyNasledujiciho = myDataSource.VratOdstavec(pTagNasledujicihoOdstavce).VratCasoveZnackyTextu;
+                                List<MyCasovaZnacka> pCasoveZnackyNasledujiciho = myDataSource[pTagNasledujicihoOdstavce].VratCasoveZnackyTextu;
 
                                 myDataSource.UpravCasElementu(mT, -2, myDataSource.VratCasElementuKonec(pTagNasledujicihoOdstavce));    //koncovy cas elementu je nastaven podle nasledujiciho
                                 
@@ -789,7 +788,7 @@ namespace NanoTrans
                                     }
                                     pCasoveZnackyAktualniho.AddRange(pCasoveZnackyNasledujiciho);
                                 }
-                                myDataSource.VratOdstavec(mT).UlozTextOdstavce(s2 + t2, pCasoveZnackyAktualniho);   //ulozeni zmen do akktualniho odstavce
+                                myDataSource[mT].UlozTextOdstavce(s2 + t2, pCasoveZnackyAktualniho);   //ulozeni zmen do akktualniho odstavce
                                 if (t2 == "")
                                 {
                                     pUpravitOdstavec = true;
@@ -798,7 +797,7 @@ namespace NanoTrans
 
                                 nastaveniAplikace.CasoveZnackyText = s2 + t2;
                                 nastaveniAplikace.CasoveZnacky = pCasoveZnackyAktualniho;
-                                ((TextBox)((Grid)spSeznam.Children[index]).Children[0]).Text = myDataSource.VratOdstavec(mT).Text;
+                                ((TextBox)((Grid)spSeznam.Children[index]).Children[0]).Text = myDataSource[mT].Text;
                                 ((TextBox)((Grid)spSeznam.Children[index]).Children[0]).SelectionStart = pDelka2;
                                 ((TextBox)((Grid)spSeznam.Children[index]).Children[0]).SelectionLength = 0;
                                 UpdateXMLData();
@@ -858,12 +857,12 @@ namespace NanoTrans
             switch (syskey)
             {
                 case Key.Left:
-                    NastavPoziciKurzoru(waveform1.CarretPosition - waveform1.SmallJump, true, true);
+                    NastavPoziciKurzoru(waveform1.CaretPosition - waveform1.SmallJump, true, true);
                     if (e != null)
                         e.Handled = true;
                     break;
                 case Key.Right:
-                    NastavPoziciKurzoru(waveform1.CarretPosition - waveform1.SmallJump, true, true);
+                    NastavPoziciKurzoru(waveform1.CaretPosition - waveform1.SmallJump, true, true);
                     if (e != null)
                         e.Handled = true;
                     break;
@@ -925,7 +924,7 @@ namespace NanoTrans
                             {
 
                                 //TODO: proc enjsou tyhle 3 veci na jednom miste?
-                                waveform1.CarretPosition = MWP.PausedAt;
+                                waveform1.CaretPosition = MWP.PausedAt;
                                 pIndexBufferuVlnyProPrehrani = (int)MWP.PausedAt.TotalMilliseconds;
                             }
                         }
@@ -946,13 +945,13 @@ namespace NanoTrans
                             if (leftCtrl)
                             {
                                 prehratVyber = true;
-                                if (waveform1.CarretPosition >= TimeSpan.Zero)
+                                if (waveform1.CaretPosition >= TimeSpan.Zero)
                                 {
 
                                     long timems;
-                                    if (waveform1.CarretPosition >= waveform1.SelectionBegin && waveform1.CarretPosition <= waveform1.SelectionEnd)
+                                    if (waveform1.CaretPosition >= waveform1.SelectionBegin && waveform1.CaretPosition <= waveform1.SelectionEnd)
                                     {
-                                        timems = (long)waveform1.CarretPosition.TotalMilliseconds;
+                                        timems = (long)waveform1.CaretPosition.TotalMilliseconds;
                                         oldms = TimeSpan.Zero;
                                         List<MyTag> elementy = myDataSource.VratElementDanehoCasu(timems, null);
                                         NastavPoziciKurzoru(waveform1.SelectionBegin, true, false);

@@ -505,7 +505,7 @@ namespace NanoTrans
 
                         if (aTag.JeOdstavec)
                         {
-                            MyParagraph pP = myDataSource.VratOdstavec(aTag);
+                            MyParagraph pP = myDataSource[aTag];
                             if (aUpdateTrainingElement)
                             {
                                 if (pP != null)
@@ -926,7 +926,7 @@ namespace NanoTrans
                 MyTag mT = new MyTag(aKapitola, aSekce, index_Odstavce);
                 //index = PridejTextBox(index, MyPRACE.PrevedTextNaFlowDocument(text_Odstavce), mT); //textbox do seznamu
                 //index = PridejTextBox(index, VytvorFlowDocumentOdstavce(myDataSource.VratOdstavec(mT)), mT); //textbox do seznamu
-                index = PridejTextBox(index, (myDataSource.VratOdstavec(mT)).Text, mT); //textbox do seznamu
+                index = PridejTextBox(index, myDataSource[mT].Text, mT); //textbox do seznamu
 
 
                 //prepocitani nasledujicich indexu po vlozeni noveho odstavce mezi ostatni
@@ -1154,172 +1154,6 @@ namespace NanoTrans
             }
         }
 
-
-
-        public bool UpravCasZobraz(MyTag aTag, long aBegin, long aEnd)
-        {
-            return UpravCasZobraz(aTag, aBegin, aEnd, false);
-        }
-
-        /// <summary>
-        /// upravi a zobrazi cas u textboxu....begin a end.. pokud -2 tak se nemeni hodnoty casu..., -1 znamena vynulovani hodnot casu pocatku nebo konce
-        /// </summary>
-        /// <param name="aTag"></param>
-        /// <param name="aBegin"></param>
-        /// <param name="aEnd"></param>
-        /// <returns></returns>
-        public bool UpravCasZobraz(MyTag aTag, long aBegin, long aEnd, bool aIgnorovatPrekryv)
-        {
-            try
-            {
-                MyTag pTagPredchozi = new MyTag(-1, -1, -1);     //predchozi element
-                MyTag newTag2 = new MyTag(-1, -1, -1);  //nasledujici element
-                MyParagraph pParPredchozi = null;
-                MyParagraph pParAktualni = myDataSource.VratOdstavec(aTag);
-                MyParagraph pParNasledujici = null;
-
-
-                if (aTag.tOdstavec > 0)
-                {
-                    pTagPredchozi = new MyTag(aTag.tKapitola, aTag.tSekce, aTag.tOdstavec - 1);
-                    pParPredchozi = myDataSource.VratOdstavec(pTagPredchozi);
-
-                }
-                if (aTag.tOdstavec > -1)
-                {
-                    newTag2 = new MyTag(aTag.tKapitola, aTag.tSekce, aTag.tOdstavec + 1);
-                    pParNasledujici = myDataSource.VratOdstavec(newTag2);
-                }
-
-                long pKonecPredchoziho = myDataSource.VratCasElementuKonec(pTagPredchozi);
-                long pZacatekSoucasneho = myDataSource.VratCasElementuPocatek(aTag);
-                long pKonecSoucasneho = myDataSource.VratCasElementuKonec(aTag);
-                long pZacatekNasledujiciho = myDataSource.VratCasElementuPocatek(newTag2);
-
-
-                if (myDataSource.VratCasElementuPocatek(pTagPredchozi) > -1 && aBegin > -1)
-                {
-                    long pCasElementuKonec = myDataSource.VratCasElementuKonec(aTag);
-
-                    if (pCasElementuKonec >= 0 && pCasElementuKonec < aBegin && aEnd < aBegin)
-                    {
-                        MessageBox.Show("Nelze nastavit počáteční čas bloku větší než jeho konec. ", "Varování", MessageBoxButton.OK);
-                        //NastavPoziciKurzoru(myDataSource.VratCasElementuPocatek(aTag), true);
-                        //KresliVyber(myDataSource.VratCasElementuPocatek(aTag), myDataSource.VratCasElementuKonec(aTag), myDataSource.VratCasElementuPocatek(aTag));
-                        return false;
-                    }
-
-                    if (myDataSource.VratCasElementuPocatek(pTagPredchozi) <= aBegin) //dopsano ==
-                    {
-                        if (myDataSource.VratCasElementuKonec(pTagPredchozi) > aBegin)
-                        {
-                            if (myDataSource.VratSpeakera(aTag).FullName == myDataSource.VratSpeakera(pTagPredchozi).FullName && !aIgnorovatPrekryv)
-                            {
-                                MessageBox.Show("Nelze nastavit počáteční čas bloku nižší než konec předchozího pro stejného mluvčího ", "Varování", MessageBoxButton.OK);
-                                //NastavPoziciKurzoru(myDataSource.VratCasElementuPocatek(aTag), true);
-                                //KresliVyber(myDataSource.VratCasElementuPocatek(aTag), myDataSource.VratCasElementuKonec(aTag), myDataSource.VratCasElementuPocatek(aTag));
-                                waveform1.SelectionBegin =  TimeSpan.FromMilliseconds(myDataSource.VratCasElementuPocatek(aTag));
-                                waveform1.SelectionEnd = TimeSpan.FromMilliseconds(myDataSource.VratCasElementuKonec(aTag));
-                                return false;
-                            }
-                            else
-                            {
-                                MessageBoxResult mbr = MessageBoxResult.Yes;
-                                bool pZobrazitHlasku = pKonecPredchoziho <= pZacatekSoucasneho;
-                                if (!aIgnorovatPrekryv && pZobrazitHlasku) mbr = MessageBox.Show("Mluvčí se bude překrývat s předchozím, chcete toto povolit?", "Varování", MessageBoxButton.YesNoCancel);
-                                if (mbr != MessageBoxResult.Yes)
-                                {
-                                    //NastavPoziciKurzoru(myDataSource.VratCasElementuPocatek(aTag), true, true);
-                                    //KresliVyber(myDataSource.VratCasElementuPocatek(aTag), myDataSource.VratCasElementuKonec(aTag), myDataSource.VratCasElementuPocatek(aTag));
-                                    waveform1.SelectionBegin = TimeSpan.FromMilliseconds(myDataSource.VratCasElementuPocatek(aTag));
-                                    waveform1.SelectionEnd = TimeSpan.FromMilliseconds(myDataSource.VratCasElementuKonec(aTag));
-                                    return false;
-                                }
-                                if (!aIgnorovatPrekryv)
-                                {
-                                    //NastavPoziciKurzoru(aBegin, true, true);
-                                    //KresliVyber(aBegin, , aBegin);
-                                    waveform1.SelectionBegin = TimeSpan.FromMilliseconds(aBegin);
-                                    waveform1.SelectionEnd = TimeSpan.FromMilliseconds(myDataSource.VratCasElementuKonec(aTag));
-                                    waveform1.CarretPosition = TimeSpan.FromMilliseconds(aBegin);
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        MessageBox.Show("Nelze nastavit počáteční čas bloku nižší než začátek předchozího. ", "Varování", MessageBoxButton.OK);
-                        //NastavPoziciKurzoru(myDataSource.VratCasElementuPocatek(aTag), true);
-
-                        waveform1.SelectionBegin = TimeSpan.FromMilliseconds(myDataSource.VratCasElementuPocatek(aTag));
-                        waveform1.SelectionEnd = TimeSpan.FromMilliseconds(myDataSource.VratCasElementuKonec(aTag));
-                        waveform1.CarretPosition = TimeSpan.FromMilliseconds(myDataSource.VratCasElementuPocatek(aTag));
-
-                        return false;
-                    }
-
-                }
-
-
-
-                myDataSource.UpravCasElementu(aTag, aBegin, -2);
-
-                if (myDataSource.VratCasElementuKonec(newTag2) > -1 && aEnd > -1)
-                {
-                    if (myDataSource.VratCasElementuPocatek(aTag) > aEnd)
-                    {
-                        MessageBox.Show("Nelze nastavit koncový čas bloku menší než jeho počátek. ", "Varování", MessageBoxButton.OK);
-                        //NastavPoziciKurzoru(myDataSource.VratCasElementuPocatek(aTag), true);
-                        //KresliVyber(myDataSource.VratCasElementuPocatek(aTag), myDataSource.VratCasElementuKonec(aTag), myDataSource.VratCasElementuPocatek(aTag));
-                        return false;
-                    }
-                    else
-                        if (myDataSource.VratCasElementuPocatek(newTag2) < aEnd)
-                        {
-                            if (myDataSource.VratSpeakera(aTag).FullName == myDataSource.VratSpeakera(newTag2).FullName && !aIgnorovatPrekryv)
-                            {
-                                MessageBox.Show("Nelze nastavit koncový čas bloku vyšší než počátek následujícího pro stejného mluvčího ", "Varování", MessageBoxButton.OK);
-                                waveform1.SelectionBegin = TimeSpan.FromMilliseconds(myDataSource.VratCasElementuPocatek(aTag));
-                                waveform1.SelectionEnd = TimeSpan.FromMilliseconds(myDataSource.VratCasElementuKonec(aTag));
-                                return false;
-                            }
-                            else
-                            {
-                                MessageBoxResult mbr = MessageBoxResult.Yes;
-                                bool pZobrazitHlasku = pKonecSoucasneho <= pZacatekNasledujiciho;
-                                if (!aIgnorovatPrekryv && pZobrazitHlasku) mbr = MessageBox.Show("Mluvčí se bude překrývat s následujícím, chcete toto povolit?", "Varování", MessageBoxButton.YesNoCancel);
-                                if (mbr != MessageBoxResult.Yes)
-                                {
-                                    waveform1.SelectionBegin = TimeSpan.FromMilliseconds(myDataSource.VratCasElementuPocatek(aTag));
-                                    waveform1.SelectionEnd = TimeSpan.FromMilliseconds(myDataSource.VratCasElementuKonec(aTag));
-                                    return false;
-                                }
-                                if (!aIgnorovatPrekryv)
-                                {
-                                    waveform1.SelectionBegin = TimeSpan.FromMilliseconds(myDataSource.VratCasElementuPocatek(aTag));
-                                    waveform1.SelectionEnd = TimeSpan.FromMilliseconds(aEnd);
-                                }
-                            }
-                        }
-                }
-
-
-
-
-                myDataSource.UpravCasElementu(aTag, aBegin, aEnd);
-
-                UpdateXMLData();
-
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-                return false;
-            }
-
-        }
         #endregion 
 
         public Window1()
@@ -1762,7 +1596,7 @@ namespace NanoTrans
                     }
                 }
 
-                waveform1.InvalidateWaveform();
+                waveform1.Invalidate();
             }
             catch (Exception ex)
             {
@@ -1828,11 +1662,6 @@ namespace NanoTrans
             richX.AcceptsReturn = false;
             richX.AcceptsTab = true;
             richX.FontSize = nastaveniAplikace.SetupTextFontSize;
-            //if (spSeznam.ActualHeight > 0.1) richX.MaxHeight = spSeznam.ActualHeight;
-            //spSeznam.
-            //richX.VerticalScrollBarVisibility = ScrollBarVisibility.Visible;
-
-
 
             richX.HorizontalAlignment = HorizontalAlignment.Stretch;
             richX.Tag = new MyTag(aTag.tKapitola, aTag.tSekce, aTag.tOdstavec, richX);
@@ -1845,7 +1674,7 @@ namespace NanoTrans
 
             richX.SelectionChanged += new RoutedEventHandler(richX_SelectionChanged);
             richX.MouseDown += new MouseButtonEventHandler(richX_MouseDown);
-
+            richX.CaretPositionJump += new EventHandler<MyTextBox.IntEventArgs>(richX_CaretPositionJump);
 
             richX.PreviewMouseLeftButtonDown += new MouseButtonEventHandler(richX_MouseLeftButtonDown);
             richX.PreviewMouseMove += new MouseEventHandler(richX_PreviewMouseMove);
@@ -2013,7 +1842,7 @@ namespace NanoTrans
                         r.Height = 8;
                         r.ToolTip = nam;
                         r.Margin = new Thickness(0, 0, 0, 1);
-                        MyParagraph par = myDataSource.VratOdstavec(aTag);
+                        MyParagraph par = myDataSource[aTag];
                         if ((par.DataAttributes & at) != 0)
                         {
                             r.Fill = GetRectangleInnenrColor(at);
@@ -2077,6 +1906,13 @@ namespace NanoTrans
 
         }
 
+        void richX_CaretPositionJump(object sender, MyTextBox.IntEventArgs e)
+        {
+            MyTag tag = (MyTag)(sender as MyTextBox).Tag;
+
+            
+        }
+
         Brush GetRectangleBgColor(MyEnumParagraphAttributes param)
         { 
              return Brushes.White;
@@ -2106,7 +1942,7 @@ namespace NanoTrans
             MyEnumParagraphAttributes[] attrs = (MyEnumParagraphAttributes[]) Enum.GetValues(typeof(MyEnumParagraphAttributes));
             
             MyTag tag = (MyTag)(sender as Rectangle).Tag;
-            MyParagraph par =  myDataSource.VratOdstavec(tag);
+            MyParagraph par =  myDataSource[tag];
 
             par.DataAttributes ^= attrs[i];
             if ((par.DataAttributes & attrs[i]) != 0)
@@ -2271,13 +2107,10 @@ namespace NanoTrans
         void menuItemX5_Smaz_Click(object sender, RoutedEventArgs e)
         {
             try
-            {
-                //Grid ss = ((Grid)((ContextMenu)((MenuItem)sender).Parent).Tag);
+            {             
                 MyTag mT;// = ((MyTag)((RichTextBox)ss.Children[0]).Tag);
                 mT = nastaveniAplikace.RichTag;
                 UpravCasZobraz(mT, -1, -2);
-                UpdateXMLData();
-                ZobrazInformaceElementu(mT);
             }
             catch (Exception ex)
             {
@@ -2289,12 +2122,9 @@ namespace NanoTrans
         {
             try
             {
-                //Grid ss = ((Grid)((ContextMenu)((MenuItem)sender).Parent).Tag);
                 MyTag mT;// = ((MyTag)((RichTextBox)ss.Children[0]).Tag);
                 mT = nastaveniAplikace.RichTag;
                 UpravCasZobraz(mT, -2, -1);
-                UpdateXMLData();
-                ZobrazInformaceElementu(mT);
             }
             catch (Exception ex)
             {
@@ -2302,12 +2132,14 @@ namespace NanoTrans
             }
         }
 
+        static Encoding win1250 = Encoding.GetEncoding("windows-1250");
+
         void menuItemX7_Click(object sender, RoutedEventArgs e)
         {
             MyTag tag = new MyTag(nastaveniAplikace.RichTag);
-            MyParagraph par = myDataSource.VratOdstavec(tag);
+            MyParagraph par = myDataSource[tag];
             tag.tTypElementu = MyEnumTypElementu.foneticky;
-            MyParagraph parf = myDataSource.VratOdstavec(tag);
+            MyParagraph parf = myDataSource[tag];
             oWav.RamecSynchronne = true;
             bool nacteno = oWav.NactiRamecBufferu(par.begin, par.DelkaMS, MyKONST.ID_BUFFERU_PREPISOVANEHO_ELEMENTU_FONETICKY_PREPIS);//)this.bPozadovanyPocatekRamce, this.bPozadovanaDelkaRamceMS, this.bIDBufferu);        
             oWav.RamecSynchronne = false;
@@ -2328,13 +2160,13 @@ namespace NanoTrans
                 filename = filename.Substring(0, filename.Length - ext.Length);
                 string textf = filename + ".txt";
 
-                File.WriteAllText(textf, par.Text);
+                File.WriteAllBytes(textf,win1250.GetBytes(par.Text));
 
 
-                if (parf != null)
+                if (parf != null && ! string.IsNullOrEmpty(parf.Text))
                 {
                     textf = filename + ".phn";
-                    File.WriteAllText(textf, parf.Text);
+                    File.WriteAllBytes(textf, win1250.GetBytes(parf.Text));
                 }
             }
 
@@ -2458,7 +2290,7 @@ namespace NanoTrans
 
                     if (pTag.JeOdstavec)
                     {
-                        List<MyCasovaZnacka> pCZnacky = myDataSource.VratOdstavec(pTag).VratCasoveZnackyTextu;
+                        List<MyCasovaZnacka> pCZnacky = myDataSource[pTag].VratCasoveZnackyTextu;
 
 
                         for (int i = 0; i < pCZnacky.Count; i++)
@@ -2568,21 +2400,23 @@ namespace NanoTrans
 
                 if (nastaveniAplikace.RichTag.tOdstavec >= 0)
                 {
-                    MyParagraph pP = myDataSource.VratOdstavec(nastaveniAplikace.RichTag);
+                    MyParagraph pP = myDataSource[nastaveniAplikace.RichTag];
                     nastaveniAplikace.CasoveZnacky = pP.VratCasoveZnackyTextu;    //casove znacky, ktere jsou nastaveny v odstavci
                     nastaveniAplikace.CasoveZnackyText = ((TextBox)sender).Text;
 
                 }
 
                 //provede zvyrazneni vyberu ve vlne podle dat
-                waveform1.SelectionBegin = TimeSpan.FromMilliseconds(myDataSource.VratCasElementuPocatek(nastaveniAplikace.RichTag));
+                waveform1.CaretPosition = waveform1.SelectionBegin = TimeSpan.FromMilliseconds(myDataSource.VratCasElementuPocatek(nastaveniAplikace.RichTag));
                 waveform1.SelectionEnd =  TimeSpan.FromMilliseconds(myDataSource.VratCasElementuKonec(nastaveniAplikace.RichTag));
+
+                //waveform1.SliderPostion = waveform1.SelectionEnd;
 
                 //nastaveni pozice kurzoru a obsluha prehravani podle nastaveni
                 if (nastaveniAplikace.SetupSkocitNaPozici && !pNeskakatNaZacatekElementu)
                 {
-                    waveform1.CarretPosition = waveform1.SelectionBegin;
-                    pIndexBufferuVlnyProPrehrani = (int)waveform1.CarretPosition.TotalMilliseconds;
+                    waveform1.CaretPosition = waveform1.SelectionBegin;
+                    pIndexBufferuVlnyProPrehrani = (int)waveform1.CaretPosition.TotalMilliseconds;
                     if (nastaveniAplikace.SetupSkocitZastavit)
                     {
                         if (jeVideo) meVideo.Play();
@@ -2593,7 +2427,7 @@ namespace NanoTrans
                 if (nastaveniAplikace.RichTag.JeOdstavec)
                 {
                     if (!Playing) 
-                        NastavPoziciKurzoru(waveform1.CarretPosition, true, true);
+                        NastavPoziciKurzoru(waveform1.CaretPosition, true, true);
                 }
                 ZobrazInformaceElementu(nastaveniAplikace.RichTag);
                 if (nastaveniAplikace.RichTag.tOdstavec > -1)
@@ -2717,7 +2551,7 @@ namespace NanoTrans
 
                     if (pTag.tTypElementu == MyEnumTypElementu.foneticky)
                     {
-                        MyParagraph pP = myDataSource.VratOdstavec(pTag);
+                        MyParagraph pP = myDataSource[pTag];
                         if (pP != null)
                         {
                             pUpravitOdstavec = false;
@@ -2740,7 +2574,7 @@ namespace NanoTrans
 
                         if (nastaveniAplikace.RichTag.tOdstavec == pTag.tOdstavec)   //dojde k uprave jestli souhlasi vybrany odstavec a odstavec ze ktereho je volana tato funkce
                         {
-                            MyParagraph pP = myDataSource.VratOdstavec(pTag);
+                            MyParagraph pP = myDataSource[pTag];
                             int carretpos = (pTb.SelectionLength<=0)?pTb.CaretIndex:pTb.SelectionStart;
                             int pIndexZmeny = MyKONST.VratIndexZmenyStringu(nastaveniAplikace.CasoveZnackyText, tr, carretpos);// pTb.SelectionStart);
                             if (pIndexZmeny >= 0) //doslo ke zmene ve stringu
@@ -3284,18 +3118,18 @@ namespace NanoTrans
             {
 
                 if (position < TimeSpan.Zero) return;
-                waveform1.CarretPosition = position;
+                waveform1.CaretPosition = position;
                 
                 
                 if (!Playing && jeVideo && Math.Abs(meVideo.Position.TotalMilliseconds) > 200)
                 {
-                    meVideo.Position = waveform1.CarretPosition;
+                    meVideo.Position = waveform1.CaretPosition;
                 }
 
                 if (nastavitMedia)
                 {
                     //pIndexBufferuVlnyProPrehrani = (int)position.TotalMilliseconds;
-                    if (jeVideo) meVideo.Position = waveform1.CarretPosition;
+                    if (jeVideo) meVideo.Position = waveform1.CaretPosition;
                     List<MyTag> pTagy = myDataSource.VratElementDanehoCasu((long)position.TotalMilliseconds, null);
                     for (int i = 0; i < pTagy.Count; i++)
                     {
@@ -3388,7 +3222,7 @@ namespace NanoTrans
 
                 if (nastaveniAplikace.RichTag != null)
                 {
-                    MyParagraph pP = myDataSource.VratOdstavec(nastaveniAplikace.RichTag);
+                    MyParagraph pP = myDataSource[nastaveniAplikace.RichTag];
                     List<MyCasovaZnacka> pCasZnacky = null;
                     if (pP != null) pCasZnacky = pP.VratCasoveZnackyTextu;
                     if (pCasZnacky != null && pCasZnacky.Count > 1)
@@ -3471,7 +3305,7 @@ namespace NanoTrans
 
                 long rozdil = (long)waveform1.WaveLength.TotalMilliseconds; //delka zobrazeni v msekundach
 
-                TimeSpan playpos = waveform1.CarretPosition;
+                TimeSpan playpos = waveform1.CaretPosition;
                 if (_playing)
                 {
                     playpos = MWP.PlayPosition;
@@ -3480,7 +3314,7 @@ namespace NanoTrans
                     {
                         playpos = waveform1.SelectionBegin;
                     }
-                    waveform1.CarretPosition = MWP.PlayPosition;
+                    waveform1.CaretPosition = MWP.PlayPosition;
                 }
 
                 pocetTikuTimeru++;
@@ -3508,14 +3342,14 @@ namespace NanoTrans
                         oldms = TimeSpan.Zero;
                         NastavPoziciKurzoru(waveform1.SelectionBegin, true, true);
 
-                        playpos = waveform1.CarretPosition;
+                        playpos = waveform1.CaretPosition;
                         if (MWP != null)
                             MWP.Play(MWP.PlaySpeed);
 
                     }
                     else
                     {
-                        NastavPoziciKurzoru(waveform1.CarretPosition, false, true);
+                        NastavPoziciKurzoru(waveform1.CaretPosition, false, true);
                     }
 
                     if (Playing) VyberTextMeziCasovymiZnackami((long)playpos.TotalMilliseconds);
@@ -3532,7 +3366,7 @@ namespace NanoTrans
                         long pKonec = celkMilisekundy - (long)waveform1.WaveLengthDelta.TotalMilliseconds + rozdil;
                         long pPocatekMS = pKonec - rozdil;
                         if (pKonec > waveform1.WaveEnd.TotalMilliseconds) 
-                            pPocatekMS = (long)waveform1.CarretPosition.TotalMilliseconds - rozdil / 2;
+                            pPocatekMS = (long)waveform1.CaretPosition.TotalMilliseconds - rozdil / 2;
 
                         if (pPocatekMS < 0) 
                             pPocatekMS = 0;
@@ -3549,7 +3383,7 @@ namespace NanoTrans
                         long pKonec = celkMilisekundy + (long)(rozdil * 0.3);
                         long pPocatekMS = pKonec - rozdil;
                         if (pKonec > waveform1.WaveEnd.TotalMilliseconds)
-                            pPocatekMS = (long)waveform1.CarretPosition.TotalMilliseconds - rozdil / 2;
+                            pPocatekMS = (long)waveform1.CaretPosition.TotalMilliseconds - rozdil / 2;
 
                         if (pPocatekMS < 0)
                             pPocatekMS = 0;
@@ -3645,7 +3479,7 @@ namespace NanoTrans
                         //nastaveni pocatku prehravani
                         Playing = false;
 
-                        waveform1.CarretPosition = TimeSpan.Zero;
+                        waveform1.CaretPosition = TimeSpan.Zero;
                       //  pIndexBufferuVlnyProPrehrani = 0;
 
 
@@ -3788,11 +3622,14 @@ namespace NanoTrans
                 long pPocatekMS = myDataSource.VratCasElementuPocatek(aTagVyberu);
                 long pKonecMS = myDataSource.VratCasElementuKonec(aTagVyberu);
                 aTagVyberu.tSender = VratSenderTextboxu(aTagVyberu);
+
+
+                waveform1.SelectionBegin = TimeSpan.FromMilliseconds(pPocatekMS);
+                waveform1.SelectionEnd = TimeSpan.FromMilliseconds(pKonecMS);
+
                 if (aTagVyberu.tOdstavec != nastaveniAplikace.RichTag.tOdstavec || aTagVyberu.tSekce != nastaveniAplikace.RichTag.tSekce || aTagVyberu.tKapitola != nastaveniAplikace.RichTag.tKapitola)
                 {
 
-                    waveform1.SelectionBegin = TimeSpan.FromMilliseconds(pPocatekMS);
-                    waveform1.SelectionEnd = TimeSpan.FromMilliseconds(pKonecMS);
 
                     pPokracovatVprehravaniPoVyberu = aNezastavovatPrehravani;
                     this.pNeskakatNaZacatekElementu = aNezastavovatPrehravani;
@@ -3874,7 +3711,7 @@ namespace NanoTrans
             mediaElement1.Stop();
             
             Playing = false;
-            waveform1.CarretPosition = TimeSpan.Zero;
+            waveform1.CaretPosition = TimeSpan.Zero;
         }
         //menu----------------------------------------------------------------------
 
@@ -4014,7 +3851,7 @@ namespace NanoTrans
                 TimeSpan pPocatek = waveform1.WaveBegin;
                 TimeSpan pKonec = waveform1.WaveBegin + pDelka;
                 if (pKonec < waveform1.WaveBegin) 
-                    pPocatek = waveform1.CarretPosition - TimeSpan.FromTicks( pDelka.Ticks / 2);
+                    pPocatek = waveform1.CaretPosition - TimeSpan.FromTicks( pDelka.Ticks / 2);
 
                 if (pPocatek < TimeSpan.Zero) pPocatek = TimeSpan.Zero;
                 pKonec = pPocatek + pDelka;
@@ -4029,15 +3866,6 @@ namespace NanoTrans
 
             }
         }
-
-        //obsluha klikani na image...////////////////////////////////////////////////////////////////////////////////////////
-
-        bool posouvatL = false;
-        bool posouvatP = false;
-        /// <summary>
-        /// info zda je pozadovano pri editaci vyberu ihned ukladat casy
-        /// </summary>
-        bool ukladatCasy = false;
 
 
         //osetreni ulozeni pri ukonceni aplikace
@@ -4524,7 +4352,7 @@ namespace NanoTrans
 
 
 
-                            MyParagraph pP = myDataSource.VratOdstavec(e.sender.PrepisovanyElementTag);
+                            MyParagraph pP = myDataSource[e.sender.PrepisovanyElementTag];
                             if (pP != null)
                             {
                                 pP.UlozTextOdstavce(e.sender.PrepsanyText, e.sender.PrepsanyTextCasoveZnacky);
@@ -4555,7 +4383,7 @@ namespace NanoTrans
                             string[] pPole = s.Split(pFormat, StringSplitOptions.RemoveEmptyEntries);
                             string pText = "";
                             if (pPole != null && pPole.Length > 1) pText = pPole[1];
-                            MyParagraph pP = myDataSource.VratOdstavec(e.sender.PrepisovanyElementTag);
+                            MyParagraph pP = myDataSource[e.sender.PrepisovanyElementTag];
                             if (pP != null)
                             {
                                 pP.UlozTextOdstavce(e.sender.PrepsanyText + pText, e.sender.PrepsanyTextCasoveZnacky);
@@ -5058,7 +4886,7 @@ namespace NanoTrans
 
             if (aTag.JeOdstavec)
             {
-                MyParagraph pParagraph = myDataSource.VratOdstavec(aTag);
+                MyParagraph pParagraph = myDataSource[aTag];
                 if (pParagraph == null) return false;
                 if (pParagraph.DelkaMS <= 0)
                 {
@@ -5118,7 +4946,7 @@ namespace NanoTrans
 
             //inicializace prepisovace a hlidaciho timeru
             //vrati vybrany odstavec
-            MyParagraph pOdstavec = myDataSource.VratOdstavec(aTag);
+            MyParagraph pOdstavec = myDataSource[aTag];
             //ulozi tag vybraneho odstavce do promenne prepisovace a vymaze pripadna drivejsi data z pomocnych promennych
             oPrepisovac.PrepisovanyElementTag = aTag;
 
@@ -5340,7 +5168,7 @@ namespace NanoTrans
             try
             {
                 MyFonetic mf = new MyFonetic(nastaveniAplikace.absolutniCestaEXEprogramu);
-                tbFonetickyPrepis.Text = mf.VratFonetickyPrepis(myDataSource.VratOdstavec(nastaveniAplikace.RichTag).Text);
+                tbFonetickyPrepis.Text = mf.VratFonetickyPrepis(myDataSource[nastaveniAplikace.RichTag].Text);
             }
             catch
             {
@@ -5373,7 +5201,7 @@ namespace NanoTrans
                 }
 
                 MyTag pTag = new MyTag(aTag.tKapitola, aTag.tSekce, aTag.tOdstavec, MyEnumTypElementu.foneticky, tbFonetickyPrepis);
-                MyParagraph pP = myDataSource.VratOdstavec(pTag);
+                MyParagraph pP = myDataSource[pTag];
                 pUpravitOdstavec = false;
                 if (pP == null)
                 {
@@ -5490,7 +5318,7 @@ namespace NanoTrans
                 }
                 else if (aElement.JeOdstavec)
                 {
-                    pSeznamKNormalizaci.Add(aDokument.VratOdstavec(aElement));
+                    pSeznamKNormalizaci.Add(aDokument[aElement]);
                 }
                 if (pSeznamKNormalizaci == null || pSeznamKNormalizaci.Count == 0) return -1;
                 if (aIndexNormalizace < 0) aIndexNormalizace = WinNormalizace.ZobrazitVyberNormalizace(-1, this);
@@ -5591,7 +5419,7 @@ namespace NanoTrans
                     MyTag pTag = new MyTag(pSeznamOdstavcuKRozpoznaniFonetika[0]);
                     pSeznamOdstavcuKRozpoznaniFonetika.RemoveAt(0);
                     pTag.tTypElementu = MyEnumTypElementu.normalni;
-                    pOdstavec = pDokumentFonetickehoPrepisu.VratOdstavec(pTag);
+                    pOdstavec = pDokumentFonetickehoPrepisu[pTag];
                     //ulozi tag vybraneho odstavce do promenne prepisovace a vymaze pripadna drivejsi data z pomocnych promennych
                     bFonetika.TagKPrepsani = pTag;
                     //pokus o uzamceni textboxu proti upravam psani
@@ -5676,10 +5504,6 @@ namespace NanoTrans
             {
                 pPocatekMS = aPocatekMS;
                 pKonceMS = aKonecMS;
-                /*if (!UpravCasZobraz(aTag, aPocatekMS, aKonecMS))
-                {
-                    return false;
-                }*/
             }
             else
             {
@@ -5805,9 +5629,9 @@ namespace NanoTrans
             if (aTag.JeOdstavec)
             {
                 aTag.tTypElementu = MyEnumTypElementu.normalni;
-                MyParagraph pParagraph = aDokument.VratOdstavec(aTag);
+                MyParagraph pParagraph = aDokument[aTag];
                 aTag.tTypElementu = MyEnumTypElementu.foneticky;
-                MyParagraph pPhoneticPar = aDokument.VratOdstavec(aTag);
+                MyParagraph pPhoneticPar = aDokument[aTag];
 
                 if (pParagraph == null) return false;
                 if (pParagraph.DelkaMS <= 0)
@@ -5844,7 +5668,7 @@ namespace NanoTrans
             if (bFonetika == null) bFonetika = new MyFonetic(nastaveniAplikace.absolutniCestaEXEprogramu);
 
             aTag.tTypElementu = MyEnumTypElementu.normalni;
-            MyParagraph pOdstavec = aDokument.VratOdstavec(aTag);
+            MyParagraph pOdstavec = aDokument[aTag];
             //ulozi tag vybraneho odstavce do promenne prepisovace a vymaze pripadna drivejsi data z pomocnych promennych
             bFonetika.TagKPrepsani = aTag;
 
@@ -5876,7 +5700,7 @@ namespace NanoTrans
         {
             if (nastaveniAplikace.RichFocus && nastaveniAplikace.RichTag.tTypElementu == MyEnumTypElementu.foneticky)
             {
-                MyParagraph pp = myDataSource.VratOdstavec(nastaveniAplikace.RichTag);
+                MyParagraph pp = myDataSource[nastaveniAplikace.RichTag];
                 MyTag pTag = new MyTag(nastaveniAplikace.RichTag);
                 if (pp == null) return;
                 int pIndexKurzoru = tbFonetickyPrepis.CaretIndex;
@@ -6085,7 +5909,7 @@ namespace NanoTrans
                 MySection pSekcePuvodni = myDataSource.VratSekci(aTagSekcePuvodniDokument);
                 aTagOdstavecFonetickyDokument = new MyTag(aTagOdstavecFonetickyDokument);
                 aTagOdstavecFonetickyDokument.tTypElementu = MyEnumTypElementu.foneticky;
-                MyParagraph pOdstavecFoneticky = pDokumentFonetickehoPrepisu.VratOdstavec(aTagOdstavecFonetickyDokument);
+                MyParagraph pOdstavecFoneticky = pDokumentFonetickehoPrepisu[aTagOdstavecFonetickyDokument];
                 int pIndexPocatkuSlov = 0;
                 long pBegin = -1;
                 long pEnd = 0;
@@ -6278,7 +6102,7 @@ namespace NanoTrans
             {
                 MyTag pTag = new MyTag(nastaveniAplikace.RichTag);
                 pTag.tTypElementu = MyEnumTypElementu.foneticky;
-                MyParagraph pP = myDataSource.VratOdstavec(pTag);
+                MyParagraph pP = myDataSource[pTag];
                 nastaveniAplikace.CasoveZnackyText = pP.Text;
                 nastaveniAplikace.CasoveZnacky = pP.VratCasoveZnackyTextu;
             }
@@ -6777,24 +6601,23 @@ namespace NanoTrans
 
         private void waveform1_SliderPositionChanged(object sender, Waveform.TimeSpanEventArgs e)
         {
-            if (jeVideo) meVideo.Pause();
+            if (Playing)
+            {
+                if (jeVideo) meVideo.Pause();
+                Playing = false;
+            }
+
             TimeSpan ts = e.Value;
             pIndexBufferuVlnyProPrehrani = (int)ts.TotalMilliseconds;
             if (jeVideo) meVideo.Position = ts;
-            if (_playing)
-            {
-                if (jeVideo) meVideo.Play();
-            }
         }
 
         private void waveform1_UpdateBegin(object sender, EventArgs e)
         {
-            timer1.IsEnabled = false;
         }
 
         private void waveform1_UpdateEnd(object sender, EventArgs e)
         {
-            timer1.IsEnabled = true;
         }
 
         private void waveform1_CarretPostionChangedByUser(object sender, Waveform.TimeSpanEventArgs e)
@@ -6803,7 +6626,7 @@ namespace NanoTrans
             {
                 Playing = false;
             }
-            pIndexBufferuVlnyProPrehrani = (int)waveform1.CarretPosition.TotalMilliseconds;
+            pIndexBufferuVlnyProPrehrani = (int)waveform1.CaretPosition.TotalMilliseconds;
         }
 
         private void waveform1_ParagraphClick(object sender, Waveform.MyTagEventArgs e)
@@ -6820,7 +6643,21 @@ namespace NanoTrans
 
         private void waveform1_CarretPostionChanged(object sender, Waveform.TimeSpanEventArgs e)
         {
-            
+            if (!Playing)
+            {
+                pIndexBufferuVlnyProPrehrani = (int)e.Value.TotalMilliseconds;
+            }
+        }
+
+        private void waveform1_ElementChanged(object sender, Waveform.MyTagEventArgs e)
+        {
+            UpdateXMLData(false, true, false, false, true);
+            ZobrazInformaceElementu(nastaveniAplikace.RichTag);
+        }
+
+        private void waveform1_SelectionChanged(object sender, EventArgs e)
+        {
+            ZobrazInformaceVyberu();
         }
     }
 }
