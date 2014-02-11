@@ -1,24 +1,25 @@
 ﻿using System;
 using System.Threading;
 using System.Runtime.InteropServices;
-using Microsoft.DirectX.DirectSound;
-using DS = Microsoft.DirectX.DirectSound;
+using SharpDX.DirectSound;
+using DS = SharpDX.DirectSound;
 using System.Windows;
 using System.Collections.Generic;
+using System.Linq;
+using SharpDX.Multimedia;
 
 namespace NanoTrans
 {
     /// <summary>
     /// DirectSound waw player
     /// </summary>
-    public class DXWavePlayer:IDisposable
+    public class DXWavePlayer : IDisposable
     {
         public static int DeviceCount
         {
-            get 
-            { 
-                DevicesCollection devices = new DevicesCollection();
-                return devices.Count;
+            get
+            {
+                return DirectSound.GetDevices().Count;
             }
         }
 
@@ -29,17 +30,7 @@ namespace NanoTrans
             {
                 try
                 {
-                    DevicesCollection devices = new DevicesCollection();
-                    string[] sdevices = new string[devices.Count];
-                    int index=0;
-                    foreach(DS.DeviceInformation device in devices)
-                    {
-                        sdevices[index] = device.Description;
-                        index++;
-                    }
-                   
-
-                    return sdevices;
+                    return DirectSound.GetDevices().Select(d => d.Description).ToArray();
                 }
                 catch
                 {
@@ -52,7 +43,7 @@ namespace NanoTrans
         public bool Playing
         {
             get { return _playing; }
-            set 
+            set
             {
                 if (_playing == value)
                     return;
@@ -77,7 +68,8 @@ namespace NanoTrans
             get
             {
                 int actual = 0;
-                int ppos = _soundBuffer.PlayPosition;
+                int ppos, wpos;
+                _soundBuffer.GetCurrentPosition(out ppos,out wpos);
 
                 int pos = (ppos / _buffersize) * _buffersize;
 
@@ -88,17 +80,17 @@ namespace NanoTrans
                 return actual;
 
             }
-        
+
         }
 
 
         public int MSplayedThisBufer
         {
-            get 
+            get
             {
-                return (int)(1000.0*SamplesPlayedThisBuffer / _soundBuffer.Frequency);
+                return (int)(1000.0 * SamplesPlayedThisBuffer / _soundBuffer.Frequency);
             }
-            
+
         }
 
         public TimeSpan PlayedThisBuffer
@@ -108,9 +100,9 @@ namespace NanoTrans
 
         public int SamplesPlayedThisSession
         {
-            get 
+            get
             {
-                return _samplesPlayed + SamplesPlayedThisBuffer; 
+                return _samplesPlayed + SamplesPlayedThisBuffer;
             }
         }
 
@@ -123,7 +115,7 @@ namespace NanoTrans
         {
             get { return TimeSpan.FromMilliseconds((double)SamplesPlayedThisSession / _soundBuffer.Frequency); }
         }
-        
+
         public TimeSpan PlayPosition
         {
             get
@@ -134,8 +126,9 @@ namespace NanoTrans
                         return TimeSpan.Zero;
 
                     int actual = 0;
-                    int ppos = _soundBuffer.PlayPosition;
-                    int pos = (ppos / _buffersize); 
+                    int ppos, wpos;
+                    _soundBuffer.GetCurrentPosition(out ppos, out wpos);
+                    int pos = (ppos / _buffersize);
 
 
                     lock (timestamp)
@@ -151,12 +144,12 @@ namespace NanoTrans
                             return TimeSpan.Zero;
                     }
 
-                        int msplayed = 0;
+                    int msplayed = 0;
 
-                        int samplesPlayed = (ppos % _buffersize) /2;
-                        msplayed = (int)(1000.0 * samplesPlayed / _soundBuffer.Frequency);
+                    int samplesPlayed = (ppos % _buffersize) / 2;
+                    msplayed = (int)(1000.0 * samplesPlayed / _soundBuffer.Frequency);
 
-                        actual = timestamp.Peek().Value + msplayed;
+                    actual = timestamp.Peek().Value + msplayed;
 
                     return TimeSpan.FromMilliseconds(actual);
                 }
@@ -164,13 +157,12 @@ namespace NanoTrans
         }
 
         bool _playing = false;
-        DS.Device _outputDevice;
-        DS.SecondaryBuffer _soundBuffer;
+        DirectSound _outputDevice;
+        SecondarySoundBuffer _soundBuffer;
         AutoResetEvent _synchronizer;
         Thread _waitThread;
         DataRequestDelegate _requestproc;
-        BufferDescription _buffDescription;
-        DS.Notify _notify;
+        SoundBufferDescription _buffDescription;
         int _buffersize;
         int _bfpos = 0;
 
@@ -180,72 +172,51 @@ namespace NanoTrans
 
         public DXWavePlayer(int device, int BufferByteSize, DataRequestDelegate fillProc)
         {
-            
+
             if (BufferByteSize < 1000)
-            { 
-                throw new ArgumentOutOfRangeException("BufferByteSize","minimal size of buffer is 500 bytes");
+            {
+                throw new ArgumentOutOfRangeException("BufferByteSize", "minimal size of buffer is 1000 bytes");
             }
 
             _buffersize = BufferByteSize;
             _requestproc = fillProc;
-            DS.DevicesCollection devices = new DevicesCollection();
+            var devices = DirectSound.GetDevices();
             if (device <= 0 || device >= devices.Count)
             {
                 device = 0;
             }
 
-
-            int cntr = 0;
-            foreach (DeviceInformation inf in devices)
-            {
-                
-                if (cntr == device)
-                {
-                    _outputDevice = new Device(inf.DriverGuid);
-                }
-                cntr++;
-            }
+            _outputDevice = new DirectSound(devices[device].DriverGuid);
 
 
             System.Windows.Interop.WindowInteropHelper wh = new System.Windows.Interop.WindowInteropHelper(Application.Current.MainWindow);
             _outputDevice.SetCooperativeLevel(wh.Handle, CooperativeLevel.Priority);
 
-            _buffDescription = new BufferDescription();
-            _buffDescription.ControlPositionNotify = true;
+            _buffDescription = new SoundBufferDescription();
+            _buffDescription.Flags = BufferFlags.ControlPositionNotify | BufferFlags.ControlFrequency | BufferFlags.ControlEffects | BufferFlags.GlobalFocus | BufferFlags.GetCurrentPosition2;
             _buffDescription.BufferBytes = BufferByteSize * InternalBufferSizeMultiplier;
-            _buffDescription.ControlFrequency = true;
-            _buffDescription.ControlEffects = true;
-            _buffDescription.GlobalFocus = true;
-            _buffDescription.CanGetCurrentPosition = true;
-            DS.WaveFormat format = new DS.WaveFormat();
-            format.BitsPerSample = 16;
-            format.BlockAlign = 2;
-            format.SamplesPerSecond = 16000;
-            format.Channels = 1;
-            format.FormatTag = WaveFormatTag.Pcm;
-            format.AverageBytesPerSecond = format.SamplesPerSecond * format.BitsPerSample / 8;
+
+            WaveFormat format = new WaveFormat(16000, 16, 1);
 
             _buffDescription.Format = format;
 
-            _soundBuffer = new SecondaryBuffer(_buffDescription, _outputDevice);
+            _soundBuffer = new SecondarySoundBuffer(_outputDevice, _buffDescription);
             _synchronizer = new AutoResetEvent(false);
 
-            BufferPositionNotify[] nots = new BufferPositionNotify[InternalBufferSizeMultiplier];
+            NotificationPosition[] nots = new NotificationPosition[InternalBufferSizeMultiplier];
 
-            BufferPositionNotify not;
+            NotificationPosition not;
             int bytepos = 800;
             for (int i = 0; i < InternalBufferSizeMultiplier; i++)
             {
-                not = new BufferPositionNotify();
+                not = new NotificationPosition();
                 not.Offset = bytepos;
-                not.EventNotifyHandle = _synchronizer.SafeWaitHandle.DangerousGetHandle();
+                not.WaitHandle = _synchronizer;
                 nots[i] = not;
                 bytepos += BufferByteSize;
             }
 
-
-            _notify = new Notify(_soundBuffer);
-            _notify.SetNotificationPositions(nots);
+            _soundBuffer.SetNotificationPositions(nots);
 
 
             _waitThread = new Thread(new ThreadStart(DataRequestThread)) { Name = "MyWavePlayer.DataRequestThread" };
@@ -256,7 +227,7 @@ namespace NanoTrans
         {
             Dispose();
         }
-        bool _disposed= false;
+        bool _disposed = false;
         public void Dispose()
         {
 
@@ -264,12 +235,12 @@ namespace NanoTrans
             {
                 _disposed = true;
 
-                
-                if(_waitThread!=null &&  _waitThread.IsAlive)
+
+                if (_waitThread != null && _waitThread.IsAlive)
                 {
                     _soundBuffer.Stop();
                     _waitThread.Interrupt();
-                    _waitThread.Join();   
+                    _waitThread.Join();
                 }
                 _outputDevice.Dispose();
             }
@@ -278,7 +249,7 @@ namespace NanoTrans
         Queue<KeyValuePair<int, int>> timestamp = new Queue<KeyValuePair<int, int>>();
         private void WriteNextData(short[] data, int timems)
         {
-            _soundBuffer.Write(_bfpos, data, LockFlag.None);
+            _soundBuffer.Write(data, _bfpos, LockFlags.None);
             lock (timestamp)
             {
                 timestamp.Enqueue(new KeyValuePair<int, int>(_bfpos / _buffersize, timems));
@@ -292,20 +263,20 @@ namespace NanoTrans
 
         private void ClearBuffer()
         {
-                timestamp.Clear();
+            timestamp.Clear();
 
-                short[] one = new short[] { 0 };
-                for (int i = 0; i < _buffDescription.BufferBytes-1; i+=2)
-                {
-                    _soundBuffer.Write(i, one, LockFlag.None);
-                }
+            short[] one = new short[] { 0 };
+            for (int i = 0; i < _buffDescription.BufferBytes - 1; i += 2)
+            {
+                _soundBuffer.Write(one, i, LockFlags.None);
+            }
         }
 
 
         private double _speedmod = 1.0;
         public double PlaySpeed
-        { 
-            get{ return _speedmod;}
+        {
+            get { return _speedmod; }
         }
 
 
@@ -314,7 +285,7 @@ namespace NanoTrans
             _speedmod = spedmodification;
             ClearBuffer();
             _bfpos = 0;
-           
+
             if (_requestproc != null)
             {
                 for (int i = 0; i < 3; i++)
@@ -325,10 +296,10 @@ namespace NanoTrans
                         WriteNextData(data, timems);
                 }
             }
-            _soundBuffer.SetCurrentPosition(0);
+            _soundBuffer.CurrentPosition = 0;
             _samplesPlayed = 0;
-            _soundBuffer.Frequency = (int)(spedmodification * _buffDescription.Format.SamplesPerSecond);
-            _soundBuffer.Play(0, BufferPlayFlags.Looping);
+            _soundBuffer.Frequency = (int)(spedmodification * _buffDescription.Format.SampleRate);
+            _soundBuffer.Play(0, PlayFlags.Looping);
         }
 
 
@@ -341,7 +312,7 @@ namespace NanoTrans
         {
             _pausedAt = PlayPosition;
             _soundBuffer.Stop();
-            _soundBuffer.SetCurrentPosition(0);
+            _soundBuffer.CurrentPosition = 0;
         }
 
         private TimeSpan _pausedAt = TimeSpan.Zero;
@@ -374,9 +345,10 @@ namespace NanoTrans
                 {
                     _synchronizer.WaitOne();
                     RetrieveData();
-               
+
                 }
-            }catch(ThreadInterruptedException){}
+            }
+            catch (ThreadInterruptedException) { }
         }
 
 
