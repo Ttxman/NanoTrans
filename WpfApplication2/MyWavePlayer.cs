@@ -151,6 +151,9 @@ namespace NanoTrans
                         {
                             timestamp.Dequeue();
                         }
+
+                        if (timestamp.Count == 0)
+                            return TimeSpan.Zero;
                     }
 
                         int msplayed = 0;
@@ -326,10 +329,13 @@ namespace NanoTrans
            
             if (m_requestproc != null)
             {
-                int timems;
-                short[] data = m_requestproc.Invoke(out timems);
-                if (data != null && data.Length > 0)
-                    WriteNextData(data,timems);
+                for (int i = 0; i < 3; i++)
+                {
+                    int timems;
+                    short[] data = m_requestproc.Invoke(out timems);
+                    if (data != null && data.Length > 0)
+                        WriteNextData(data, timems);
+                }
             }
             m_soundBuffer.SetCurrentPosition(0);
             m_samplesPlayed = 0;

@@ -4061,16 +4061,17 @@ namespace NanoTrans
 
 
         long oldms = 0;
+        string laststack = "";
         public void NastavPoziciKurzoru(long aMilisekundy, bool nastavitMedia, bool aNeskakatNaZacatekElementu)
         {
 
 
-   /*            StackTrace st = new StackTrace();
+               StackTrace st = new StackTrace(true);
      string trace = "";
      foreach(var frame in  st.GetFrames())
      {
-         trace+=frame.GetMethod().Name+">";
-     }*/
+         trace+=frame.GetMethod().Name+frame.GetFileLineNumber()+">";
+     }
 
      Debug.WriteLine(aMilisekundy);
 
@@ -4079,8 +4080,15 @@ namespace NanoTrans
          Debug.WriteLine("skok");
 
          aMilisekundy = oldms;
+         Debug.WriteLine(aMilisekundy);
+         Debug.WriteLine(laststack);
+         Debug.WriteLine(trace);
      }
-
+     else
+     {
+         oldms = 0;
+     }
+     laststack = trace;
              oldms = aMilisekundy;
 
 
@@ -4298,11 +4306,13 @@ namespace NanoTrans
                 {
 
                     celkMilisekundy = (int)MWP.PlayPosition.TotalMilliseconds;
-                    slPoziceMedia.Value = (int)MWP.PlayPosition.TotalMilliseconds;
+                    
                     if (prehratVyber && celkMilisekundy < oVlna.KurzorVyberPocatekMS)
                     {
                         celkMilisekundy = oVlna.KurzorVyberPocatekMS;
                     }
+
+                    slPoziceMedia.Value = (int)MWP.PlayPosition.TotalMilliseconds;
                 }
 
                 //oVlna.KurzorPoziceMS = celkMilisekundy;
@@ -4320,10 +4330,10 @@ namespace NanoTrans
 
                     }
 
-                    double left;
+                   // double left;
 
-                    long rozdil2 = (celkMilisekundy - oVlna.mSekundyVlnyZac);
-                    left = myImage.ActualWidth / (rozdil) * rozdil2;
+                   // long rozdil2 = (celkMilisekundy - oVlna.mSekundyVlnyZac);
+                   // left = myImage.ActualWidth / (rozdil) * rozdil2;
 
 
 

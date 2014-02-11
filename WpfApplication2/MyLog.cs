@@ -19,6 +19,7 @@ namespace NanoTrans
         public static void LogujChybu(Exception e)
         {
             m_log.intLogujChybu(e);
+            //throw (e);
         }
         public ArrayList seznamChyb = new ArrayList();
 
