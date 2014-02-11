@@ -453,8 +453,7 @@
     </PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PreBuildEvent>call $(SolutionDir)buildVersioning.bat $(SolutionDir) $(ProjectDir)
-echo konec</PreBuildEvent>
+    <PreBuildEvent>call "$(SolutionDir)buildVersioning.bat" "$(SolutionDir)" "$(ProjectDir)"</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
