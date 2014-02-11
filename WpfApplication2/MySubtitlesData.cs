@@ -1238,7 +1238,8 @@ namespace NanoTrans
         public int NovySpeaker(MySpeaker aSpeaker)
         {
             int i = this.SeznamMluvcich.NovySpeaker(aSpeaker);
-            if (i >= 0) this.Ulozeno = false;
+            if (i != int.MinValue) 
+                this.Ulozeno = false;
             return i;
         }
 

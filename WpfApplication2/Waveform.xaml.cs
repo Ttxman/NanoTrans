@@ -1395,7 +1395,7 @@ namespace NanoTrans
                     double bmarginl = p.X;
 
                     TimeSpan ts = new TimeSpan((long)(WaveLength.Ticks * (bmarginl / grid1.ActualWidth))) + WaveBegin;
-                    if (pAktualni.End - TimeSpan.FromSeconds(.5) < ts)
+                    if (pAktualni.End - TimeSpan.FromMilliseconds(100) < ts)
                         return;
                     if ((bp != null && bmarginl < bp.Margin.Left + bp.Width) || btnrozhr) //kolize
                     {
@@ -1404,7 +1404,7 @@ namespace NanoTrans
                             btnrozhr = true;
                             if ((Keyboard.Modifiers & ModifierKeys.Shift) == 0)
                             {
-                                if (pPredchozi.Begin + TimeSpan.FromSeconds(.5) > ts)
+                                if (pPredchozi.Begin + TimeSpan.FromMilliseconds(100) > ts)
                                     return;
                                 bp.Width = p.X - bp.Margin.Left;
                                 pPredchozi.End = ts;
@@ -1429,7 +1429,7 @@ namespace NanoTrans
                     double bwi = p.X - b.Margin.Left;
 
                     TimeSpan ts = new TimeSpan((long)(WaveLength.Ticks * ((bwi + b.Margin.Left) / grid1.ActualWidth))) + WaveBegin;
-                    if (ts <= pAktualni.Begin + TimeSpan.FromSeconds(.5))
+                    if (ts <= pAktualni.Begin + TimeSpan.FromMilliseconds(100))
                         return;
 
                     if ((bn != null && b.Margin.Left + b.Width > bn.Margin.Left) || btnrozhr)
@@ -1439,7 +1439,7 @@ namespace NanoTrans
                             btnrozhr = true;
                             if ((Keyboard.Modifiers & ModifierKeys.Shift) == 0)
                             {
-                                if (pNasledujici.End - TimeSpan.FromSeconds(.5) <= ts)
+                                if (pNasledujici.End - TimeSpan.FromMilliseconds(100) <= ts)
                                     return;
 
                                 bn.Width = bn.Width + (bn.Margin.Left - p.X);

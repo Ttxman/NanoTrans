@@ -5,7 +5,7 @@ using System.Xml.Serialization;
 using System.Xml;
 using System.IO;
 using System.Windows;
-
+using System.Linq;
 
 namespace NanoTrans
 {
@@ -67,22 +67,22 @@ namespace NanoTrans
                         if (((MySpeaker)Speakers[i]).FullName == aSpeaker.FullName)
                         {
                             MessageBox.Show("Mluvčí s tímto jménem již existuje!", "Upozornění:", MessageBoxButton.OK, MessageBoxImage.Exclamation);
-                            return -1;
+                            return int.MinValue;
                         }
 
                     }
-                    this.speakersIndexCounter++;
+                    this.speakersIndexCounter = Speakers.Count > 0 ? Speakers.Max(s => s.ID) + 1:1;
                     aSpeaker.ID = speakersIndexCounter;
                     this.Speakers.Add(new MySpeaker(aSpeaker));
                     return speakersIndexCounter;
 
 
                 }
-                else return -1;
+                else return int.MinValue;
             }
             catch// (Exception ex)
             {
-                return -1;
+                return int.MinValue;
             }
         }
 

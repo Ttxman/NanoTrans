@@ -230,7 +230,7 @@ namespace NanoTrans
 
                 if (this.bDatabazeMluvcich.NovySpeaker(pSpeaker) > -1)
                 {
-                    if (myDataSource.GetSpeaker(pSpeaker.FullName) < 0)
+                    if (myDataSource.GetSpeaker(pSpeaker.FullName) != int.MinValue)
                     {
                         if (myDataSource.NovySpeaker(pSpeaker) >= 0)
                         {

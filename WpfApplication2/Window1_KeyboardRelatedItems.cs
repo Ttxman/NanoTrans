@@ -161,9 +161,23 @@ namespace NanoTrans
             VirtualizingListBox.ActiveTransctiption = VirtualizingListBox.Subtitles.Last();
         }
 
+
+        private bool WarnIfElementIsShort(TimeSpan T1, TimeSpan T2)
+        {
+            if ((T1 - T2).Duration() <= TimeSpan.FromMilliseconds(100))
+            {
+                MessageBox.Show("Odstavec nemůže být kratší než 100ms", "Chyba", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                return true;
+            }
+
+            return false;
+        }
         private void CAssignElementStart(object sender, ExecutedRoutedEventArgs e)
         {
             if (VirtualizingListBox.ActiveTransctiption == null)
+                return;
+
+            if (WarnIfElementIsShort(VirtualizingListBox.ActiveTransctiption.End, waveform1.CaretPosition))
                 return;
 
             VirtualizingListBox.ActiveTransctiption.Begin = waveform1.CaretPosition;
@@ -175,12 +189,21 @@ namespace NanoTrans
             if (VirtualizingListBox.ActiveTransctiption == null)
                 return;
 
+            if (WarnIfElementIsShort(VirtualizingListBox.ActiveTransctiption.Begin, waveform1.CaretPosition))
+                return;
 
             VirtualizingListBox.ActiveTransctiption.End = waveform1.CaretPosition;
             waveform1.InvalidateSpeakers();
         }
         private void CAssignElementTimeSelection(object sender, ExecutedRoutedEventArgs e)
         {
+            if (VirtualizingListBox.ActiveTransctiption == null)
+                return;
+
+            if (WarnIfElementIsShort(waveform1.SelectionBegin, waveform1.SelectionEnd))
+                return;
+
+
             VirtualizingListBox.ActiveTransctiption.Begin = waveform1.SelectionBegin;
             VirtualizingListBox.ActiveTransctiption.End = waveform1.SelectionEnd;
             waveform1.InvalidateSpeakers();
@@ -245,7 +268,7 @@ namespace NanoTrans
         }
         private void CDeleteElement(object sender, ExecutedRoutedEventArgs e)
         {
-            if (VirtualizingListBox.ActiveTransctiption != null)
+            if (VirtualizingListBox.ActiveTransctiption != null && VirtualizingListBox.ActiveTransctiption.Parent!=null)
             {
                 VirtualizingListBox.ActiveTransctiption.Parent.Remove(VirtualizingListBox.ActiveTransctiption);
             }
