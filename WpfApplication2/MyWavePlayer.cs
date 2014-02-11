@@ -273,9 +273,16 @@ namespace NanoTrans
         }
 
 
-        private double m_speedmod;
+        private double m_speedmod = 1.0;
+        public double PlaySpeed
+        { 
+            get{ return m_speedmod;}
+        }
+
+
         public void Play(double spedmodification)
         {
+            m_speedmod = spedmodification;
             ClearBuffer();
             if (m_requestproc != null)
             {

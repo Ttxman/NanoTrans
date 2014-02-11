@@ -23,11 +23,17 @@ namespace NanoTrans
             return true;
         }
 
-        public event EventHandler CanExecuteChanged;
+        
 
         public void Execute(object parameter)
         {
             b.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        }
+
+        public event EventHandler CanExecuteChanged
+        {
+            add { throw new NotSupportedException(); }
+            remove { }
         }
 
         #endregion

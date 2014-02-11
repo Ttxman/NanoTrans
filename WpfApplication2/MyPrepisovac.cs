@@ -236,7 +236,7 @@ namespace NanoTrans
                 }
                 return 0;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 MessageBox.Show("Chybné nastavení přepisovacího softwaru - ověřte licenční soubor a jiné nastavení", "Varování", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return -1;
@@ -628,16 +628,6 @@ namespace NanoTrans
             {
                 ZapisMakraZprava(aSeznamMaker);
                 return true;
-                List<MyMakro> pm = new List<MyMakro>();
-                foreach (MyMakro m in aSeznamMaker)
-                {
-                    pm = new List<MyMakro>();
-                    pm.Add(m);
-                    ZapisMakraZprava(pm);
-                }
-
-
-                return true;
             }
             catch
             {
@@ -684,9 +674,8 @@ namespace NanoTrans
                     pZapisZpravy = false;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                int i = 0;
                 pZapisZpravy = false;
             }
 

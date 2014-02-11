@@ -251,7 +251,7 @@ namespace NanoTrans
                 output.Close();
                 return true;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false;
             }
@@ -485,7 +485,7 @@ namespace NanoTrans
 
                 return ret;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return ret;
             }

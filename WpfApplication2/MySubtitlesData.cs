@@ -416,7 +416,7 @@ namespace NanoTrans
 
                         
                     }
-                    bool pZmena = false;
+
                     if (pPhrases.Count <= Phrases.Count)
                     {
                         int pKamDosloKopirovani = -1;

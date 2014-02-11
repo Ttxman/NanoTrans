@@ -325,7 +325,7 @@ namespace NanoTrans
                 ms.Close();
                 return pBase64String;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 
                 return null;
@@ -351,7 +351,7 @@ namespace NanoTrans
                 bi.EndInit();
                 return bi;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 
                 return null;

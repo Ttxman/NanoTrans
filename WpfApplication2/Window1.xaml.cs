@@ -269,7 +269,7 @@ namespace NanoTrans
         /// <summary>
         /// informace zda je nahravan zvuk
         /// </summary>
-        private int pIndexBufferuProHlasoveOvladaniMS = 0;
+   
         private bool recording = false;
 
 
@@ -549,7 +549,7 @@ namespace NanoTrans
 
 
 
-                        double pTop = 0;
+
                         double pDown = 0;
 
                         long pBegin = myDataSource.VratCasElementuPocatek(aTag);
@@ -1510,8 +1510,8 @@ namespace NanoTrans
                         this.Height = nastaveniAplikace.OknoVelikost.Height;
                     }
                 }
-                if (nastaveniAplikace.OknoStav != null)
-                    this.WindowState = nastaveniAplikace.OknoStav;
+
+                this.WindowState = nastaveniAplikace.OknoStav;
 
                 bSlovnikFonetickehoDoplneni = new MyFoneticSlovnik();
                 bSlovnikFonetickehoDoplneni.NacistSlovnik(nastaveniAplikace.absolutniCestaEXEprogramu + MyKONST.CESTA_SLOVNIK_FONETIKA_UZIVATELSKY, bSlovnikFonetickehoDoplneni.PridanaSlova);
@@ -1652,12 +1652,6 @@ namespace NanoTrans
 
 
         }
-
-
-
-        private double sum = 0;
-
-
 
         /// <summary>
         /// plni buffer pro prehravani
@@ -1822,7 +1816,6 @@ namespace NanoTrans
             pbPrevodAudio.Value = e.souborCislo;
             slPoziceMedia.SelectionStart = 0;
             slPoziceMedia.SelectionEnd = e.msCelkovyCas;
-
 
 
             if (e.msCelkovyCas >= oWav.DelkaSouboruMS)
@@ -3831,14 +3824,15 @@ namespace NanoTrans
                                 NactiAudio(pCestaWAV);
                             }
                         }
-                        bool pNactenKorpus = false;
+
                         if (!pNactenoTTA && !aDavkovySoubor)
                         {
                             string pCestaXML = null;
                             if (this.PrevedKorpus(fileDialog.FileName, ref pCestaXML))
                             {
-                                if (pCestaXML != null) fileDialog.FileName = pCestaXML;
-                                pNactenKorpus = true;
+                                if (pCestaXML != null) 
+                                    fileDialog.FileName = pCestaXML;
+
                             }
                         }
 
@@ -5617,24 +5611,6 @@ namespace NanoTrans
             }
         }
 
-        //pri zmene listboxu dojde k prepocitani velikosti panelu a richtextboxu
-        private void spSeznam_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            try
-            {
-                for (int i = 0; i < spSeznam.Children.Count; i++)
-                {
-                    //((Grid)spSeznam.Children[i]).Width = e.NewSize.Width-30;
-                    //double j = ((Grid)spSeznam.Children[i]).ActualWidth;
-
-                }
-            }
-            catch (Exception ex)
-            {
-                logAplikace.LogujChybu(ex);
-            }
-
-        }
         //menu----------------------------------------------------------------------
 
         #region menu Soubor
@@ -6596,7 +6572,7 @@ namespace NanoTrans
                     ));
                 
 
-            }catch(Exception e)
+            }catch(Exception)
             {
             
             }
@@ -7164,7 +7140,6 @@ namespace NanoTrans
                                 {
                                     recording = true;
                                     if (MWR == null) InicializaceAudioRecorderu();
-                                    pIndexBufferuProHlasoveOvladaniMS = 0;
                                     pbZpozdeniPrepisu.Maximum = 60000;
                                     ZobrazStavProgramu("Můžete začít diktovat/ovládat, probíhá nahrávání z mikrofonu...");
                                 }
@@ -8290,8 +8265,6 @@ namespace NanoTrans
 
 
                 byte[] output = new byte[256];
-                int outBufferLength = 256;
-                uint flags = 1;
                 int pStavUnicode = 0;
                 //pStavUnicode = ToUnicode(uVirtualKey, pScanCode, State, output, outBufferLength, flags);
                 if (pStavUnicode > 0)
@@ -8774,7 +8747,7 @@ namespace NanoTrans
                         }
 
                         int pIndex = -1;
-                        bool aNalezeno = false;
+
                         if (pSlovo.Length > 0)
                         {
                             if (pSlovo.Contains("{"))
@@ -8786,7 +8759,6 @@ namespace NanoTrans
                                     {
                                         //pSlovo = bSlovnikFonetickehoDoplneni.PridanaSlovaDocasna[j].Slovo;
                                         pIndex = j;
-                                        aNalezeno = true;
                                         break;
                                     }
                                 }
@@ -8820,81 +8792,6 @@ namespace NanoTrans
                 }
             }
             return;
-            if (nastaveniAplikace.RichFocus && nastaveniAplikace.RichTag.tTypElementu == MyEnumTypElementu.foneticky)
-            {
-                MyParagraph pp = myDataSource.VratOdstavec(nastaveniAplikace.RichTag);
-                MyTag pTag = new MyTag(nastaveniAplikace.RichTag);
-                if (pp == null) return;
-                Regex reg = new Regex("[^_]+");//.*?[_^]");
-
-                MatchCollection mc = reg.Matches(pp.Text);
-
-                if (mc != null)
-                {
-                    bool aNalezeno = false;
-                    int pIndex = -1;
-                    string s = null;
-                    string aSlovo = s;
-                    for (int i = 0; i < mc.Count; i++)
-                    {
-                        Match mtc = mc[i];
-                        if (mtc.Value.Contains("{"))
-                        {
-                            s = mtc.Value.Substring(1, mtc.Value.Length - 2);
-                            aSlovo = s;
-                            for (int j = 0; j < bSlovnikFonetickehoDoplneni.PridanaSlovaDocasna.Count; j++)
-                            {
-                                if (bSlovnikFonetickehoDoplneni.PridanaSlovaDocasna[j].jeFonetickaVarianta(s))
-                                {
-                                    aSlovo = bSlovnikFonetickehoDoplneni.PridanaSlovaDocasna[j].Slovo;
-                                    pIndex = j;
-                                    aNalezeno = true;
-                                    break;
-                                }
-                            }
-                            if (aNalezeno)
-                                break;
-
-                        }
-                    }
-                    if (aNalezeno)
-                    {
-                        WinFonetickySlovnik ws = new WinFonetickySlovnik(aSlovo, s, pIndex, bSlovnikFonetickehoDoplneni);
-                        ws.Owner = this;
-                        if ((bool)ws.ShowDialog())
-                        {
-                            foreach (MyPhrase ph in pp.Phrases)
-                            {
-                                if (ph.Text.Contains(s) && s.Length == ph.Text.Length - 2)
-                                {
-                                    ph.Text = ws.tbFonetickyPrepis.Text;
-                                }
-                            }
-                        }
-                        ZobrazitFonetickyPrepisOdstavce(pTag);
-
-                    }
-                }
-
-                /*
-                        string s = mc[i].Value.Substring(1, mc[i].Value.Length - 2);
-                        Match mtc = mc[i];
-
-                        string[] pSplitS = s.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
-                        if (pSplitS != null && pSplitS.Length == 2)
-                        {
-                            if (aSlovnikNerozpoznanych != null)
-                            {
-                                MyFoneticSlovnikPolozka pPol = new MyFoneticSlovnikPolozka(pSplitS[0], pSplitS[1]);
-                                aSlovnikNerozpoznanych.PridejPolozkuDocasnehoSlovniku(pPol);
-                            }
-                            output = output.Replace(s, pSplitS[1]);
-                        }
-                    }
-                }
-                 */
-                //WinFonetickySlovnik ws = new WinFonetickySlovnik(
-            }
         }
 
         private void menuItemNastrojeNormalizovat_Click(object sender, RoutedEventArgs e)
@@ -9019,7 +8916,7 @@ namespace NanoTrans
                 }
                 return 0;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return -1;
             }
@@ -9138,7 +9035,7 @@ namespace NanoTrans
                 UpdateXMLData(true, true, true, true, true);
                 return 0;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return -1;
             }

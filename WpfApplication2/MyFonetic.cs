@@ -798,7 +798,7 @@ namespace NanoTrans
                 }
                 return ret;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return null;
             }

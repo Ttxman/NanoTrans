@@ -76,6 +76,7 @@ namespace NanoTrans
 
         public const int MAXPNAMELEN = 32;
 
+        /*
         public struct WAVEOUTCAPS
         {
             public short wMid;
@@ -86,7 +87,8 @@ namespace NanoTrans
             public int dwFormats;
             public short wChannels;
             public int dwSupport;
-        }
+        }*/
+
         public struct WAVEINCAPS
         {
             public short wMid;
@@ -98,7 +100,7 @@ namespace NanoTrans
             public short wChannels;
         }
         //[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 2)]
-        public struct MIXERCAPS
+       /* public struct MIXERCAPS
         {
             public short wMid;
             public short wPid;
@@ -107,7 +109,7 @@ namespace NanoTrans
             public string szPname;
             public int fdwSupport;
             public int cDestinations;
-        }
+        }*/
 
 
         private const string mmdll = "winmm.dll";
@@ -115,8 +117,8 @@ namespace NanoTrans
         // WaveOut calls
         [DllImport(mmdll)]
         public static extern int waveOutGetNumDevs();
-        [DllImport(mmdll)]
-        public static extern int waveOutGetDevCaps(int uDeviceID, ref WAVEOUTCAPS lpCaps, int uSize);
+        //[DllImport(mmdll)]
+        //public static extern int waveOutGetDevCaps(int uDeviceID, ref WAVEOUTCAPS lpCaps, int uSize);
         [DllImport(mmdll)]
         public static extern int waveOutPrepareHeader(IntPtr hWaveOut, ref WaveHdr lpWaveOutHdr, int uSize);
         [DllImport(mmdll)]
@@ -164,10 +166,10 @@ namespace NanoTrans
 
 
         // Mixer calls
-        [DllImport(mmdll, CharSet = CharSet.Ansi)]
-        public static extern int mixerGetDevCaps(int uMxId, ref MIXERCAPS pmxcaps, int cbmxcaps);
-        [DllImport(mmdll, SetLastError = true)]
-        public static extern int mixerGetNumDevs();
+      //  [DllImport(mmdll, CharSet = CharSet.Ansi)]
+      //  public static extern int mixerGetDevCaps(int uMxId, ref MIXERCAPS pmxcaps, int cbmxcaps);
+      //  [DllImport(mmdll, SetLastError = true)]
+      //  public static extern int mixerGetNumDevs();
     }
 
 }

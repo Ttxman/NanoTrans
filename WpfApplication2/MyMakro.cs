@@ -138,50 +138,6 @@ namespace NanoTrans
             pMakra.Add(new MyMakro("Přehrát", "přehrát", 1000));
             pMakra.Add(new MyMakro("Zastavit", "zastavit", 1001));
             return pMakra;
-
-            pMakra.Add(new MyMakro("{MAKRO-X-Novýpřepis}", "novípřepis", 10));
-            pMakra.Add(new MyMakro("{MAKRO-X-Otevřítpřepis}", "otevřítpřepis", 20));
-
-            pMakra.Add(new MyMakro("{MAKRO-X-Otevritaudio}", "otevřítaudio", 30));
-            pMakra.Add(new MyMakro("{MAKRO-X-OtevritvideoAAAB}", "otevřítvideo", 40));
-
-            pMakra.Add(new MyMakro("{MAKRO-X-Ulozit}", "uložit", 50));
-            pMakra.Add(new MyMakro("{MAKRO-X-Ulozitjako}", "uložitjako", 60));
-
-            pMakra.Add(new MyMakro("{MAKRO-X-Mluvčí}", "mlufčí", 220));
-            
-
-
-            pMakra.Add(new MyMakro("{MAKRO-X-Nastavení}", "nastaveňí", 200));
-            pMakra.Add(new MyMakro("{MAKRO-X-Ukončit}", "ukončit", 500));
-
-            pMakra.Add(new MyMakro("{MAKRO-X-}", "přehrát", 1000));
-            pMakra.Add(new MyMakro("{MAKRO-X-}", "zastavit", 1001));
-            return pMakra;
-            //return null;
-
-            pMakra.Add(new MyMakro("{MAKRO-X-}", "novípřepis", 10));
-            pMakra.Add(new MyMakro("{MAKRO-X-}", "otevřítpřepis", 20));
-
-            pMakra.Add(new MyMakro("{MAKRO-X-}", "otevřítaudio", 30));
-            pMakra.Add(new MyMakro("{MAKRO-X-}", "otevřítvideo", 40));
-            pMakra.Add(new MyMakro("{MAKRO-X-}", "uložit", 50));
-            pMakra.Add(new MyMakro("{MAKRO-X-}", "uložitjako", 60));
-
-            pMakra.Add(new MyMakro("{MAKRO-X-}", "mlufčí", 220));
-
-            pMakra.Add(new MyMakro("{MAKRO-X-}", "nastaveňí", 200));
-
-            pMakra.Add(new MyMakro("{MAKRO-X-}", "ukončit", 500));
-
-
-            pMakra.Add(new MyMakro("{MAKRO-X-}", "přehrát", 1000));
-            pMakra.Add(new MyMakro("{MAKRO-X-}", "zastavit", 1001));
-
-            return pMakra;
-
-
-            return pMakra;
         }
     }
 }
