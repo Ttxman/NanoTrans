@@ -18,19 +18,19 @@ namespace NanoTrans
     /// </summary>
     public partial class ExceptionCatchWindow : Window
     {
-        private Window1 m_parent;
-        private Exception m_e;
+        private Window1 _parent;
+        private Exception _e;
         public ExceptionCatchWindow(Window1 parent, Exception e)
         {
             InitializeComponent();
-            m_e = e;
-            m_parent = parent;
+            _e = e;
+            _parent = parent;
             textBox1.Text = e.ToString()+"\n\n"+ e.Message;
         }
 
         private void buttonSaveAndRestart_Click(object sender, RoutedEventArgs e)
         {
-            m_parent.UlozitTitulky(true, m_parent.Transcription.FileName);
+            _parent.SaveTranscription(true, _parent.Transcription.FileName);
             System.Diagnostics.Process.Start(Application.ResourceAssembly.Location);
             Application.Current.Shutdown();
         }

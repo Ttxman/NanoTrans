@@ -672,9 +672,9 @@ namespace NanoTrans.Core
                             if (reader.Name != "speakerID")
                                 reader.ReadEndElement();//Phrases - muze byt emptyelement a ten nema end..
 
-                            p.SpeakerID = XmlConvert.ToInt32(reader.ReadElementString());
-                            if (p.SpeakerID == -1)
-                                p.SpeakerID = Speaker.DefaultID;
+                            p.InternalID = XmlConvert.ToInt32(reader.ReadElementString());
+                            if (p.InternalID == -1)
+                                p.InternalID = Speaker.DefaultID;
 
                             reader.ReadEndElement();//paragraph
                             s.Paragraphs.Add(p);
@@ -762,9 +762,9 @@ namespace NanoTrans.Core
                             if (reader.Name != "speakerID")
                                 reader.ReadEndElement();//Phrases - muze byt emptyelement a ten nema end..
 
-                            p.SpeakerID = XmlConvert.ToInt32(reader.ReadElementString());
-                            if (p.SpeakerID == -1)
-                                p.SpeakerID = Speaker.DefaultID;
+                            p.InternalID = XmlConvert.ToInt32(reader.ReadElementString());
+                            if (p.InternalID == -1)
+                                p.InternalID = Speaker.DefaultID;
 
                             reader.ReadEndElement();//paragraph
 
@@ -969,7 +969,7 @@ namespace NanoTrans.Core
         {
             foreach (var par in this.Where(e => e.IsParagraph).Cast<TranscriptionParagraph>())
             {
-                var sp = _speakers.FirstOrDefault(s => s.ID == par.SpeakerID);
+                var sp = _speakers.FirstOrDefault(s => s.ID == par.InternalID);
                 if (sp != null)
                 {
                     par.Speaker = sp;

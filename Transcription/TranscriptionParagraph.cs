@@ -127,7 +127,7 @@ namespace NanoTrans.Core
         /// <summary>
         /// Used only for identification when serializing or deserializing, can change unexpectedly
         /// </summary>
-        public int SpeakerID
+        public int InternalID
         {
             get
             {
@@ -312,7 +312,7 @@ namespace NanoTrans.Core
                     new XAttribute("b", Begin), 
                     new XAttribute("e", End), 
                     new XAttribute("a", Attributes), 
-                    new XAttribute("s", SpeakerID), //DO NOT use _speakerID,  it is not equivalent
+                    new XAttribute("s", InternalID), //DO NOT use _speakerID,  it is not equivalent
                     new XAttribute("l", Language),
                 }),
                 Phrases.Select(p => p.Serialize())

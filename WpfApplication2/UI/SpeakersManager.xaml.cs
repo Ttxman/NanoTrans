@@ -509,10 +509,6 @@ namespace NanoTrans
             get
             {
                 return null;
-                var desc = new SortDescriptionCollection();
-                //desc.Add();
-
-                return desc;
             }
         }
 

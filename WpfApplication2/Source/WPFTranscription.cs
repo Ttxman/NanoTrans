@@ -10,6 +10,9 @@ using System.Threading.Tasks;
 
 namespace NanoTrans
 {
+    /// <summary>
+    /// Wrap NanoTrans.Core.Transcription to collection with INotifyCollectionChanged
+    /// </summary>
     public class WPFTranscription:Transcription, INotifyCollectionChanged
     {
         new public static WPFTranscription Deserialize(string path)
@@ -31,7 +34,7 @@ namespace NanoTrans
         
         }
 
-        public WPFTranscription()
+        public WPFTranscription():base()
         { 
         
         }

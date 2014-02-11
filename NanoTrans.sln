@@ -22,7 +22,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ResPlugin", "TrsxV1Plugin\R
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExePlugin", "ExePlugin\ExePlugin.csproj", "{7C825F64-161C-404F-AB90-66881368A664}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "search", "search\search.csproj", "{175F93A1-BBA5-4521-A4D5-AA5CDAD14E59}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "searchDemo", "search\searchDemo.csproj", "{175F93A1-BBA5-4521-A4D5-AA5CDAD14E59}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NvxPlugin", "NvxPlugin\NvxPlugin.csproj", "{56190F63-F32A-40D3-8EC6-DE5F0972959A}"
 EndProject

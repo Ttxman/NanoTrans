@@ -8,66 +8,24 @@ using System.IO;
 
 namespace NanoTrans
 {
-    public enum MyEnumVerze
+    public static class Const
     {
-        /// <summary>
-        /// bez podpory TTA a automatickeho prepisu
-        /// </summary>
-        Externi = 0,
-        /// <summary>
-        /// vsechny funkce
-        /// </summary>
-        Interni = 1
-    }
-    public enum MyEnumJazyk
-    {
-        cestina = 0,
-        anglictina = 1
-    }
-
-    //staticka trida obsahujici metody pro praci s textem atd...
-    public static class MyKONST
-    {
-        //public const string NAZEV_PROGRAMU = "Přepisovač 1.8.2b";
-        public const string NAZEV_PROGRAMU = "NanoTrans";
-
-        public static MyEnumVerze VERZE = MyEnumVerze.Interni;
-                
+        public const string APP_NAME = "NanoTrans";
         
-        public static int ID_ZOBRAZOVACIHO_BUFFERU_VLNY = 0;
-        public static int ID_BUFFERU_PREPISOVANEHO_ELEMENTU = 1;
-        public static int ID_BUFFERU_PREPISOVANEHO_ELEMENTU_FONETICKY_PREPIS = 2;
+        public static int ID_BUFFER_WAVEFORMVISIBLE = 0;
+        public static int ID_BUFFER_TRANSCRBED_ELEMENT = 1;
+        public static int ID_BUFFER_TRANSCRIBED_ELEMENT_PHONETIC = 2;
 
-        public static long DELKA_DOCASNEHO_SOUBORU_ZVUKU_MS = 60000;
+        public static long TEMPORARY_AUDIO_FILE_LENGTH_MS = 60000;
 
-        public static string TEXT_VYCHOZI_NASTAVENI_ROZPOZNAVACE = "[Výchozí nastavení rozpoznávače]";
+        public static int WAVEFORM_CARRET_REFRESH_MS = 20;
 
-        /// <summary>
-        /// jak casto je volano prekreslovani kurzoru
-        /// </summary>
-        public static int PERIODA_TIMERU_VLNY_MS = 20;
 
-        /// <summary>
-        /// vychozi delka bufferu pro prehravani audio a presne kresleni vlny
-        /// </summary>
-        public static long DELKA_VYCHOZIHO_ZOBRAZOVACIHO_BUFFERU_MS = 300000;//180000;
-        public static TimeSpan DELKA_VYCHOZIHO_ZOBRAZOVACIHO_BUFFERU = TimeSpan.FromMilliseconds(DELKA_VYCHOZIHO_ZOBRAZOVACIHO_BUFFERU_MS);
+        public static long DISPLAY_BUFFER_LENGTH_MS = 300000;//180000;
+        public static TimeSpan DISPLAY_BUFFER_LENGTH = TimeSpan.FromMilliseconds(DISPLAY_BUFFER_LENGTH_MS);
         public static long DELKA_PRVNIHO_RAMCE_ZOBRAZOVACIHO_BUFFERU_MS = 120000;
-        //public static long DELKA_VYCHOZIHO_ZOBRAZOVACIHO_BUFFERU_MS = 3600000;//180000;
-
-        //typy rozpoznavani
-        public static short ROZPOZNAVAC_0_OFFLINE_ROZPOZNAVANI = 0;
-        public static short ROZPOZNAVAC_1_DIKTAT = 1;
-        public static short ROZPOZNAVAC_2_HLASOVE_OVLADANI = 2;
 
 
-
-        /// <summary>
-        /// prevede bitmap frame do base64 stringu
-        /// </summary>
-        /// <param name="aCestaTMP"></param>
-        /// <param name="aBMP"></param>
-        /// <returns></returns>
         public static string JpgToBase64(BitmapFrame aBMP)
         {
             try
@@ -95,12 +53,7 @@ namespace NanoTrans
 
         }
 
-        /// <summary>
-        /// prevede base64string obrazku na bitmapImage
-        /// </summary>
-        /// <param name="aStringBase64"></param>
-        /// <returns></returns>
-        public static BitmapImage PrevedBase64StringNaJPG(string aStringBase64)
+        public static BitmapImage Base64ToJpg(string aStringBase64)
         {
             if (aStringBase64 == null || aStringBase64 == "") return null;
             BitmapImage bi;

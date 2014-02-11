@@ -31,7 +31,7 @@ namespace NanoTrans
         private static readonly string ConfigFile = "Data\\config.xml";
 
         private static readonly string _PedalFile = "Pedals.exe";
-        private static readonly string _FFmpegFile = "Prevod\\ffmpeg.exe";
+        private static readonly string _FFmpegFile = "ffmpeg.exe";
 
         private static string _programDirectory;
         private static bool _writeToAppData;
@@ -81,7 +81,7 @@ namespace NanoTrans
             {
                 try
                 {
-                    //ziskal sem nezaregistrovany pristup ke slozce.. smazat
+                    //demove temp folders from unexpectedly terminated instances
                     bool isnew;
                     using (Mutex m = new Mutex(true, "NanoTransMutex_" + dir.Name, out isnew))
                     {

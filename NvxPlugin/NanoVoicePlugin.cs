@@ -114,7 +114,7 @@ namespace NvxPlugin
                 var idel = e.Element("Id");
                 if (idel != null)
                 {
-                    p.SpeakerID = XmlConvert.ToInt32(idel.Attribute("id").Value);
+                    p.InternalID = XmlConvert.ToInt32(idel.Attribute("id").Value);
                     ph.Text = "score: "+idel.Attribute("score").Value; 
                 }
                 p.Phrases.Add(ph);

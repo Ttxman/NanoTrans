@@ -211,28 +211,6 @@ namespace NanoTrans
             }
         }
 
-        static Brush GetRectangleBgColor(ParagraphAttributes param)
-        {
-            return Brushes.White;
-        }
-
-        static Brush GetRectangleInnenrColor(ParagraphAttributes param)
-        {
-            switch (param)
-            {
-                default:
-                case ParagraphAttributes.None:
-                    return Brushes.White;
-                case ParagraphAttributes.Background_noise:
-                    return Brushes.DodgerBlue;
-                case ParagraphAttributes.Background_speech:
-                    return Brushes.Chocolate;
-                case ParagraphAttributes.Junk:
-                    return Brushes.Crimson;
-                case ParagraphAttributes.Narrowband:
-                    return Brushes.Olive;
-            }
-        }
         static ParagraphAttributes[] all = (ParagraphAttributes[])Enum.GetValues(typeof(ParagraphAttributes));
 
         private void RepaintAttributes()
@@ -257,9 +235,9 @@ namespace NanoTrans
 
                         TranscriptionParagraph par = ValueElement as TranscriptionParagraph;
                         if (par != null && (par.DataAttributes & at) != 0)
-                            r.Fill = GetRectangleInnenrColor(at);
+                            r.Fill = GlobalSetup.Setup.GetPAttributeColor(at);
                         else
-                            r.Fill = GetRectangleBgColor(at);
+                            r.Fill = GlobalSetup.Setup.GetPAttributeBgColor(at);
                         r.MouseLeftButtonDown += new MouseButtonEventHandler(attributes_MouseLeftButtonDown);
                         r.Tag = at;
                         stackPanelAttributes.Children.Add(r);
@@ -283,11 +261,11 @@ namespace NanoTrans
                     attr = (ParagraphAttributes)r.Tag;
                     if ((par.DataAttributes & attr) != 0)
                     {
-                        r.Fill = GetRectangleInnenrColor(attr);
+                        r.Fill = GlobalSetup.Setup.GetPAttributeColor(attr);
                     }
                     else
                     {
-                        r.Fill = GetRectangleBgColor(attr);
+                        r.Fill = GlobalSetup.Setup.GetPAttributeBgColor(attr);
                     }
                 }
             }
@@ -373,7 +351,8 @@ namespace NanoTrans
 
         private void UpdateCustomParamsFromSpeaker()
         {
-            return;
+            if(!GlobalSetup.Setup.ShowCustomParams)
+                return;
             if (customparams == null || customparams.Count == 0 || ValueElement == null)
                 return;
 

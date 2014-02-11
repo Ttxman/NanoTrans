@@ -385,7 +385,7 @@ namespace NanoTrans
         {
             TranscriptionParagraph par = VirtualizingListBox.ActiveTransctiption as TranscriptionParagraph;
             oWav.RamecSynchronne = true;
-            bool nacteno = oWav.NactiRamecBufferu((long)par.Begin.TotalMilliseconds, (long)par.Delka.TotalMilliseconds, MyKONST.ID_BUFFERU_PREPISOVANEHO_ELEMENTU_FONETICKY_PREPIS);//)this.bPozadovanyPocatekRamce, this.bPozadovanaDelkaRamceMS, this.bIDBufferu);        
+            bool nacteno = oWav.NactiRamecBufferu((long)par.Begin.TotalMilliseconds, (long)par.Delka.TotalMilliseconds, Const.ID_BUFFER_TRANSCRIBED_ELEMENT_PHONETIC);//)this.bPozadovanyPocatekRamce, this.bPozadovanaDelkaRamceMS, this.bIDBufferu);        
             oWav.RamecSynchronne = false;
 
             Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
@@ -397,7 +397,7 @@ namespace NanoTrans
                 //BinaryWriter bw = new BinaryWriter(new FileStream(filename, FileMode.Create));
                 MyBuffer16 bf = new MyBuffer16(oWav.SyncBufferLoad.data.Length);
 
-                bf.data = oWav.SyncBufferLoad.data;
+                bf.Data = oWav.SyncBufferLoad.data;
                 NanoTrans.Audio.WavReader.VytvorWavSoubor(bf, filename);
 
 
@@ -435,8 +435,8 @@ namespace NanoTrans
         {
             if (_playing)
             {
-                if (jeVideo) meVideo.Pause();
-                prehratVyber = false;
+                if (videoAvailable) meVideo.Pause();
+                PlayingSelection = false;
                 Playing = false;
                 if (MWP != null)
                 {
@@ -467,7 +467,7 @@ namespace NanoTrans
                     }
 
 
-                    prehratVyber = true;
+                    PlayingSelection = true;
                     oldms = TimeSpan.Zero;
 
 
@@ -487,7 +487,7 @@ namespace NanoTrans
                 }
 
                 meVideo.Position = waveform1.CaretPosition;
-                if (jeVideo) meVideo.Play();
+                if (videoAvailable) meVideo.Play();
                 //spusteni prehravani pomoci tlacitka-kvuli nacteni primeho prehravani
 
                 Playing = true;
@@ -559,7 +559,7 @@ namespace NanoTrans
 
         private void CShowPanelFoneticTranscription(object sender, ExecutedRoutedEventArgs e)
         {
-            ZobrazitOknoFonetickehoPrepisu(true);
+            ShowPhoneticTranscription(true);
         }
 
         private void CGeneratePhoneticTranscription(object sender, ExecutedRoutedEventArgs e)
@@ -590,7 +590,7 @@ namespace NanoTrans
 
         private void CTakeSpeakerSnapshotFromVideo(object sender, ExecutedRoutedEventArgs e)
         {
-            if (jeVideo)
+            if (videoAvailable)
             {
 
                 Size dpi = new Size(96, 96);
@@ -601,7 +601,7 @@ namespace NanoTrans
 
                 BitmapFrame pFrame = BitmapFrame.Create(bmp);
 
-                string pBase = MyKONST.JpgToBase64(pFrame);
+                string pBase = Const.JpgToBase64(pFrame);
 
 
                 throw new NotImplementedException();
@@ -628,31 +628,31 @@ namespace NanoTrans
             {
                 if (Transcription.FileName != null)
                 {
-                    UlozitTitulky(false, Transcription.FileName);
+                    SaveTranscription(false, Transcription.FileName);
                 }
                 else
                 {
-                    UlozitTitulky(true, Transcription.FileName);
+                    SaveTranscription(true, Transcription.FileName);
                 }
             }
         }
 
         private void CSaveTranscriptionAs(object sender, ExecutedRoutedEventArgs e)
         {
-            UlozitTitulky(true, "");
+            SaveTranscription(true, "");
         }
 
         private void CAbout(object sender, ExecutedRoutedEventArgs e)
         {
-            new WinOProgramu(MyKONST.NAZEV_PROGRAMU).ShowDialog();
+            new WinOProgramu(Const.APP_NAME).ShowDialog();
         }
 
         private void CHelp(object sender, ExecutedRoutedEventArgs e)
         {
-            if (oknoNapovedy == null || !oknoNapovedy.IsLoaded)
+            if (helpWindow == null || !helpWindow.IsLoaded)
             {
-                oknoNapovedy = new WinHelp();
-                oknoNapovedy.Show();
+                helpWindow = new WinHelp();
+                helpWindow.Show();
             }
         }
 
@@ -665,9 +665,9 @@ namespace NanoTrans
             //}
 
             if (VirtualizingListBox.ActiveTransctiption == null)
-                if (_mydatasource.Chapters.Count > 0)
+                if (_transcription.Chapters.Count > 0)
                 {
-                    VirtualizingListBox.ActiveTransctiption = _mydatasource.Chapters[0];
+                    VirtualizingListBox.ActiveTransctiption = _transcription.Chapters[0];
                 }
                 else
                     return;
@@ -694,7 +694,7 @@ namespace NanoTrans
             {
                 if (MessageBox.Show(Properties.Strings.MessageBoxSearchTryFromBegining, Properties.Strings.MessageBoxSearchCaption, MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes)
                 {
-                    var first = _mydatasource.First();
+                    var first = _transcription.First();
                     VirtualizingListBox.ActiveTransctiption = first;
                     FindNext(pattern, isregex, CaseSensitive, searchinspeakers);
                 }

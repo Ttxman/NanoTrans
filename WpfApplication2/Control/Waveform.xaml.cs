@@ -25,10 +25,10 @@ namespace NanoTrans
 
         public TimeSpan WaveBegin
         {
-            get { return TimeSpan.FromMilliseconds(oVlna.mSekundyVlnyZac); }
+            get { return TimeSpan.FromMilliseconds(wave.BeginMS); }
             set
             {
-                oVlna.mSekundyVlnyZac = (long)value.TotalMilliseconds;
+                wave.BeginMS = (long)value.TotalMilliseconds;
                 InvalidateWaveform();
                 InvalidateTimeLine();
             }
@@ -36,10 +36,10 @@ namespace NanoTrans
 
         public TimeSpan WaveEnd
         {
-            get { return TimeSpan.FromMilliseconds(oVlna.mSekundyVlnyKon); }
+            get { return TimeSpan.FromMilliseconds(wave.EndMS); }
             set
             {
-                oVlna.mSekundyVlnyKon = (long)value.TotalMilliseconds;
+                wave.EndMS = (long)value.TotalMilliseconds;
                 InvalidateWaveform();
                 InvalidateTimeLine();
             }
@@ -47,10 +47,10 @@ namespace NanoTrans
 
         public TimeSpan WaveLength
         {
-            get { return TimeSpan.FromMilliseconds(oVlna.DelkaVlnyMS); }
+            get { return TimeSpan.FromMilliseconds(wave.LengthMS); }
             set
             {
-                oVlna.NastavDelkuVlny((long)value.TotalMilliseconds);
+                wave.SetWaveLength((long)value.TotalMilliseconds);
                 InvalidateWaveform();
                 InvalidateTimeLine();
             }
@@ -58,15 +58,15 @@ namespace NanoTrans
 
         public TimeSpan WaveLengthDelta
         {
-            get { return TimeSpan.FromMilliseconds(oVlna.MSekundyDelta); }
+            get { return TimeSpan.FromMilliseconds(wave.DeltaMS); }
         }
 
         public TimeSpan SelectionBegin
         {
-            get { return oVlna.KurzorVyberPocatek; }
+            get { return wave.SelectionStart; }
             set
             {
-                oVlna.KurzorVyberPocatek = value;
+                wave.SelectionStart = value;
 
 
                 InvalidateSelection();
@@ -75,32 +75,32 @@ namespace NanoTrans
 
         public TimeSpan SelectionEnd
         {
-            get { return oVlna.KurzorVyberKonec; }
+            get { return wave.SelectionEnd; }
             set
             {
-                oVlna.KurzorVyberKonec = value;
+                wave.SelectionEnd = value;
                 InvalidateSelection();
             }
         }
 
         public TimeSpan CaretPosition
         {
-            get { return TimeSpan.FromMilliseconds(oVlna.KurzorPoziceMS); }
+            get { return TimeSpan.FromMilliseconds(wave.CarretPositionMS); }
             set
             {
 
 
 
                 long pos = (long)value.TotalMilliseconds;
-                if (pos == oVlna.KurzorPoziceMS)
+                if (pos == wave.CarretPositionMS)
                     return;
 
                 this.AudioBufferCheck(value);
-                oVlna.KurzorPoziceMS = pos;
+                wave.CarretPositionMS = pos;
 
                 TimeSpan ts = value;
                 string label = ts.Hours.ToString() + ":" + ts.Minutes.ToString("D2") + ":" + ts.Seconds.ToString("D2") + "," + ((int)ts.Milliseconds / 10).ToString("D2");
-                lAudioPozice.Content = label;
+                lAudioPosition.Content = label;
 
                 InvalidateCarret();
                 InvalidateSelection();
@@ -130,83 +130,83 @@ namespace NanoTrans
         {
             get
             {
-                return TimeSpan.FromMilliseconds(slPoziceMedia.Value);
+                return TimeSpan.FromMilliseconds(slMediaPosition.Value);
             }
             set
             {
-                slPoziceMedia.Value = value.TotalMilliseconds;
+                slMediaPosition.Value = value.TotalMilliseconds;
             }
         }
 
         public TimeSpan AudioLength
         {
-            get { return TimeSpan.FromMilliseconds(slPoziceMedia.Maximum); }
+            get { return TimeSpan.FromMilliseconds(slMediaPosition.Maximum); }
             set
             {
-                slPoziceMedia.Maximum = value.TotalMilliseconds;
-                lAudioDelka2.Content = value.Hours.ToString("d1") + ":" + value.Minutes.ToString("d2") + ":" + value.Seconds.ToString("d2");
+                slMediaPosition.Maximum = value.TotalMilliseconds;
+                lAudioLength.Content = value.Hours.ToString("d1") + ":" + value.Minutes.ToString("d2") + ":" + value.Seconds.ToString("d2");
             }
         }
 
         public TimeSpan SmallJump
         {
-            get { return TimeSpan.FromMilliseconds(oVlna.mSekundyMalySkok); }
+            get { return TimeSpan.FromMilliseconds(wave.ShortJumpMS); }
             set
             {
-                oVlna.mSekundyMalySkok = (long)value.TotalMilliseconds;
+                wave.ShortJumpMS = (long)value.TotalMilliseconds;
                 InvalidateWaveform();
             }
         }
 
         public double Scale
         {
-            get { return 0.01 * oVlna.ZvetseniVlnyYSmerProcenta; }
+            get { return 0.01 * wave.YScalePercentage; }
             set
             {
-                oVlna.ZvetseniVlnyYSmerProcenta = (int)(value * 100);
-                oVlna.AutomatickeMeritko = false;
+                wave.YScalePercentage = (int)(value * 100);
+                wave.ScaleAutomaticaly = false;
                 InvalidateWaveform();
             }
         }
 
         public bool ScaleAutomaticaly
         {
-            get { return oVlna.AutomatickeMeritko; }
+            get { return wave.ScaleAutomaticaly; }
             set
             {
-                oVlna.AutomatickeMeritko = value;
+                wave.ScaleAutomaticaly = value;
                 InvalidateWaveform();
             }
         }
 
         public TimeSpan ProgressHighlightBegin
         {
-            get { return TimeSpan.FromMilliseconds(slPoziceMedia.SelectionStart); }
+            get { return TimeSpan.FromMilliseconds(slMediaPosition.SelectionStart); }
             set
             {
                 if (!_autohighlight)
-                    slPoziceMedia.SelectionStart = value.TotalMilliseconds;
+                    slMediaPosition.SelectionStart = value.TotalMilliseconds;
             }
         }
 
         public TimeSpan ProgressHighlightEnd
         {
-            get { return TimeSpan.FromMilliseconds(slPoziceMedia.SelectionEnd); }
+            get { return TimeSpan.FromMilliseconds(slMediaPosition.SelectionEnd); }
             set
             {
                 if (!_autohighlight)
-                    slPoziceMedia.SelectionEnd = value.TotalMilliseconds;
+                    slMediaPosition.SelectionEnd = value.TotalMilliseconds;
             }
         }
 
         public TimeSpan AudioBufferBegin
         {
-            get { return TimeSpan.FromMilliseconds(oVlna.bufferPrehravaniZvuku.PocatekMS); }
+            get { return TimeSpan.FromMilliseconds(wave.audioBuffer.StartMS); }
         }
 
         public TimeSpan AudioBufferEnd
         {
-            get { return TimeSpan.FromMilliseconds(oVlna.bufferPrehravaniZvuku.KonecMS); }
+            get { return TimeSpan.FromMilliseconds(wave.audioBuffer.EndMS); }
         }
 
 
@@ -219,8 +219,8 @@ namespace NanoTrans
                 _autohighlight = value;
                 if (value)
                 {
-                    slPoziceMedia.SelectionStart = AudioBufferBegin.TotalMilliseconds;
-                    slPoziceMedia.SelectionEnd = AudioBufferEnd.TotalMilliseconds;
+                    slMediaPosition.SelectionStart = AudioBufferBegin.TotalMilliseconds;
+                    slMediaPosition.SelectionEnd = AudioBufferEnd.TotalMilliseconds;
                 }
             }
         }
@@ -280,9 +280,9 @@ namespace NanoTrans
             {
                 TranscriptionElement last = value.Last();
                 if (last.Begin > last.End)
-                    ((Waveform)d).slPoziceMedia.Maximum = last.Begin.TotalMilliseconds;
+                    ((Waveform)d).slMediaPosition.Maximum = last.Begin.TotalMilliseconds;
                 else
-                    ((Waveform)d).slPoziceMedia.Maximum = last.End.TotalMilliseconds;
+                    ((Waveform)d).slMediaPosition.Maximum = last.End.TotalMilliseconds;
             }
 
             ((Waveform)d).Invalidate();
@@ -307,10 +307,8 @@ namespace NanoTrans
 
 
 
-        /// <summary>
-        /// informace o vyberu a pozici kurzoru ve "vlne", obsahuje buffery pro zobrazeni a prehrani vlny
-        /// </summary>
-        private MyVlna oVlna = new MyVlna(MyKONST.DELKA_VYCHOZIHO_ZOBRAZOVACIHO_BUFFERU_MS);
+
+        private WaveformData wave = new WaveformData(Const.DISPLAY_BUFFER_LENGTH_MS);
 
         public event RoutedEventHandler PlayPauseClick;
         public event EventHandler<TimeSpanEventArgs> SliderPositionChanged;
@@ -366,9 +364,6 @@ namespace NanoTrans
                 Invalidator.Interrupt();
         }
 
-        /// <summary>
-        /// prekresluje interface z vlastniho vlakna (omezeni poctu prekresleni pri caste zmene hodnot - jako tahnuti mysi)
-        /// </summary>
         private void ProcessInvalidates()
         {
             try
@@ -434,9 +429,7 @@ namespace NanoTrans
         }
 
 
-        /// <summary>
-        /// nakresli vlnu do formulare
-        /// </summary>
+
         public void InvalidateWaveform()
         {
             invalidate_waveform = true;
@@ -459,12 +452,11 @@ namespace NanoTrans
             if (notbuffered)
             {
                 myImage.Source = null;
-                //invalidate_waveform = true; invalidate_waveform is true when this function is called
                 return;
             }
 
-            double zacatek = oVlna.mSekundyVlnyZac;
-            double konec = oVlna.mSekundyVlnyKon;
+            double begin = wave.BeginMS;
+            double end = wave.EndMS;
             try
             {
                 if (this.Dispatcher.Thread != System.Threading.Thread.CurrentThread)
@@ -474,57 +466,54 @@ namespace NanoTrans
                 }
 
 
-                Int64 zac = (Int64)(0.001 * _frequency * (zacatek - oVlna.bufferPrehravaniZvuku.PocatekMS));
-                Int64 kon = (Int64)(0.001 * _frequency * (konec - oVlna.bufferPrehravaniZvuku.PocatekMS));
+                Int64 bg = (Int64)(0.001 * _frequency * (begin - wave.audioBuffer.StartMS));
+                Int64 en = (Int64)(0.001 * _frequency * (end - wave.audioBuffer.StartMS));
 
 
-                ///////////////////////////////////////////////////////////////////////////////
-                if (zac < -100)
+                //////////////////////////////// should not ever enter here... :)
+                if (bg < -100)
                 {
-                    return; //pockani na nacteni bufferu z disku o spravnem rozsahu
+                    return; 
                 }
                 //////////////////////////////////////////////////////////////////////////////
 
-                if (konec > oVlna.bufferPrehravaniZvuku.KonecMS)
+                if (end > wave.audioBuffer.EndMS)
                 {
-                    kon = (Int64)(((double)(oVlna.bufferPrehravaniZvuku.KonecMS - oVlna.bufferPrehravaniZvuku.PocatekMS)) / 1000 * _frequency);// - 1;
-                    zac = (Int64)(kon - (oVlna.DelkaVlnyMS / 1000.0) * _frequency);
+                    en = (Int64)(((double)(wave.audioBuffer.EndMS - wave.audioBuffer.StartMS)) / 1000 * _frequency);// - 1;
+                    bg = (Int64)(en - (wave.LengthMS / 1000.0) * _frequency);
                 }
 
 
-                //oVlna.mSekundyVlnyZac = 1000 * zac / _frequency + oVlna.bufferPrehravaniZvuku.PocatekMS;
-                //oVlna.mSekundyVlnyKon = (long)((double)1000 * kon / _frequency) + oVlna.bufferPrehravaniZvuku.PocatekMS;
-                long mSekundyKonec = oVlna.mSekundyVlnyKon;
-                if (zac < 0)
+                long mSekundyKonec = wave.EndMS;
+                if (bg < 0)
                 {
-                    zac = 0;
-                    if (kon < 0) kon = zac + 30 * _frequency;//pokud je vse mimo rozsah bufferu,je nakreslena vlna delky 30s
-                    oVlna.mSekundyVlnyZac = 1000 * zac / _frequency + oVlna.bufferPrehravaniZvuku.PocatekMS;
-                    oVlna.mSekundyVlnyKon = 1000 * kon / _frequency + oVlna.bufferPrehravaniZvuku.PocatekMS;
-                    mSekundyKonec = (int)(oVlna.mSekundyVlnyKon);
-                    oVlna.NastavDelkuVlny((uint)((kon - zac) * 1000 / _frequency));
+                    bg = 0;
+                    if (en < 0) en = bg + 30 * _frequency;//set length to 30s if buffer is shorter than requested
+                    wave.BeginMS = 1000 * bg / _frequency + wave.audioBuffer.StartMS;
+                    wave.EndMS = 1000 * en / _frequency + wave.audioBuffer.StartMS;
+                    mSekundyKonec = (int)(wave.EndMS);
+                    wave.SetWaveLength((uint)((en - bg) * 1000 / _frequency));
                 }
 
-                int pPocetZobrazovanychPixelu = (int)this.ActualWidth;
-                if (pPocetZobrazovanychPixelu <= 0) pPocetZobrazovanychPixelu = 1600;
-                int pKolikVzorkuKomprimovat = (int)((double)(kon - zac) / (double)pPocetZobrazovanychPixelu);
+                int pixelWidth = (int)this.ActualWidth;
+                if (pixelWidth <= 0) pixelWidth = 1600;
+                int sampleGroupCount = (int)((double)(en - bg) / (double)pixelWidth);
 
 
 
 
-                //oVlna.bufferPrehravaniZvuku.data.Skip(zac).Take(kon-zac).
 
-                double[] wavemax = new double[pPocetZobrazovanychPixelu];
-                double[] wavemin = new double[pPocetZobrazovanychPixelu];
-                for (int i = 0; i < pPocetZobrazovanychPixelu; i++)
+                double[] wavemax = new double[pixelWidth];
+                double[] wavemin = new double[pixelWidth];
+                for (int i = 0; i < pixelWidth; i++)
                 {
                     double min = short.MaxValue;
                     double max = short.MinValue;
 
-                    long pos = zac + i * pKolikVzorkuKomprimovat;
-                    for (long k = pos; k < pos + pKolikVzorkuKomprimovat; k++)
+                    long pos = bg + i * sampleGroupCount;
+                    for (long k = pos; k < pos + sampleGroupCount; k++)
                     {
-                        short val = oVlna.bufferPrehravaniZvuku.data[k];
+                        short val = wave.audioBuffer.Data[k];
                         if (val < min)
                             min = val;
                         if (val > max)
@@ -532,7 +521,7 @@ namespace NanoTrans
                     }
 
 
-                    //normalizace;
+                    //normalize;
                     min /=((double)short.MaxValue);
                     max /= ((double)short.MaxValue);
 
@@ -540,18 +529,18 @@ namespace NanoTrans
                     wavemax[i] = max;
                 }
 
-                float pZvetseni = oVlna.ZvetseniVlnyYSmerProcenta/100;
+                float yscale = wave.YScalePercentage/100;
 
-                if (!oVlna.AutomatickeMeritko)
+                if (!wave.ScaleAutomaticaly)
                 {
-                    if (pZvetseni < 0.1)
-                        pZvetseni = 0.1f;
-                    if (pZvetseni > 100)
-                        pZvetseni = 100f;
+                    if (yscale < 0.1)
+                        yscale = 0.1f;
+                    if (yscale > 100)
+                        yscale = 100f;
 
-                    oVlna.ZvetseniVlnyYSmerProcenta = pZvetseni * 100;
+                    wave.YScalePercentage = yscale * 100;
 
-                    double factor = pZvetseni;
+                    double factor = yscale;
                     for (int i = 0; i < wavemin.Length - 1; i++)
                     {
                         double min = wavemin[i] * factor;
@@ -569,7 +558,7 @@ namespace NanoTrans
                     }
 
                 }
-                else //autozoom
+                else //auto scale
                 {
                     double min = Math.Abs(wavemin.Min());
                     double max = Math.Abs(wavemax.Max());
@@ -640,33 +629,34 @@ namespace NanoTrans
         {
             invalidate_selection = true;
         }
-        //nakresli vyber 
+     
+
         private void iInvalidateSelection()//long zacatek, long konec, long kurzor)
         {
-            long zacatek = (long)oVlna.KurzorVyberPocatek.TotalMilliseconds;
-            long konec = (long)oVlna.KurzorVyberKonec.TotalMilliseconds;
-            if (konec < zacatek)
+            long begin = (long)wave.SelectionStart.TotalMilliseconds;
+            long end = (long)wave.SelectionEnd.TotalMilliseconds;
+            if (end < begin)
             {
-                long bf = konec;
-                konec = zacatek;
-                zacatek = konec;
+                long bf = end;
+                end = begin;
+                begin = end;
             }
-            long kurzor = oVlna.KurzorPoziceMS;
+            long carret = wave.CarretPositionMS;
 
-            if ((zacatek != -1 && konec != -1) || (zacatek != -1))
+            if ((begin != -1 && end != -1) || (begin != -1))
             {
-                if (zacatek < oVlna.mSekundyVlnyZac)
+                if (begin < wave.BeginMS)
                 {
-                    if (konec > oVlna.mSekundyVlnyKon)
+                    if (end > wave.EndMS)
                     {
                         rectangle2.Margin = new Thickness(0, rectangle2.Margin.Top, rectangle2.Margin.Right, rectangle2.Margin.Bottom);
                         rectangle2.Width = myImage.ActualWidth;
                         rectangle2.Visibility = Visibility.Visible;
                     }
-                    else if (konec > oVlna.mSekundyVlnyZac)
+                    else if (end > wave.BeginMS)
                     {
                         rectangle2.Margin = new Thickness(0, rectangle2.Margin.Top, rectangle2.Margin.Right, rectangle2.Margin.Bottom);
-                        rectangle2.Width = (double)(myImage.ActualWidth * (konec - oVlna.mSekundyVlnyZac) / oVlna.DelkaVlnyMS);
+                        rectangle2.Width = (double)(myImage.ActualWidth * (end - wave.BeginMS) / wave.LengthMS);
                         rectangle2.Visibility = Visibility.Visible;
                     }
                     else
@@ -674,11 +664,11 @@ namespace NanoTrans
                         rectangle2.Visibility = Visibility.Hidden;
                     }
                 }
-                else if (konec > oVlna.mSekundyVlnyKon)//zacatek vyberu  je vetsi nez zacatek vlny
+                else if (end > wave.EndMS)//zacatek vyberu  je vetsi nez zacatek vlny
                 {
-                    if (zacatek < oVlna.mSekundyVlnyKon)
+                    if (begin < wave.EndMS)
                     {
-                        double aLeft = (double)(myImage.ActualWidth * (double)(zacatek - oVlna.mSekundyVlnyZac) / oVlna.DelkaVlnyMS);
+                        double aLeft = (double)(myImage.ActualWidth * (double)(begin - wave.BeginMS) / wave.LengthMS);
                         rectangle2.Margin = new Thickness(aLeft, rectangle2.Margin.Top, rectangle2.Margin.Right, rectangle2.Margin.Bottom);
                         rectangle2.Width = myImage.ActualWidth - aLeft;
                         rectangle2.Visibility = Visibility.Visible;
@@ -688,11 +678,11 @@ namespace NanoTrans
                         rectangle2.Visibility = Visibility.Hidden;
                     }
                 }
-                else //zac a kon v intervalu vlny
+                else
                 {
-                    double aLeft = (double)(myImage.ActualWidth * (zacatek - oVlna.mSekundyVlnyZac) / oVlna.DelkaVlnyMS);
+                    double aLeft = (double)(myImage.ActualWidth * (begin - wave.BeginMS) / wave.LengthMS);
 
-                    double aRight = myImage.ActualWidth - (double)(myImage.ActualWidth * (konec - oVlna.mSekundyVlnyZac) / oVlna.DelkaVlnyMS);
+                    double aRight = myImage.ActualWidth - (double)(myImage.ActualWidth * (end - wave.BeginMS) / wave.LengthMS);
                     rectangle2.Margin = new Thickness(aLeft, rectangle2.Margin.Top, rectangle2.Margin.Right, rectangle2.Margin.Bottom);
                     rectangle2.Width = myImage.ActualWidth - aLeft - aRight;
                     rectangle2.Visibility = Visibility.Visible;
@@ -707,86 +697,86 @@ namespace NanoTrans
 
         private void iInvalidateTimeLine()
         {
-            long zacatek = oVlna.mSekundyVlnyZac;
-            long konec = oVlna.mSekundyVlnyKon;
-            //casova osa
-            gCasovaOsa.Children.Clear();
-            double delka = (double)((double)(konec - zacatek) / 1000);
+            long begin = wave.BeginMS;
+            long end = wave.EndMS;
 
-            double krokMaly = Math.Round(delka / 30);
-            if (krokMaly < 1) krokMaly = 1;
-            double krok = Math.Round(delka / 5);
-            long pPocatekPrvniZnacky_S = zacatek / 1000;
-            int pDelka_S = (int)Math.Round(delka);
+            gridTimeline.Children.Clear();
+            double length = (double)((double)(end - begin) / 1000);
 
-            if (pDelka_S < 6)
+            double shortStep = Math.Round(length / 30);
+            if (shortStep < 1) shortStep = 1;
+            double step = Math.Round(length / 5);
+            long firstMarkBegin = begin / 1000;
+            int length_S = (int)Math.Round(length);
+
+            if (length_S < 6)
             {
-                krok = 1;
-                krokMaly = 0.1;
+                step = 1;
+                shortStep = 0.1;
             }
-            else if (pDelka_S >= 6 && pDelka_S < 20)
+            else if (length_S >= 6 && length_S < 20)
             {
-                krok = 2;
-                krokMaly = 0.5;
+                step = 2;
+                shortStep = 0.5;
             }
-            else if (pDelka_S >= 20 && pDelka_S < 45)
+            else if (length_S >= 20 && length_S < 45)
             {
-                krok = 5;
-                krokMaly = 1;
+                step = 5;
+                shortStep = 1;
             }
-            else if (pDelka_S >= 45 && pDelka_S < 90)
+            else if (length_S >= 45 && length_S < 90)
             {
-                krok = 10;
-                krokMaly = 2;
+                step = 10;
+                shortStep = 2;
             }
-            else if (pDelka_S >= 90 && pDelka_S < 150)
+            else if (length_S >= 90 && length_S < 150)
             {
-                krok = 15;
-                krokMaly = 3;
+                step = 15;
+                shortStep = 3;
             }
-            else if (pDelka_S >= 150)
+            else if (length_S >= 150)
             {
-                krok = 30;
-                krokMaly = 5;
+                step = 30;
+                shortStep = 5;
 
             }
-            while (pPocatekPrvniZnacky_S % krok != 0 && pPocatekPrvniZnacky_S > 0)
+            while (firstMarkBegin % step != 0 && firstMarkBegin > 0)
             {
-                pPocatekPrvniZnacky_S--;
+                firstMarkBegin--;
             }
 
 
 
-            if (krok < 1) krok = 1;
+            if (step < 1) step = 1;
 
-            if (Math.Abs((int)krok - 5) == 1)
+            if (Math.Abs((int)step - 5) == 1)
             {
-                krok = 5;
+                step = 5;
             }
-            double pKonecKroku = ((double)konec / 1000) - pPocatekPrvniZnacky_S;
+            double stepend = ((double)end / 1000) - firstMarkBegin;
             //for (double i = krokMaly; i <= delka; i = i + krokMaly)
-            for (double i = krokMaly; i <= pKonecKroku; i = i + krokMaly)
+            for (double i = shortStep; i <= stepend; i = i + shortStep)
             {
-                double aLeft = (pPocatekPrvniZnacky_S + i) * 1000 - oVlna.mSekundyVlnyZac;
-                aLeft = aLeft / oVlna.DelkaVlnyMS * myImage.ActualWidth;
+                double aLeft = (firstMarkBegin + i) * 1000 - wave.BeginMS;
+                aLeft = aLeft / wave.LengthMS * myImage.ActualWidth;
                 double pozice = aLeft;
                 Rectangle r1 = new Rectangle();
-                r1.Margin = new Thickness(pozice - 2, 0, 0, gCasovaOsa.ActualHeight / 3 * 2.5);
-                r1.Height = gCasovaOsa.ActualHeight;
+                r1.Margin = new Thickness(pozice - 2, 0, 0, gridTimeline.ActualHeight / 3 * 2.5);
+                r1.Height = gridTimeline.ActualHeight;
                 r1.Width = 1;
                 r1.HorizontalAlignment = HorizontalAlignment.Left;
                 r1.Fill = Brushes.Black;
 
-                gCasovaOsa.Children.Add(r1);
+                gridTimeline.Children.Add(r1);
             }
 
-            for (double i = krok; i <= delka; i = i + krok)
+            for (double i = step; i <= length; i = i + step)
             {
-                double aLeft = (pPocatekPrvniZnacky_S + i) * 1000 - oVlna.mSekundyVlnyZac;
-                aLeft = aLeft / oVlna.DelkaVlnyMS * myImage.ActualWidth;
+                double aLeft = (firstMarkBegin + i) * 1000 - wave.BeginMS;
+                aLeft = aLeft / wave.LengthMS * myImage.ActualWidth;
                 double pozice = aLeft;
 
-                TimeSpan ts = new TimeSpan((long)(pPocatekPrvniZnacky_S * 1000 + i * 1000) * 10000);
+                TimeSpan ts = new TimeSpan((long)(firstMarkBegin * 1000 + i * 1000) * 10000);
 
                 Label lX = new Label();
                 lX.Content = Math.Floor(ts.TotalMinutes).ToString() + "m : " + ts.Seconds.ToString("D2") + "s";
@@ -794,14 +784,14 @@ namespace NanoTrans
                 lX.Padding = new Thickness(0, 5, 0, 0);
 
                 Rectangle r1 = new Rectangle();
-                r1.Margin = new Thickness(pozice - 2, 0, 0, gCasovaOsa.ActualHeight / 3 * 2);
-                r1.Height = gCasovaOsa.ActualHeight;
+                r1.Margin = new Thickness(pozice - 2, 0, 0, gridTimeline.ActualHeight / 3 * 2);
+                r1.Height = gridTimeline.ActualHeight;
                 r1.Width = 2;
                 r1.HorizontalAlignment = HorizontalAlignment.Left;
                 r1.Fill = Brushes.Black;
 
-                gCasovaOsa.Children.Add(lX);
-                gCasovaOsa.Children.Add(r1);
+                gridTimeline.Children.Add(lX);
+                gridTimeline.Children.Add(r1);
 
 
             }
@@ -831,26 +821,26 @@ namespace NanoTrans
         }
 
 
-        private List<Button> bObelnikyMluvcich = new List<Button>();
+        private List<Button> speakerButtons = new List<Button>();
         private void iInvalidateSpeakers()
         {
             try
             {
-                Transcription aDokument = _subtitlesData;
-                MyVlna aZobrazenaVlna = oVlna;
+                Transcription transc = _subtitlesData;
+                WaveformData currentWave = wave;
 
-                if (aDokument == null) return;
-                if (aZobrazenaVlna == null) return;
-                //smazani obdelniku mluvcich
-                foreach (Button pL in bObelnikyMluvcich)
+                if (transc == null) return;
+                if (currentWave == null) return;
+
+                foreach (Button pL in speakerButtons)
                 {
                     grid1.Children.Remove(pL);
                 }
-                this.bObelnikyMluvcich.Clear();
+                this.speakerButtons.Clear();
 
-                for (int i = 0; i < aDokument.Chapters.Count; i++)
+                for (int i = 0; i < transc.Chapters.Count; i++)
                 {
-                    TranscriptionChapter pChapter = aDokument.Chapters[i];
+                    TranscriptionChapter pChapter = transc.Chapters[i];
                     for (int j = 0; j < pChapter.Sections.Count; j++)
                     {
                         TranscriptionSection pSection = pChapter.Sections[j];
@@ -865,50 +855,48 @@ namespace NanoTrans
 
                             if (pBegin >= 0 && pEnd != pBegin && pEnd >= 0 && pParagraph.End >= TimeSpan.Zero)
                             {
-                                if ((pBegin < aZobrazenaVlna.mSekundyVlnyZac && pEnd < aZobrazenaVlna.mSekundyVlnyZac) || (pBegin > aZobrazenaVlna.mSekundyVlnyKon))
+                                if ((pBegin < currentWave.BeginMS && pEnd < currentWave.BeginMS) || (pBegin > currentWave.EndMS))
                                 {
 
                                 }
                                 else
                                 {
 
-                                    if (pBegin >= aZobrazenaVlna.mSekundyVlnyZac && pEnd <= aZobrazenaVlna.mSekundyVlnyKon)
+                                    if (pBegin >= currentWave.BeginMS && pEnd <= currentWave.EndMS)
                                     {
 
                                     }
-                                    if (pBegin < aZobrazenaVlna.mSekundyVlnyZac) pBegin = aZobrazenaVlna.mSekundyVlnyZac;
-                                    if (pEnd > aZobrazenaVlna.mSekundyVlnyKon) pEnd = aZobrazenaVlna.mSekundyVlnyKon;
+                                    if (pBegin < currentWave.BeginMS) pBegin = currentWave.BeginMS;
+                                    if (pEnd > currentWave.EndMS) pEnd = currentWave.EndMS;
 
-                                    Button pMluvci = new Button();
+                                    Button speaker = new Button();
 
 
-                                    pMluvci.PreviewMouseMove += new MouseEventHandler(pMluvci_MouseMove);
-                                    pMluvci.PreviewMouseLeftButtonUp += new MouseButtonEventHandler(pMluvci_PreviewMouseLeftButtonUp);
-                                    pMluvci.PreviewMouseLeftButtonDown += new MouseButtonEventHandler(pMluvci_PreviewMouseLeftButtonDown);
+                                    speaker.PreviewMouseMove += new MouseEventHandler(pMluvci_MouseMove);
+                                    speaker.PreviewMouseLeftButtonUp += new MouseButtonEventHandler(pMluvci_PreviewMouseLeftButtonUp);
+                                    speaker.PreviewMouseLeftButtonDown += new MouseButtonEventHandler(pSpeaker_PreviewMouseLeftButtonDown);
 
-                                    pMluvci.VerticalAlignment = VerticalAlignment.Top;
-                                    pMluvci.HorizontalAlignment = HorizontalAlignment.Left;
+                                    speaker.VerticalAlignment = VerticalAlignment.Top;
+                                    speaker.HorizontalAlignment = HorizontalAlignment.Left;
 
-                                    double aLeft = (double)(myImage.ActualWidth * (pBegin - aZobrazenaVlna.mSekundyVlnyZac) / aZobrazenaVlna.DelkaVlnyMS);
-                                    double aRight = gCasovaOsa.ActualWidth - (double)(myImage.ActualWidth * (pEnd - aZobrazenaVlna.mSekundyVlnyZac) / aZobrazenaVlna.DelkaVlnyMS);
-                                    pMluvci.Margin = new Thickness(aLeft, pMluvci.Margin.Top, pMluvci.Margin.Right, rectangle2.Margin.Bottom);
-                                    pMluvci.Width = gCasovaOsa.ActualWidth - aLeft - aRight;
+                                    double aLeft = (double)(myImage.ActualWidth * (pBegin - currentWave.BeginMS) / currentWave.LengthMS);
+                                    double aRight = gridTimeline.ActualWidth - (double)(myImage.ActualWidth * (pEnd - currentWave.BeginMS) / currentWave.LengthMS);
+                                    speaker.Margin = new Thickness(aLeft, speaker.Margin.Top, speaker.Margin.Right, rectangle2.Margin.Bottom);
+                                    speaker.Width = gridTimeline.ActualWidth - aLeft - aRight;
 
-                                    pMluvci.Background = Brushes.LightPink;
+                                    speaker.Background = Brushes.LightPink;
                                     Speaker pSpeaker = pParagraph.Speaker;
                                     string pText = "";
                                     if (pSpeaker != null) pText = pSpeaker.FullName;
-                                    //pMluvci.Content = pText;
-                                    pMluvci.Visibility = Visibility.Visible;
-                                    pMluvci.BringIntoView();
-                                    pMluvci.Focusable = false;
-                                    pMluvci.IsTabStop = false;
-                                    pMluvci.Cursor = Cursors.Arrow;
-                                    //pMluvci.IsHitTestVisible = false;
-                                    if (pText != null && pText != "") pMluvci.ToolTip = pMluvci.Content;
-                                    pMluvci.Tag = pParagraph;
-                                    pMluvci.Click += new RoutedEventHandler(pMluvci_Click);
-                                    pMluvci.MouseDoubleClick += new MouseButtonEventHandler(pMluvci_MouseDoubleClick);
+                                    speaker.Visibility = Visibility.Visible;
+                                    speaker.BringIntoView();
+                                    speaker.Focusable = false;
+                                    speaker.IsTabStop = false;
+                                    speaker.Cursor = Cursors.Arrow;
+                                    if (pText != null && pText != "") speaker.ToolTip = speaker.Content;
+                                    speaker.Tag = pParagraph;
+                                    speaker.Click += new RoutedEventHandler(pMluvci_Click);
+                                    speaker.MouseDoubleClick += new MouseButtonEventHandler(pMluvci_MouseDoubleClick);
 
 
                                     DockPanel dp = new DockPanel() { LastChildFill = true, Margin = new Thickness(0, 0, 0, 0) };
@@ -934,7 +922,7 @@ namespace NanoTrans
                                         (k == pSection.Paragraphs.Count - 2 && j == pChapter.Sections.Count - 1)
                                         ||
                                         (k == pSection.Paragraphs.Count - 1 && j != pChapter.Sections.Count - 1)
-                                        )//posledni zaznam v sekci
+                                        )
                                     {
                                         Ellipse el = new Ellipse();
                                         el.Width = 10;
@@ -949,28 +937,28 @@ namespace NanoTrans
                                     lab.Height = 15;
                                     dp2.Children.Add(lab);
                                     dp.Children.Add(dp2);
-                                    pMluvci.Content = dp;
+                                    speaker.Content = dp;
 
-                                    pMluvci.SizeChanged += new SizeChangedEventHandler(pMluvci_SizeChanged);
+                                    speaker.SizeChanged += new SizeChangedEventHandler(pMluvci_SizeChanged);
 
-                                    this.bObelnikyMluvcich.Add(pMluvci);
+                                    this.speakerButtons.Add(speaker);
                                 }
                             }
                         }
                     }
                 }
 
-                TranscriptionParagraph pPredchozi = null;
-                TranscriptionParagraph pNasledujici = null;
-                for (int i = 0; i < this.bObelnikyMluvcich.Count; i++)
+                TranscriptionParagraph previous = null;
+                TranscriptionParagraph next = null;
+                for (int i = 0; i < this.speakerButtons.Count; i++)
                 {
-                    Button pMluvci = this.bObelnikyMluvcich[i];
+                    Button pMluvci = this.speakerButtons[i];
                     TranscriptionParagraph pPar = pMluvci.Tag as TranscriptionParagraph;
-                    if (i < this.bObelnikyMluvcich.Count - 1)
+                    if (i < this.speakerButtons.Count - 1)
                     {
-                        pNasledujici = this.bObelnikyMluvcich[i + 1].Tag as TranscriptionParagraph;
+                        next = this.speakerButtons[i + 1].Tag as TranscriptionParagraph;
                     }
-                    if (pPredchozi != null && pPredchozi.End > pPar.Begin && bObelnikyMluvcich[i - 1].Margin.Top < 5)
+                    if (previous != null && previous.End > pPar.Begin && speakerButtons[i - 1].Margin.Top < 5)
                     {
                         grid1.Children.Add(pMluvci);
                         grid1.UpdateLayout();
@@ -980,7 +968,7 @@ namespace NanoTrans
                     {
                         grid1.Children.Add(pMluvci);
                     }
-                    pPredchozi = pPar;
+                    previous = pPar;
                 }
 
 
@@ -988,7 +976,7 @@ namespace NanoTrans
             catch { }
         }
 
-        void pMluvci_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        void pSpeaker_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             Button b = sender as Button;
 
@@ -1080,15 +1068,15 @@ namespace NanoTrans
         {
             BeginUpdate();
 
-            oVlna.mSekundyVlnyZac -= oVlna.DelkaVlnyMS / 10;
+            wave.BeginMS -= wave.LengthMS / 10;
 
 
-            if (oVlna.mSekundyVlnyZac < 0)
-                oVlna.mSekundyVlnyZac = 0;
+            if (wave.BeginMS < 0)
+                wave.BeginMS = 0;
 
-            oVlna.mSekundyVlnyKon = oVlna.mSekundyVlnyZac + oVlna.DelkaVlnyMS;
+            wave.EndMS = wave.BeginMS + wave.LengthMS;
 
-            double caretpos = CaretPosition.TotalMilliseconds - oVlna.DelkaVlnyMS / 10;
+            double caretpos = CaretPosition.TotalMilliseconds - wave.LengthMS / 10;
             if (caretpos < 0)
                 caretpos = 0;
             this.CaretPosition = TimeSpan.FromMilliseconds(caretpos);
@@ -1103,13 +1091,13 @@ namespace NanoTrans
         {
             BeginUpdate();
 
-            oVlna.mSekundyVlnyKon = oVlna.mSekundyVlnyKon + oVlna.DelkaVlnyMS / 10;
+            wave.EndMS = wave.EndMS + wave.LengthMS / 10;
 
-            if (AudioLength.TotalMilliseconds < oVlna.mSekundyVlnyKon)
-                oVlna.mSekundyVlnyKon = (long)AudioLength.TotalMilliseconds;
-            oVlna.mSekundyVlnyZac = oVlna.mSekundyVlnyKon - oVlna.DelkaVlnyMS;
+            if (AudioLength.TotalMilliseconds < wave.EndMS)
+                wave.EndMS = (long)AudioLength.TotalMilliseconds;
+            wave.BeginMS = wave.EndMS - wave.LengthMS;
 
-            this.CaretPosition = TimeSpan.FromMilliseconds(CaretPosition.TotalMilliseconds + oVlna.DelkaVlnyMS / 10);
+            this.CaretPosition = TimeSpan.FromMilliseconds(CaretPosition.TotalMilliseconds + wave.LengthMS / 10);
             if (CarretPostionChangedByUser != null)
                 CarretPostionChangedByUser(this, new TimeSpanEventArgs(this.CaretPosition));
 
@@ -1191,7 +1179,7 @@ namespace NanoTrans
 
             if (!updating)
                 if (SliderPositionChanged != null)
-                    SliderPositionChanged(this, new TimeSpanEventArgs(TimeSpan.FromMilliseconds(slPoziceMedia.Value)));
+                    SliderPositionChanged(this, new TimeSpanEventArgs(TimeSpan.FromMilliseconds(slMediaPosition.Value)));
 
 
 
@@ -1201,8 +1189,8 @@ namespace NanoTrans
 
 
 
-            double wbg = e.NewValue - oVlna.DelkaVlnyMS / 2;
-            double wed = e.NewValue + oVlna.DelkaVlnyMS / 2;
+            double wbg = e.NewValue - wave.LengthMS / 2;
+            double wed = e.NewValue + wave.LengthMS / 2;
 
             if (wbg < 0)
             {
@@ -1210,11 +1198,11 @@ namespace NanoTrans
                 wbg = 0;
             }
 
-            if (wed > slPoziceMedia.Maximum)
+            if (wed > slMediaPosition.Maximum)
             {
-                wed -= slPoziceMedia.Maximum;
+                wed -= slMediaPosition.Maximum;
                 wbg -= wed;
-                wed = slPoziceMedia.Maximum;
+                wed = slMediaPosition.Maximum;
             }
 
             WaveBegin = TimeSpan.FromMilliseconds(wbg);
@@ -1243,7 +1231,7 @@ namespace NanoTrans
 
         private void slPoziceMedia_PreviewMouseUp(object sender, MouseButtonEventArgs e)
         {
-            slPoziceMedia_ValueChanged(slPoziceMedia, new RoutedPropertyChangedEventArgs<double>(slPoziceMedia.Value, slPoziceMedia.Value));
+            slPoziceMedia_ValueChanged(slMediaPosition, new RoutedPropertyChangedEventArgs<double>(slMediaPosition.Value, slMediaPosition.Value));
         }
 
         private void UserControl_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -1254,14 +1242,14 @@ namespace NanoTrans
         public int SetAudioData(short[] data, TimeSpan begin, TimeSpan end)
         {
 
-            int val = oVlna.bufferPrehravaniZvuku.UlozDataDoBufferu(data, (long)begin.TotalMilliseconds, (long)end.TotalMilliseconds);
+            int val = wave.audioBuffer.CopyDataToBuffer(data, (long)begin.TotalMilliseconds, (long)end.TotalMilliseconds);
             Invalidate();
             return val;
         }
 
         public short[] GetAudioData(TimeSpan from, TimeSpan to, TimeSpan max)
         {
-            return oVlna.bufferPrehravaniZvuku.VratDataBufferuShort(from, to, max);
+            return wave.audioBuffer.CopyFromBuffer(from, to, max);
         }
 
         private void UserControl_Unloaded(object sender, RoutedEventArgs e)
@@ -1368,10 +1356,10 @@ namespace NanoTrans
             if (p.X > grid1.ActualWidth || p.X<0)
                 return;
 
-            int ix = bObelnikyMluvcich.IndexOf(b);
+            int ix = speakerButtons.IndexOf(b);
 
-            Button bp = (ix == 0) ? null : bObelnikyMluvcich[ix - 1];
-            Button bn = (ix == bObelnikyMluvcich.Count - 1) ? null : bObelnikyMluvcich[ix + 1];
+            Button bp = (ix == 0) ? null : speakerButtons[ix - 1];
+            Button bn = (ix == speakerButtons.Count - 1) ? null : speakerButtons[ix + 1];
 
             TranscriptionElement pAktualni = b.Tag as TranscriptionElement;
             TranscriptionElement pPredchozi = (bp == null) ? null : bp.Tag as TranscriptionElement;
@@ -1500,7 +1488,7 @@ namespace NanoTrans
         private object wavelock = new object();
         private void AudioBufferCheck(TimeSpan value)
         {
-            TimeSpan half = new TimeSpan(MyKONST.DELKA_VYCHOZIHO_ZOBRAZOVACIHO_BUFFERU.Ticks / 2);
+            TimeSpan half = new TimeSpan(Const.DISPLAY_BUFFER_LENGTH.Ticks / 2);
 
             TimeSpan checkarea = new TimeSpan((AudioBufferEnd - AudioBufferBegin).Ticks / 5);
             TimeSpan innercheckE = AudioBufferEnd - checkarea;
@@ -1555,7 +1543,7 @@ namespace NanoTrans
                 if (begin < TimeSpan.Zero)
                 {
                     begin = TimeSpan.Zero;
-                    end = MyKONST.DELKA_VYCHOZIHO_ZOBRAZOVACIHO_BUFFERU;
+                    end = Const.DISPLAY_BUFFER_LENGTH;
                 }
                 requestedBegin = begin;
                 requestedEnd = end;
@@ -1571,15 +1559,15 @@ namespace NanoTrans
                             short[] data = this.DataRequestCallBack(begin, end);
                             lock (wavelock)
                             {
-                                oVlna.bufferPrehravaniZvuku.UlozDataDoBufferu(data, (long)begin.TotalMilliseconds, (long)end.TotalMilliseconds);
+                                wave.audioBuffer.CopyDataToBuffer(data, (long)begin.TotalMilliseconds, (long)end.TotalMilliseconds);
                                 bufferProcessThread = null;
                             }
                             if (AutomaticProgressHighlight)
                             {
                                 this.Dispatcher.Invoke((Action)(() =>
                                 {
-                                    slPoziceMedia.SelectionStart = begin.TotalMilliseconds;
-                                    slPoziceMedia.SelectionEnd = end.TotalMilliseconds;
+                                    slMediaPosition.SelectionStart = begin.TotalMilliseconds;
+                                    slMediaPosition.SelectionEnd = end.TotalMilliseconds;
                                 }));
 
                             }

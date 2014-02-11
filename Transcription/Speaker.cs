@@ -396,7 +396,7 @@ namespace NanoTrans.Core
         }
 
         public static readonly int DefaultID = int.MinValue;
-        public static readonly Speaker DefaultSpeaker = new Speaker() { _ID = DefaultID };
+        public static readonly Speaker DefaultSpeaker = new Speaker() { _ID = DefaultID, DBID = new Guid().ToString() };
 
         /// <summary>
         /// copies all info, and generates new DBI and ID .... (deep copy)

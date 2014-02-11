@@ -246,7 +246,7 @@
                     <Separator/>
                     <MenuItem Header="{lex:BLoc Key=NanoTrans:Strings:WaveformContextMenuSetSelection}" InputGestureText="Ctrl+Space" Click="menuItemVlna1_SetSelection_Click" />
                     <Separator/>
-                    <MenuItem Header="{lex:BLoc Key=NanoTrans:Strings:WaveformContextMenuSetStartToCursor}" Click="menuItemVlna1_SetStartToCursor_Click" />
+                    <MenuItem Header="{lex:BLoc Key=NanoTrans:Strings:WaveformContextMenuSetStartToCursor}" Click="menuItemWave1_SetStartToCursor_Click" />
                 </ContextMenu>
             </local:Waveform.ContextMenu>
         </local:Waveform>

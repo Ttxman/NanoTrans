@@ -175,17 +175,17 @@ namespace NanoTrans.Audio
         public void AsynchronousFrameLoad2(long aCasMS, long aDelkaMS, int aIDBufferu)
         {
             SetNewFrameStartTime(aCasMS, aDelkaMS, aIDBufferu);
-            if (aIDBufferu == MyKONST.ID_BUFFERU_PREPISOVANEHO_ELEMENTU_FONETICKY_PREPIS)
+            if (aIDBufferu == Const.ID_BUFFER_TRANSCRIBED_ELEMENT_PHONETIC)
             {
                 this.tNacitaniBufferu2 = new Thread(AsynchronousFrameLoad) { Name = "AsynchronniNacteniRamce2()" };
                 this.tNacitaniBufferu2.Start();
             }
-            if (aIDBufferu == MyKONST.ID_BUFFERU_PREPISOVANEHO_ELEMENTU)
+            if (aIDBufferu == Const.ID_BUFFER_TRANSCRBED_ELEMENT)
             {
                 this.tNacitaniBufferu2 = new Thread(AsynchronousFrameLoad);
                 this.tNacitaniBufferu2.Start();
             }
-            else if (aIDBufferu == MyKONST.ID_ZOBRAZOVACIHO_BUFFERU_VLNY)
+            else if (aIDBufferu == Const.ID_BUFFER_WAVEFORMVISIBLE)
             {
 
                 this.tNacitaniBufferu1 = new Thread(AsynchronousFrameLoad);
@@ -198,7 +198,7 @@ namespace NanoTrans.Audio
 
         private void AsynchronniPrevodMultimedialnihoSouboruNaDocasne()
         {
-            this.ZacniPrevodSouboruNaDocasneWav(_FilePath, FilePaths.TempDirectory, MyKONST.DELKA_DOCASNEHO_SOUBORU_ZVUKU_MS);    //nastaveni bufferu
+            this.ZacniPrevodSouboruNaDocasneWav(_FilePath, FilePaths.TempDirectory, Const.TEMPORARY_AUDIO_FILE_LENGTH_MS);    //nastaveni bufferu
         }
 
         /// <summary>
@@ -227,12 +227,12 @@ namespace NanoTrans.Audio
             {
                 BinaryWriter output = new BinaryWriter(new FileStream(aCesta, FileMode.Create));
 
-                byte[] pHlavicka = VytvorHlavickukWav(aAudioData.data.Length * 2);
+                byte[] pHlavicka = VytvorHlavickukWav(aAudioData.Data.Length * 2);
                 output.Write(pHlavicka);
                 //
-                for (int i = 0; i < aAudioData.data.Length; i++)
+                for (int i = 0; i < aAudioData.Data.Length; i++)
                 {
-                    output.Write(aAudioData.data[i]);
+                    output.Write(aAudioData.Data[i]);
                 }
                 output.Close();
                 return true;
@@ -535,9 +535,9 @@ namespace NanoTrans.Audio
 
                 //pPocetVzorku = this.VelikostZobrazovacihoBufferu;   //pozor!! skutecna delka souboru je jina!!!!je nastavena az po prevodu
                 ///pPocetVzorku = MyKONST.DELKA_VYCHOZIHO_ZOBRAZOVACIHO_BUFFERU_MS * (this.pFrekvence / 1000);
-                long pPocetVzorku2Delta = MyKONST.DELKA_PRVNIHO_RAMCE_ZOBRAZOVACIHO_BUFFERU_MS * (this.Frequency / 1000);
+                long pPocetVzorku2Delta = Const.DELKA_PRVNIHO_RAMCE_ZOBRAZOVACIHO_BUFFERU_MS * (this.Frequency / 1000);
                 SampleCount = pPocetVzorku2Delta;
-                long pPocetVzorku2 = MyKONST.DELKA_VYCHOZIHO_ZOBRAZOVACIHO_BUFFERU_MS * (this.Frequency / 1000);
+                long pPocetVzorku2 = Const.DISPLAY_BUFFER_LENGTH_MS * (this.Frequency / 1000);
 
                 //nacitani jednotlivych dat
                 this._LoadedData = new Int16[pPocetVzorku2];
@@ -583,7 +583,7 @@ namespace NanoTrans.Audio
                         if (i == SampleCount) //nacten ramec prvni ramec
                         {
                             //poslani zpravy s daty bufferu
-                            AudioBufferEventArgs e = new AudioBufferEventArgs(this._LoadedData, this._LoadedData.Length, 0, SampleCount / this.Frequency * 1000, MyKONST.ID_ZOBRAZOVACIHO_BUFFERU_VLNY);
+                            AudioBufferEventArgs e = new AudioBufferEventArgs(this._LoadedData, this._LoadedData.Length, 0, SampleCount / this.Frequency * 1000, Const.ID_BUFFER_WAVEFORMVISIBLE);
                             if (HaveData != null)
                                 HaveData(this, e); // nacten ramec k zobrazeni a poslani tohoto ramce ven z tridy pomoci e
                             this._Loaded = true;
@@ -666,7 +666,7 @@ namespace NanoTrans.Audio
                     {
                         pPole[k] = this._LoadedData[k];
                     }
-                    AudioBufferEventArgs e = new AudioBufferEventArgs(pPole, pPole.Length, 0, (long)(((double)i * 1000) / this.Frequency), MyKONST.ID_ZOBRAZOVACIHO_BUFFERU_VLNY);
+                    AudioBufferEventArgs e = new AudioBufferEventArgs(pPole, pPole.Length, 0, (long)(((double)i * 1000) / this.Frequency), Const.ID_BUFFER_WAVEFORMVISIBLE);
 
                     //pokusne pridano
                     this.SampleCount = i;

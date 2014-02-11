@@ -589,21 +589,7 @@ namespace NanoTrans
 
         private void listbox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            return;
-            var elm = listbox.SelectedItem as TranscriptionElement;
-            if (elm != null)
-            {
-                var elem = listbox.ItemContainerGenerator.ContainerFromItem(elm).VisualFindChild<Element>();
-                var point = elem.TransformToAncestor(listbox).Transform(new Point(0, 0));
-                
-                //element is scrolled out
-                if (point.Y > listbox.ActualHeight + 2 * elem.ActualHeight || point.Y < -2 * elem.ActualHeight)
-                    return;
-                if (elem != null && !elem.editor.IsFocused)
-                {
-                    elem.SetCaretOffset(0);
-                }
-            }
+
         }
 
         private void Vizualizer_PreviewKeyDown(object sender, KeyEventArgs e)

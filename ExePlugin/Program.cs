@@ -84,7 +84,7 @@ namespace ExePlugin
                         {
                             TranscriptionParagraph pP = data.Chapters[i].Sections[j].Paragraphs[k];
                             //zapsani jednotlivych odstavcu
-                            string pRadek = "<" + (pP.SpeakerID - 1).ToString() + "> ";
+                            string pRadek = "<" + (pP.InternalID - 1).ToString() + "> ";
                             for (int l = 0; l < pP.Phrases.Count; l++)
                             {
                                 TranscriptionPhrase pFraze = pP.Phrases[l];

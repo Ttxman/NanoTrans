@@ -2,6 +2,7 @@
 <xs:schema id="TRSXSchema_v3"
     targetNamespace="http://www.ite.tul.cz/TRSXSchema3.xsd"
     elementFormDefault="qualified"
+           
     xmlns="http://www.ite.tul.cz/TRSXSchema3.xsd"
     xmlns:mstns="http://www.ite.tul.cz/TRSXSchema3.xsd"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
@@ -10,22 +11,24 @@
   <xs:element name="transcription">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="meta" type="TypeMeta" minOccurs="0"  />
-        <xs:element name="ch" type="TypeChapter" maxOccurs="unbounded" />
+        <xs:element name="meta" type="TypeMeta" minOccurs="0" maxOccurs="1"  />
+        <xs:element name="ch" type="TypeChapter" minOccurs="0" maxOccurs="unbounded" />
         <xs:element name="sp" type="TypeSpeakers" minOccurs="0"/>
       </xs:sequence>
-      <xs:attribute name="version" use="required" fixed="3.0"/>
+      <xs:attribute name="version"  fixed="3.0" use="required"/>
+      <xs:attribute name="documentid" type="xs:string" use="optional"/>
       <xs:attribute name="style" use="prohibited"/>
       <xs:attribute name="mediauri" use="required" type="xs:anyURI"/>
-      <xs:anyAttribute/>
+      <xs:attribute name="created" type="xs:dateTime" use="required"/>
+      <xs:anyAttribute processContents="skip"/>
     </xs:complexType>
   </xs:element>
 
   <xs:complexType name="TypeMeta">
     <xs:sequence>
-      <xs:any minOccurs="0"/>
+      <xs:any minOccurs="0" processContents="skip"/>
     </xs:sequence>
-    <xs:anyAttribute />
+    <xs:anyAttribute processContents="skip"/>
   </xs:complexType>
 
   <xs:complexType name="TypeChapter">
@@ -33,7 +36,7 @@
       <xs:element name="se" type="TypeSection" maxOccurs="unbounded"/>
     </xs:sequence>
     <xs:attribute name="name" type="xs:string" />
-    <xs:anyAttribute/>
+    <xs:anyAttribute processContents="skip"/>
   </xs:complexType>
 
   <xs:complexType name="TypeSection">
@@ -41,7 +44,7 @@
       <xs:element name="pa" type="TypeParagraph" maxOccurs="unbounded"/>
     </xs:sequence>
     <xs:attribute name="name" type="xs:string" />
-    <xs:anyAttribute/>
+    <xs:anyAttribute processContents="skip"/>
   </xs:complexType>
 
   <xs:complexType name="TypeParagraph">
@@ -53,7 +56,7 @@
     <xs:attribute name="s" type="xs:integer" use="required"/>
     <xs:attribute name="a" type="xs:string" use="optional"/>
     <xs:attribute name="l" type="xs:string" use="optional"/>
-    <xs:anyAttribute/>
+    <xs:anyAttribute processContents="skip"/>
   </xs:complexType>
 
   <xs:complexType name="TypePhrase">
@@ -62,7 +65,7 @@
         <xs:attribute name="b" type="xs:duration" use="optional"/>
         <xs:attribute name="e" type="xs:duration" use="optional"/>
         <xs:attribute name="f" type="xs:string" use="optional"/>
-        <xs:anyAttribute/>
+        <xs:anyAttribute processContents="skip"/>
       </xs:extension>
     </xs:simpleContent>
   </xs:complexType>
@@ -72,7 +75,7 @@
       <xs:element name="s" type="TypeSpeaker" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
     <xs:attribute name="dbapiurl" type="xs:anyURI" use="optional"/>
-    <xs:anyAttribute />
+    <xs:anyAttribute processContents="skip"/>
   </xs:complexType>
 
   <xs:complexType name="TypeSpeaker">
@@ -83,7 +86,7 @@
             <xs:extension base="xs:string">
               <xs:attribute name="name" type="xs:string" use="required"/>
               <xs:attribute name="date" type="xs:dateTime" use ="optional"/>
-              <xs:anyAttribute/>
+              <xs:anyAttribute processContents="skip"/>
             </xs:extension>
           </xs:simpleContent>
         </xs:complexType>
@@ -104,13 +107,13 @@
     <xs:attribute name="degreebefore" type="xs:string" use="optional"/>
     <xs:attribute name="degreeafter" type="xs:string" use="optional"/>
     <xs:attribute name="synchronized" type="xs:dateTime" use="optional"/>
-    <xs:attribute name="lang" type="xs:string" use="optional"/>
+    <xs:attribute name="lang" type="xs:string" use="required"/>
     <xs:attribute name="sex" use="required">
       <xs:simpleType >
-        <xs:restriction base="xs:string"><xs:pattern value="(X|F|M)" /></xs:restriction>
+        <xs:restriction base="xs:string"><xs:pattern value="(x|f|m)" /></xs:restriction>
       </xs:simpleType>
     </xs:attribute>
-    <xs:anyAttribute/>
+    <xs:anyAttribute processContents="skip"/>
   </xs:complexType>
 
 </xs:schema>

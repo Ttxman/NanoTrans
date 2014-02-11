@@ -31,17 +31,12 @@ namespace NanoTrans
             _setup = aNastaveni;
             _speakersDatabase = aDatabazeMluvcich;
             InitializeComponent();
-            if (MyKONST.VERZE == MyEnumVerze.Externi)
-            {
-                tabControl1.Items.RemoveAt(1);
-                tabControl1.Items.RemoveAt(1);
-            }
 
             if (aNastaveni != null)
             {
                 //audio
                 cbVystupniAudioZarizeni.Items.Clear();
-                string[] pZarizeni = MyWavePlayer.DeviceNamesOUT;
+                string[] pZarizeni = DXWavePlayer.DeviceNamesOUT;
                 if (pZarizeni != null)
                 {
                     foreach (string s in pZarizeni)
@@ -63,12 +58,12 @@ namespace NanoTrans
 
                 //databaze mluvcich
 
-                string pCesta = aNastaveni.CestaDatabazeMluvcich;
+                string pCesta = aNastaveni.SpeakersDatabasePath;
                 try
                 {
                     if (!pCesta.Contains(":"))
                     {
-                        pCesta = aNastaveni.CestaDatabazeMluvcich;
+                        pCesta = aNastaveni.SpeakersDatabasePath;
                     }
                     //pCesta = new FileInfo(aNastaveni.CestaDatabazeMluvcich).FullName;
                     pCesta = new FileInfo(pCesta).FullName;
@@ -81,8 +76,8 @@ namespace NanoTrans
 
                 //velikost pisma
                 tbVelikostPisma.Text = aNastaveni.SetupTextFontSize.ToString();
-                chbZobrazitFotku.IsChecked = aNastaveni.ZobrazitFotografieMluvcich;
-                slVelikostFotografie.Value = aNastaveni.Fotografie_VyskaMax;
+                chbZobrazitFotku.IsChecked = aNastaveni.ShowSpeakerImage;
+                slVelikostFotografie.Value = aNastaveni.MaxSpeakerImageWidth;
 
 
 
@@ -127,7 +122,7 @@ namespace NanoTrans
 
 
             //databaze mluvcich
-            _setup.CestaDatabazeMluvcich = tbCestaDatabazeMluvcich.Text;
+            _setup.SpeakersDatabasePath = tbCestaDatabazeMluvcich.Text;
 
             //velikost fontu
             try
@@ -138,8 +133,8 @@ namespace NanoTrans
             {
 
             }
-            _setup.ZobrazitFotografieMluvcich = (bool)chbZobrazitFotku.IsChecked;
-            _setup.Fotografie_VyskaMax = slVelikostFotografie.Value;
+            _setup.ShowSpeakerImage = (bool)chbZobrazitFotku.IsChecked;
+            _setup.MaxSpeakerImageWidth = slVelikostFotografie.Value;
 
             _setup.SlowedPlaybackSpeed = (double)UpDownSpeed.Value;
             _setup.WaveformSmallJump = (double)UpDownJump.Value;
@@ -156,7 +151,7 @@ namespace NanoTrans
             fileDialog.Title = Properties.Strings.FileDialogLoadSpeakersDatabaseTitle;
             fileDialog.Filter = string.Format(Properties.Strings.FileDialogLoadSpeakersDatabaseFilter, "*.xml", "*.xml");
 
-            FileInfo fi = new FileInfo(_setup.CestaDatabazeMluvcich);
+            FileInfo fi = new FileInfo(_setup.SpeakersDatabasePath);
             if (fi != null && fi.Directory.Exists) 
                 fileDialog.InitialDirectory = fi.DirectoryName;
             else fileDialog.InitialDirectory = FilePaths.DefaultDirectory;
@@ -176,7 +171,7 @@ namespace NanoTrans
                     _speakersDatabase.Serialize();
                 }
 
-                tbCestaDatabazeMluvcich.Text = _setup.CestaDatabazeMluvcich = fileDialog.FileName;
+                tbCestaDatabazeMluvcich.Text = _setup.SpeakersDatabasePath = fileDialog.FileName;
             }
         }
 

@@ -7,6 +7,7 @@ using System.IO;
 using System.Xml.Serialization;
 using System.Xml;
 using System.Windows;
+using NanoTrans.Core;
 
 namespace NanoTrans
 {
@@ -152,7 +153,7 @@ namespace NanoTrans
 
 
         private string _CestaDatabazeMluvcich;
-        public string CestaDatabazeMluvcich
+        public string SpeakersDatabasePath
         {
             get
             {
@@ -169,64 +170,60 @@ namespace NanoTrans
 
 
         public bool SaveInShortFormat { get; set; }
+        
         /// <summary>
-        /// info zda je k prepisu ukladan komplet mluvci vcetne obrazku
+        /// Save whole speaker (with image) into trsxes
         /// </summary>
-        public bool UkladatKompletnihoMluvciho { get; set; }
+        public bool SaveWholeSpeaker { get; set; }
 
         /// <summary>
-        /// vyska okna fonetickeho prepisu v pixelech, pokud je hodnota zaporna, okno neni zobrazeno
+        /// height of phonetic panel.  (negative numbers hides the panel)
         /// </summary>
-        public float ZobrazitFonetickyPrepis;
+        public float PhoneticsPanelHeight;
 
         /// <summary>
-        /// posledni pozice okna
+        /// last window position
         /// </summary>
-        public System.Windows.Point OknoPozice;
+        public System.Windows.Point WindowsPosition;
 
         /// <summary>
-        /// posledni velikost okna
+        /// last window size
         /// </summary>
-        public System.Windows.Size OknoVelikost;
+        public System.Windows.Size WindowSize;
 
         /// <summary>
-        /// stav okna - maximalizovano, normalni...
+        /// window state (maximized, minimized..)
         /// </summary>
-        public WindowState OknoStav;
+        public WindowState WindowState;
 
 
         public AudioDevices audio;
 
-        /// <summary>
-        /// info zda jsou zobrazeny fotografie mluvcich v prepisu
-        /// </summary>
-        public bool ZobrazitFotografieMluvcich { get; set; }
 
-        /// <summary>
-        /// maximalni vyska u fotky pri zobrazeni v prepisu
-        /// </summary>
-        public double Fotografie_VyskaMax { get; set; }
+        public bool ShowSpeakerImage { get; set; }
+
+        public double MaxSpeakerImageWidth { get; set; }
 
 
         public string[] SpeakerAtributteCategories{ get; set; }
 
-        public void NastavDefaultHodnoty()
+        public void Initialize()
         {
 
             audio.OutputDeviceIndex = 0;
             audio.InputDeviceIndex = 0;
 
-            CestaDatabazeMluvcich = "Data\\SpeakersDatabase.xml";
+            SpeakersDatabasePath = "Data\\SpeakersDatabase.xml";
 
             SetupTextFontSize = 13;
 
-            ZobrazitFotografieMluvcich = true;
-            Fotografie_VyskaMax = 50;
+            ShowSpeakerImage = true;
+            MaxSpeakerImageWidth = 50;
 
-            ZobrazitFonetickyPrepis = 100;
-            OknoPozice = new Point(-1, -1);
-            OknoVelikost = new Size(800, 600);
-            OknoStav = WindowState.Normal;
+            PhoneticsPanelHeight = 100;
+            WindowsPosition = new Point(-1, -1);
+            WindowSize = new Size(800, 600);
+            WindowState = WindowState.Normal;
             SlowedPlaybackSpeed = 0.8;
             WaveformSmallJump  = 5;
             NonSpeechEvents = new[] { "kasel", "ehm", "smich", "ticho", "nadech", "hluk", "hudba", "mlask" };
@@ -238,8 +235,8 @@ namespace NanoTrans
         public GlobalSetup()
         {
             
-            NastavDefaultHodnoty();
-            UkladatKompletnihoMluvciho = false;
+            Initialize();
+            SaveWholeSpeaker = false;
             SaveInShortFormat = true;
 
             ParagraphBackground = Brushes.AliceBlue;
@@ -250,30 +247,17 @@ namespace NanoTrans
             ChapterBackground = Brushes.LightPink;
         }
 
-
-        /// <summary>
-        /// Serializuje tuto tridu a ulozi data do xml souboru
-        /// </summary>
-        /// <param name="jmenoSouboru"></param>
-        /// <param name="co"></param>
-        /// <returns></returns>
-        public bool Serializovat(string filename, GlobalSetup co)
+        public bool Serialize(string filename, GlobalSetup co)
         {
             if (!File.Exists(filename))
                 Directory.CreateDirectory(Path.GetDirectoryName(filename));
 
             using (var s = File.Open(filename, FileMode.Create, FileAccess.ReadWrite))
-                return Serializovat(s, co);
+                return Serialize(s, co);
             
         }
 
-        /// <summary>
-        /// Serializuje tuto tridu a ulozi data do xml souboru
-        /// </summary>
-        /// <param name="jmenoSouboru"></param>
-        /// <param name="co"></param>
-        /// <returns></returns>
-        public bool Serializovat(Stream filestream, GlobalSetup co)
+        public bool Serialize(Stream filestream, GlobalSetup co)
         {
             try
             {
@@ -296,16 +280,16 @@ namespace NanoTrans
         }
 
 
-        public GlobalSetup Deserializovat(String jmenoSouboru)
+        public GlobalSetup Deserialize(String jmenoSouboru)
         { 
             if (!File.Exists(jmenoSouboru))
                 return this;
             using (var s = File.Open(jmenoSouboru,FileMode.Open,FileAccess.Read))
-                return Deserializovat(s);
+                return Deserialize(s);
         }
 
-        //Deserializuje soubor             
-        public GlobalSetup Deserializovat(Stream filestream)
+          
+        public GlobalSetup Deserialize(Stream filestream)
         {
             try
             {
@@ -327,6 +311,33 @@ namespace NanoTrans
 
         }
 
+
+
+        public bool ShowCustomParams { get; set; }
+
+
+        public Brush GetPAttributeBgColor(ParagraphAttributes param)
+        {
+            return Brushes.White;
+        }
+
+        public Brush GetPAttributeColor(ParagraphAttributes param)
+        {
+            switch (param)
+            {
+                default:
+                case ParagraphAttributes.None:
+                    return Brushes.White;
+                case ParagraphAttributes.Background_noise:
+                    return Brushes.DodgerBlue;
+                case ParagraphAttributes.Background_speech:
+                    return Brushes.Chocolate;
+                case ParagraphAttributes.Junk:
+                    return Brushes.Crimson;
+                case ParagraphAttributes.Narrowband:
+                    return Brushes.Olive;
+            }
+        }
 
     }
 
