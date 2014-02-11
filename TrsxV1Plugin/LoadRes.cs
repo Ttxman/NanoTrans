@@ -119,6 +119,11 @@ namespace TrsxV1Plugin
                 }
 
                 //dosyp zbytek do prepisu
+                while (silence.Count > 0)
+                {
+                    pah.Phrases.Add(silence[0]);
+                    silence.RemoveAt(0);
+                }
                 pah.Begin = pah.Phrases.First().Begin;
                 pah.End = pah.Phrases.Last().End;
                 sec.Paragraphs.Add(pah);
