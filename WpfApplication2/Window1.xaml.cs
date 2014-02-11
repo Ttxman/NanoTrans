@@ -285,7 +285,6 @@ namespace NanoTrans
                 if (MySetup.Setup != null)
                 {
                     fname = System.IO.Path.GetFullPath(MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.KONFIGURACNI_SOUBOR);
-
                     if (CheckWritePermissions(fname))
                     {
                         if (File.Exists(fname))
@@ -1663,7 +1662,12 @@ namespace NanoTrans
             return set.IsSubsetOf(AppDomain.CurrentDomain.PermissionSet);*/
             try
             {
+
+                bool delete = !File.Exists(path);
+
                 File.AppendAllText(path, "");
+                if (delete)
+                    File.Delete(path);
             }
             catch
             {
