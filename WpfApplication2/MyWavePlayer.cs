@@ -180,6 +180,7 @@ namespace NanoTrans
             m_buffDescription.BufferBytes = BufferByteSize * InternalBufferSizeMultiplier;
             m_buffDescription.ControlFrequency = true;
             m_buffDescription.ControlEffects = false;
+            m_buffDescription.GlobalFocus = true;
             DS.WaveFormat format = new DS.WaveFormat();
             format.BitsPerSample = 16;
             format.BlockAlign = 2;
