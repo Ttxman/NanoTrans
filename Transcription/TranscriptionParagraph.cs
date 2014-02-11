@@ -122,7 +122,7 @@ namespace NanoTrans.Core
             EndUpdate();
         }
 
-        private int _speakerID = Speaker.DefaultID;
+        private int _internalID = Speaker.DefaultID;
 
         /// <summary>
         /// Used only for identification when serializing or deserializing, can change unexpectedly
@@ -132,15 +132,15 @@ namespace NanoTrans.Core
             get
             {
                 if (_speaker == null)
-                    return _speakerID;
+                    return _internalID;
                 else
                     return _speaker.ID;
             }
             set
             {
-                if (_speaker != null && _speakerID != Speaker.DefaultID)
+                if (_speaker != null && _internalID != Speaker.DefaultID)
                     throw new ArgumentException("cannot set speaker ID while Speaker is set");
-                _speakerID = value;
+                _internalID = value;
             }
         }
 
@@ -154,19 +154,19 @@ namespace NanoTrans.Core
             set
             {
                 _speaker = value;
-                _speakerID = value.ID;
+                _internalID = value.ID;
             }
         }
 
         /// <summary>
-        /// informace zda je dany element zahrnut pro trenovani dat 
+        /// TrainingElement attribute - tag just for convenience :) 
         /// </summary>
         public bool trainingElement;
 
         /// <summary>
-        /// vraci delku odstavce v MS mezi begin a end, pokud neni nektera hodnota nezadana -1
+        /// Length of Paragraph
         /// </summary>
-        public TimeSpan Delka
+        public TimeSpan Length
         {
             get
             {
@@ -179,7 +179,7 @@ namespace NanoTrans.Core
 
 
 
-        #region serializace nova
+        #region serialization
         public Dictionary<string, string> Elements = new Dictionary<string, string>();
         private static readonly XAttribute EmptyAttribute = new XAttribute("empty", "");
 
@@ -192,7 +192,7 @@ namespace NanoTrans.Core
         public static TranscriptionParagraph DeserializeV2(XElement e, bool isStrict)
         {
             TranscriptionParagraph par = new TranscriptionParagraph();
-            par._speakerID = int.Parse(e.Attribute(isStrict ? "speakerid" : "s").Value);
+            par._internalID = int.Parse(e.Attribute(isStrict ? "speakerid" : "s").Value);
             par.Attributes = (e.Attribute(isStrict ? "attributes" : "a") ?? EmptyAttribute).Value;
 
             par.Elements = e.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
@@ -247,7 +247,7 @@ namespace NanoTrans.Core
                 throw new ArgumentException("required attribute missing on paragraph (b,e,s)");
 
             Phrases = new VirtualTypeList<TranscriptionPhrase>(this);
-            _speakerID = int.Parse(e.Attribute( "s").Value);
+            _internalID = int.Parse(e.Attribute( "s").Value);
             Attributes = (e.Attribute( "a") ?? EmptyAttribute).Value;
 
             Elements = e.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
@@ -322,9 +322,8 @@ namespace NanoTrans.Core
         }
         #endregion
 
-
         /// <summary>
-        /// kopie objektu
+        /// copy constructor
         /// </summary>
         /// <param name="aKopie"></param>
         public TranscriptionParagraph(TranscriptionParagraph aKopie)
@@ -366,18 +365,30 @@ namespace NanoTrans.Core
             this.trainingElement = false;
         }
 
-        //when phraze is removed...
+        /// <summary>
+        /// called when phraze is removed...
+        /// </summary>
+        /// <param name="element"></param>
+        /// <param name="absoluteindex"></param>
         public override void ElementRemoved(TranscriptionElement element, int absoluteindex)
         {
             base.ElementChanged(this);
         }
-        //when phraze is inserted/added
+        /// <summary>
+        /// called when phraze is inserted/added
+        /// </summary>
+        /// <param name="element"></param>
+        /// <param name="absoluteindex"></param>
         public override void ElementInserted(TranscriptionElement element, int absoluteindex)
         {
             base.ElementChanged(this);
         }
 
-        //when phraze is replaced
+        /// <summary>
+        /// called when phraze is replaced
+        /// </summary>
+        /// <param name="oldelement"></param>
+        /// <param name="newelement"></param>
         public override void ElementReplaced(TranscriptionElement oldelement, TranscriptionElement newelement)
         {
             base.ElementChanged(this);
@@ -390,8 +401,6 @@ namespace NanoTrans.Core
                 if (_Parent != null)
                 {
                     int sum = _Parent.AbsoluteIndex + _ParentIndex + 1;
-                    //this.Phrases.Clear();
-                  //  this.Add(new TranscriptionPhrase(){Text = sum.ToString()});
                     return sum;
                 }
 

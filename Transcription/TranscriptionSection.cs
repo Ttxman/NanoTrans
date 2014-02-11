@@ -75,7 +75,7 @@ namespace NanoTrans.Core
 
         }
 
-        public XElement Serialize(bool strict)
+        public XElement Serialize()
         {
 
             XElement elm = new XElement("se", Elements.Select(e => new XAttribute(e.Key, e.Value)).Union(new[] { new XAttribute("name", name), }),
@@ -88,21 +88,21 @@ namespace NanoTrans.Core
 
 
         /// <summary>
-        /// kopie objektu
+        /// copy constructor
         /// </summary>
-        /// <param name="aKopie"></param>
-        public TranscriptionSection(TranscriptionSection aKopie)
+        /// <param name="toCopy"></param>
+        public TranscriptionSection(TranscriptionSection toCopy)
             : this()
         {
-            this.Begin = aKopie.Begin;
-            this.End = aKopie.End;
-            this.name = aKopie.name;
-            if (aKopie.Paragraphs != null)
+            this.Begin = toCopy.Begin;
+            this.End = toCopy.End;
+            this.name = toCopy.name;
+            if (toCopy.Paragraphs != null)
             {
                 this.Paragraphs = new VirtualTypeList<TranscriptionParagraph>(this);
-                for (int i = 0; i < aKopie.Paragraphs.Count; i++)
+                for (int i = 0; i < toCopy.Paragraphs.Count; i++)
                 {
-                    this.Paragraphs.Add(new TranscriptionParagraph(aKopie.Paragraphs[i]));
+                    this.Paragraphs.Add(new TranscriptionParagraph(toCopy.Paragraphs[i]));
                 }
             }
         }

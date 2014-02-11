@@ -17,9 +17,6 @@ using NanoTrans.Core;
 
 namespace NanoTrans
 {
-    /// <summary>
-    /// Interaction logic for Waveform.xaml
-    /// </summary>
     public partial class Waveform : UserControl
     {
 
@@ -85,24 +82,24 @@ namespace NanoTrans
 
         public TimeSpan CaretPosition
         {
-            get { return TimeSpan.FromMilliseconds(wave.CarretPositionMS); }
+            get { return TimeSpan.FromMilliseconds(wave.CaretPositionMS); }
             set
             {
 
 
 
                 long pos = (long)value.TotalMilliseconds;
-                if (pos == wave.CarretPositionMS)
+                if (pos == wave.CaretPositionMS)
                     return;
 
                 this.AudioBufferCheck(value);
-                wave.CarretPositionMS = pos;
+                wave.CaretPositionMS = pos;
 
                 TimeSpan ts = value;
                 string label = ts.Hours.ToString() + ":" + ts.Minutes.ToString("D2") + ":" + ts.Seconds.ToString("D2") + "," + ((int)ts.Milliseconds / 10).ToString("D2");
                 lAudioPosition.Content = label;
 
-                InvalidateCarret();
+                InvalidateCaret();
                 InvalidateSelection();
 
                 if (_updating > 0)
@@ -120,8 +117,8 @@ namespace NanoTrans
 
 
                 if (_updating == 0)
-                    if (CarretPostionChanged != null)
-                        CarretPostionChanged(this, new TimeSpanEventArgs(value));
+                    if (CaretPostionChanged != null)
+                        CaretPostionChanged(this, new TimeSpanEventArgs(value));
             }
         }
 
@@ -316,8 +313,8 @@ namespace NanoTrans
         public event EventHandler UpdateEnd;
 
 
-        public event EventHandler<TimeSpanEventArgs> CarretPostionChangedByUser;
-        public event EventHandler<TimeSpanEventArgs> CarretPostionChanged;
+        public event EventHandler<TimeSpanEventArgs> CaretPostionChangedByUser;
+        public event EventHandler<TimeSpanEventArgs> CaretPostionChanged;
         public event EventHandler<MyTranscriptionElementEventArgs> ParagraphClick;
         public event EventHandler<MyTranscriptionElementEventArgs> ParagraphDoubleClick;
         public event EventHandler<MyTranscriptionElementEventArgs> ElementChanged;
@@ -346,7 +343,7 @@ namespace NanoTrans
         private bool invalidate_speakers = true;
         private bool invalidate_selection = true;
         private bool invalidate_timeline = true;
-        private bool invalidate_carret = true;
+        private bool invalidate_caret = true;
 
         private Thread Invalidator;
         public Waveform()
@@ -391,9 +388,9 @@ namespace NanoTrans
                         this.Dispatcher.Invoke(new Action(iInvalidateTimeLine));
                     }
 
-                    if (invalidate_carret)
+                    if (invalidate_caret)
                     {
-                        this.Dispatcher.Invoke(new Action(iInvalidateCarret));
+                        this.Dispatcher.Invoke(new Action(iInvalidateCaret));
                     }
 
 
@@ -404,7 +401,7 @@ namespace NanoTrans
                     invalidate_speakers = false;
                     invalidate_selection = false;
                     invalidate_timeline = false;
-                    invalidate_carret = false;
+                    invalidate_caret = false;
                 }
             }
             catch (ThreadInterruptedException) { }
@@ -441,7 +438,7 @@ namespace NanoTrans
             InvalidateSpeakers();
             InvalidateTimeLine();
             InvalidateWaveform();
-            InvalidateCarret();
+            InvalidateCaret();
         }
 
 
@@ -641,7 +638,7 @@ namespace NanoTrans
                 end = begin;
                 begin = end;
             }
-            long carret = wave.CarretPositionMS;
+            long caret = wave.CaretPositionMS;
 
             if ((begin != -1 && end != -1) || (begin != -1))
             {
@@ -797,7 +794,7 @@ namespace NanoTrans
             }
         }
 
-        public void iInvalidateCarret()
+        public void iInvalidateCaret()
         {
             double aLeft = (CaretPosition - WaveBegin).TotalMilliseconds;
             aLeft = aLeft / WaveLength.TotalMilliseconds * myImage.ActualWidth;
@@ -806,9 +803,9 @@ namespace NanoTrans
 
         }
 
-        public void InvalidateCarret()
+        public void InvalidateCaret()
         {
-            invalidate_carret = true;
+            invalidate_caret = true;
         }
         public void InvalidateTimeLine()
         {
@@ -872,8 +869,8 @@ namespace NanoTrans
                                     Button speaker = new Button();
 
 
-                                    speaker.PreviewMouseMove += new MouseEventHandler(pMluvci_MouseMove);
-                                    speaker.PreviewMouseLeftButtonUp += new MouseButtonEventHandler(pMluvci_PreviewMouseLeftButtonUp);
+                                    speaker.PreviewMouseMove += new MouseEventHandler(pSpeaker_MouseMove);
+                                    speaker.PreviewMouseLeftButtonUp += new MouseButtonEventHandler(pSpeaker_PreviewMouseLeftButtonUp);
                                     speaker.PreviewMouseLeftButtonDown += new MouseButtonEventHandler(pSpeaker_PreviewMouseLeftButtonDown);
 
                                     speaker.VerticalAlignment = VerticalAlignment.Top;
@@ -1064,7 +1061,7 @@ namespace NanoTrans
             InvalidateSpeakers();
         }
 
-        private void btPosunLevo_Click(object sender, RoutedEventArgs e)
+        private void btMoveLeft_Click(object sender, RoutedEventArgs e)
         {
             BeginUpdate();
 
@@ -1080,14 +1077,14 @@ namespace NanoTrans
             if (caretpos < 0)
                 caretpos = 0;
             this.CaretPosition = TimeSpan.FromMilliseconds(caretpos);
-            if (CarretPostionChangedByUser != null)
-                CarretPostionChangedByUser(this, new TimeSpanEventArgs(this.CaretPosition));
+            if (CaretPostionChangedByUser != null)
+                CaretPostionChangedByUser(this, new TimeSpanEventArgs(this.CaretPosition));
             InvalidateWaveform();
 
             EndUpdate();
         }
 
-        private void btPosunPravo_Click(object sender, RoutedEventArgs e)
+        private void btMoveRight_Click(object sender, RoutedEventArgs e)
         {
             BeginUpdate();
 
@@ -1098,8 +1095,8 @@ namespace NanoTrans
             wave.BeginMS = wave.EndMS - wave.LengthMS;
 
             this.CaretPosition = TimeSpan.FromMilliseconds(CaretPosition.TotalMilliseconds + wave.LengthMS / 10);
-            if (CarretPostionChangedByUser != null)
-                CarretPostionChangedByUser(this, new TimeSpanEventArgs(this.CaretPosition));
+            if (CaretPostionChangedByUser != null)
+                CaretPostionChangedByUser(this, new TimeSpanEventArgs(this.CaretPosition));
 
             InvalidateWaveform();
 
@@ -1131,8 +1128,8 @@ namespace NanoTrans
 
                 TimeSpan tpos = TimeSpan.FromTicks((long)((WaveEnd - WaveBegin).Ticks * relative + WaveBegin.Ticks));
                 this.CaretPosition = tpos;
-                if (CarretPostionChangedByUser != null)
-                    CarretPostionChangedByUser(this, new TimeSpanEventArgs(this.CaretPosition));
+                if (CaretPostionChangedByUser != null)
+                    CaretPostionChangedByUser(this, new TimeSpanEventArgs(this.CaretPosition));
                 EndUpdate();
             }
         }
@@ -1166,14 +1163,13 @@ namespace NanoTrans
         }
 
 
-        //co se stane kdyz je zmenena velikost image
         private void grid1_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             InvalidateWaveform();
         }
 
 
-        public void slPoziceMedia_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        public void slMediaPosition_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             bool updating = _updating > 0;
 
@@ -1210,8 +1206,8 @@ namespace NanoTrans
 
             CaretPosition = TimeSpan.FromMilliseconds(e.NewValue);
 
-            if (CarretPostionChangedByUser != null && !updating)
-                CarretPostionChangedByUser(this, new TimeSpanEventArgs(this.CaretPosition));
+            if (CaretPostionChangedByUser != null && !updating)
+                CaretPostionChangedByUser(this, new TimeSpanEventArgs(this.CaretPosition));
 
 
             if (!updating)
@@ -1220,18 +1216,18 @@ namespace NanoTrans
         }
 
 
-        private void slPoziceMedia_LostMouseCapture(object sender, MouseEventArgs e)
+        private void slMediaPosition_LostMouseCapture(object sender, MouseEventArgs e)
         {
         }
 
-        private void slPoziceMedia_MouseDown(object sender, MouseButtonEventArgs e)
+        private void slMediaPosition_MouseDown(object sender, MouseButtonEventArgs e)
         {
 
         }
 
-        private void slPoziceMedia_PreviewMouseUp(object sender, MouseButtonEventArgs e)
+        private void slMediaPosition_PreviewMouseUp(object sender, MouseButtonEventArgs e)
         {
-            slPoziceMedia_ValueChanged(slMediaPosition, new RoutedPropertyChangedEventArgs<double>(slMediaPosition.Value, slMediaPosition.Value));
+            slMediaPosition_ValueChanged(slMediaPosition, new RoutedPropertyChangedEventArgs<double>(slMediaPosition.Value, slMediaPosition.Value));
         }
 
         private void UserControl_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -1333,8 +1329,8 @@ namespace NanoTrans
 
         bool btndrag = false;
         bool btndragleft = false;
-        bool btnrozhr = false;
-        void pMluvci_MouseMove(object sender, MouseEventArgs e)
+        bool mouseOverParagraphDrag = false;
+        void pSpeaker_MouseMove(object sender, MouseEventArgs e)
         {
             Button b = sender as Button;
             Point p = e.GetPosition(b);
@@ -1361,13 +1357,13 @@ namespace NanoTrans
             Button bp = (ix == 0) ? null : speakerButtons[ix - 1];
             Button bn = (ix == speakerButtons.Count - 1) ? null : speakerButtons[ix + 1];
 
-            TranscriptionElement pAktualni = b.Tag as TranscriptionElement;
-            TranscriptionElement pPredchozi = (bp == null) ? null : bp.Tag as TranscriptionElement;
-            TranscriptionElement pNasledujici = (bn == null) ? null : bn.Tag as TranscriptionElement;
+            TranscriptionElement current = b.Tag as TranscriptionElement;
+            TranscriptionElement previons = (bp == null) ? null : bp.Tag as TranscriptionElement;
+            TranscriptionElement next = (bn == null) ? null : bn.Tag as TranscriptionElement;
 
-            int sekce = pAktualni.Parent.ParentIndex;
-            int sekcepred = (bp == null) ? -10 : pPredchozi.Parent.ParentIndex;
-            int sekceza = (bn == null) ? -10 : pNasledujici.Parent.ParentIndex;
+            int section = current.Parent.ParentIndex;
+            int previousSection = (bp == null) ? -10 : previons.Parent.ParentIndex;
+            int nextSection = (bn == null) ? -10 : next.Parent.ParentIndex;
 
             if (btndrag)
             {
@@ -1378,69 +1374,69 @@ namespace NanoTrans
                     double bmarginl = p.X;
 
                     TimeSpan ts = new TimeSpan((long)(WaveLength.Ticks * (bmarginl / grid1.ActualWidth))) + WaveBegin;
-                    if (pAktualni.End - TimeSpan.FromMilliseconds(100) < ts)
+                    if (current.End - TimeSpan.FromMilliseconds(100) < ts)
                         return;
-                    if ((bp != null && bmarginl < bp.Margin.Left + bp.Width) || btnrozhr) //kolize
+                    if ((bp != null && bmarginl < bp.Margin.Left + bp.Width) || mouseOverParagraphDrag) //kolize
                     {
-                        if (sekce == sekcepred)
+                        if (section == previousSection)
                         {
-                            btnrozhr = true;
+                            mouseOverParagraphDrag = true;
                             if ((Keyboard.Modifiers & ModifierKeys.Shift) == 0)
                             {
-                                if (pPredchozi.Begin + TimeSpan.FromMilliseconds(100) > ts)
+                                if (previons.Begin + TimeSpan.FromMilliseconds(100) > ts)
                                     return;
                                 bp.Width = p.X - bp.Margin.Left;
-                                pPredchozi.End = ts;
+                                previons.End = ts;
                                 if (ElementChanged != null)
-                                    ElementChanged(this, new MyTranscriptionElementEventArgs(pPredchozi));
+                                    ElementChanged(this, new MyTranscriptionElementEventArgs(previons));
                             }
                             else
-                                btnrozhr = false;
+                                mouseOverParagraphDrag = false;
                         }
 
                     }
 
-                    pAktualni.Begin = ts;
+                    current.Begin = ts;
                     b.Width = bwi;
                     b.Margin = new Thickness(bmarginl, b.Margin.Top, b.Margin.Right, b.Margin.Bottom);
 
                     if (ElementChanged != null)
-                        ElementChanged(this, new MyTranscriptionElementEventArgs(pAktualni));
+                        ElementChanged(this, new MyTranscriptionElementEventArgs(current));
                 }
                 else
                 {
                     double bwi = p.X - b.Margin.Left;
 
                     TimeSpan ts = new TimeSpan((long)(WaveLength.Ticks * ((bwi + b.Margin.Left) / grid1.ActualWidth))) + WaveBegin;
-                    if (ts <= pAktualni.Begin + TimeSpan.FromMilliseconds(100))
+                    if (ts <= current.Begin + TimeSpan.FromMilliseconds(100))
                         return;
 
-                    if ((bn != null && b.Margin.Left + b.Width > bn.Margin.Left) || btnrozhr)
+                    if ((bn != null && b.Margin.Left + b.Width > bn.Margin.Left) || mouseOverParagraphDrag)
                     {
-                        if (sekce == sekceza)
+                        if (section == nextSection)
                         {
-                            btnrozhr = true;
+                            mouseOverParagraphDrag = true;
                             if ((Keyboard.Modifiers & ModifierKeys.Shift) == 0)
                             {
-                                if (pNasledujici.End - TimeSpan.FromMilliseconds(100) <= ts)
+                                if (next.End - TimeSpan.FromMilliseconds(100) <= ts)
                                     return;
 
                                 bn.Width = bn.Width + (bn.Margin.Left - p.X);
                                 bn.Margin = new Thickness(p.X, bn.Margin.Top, bn.Margin.Right, bn.Margin.Bottom);
-                                pNasledujici.Begin = ts;
+                                next.Begin = ts;
                                 if (ElementChanged != null)
-                                    ElementChanged(this, new MyTranscriptionElementEventArgs(pNasledujici));
+                                    ElementChanged(this, new MyTranscriptionElementEventArgs(next));
                             }
                             else
-                                btnrozhr = false;
+                                mouseOverParagraphDrag = false;
                         }
                     }
-                    pAktualni.End = ts;
+                    current.End = ts;
 
                     b.Width = bwi;
 
                     if (ElementChanged != null)
-                        ElementChanged(this, new MyTranscriptionElementEventArgs(pAktualni));
+                        ElementChanged(this, new MyTranscriptionElementEventArgs(current));
                 }
             }
 
@@ -1448,7 +1444,7 @@ namespace NanoTrans
         }
 
 
-        void pMluvci_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        void pSpeaker_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
 
             Point position;
@@ -1462,7 +1458,7 @@ namespace NanoTrans
                 b.ReleaseMouseCapture();
             }
             btndrag = false;
-            btnrozhr = false;
+            mouseOverParagraphDrag = false;
 
 
         }
@@ -1584,6 +1580,5 @@ namespace NanoTrans
             }
 
         }
-
     }
 }

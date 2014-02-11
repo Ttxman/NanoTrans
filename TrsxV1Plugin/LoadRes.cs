@@ -216,7 +216,7 @@ namespace TrsxV1Plugin
 
             }
 
-            data.mediaURI = FileName;
+            data.MediaURI = FileName;
         }
 
 

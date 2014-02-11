@@ -6,6 +6,10 @@ using System.Text;
 
 namespace NanoTrans.Core
 {
+    /// <summary>
+    /// Just IList wrapper around TranscriptionElement.Children. Automaticaly cast content to given type T. Used to provide conveniet list of sublements in derived lcasses (like Paragrapg.Phrazes)
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class VirtualTypeList<T> : IList<T> where T : TranscriptionElement
     {
         List<TranscriptionElement> _elementlist;

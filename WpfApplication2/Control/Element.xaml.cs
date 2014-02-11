@@ -30,7 +30,7 @@ namespace NanoTrans
     public partial class Element : UserControl, INotifyPropertyChanged
     {
 
-        private int _forceCarretpositionOnLoad = -1;
+        private int _forceCaretpositionOnLoad = -1;
         public static readonly DependencyProperty ValueElementProperty =
         DependencyProperty.Register("ValueElement", typeof(TranscriptionElement), typeof(Element), new FrameworkPropertyMetadata(OnValueElementChanged));
 
@@ -1073,14 +1073,14 @@ namespace NanoTrans
 
         private void element_Loaded(object sender, RoutedEventArgs e)
         {
-            if (_forceCarretpositionOnLoad >= 0)
+            if (_forceCaretpositionOnLoad >= 0)
             {
                 editor.Focus();
-                internal_setCarretOffset(_forceCarretpositionOnLoad, _forcesellength);
+                internal_setCaretOffset(_forceCaretpositionOnLoad, _forcesellength);
             }
         }
 
-        private void internal_setCarretOffset(int offset, int length)
+        private void internal_setCaretOffset(int offset, int length)
         {
             if (offset < 0)
                 return;
@@ -1096,9 +1096,9 @@ namespace NanoTrans
 
         int _forcesellength = 0;
         //int _forceselbegin = 0;
-        public void SetSelection(int offset, int length, int carretoffset)
+        public void SetSelection(int offset, int length, int caretoffset)
         {
-            _forceCarretpositionOnLoad = -1;
+            _forceCaretpositionOnLoad = -1;
             _forcesellength = 0;
             if (offset < 0)
                 return;
@@ -1108,13 +1108,13 @@ namespace NanoTrans
                     editor.Focus();
 
                 if (offset <= editor.Document.TextLength)
-                    internal_setCarretOffset(offset, length);
+                    internal_setCaretOffset(offset, length);
                 else
-                    internal_setCarretOffset(editor.Document.TextLength, _forcesellength);
+                    internal_setCaretOffset(editor.Document.TextLength, _forcesellength);
             }
             else
             {
-                _forceCarretpositionOnLoad = offset;
+                _forceCaretpositionOnLoad = offset;
                 _forcesellength = length;
             }
         }

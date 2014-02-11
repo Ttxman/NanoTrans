@@ -32,64 +32,64 @@
         <StackPanel Orientation="Vertical" Grid.ColumnSpan="2">
             <Menu Name="menu1" Height="22" VerticalAlignment="Top" HorizontalAlignment="Stretch">
                 <MenuItem Header="{lex:Loc}" Focusable="True" Tag="10" Name="menuFile">
-                    <MenuItem Header="{lex:Loc}" InputGestureText="Ctrl+N" Click="MSoubor_Novy_Click" Name="menuFileNewTranscription">
+                    <MenuItem Header="{lex:Loc}" InputGestureText="Ctrl+N" Click="MFile_new_Click" Name="menuFileNewTranscription">
                         <MenuItem.Icon>
                             <Image Source="/icons/iNovy.png"/>
                         </MenuItem.Icon>
                     </MenuItem>
 
-                    <MenuItem Header="{lex:Loc}" InputGestureText="Ctrl+O" Name="menuFileOpenTranscription" Click="MSoubor_Otevrit_Titulky_Click">
+                    <MenuItem Header="{lex:Loc}" InputGestureText="Ctrl+O" Name="menuFileOpenTranscription" Click="MFile_open_Click">
                         <MenuItem.Icon>
                             <Image Source="/icons/iOtevrit.png"/>
                         </MenuItem.Icon>
                     </MenuItem>
                     <Separator />
-                    <MenuItem Header="{lex:Loc}" InputGestureText="Ctrl+S" Click="MSoubor_Ulozit_Click" Name="menuFileSave">
+                    <MenuItem Header="{lex:Loc}" InputGestureText="Ctrl+S" Click="MFile_save_Click" Name="menuFileSave">
                         <MenuItem.Icon>
                             <Image Source="/icons/iUlozit.png"/>
                         </MenuItem.Icon>
                     </MenuItem>
-                    <MenuItem Header="{lex:Loc}" Click="MSoubor_Ulozit_Titulky_Jako_Click" Name="menuFileSaveAs" />
+                    <MenuItem Header="{lex:Loc}" Click="MFile_save_as_Click" Name="menuFileSaveAs" />
                     <Separator />
-                    <MenuItem Header="{lex:Loc}" Name="menufileExport" Click="menuSouborExportovat_Click" />
+                    <MenuItem Header="{lex:Loc}" Name="menufileExport" Click="menuFileExport_Click" />
 
-                    <MenuItem Header="{lex:Loc}" Name="menuFileImport" Click="menuSouborImportovat_Click" />
-                    <MenuItem Header="{lex:Loc}" Click="MSoubor_Otevrit_Zvukovy_Soubor_Click" Name="menufileOpenAudio">
+                    <MenuItem Header="{lex:Loc}" Name="menuFileImport" Click="menuFileImport_Click" />
+                    <MenuItem Header="{lex:Loc}" Click="MFile_open_audio_Click" Name="menufileOpenAudio">
                         <MenuItem.Icon>
                             <Image Source="/icons/iAudio.png"/>
                         </MenuItem.Icon>
                     </MenuItem>
-                    <MenuItem Header="{lex:Loc}" Click="MSoubor_Otevrit_Video_Click" Name="menuFileOpenVideo" />
+                    <MenuItem Header="{lex:Loc}" Click="Mfile_open_video_Click" Name="menuFileOpenVideo" />
 
                     <Separator />
-                    <MenuItem Header="{lex:Loc}" Click="MSoubor_Konec_Click" Name="menuFileExit" />
+                    <MenuItem Header="{lex:Loc}" Click="MFile_close_Click" Name="menuFileExit" />
                 </MenuItem>
                 <MenuItem Header="{lex:Loc}" Name="menuEdit">
-                    <MenuItem Header="{lex:Loc}" InputGestureText="F4"  Click="MUpravy_Nova_Kapitola_Click" Name="menuEditNewChapter" />
-                    <MenuItem Header="{lex:Loc}" InputGestureText="F5" Click="MUpravy_Nova_Sekce_Click" Name="menuEditNewSection" />
+                    <MenuItem Header="{lex:Loc}" InputGestureText="F4"  Click="MEdit_new_chapter_Click" Name="menuEditNewChapter" />
+                    <MenuItem Header="{lex:Loc}" InputGestureText="F5" Click="MEdit_New_Section_Click" Name="menuEditNewSection" />
                     <Separator />
-                    <MenuItem Header="{lex:Loc}" InputGestureText="Shift+Del" Click="MUpravy_Smazat_Polozku_Click" Name="menuEditDeleteElement" />
+                    <MenuItem Header="{lex:Loc}" InputGestureText="Shift+Del" Click="MEdit_Delete_Element_Click" Name="menuEditDeleteElement" />
                     <Separator />
-                    <MenuItem Header="{lex:Loc}"  Click="menuUpravySmazatNerecoveUdalosti_Click" Name="menuEditDeleteNonSpeechEvents" />
+                    <MenuItem Header="{lex:Loc}"  Click="menuToolsDeleteNonSpeechEvents_Click" Name="menuEditDeleteNonSpeechEvents" />
                 </MenuItem>
 
                 <MenuItem Header="{lex:Loc}" Tag="20" Name="menuTools">
-                    <MenuItem Header="{lex:Loc}" InputGestureText="Ctrl+M" Click="MNastroje_Nastav_Mluvciho_Click" Name="menuToolsSetSpeaker">
+                    <MenuItem Header="{lex:Loc}" InputGestureText="Ctrl+M" Click="MTools_Set_Speaker_Click" Name="menuToolsSetSpeaker">
                         <MenuItem.Icon>
                             <Image Source="/icons/iMluvci1.png"/>
                         </MenuItem.Icon>
                     </MenuItem>
                     <Separator/>
                     <MenuItem Header="{lex:Loc}" Name="menuToolsFonetics">
-                        <MenuItem Header="Zobrazit fonetický přepis" Click="menuItemFonetickyPrepis_Click" Name="menuToolsFoneticsShow" />
+                        <MenuItem Header="Zobrazit fonetický přepis" Click="menuItemShowPanelFoneticTranscription_Click" Name="menuToolsFoneticsShow" />
                     </MenuItem>
 
                     <MenuItem Header="{lex:Loc}" Name="menuToolsVideo">
-                        <MenuItem Header="{lex:Loc}" Click="menuNastrojeVideoZobrazit_Click" Name="menuToolsVideoShow"/>
+                        <MenuItem Header="{lex:Loc}" Click="menuToolsShowVideoFrame_Click" Name="menuToolsVideoShow"/>
                     </MenuItem>
 
                     <Separator/>
-                    <MenuItem Header="{lex:Loc}" Click="MNastroje_Nastaveni_Click" Name="menuToolsSettings">
+                    <MenuItem Header="{lex:Loc}" Click="MTools_Settings_Click" Name="menuToolsSettings">
                         <MenuItem.Icon>
                             <Image Source="/icons/iNastaveni.png"/>
                         </MenuItem.Icon>
@@ -98,13 +98,13 @@
                 </MenuItem>
 
                 <MenuItem Header="{lex:Loc}" Name="menuHelp">
-                    <MenuItem Header="{lex:Loc}" InputGestureText="F1" Click="MNapoveda_Popis_Programu_Click" Name="menuHelpHelp">
+                    <MenuItem Header="{lex:Loc}" InputGestureText="F1" Click="MHelp_Details_Click" Name="menuHelpHelp">
                         <MenuItem.Icon>
                             <Image Source="/icons/iTip.png"/>
                         </MenuItem.Icon>
                     </MenuItem>
                     <Separator></Separator>
-                    <MenuItem Header="{lex:Loc}" InputGestureText="Ctrl+F1" Click="MNapoveda_O_Programu_Click" Name="menuHelpAbout" />
+                    <MenuItem Header="{lex:Loc}" InputGestureText="Ctrl+F1" Click="MHelp_about_Click" Name="menuHelpAbout" />
                 </MenuItem>
             </Menu>
             <ToolBarTray Name="toolBarTray2" Height="28" VerticalAlignment="Top">
@@ -166,8 +166,8 @@
                         </Grid>
 
                         <Button Height="20" Margin="0,2,0,0" Name="btCloseVideo" VerticalAlignment="Top" Padding="0,0,1,1" Click="btCloseVideo_Click" HorizontalAlignment="Right" Width="20" Focusable="False" IsTabStop="False">X</Button>
-                        <TextBox Margin="0,0,50,0" Name="tbVideoSoubor" Background="LightGoldenrodYellow" IsReadOnly="True" IsEnabled="True" Focusable="False" IsTabStop="False" Height="24.557" VerticalAlignment="Bottom"></TextBox>
-                        <Button Name="btOtevritVideo" Click="button6_Click" Margin="0,0,0.053,1.226" Height="23.331" VerticalAlignment="Bottom" Focusable="False" IsTabStop="False" HorizontalAlignment="Right" Width="44">
+                        <TextBox Margin="0,0,50,0" Name="tbVideoFile" Background="LightGoldenrodYellow" IsReadOnly="True" IsEnabled="True" Focusable="False" IsTabStop="False" Height="24.557" VerticalAlignment="Bottom"></TextBox>
+                        <Button Name="btOpenVideo" Click="button6_Click" Margin="0,0,0.053,1.226" Height="23.331" VerticalAlignment="Bottom" Focusable="False" IsTabStop="False" HorizontalAlignment="Right" Width="44">
                             <StackPanel Orientation="Horizontal">
                                 <Image Source="/icons/iOtevrit.png"/>
                                 <TextBlock Text="..." Margin="2,0,0,0" VerticalAlignment="Center" />
@@ -189,7 +189,7 @@
                 <Border Grid.Column="0" BorderThickness="1" BorderBrush="LightBlue" VerticalAlignment="Stretch">
                     <local:Element x:Name="phoneticTranscription" Margin="1,1,1,1" IsEnabled="False" VerticalAlignment="Stretch" />
                 </Border>
-                <Button HorizontalAlignment="Right" Focusable="False" Height="20" IsTabStop="False" Padding="0,0,1,1" Width="20" VerticalAlignment="Top" Name="btZavritFonPrepis" Click="btZavritFonPrepis_Click" Grid.Column="1">X</Button>
+                <Button HorizontalAlignment="Right" Focusable="False" Height="20" IsTabStop="False" Padding="0,0,1,1" Width="20" VerticalAlignment="Top" Name="btZavritFonPrepis" Click="btClosePhoneticsPanel_Click" Grid.Column="1">X</Button>
             </Grid>
         </Grid>
 
@@ -222,7 +222,7 @@
                             <ToggleButton Name="TB180" Click="Toolbar1Btn5_Click" Focusable="False" IsTabStop="False" Tag="180000">3m</ToggleButton>
                         </ToolBar>
                     </ToolBarTray>
-                    <TextBox Name="tbAudioSoubor" Background="LightGoldenrodYellow" IsReadOnly="False" IsEnabled="True" Width="250" Focusable="True" IsTabStop="True"></TextBox>
+                    <TextBox Name="tbAudioFile" Background="LightGoldenrodYellow" IsReadOnly="False" IsEnabled="True" Width="250" Focusable="True" IsTabStop="True"></TextBox>
                     <Button Name="loadAudioButton" Click="button1_Click" VerticalAlignment="Top" Focusable="False" IsTabStop="False" HorizontalAlignment="Left">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Margin="4" Name="mainWindowLoadAudioButtonText" Text="{lex:Loc}"/>
@@ -235,8 +235,8 @@
 
         <local:Waveform Grid.Row="2" Margin="3,52,1,26" x:Name="waveform1" PlayPauseClick="waveform1_PlayPauseClick" 
                         SliderPositionChanged="waveform1_SliderPositionChanged"
-                        CarretPostionChangedByUser="waveform1_CarretPostionChangedByUser" ParagraphClick="waveform1_ParagraphClick" 
-                        ParagraphDoubleClick="waveform1_ParagraphDoubleClick" CarretPostionChanged="waveform1_CarretPostionChanged" 
+                        CaretPostionChangedByUser="waveform1_CaretPostionChangedByUser" ParagraphClick="waveform1_ParagraphClick" 
+                        ParagraphDoubleClick="waveform1_ParagraphDoubleClick" CaretPostionChanged="waveform1_CaretPostionChanged" 
                         ElementChanged="waveform1_ElementChanged"
                         Transcription="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:Window1}},Path=Transcription}" Grid.ColumnSpan="2">
             <local:Waveform.ContextMenu>
@@ -270,7 +270,7 @@
             </StatusBar.ItemsPanel>
 
             <StatusBarItem>
-                <TextBlock Name="tbStavProgramu"/>
+                <TextBlock Name="tbProgramStatus"/>
             </StatusBarItem>
             <StatusBarItem Grid.Column="3" Margin="1,1,15,1">
                 <ProgressBar Margin="1,1,1,1" Name="pbPrevodAudio" Value="0" Width="150" Height="15" Foreground="GreenYellow" ToolTip="Stav převodu multimediálního souboru" Visibility="Hidden" />

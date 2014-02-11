@@ -9,10 +9,12 @@ using System.Xml.Linq;
 
 namespace NanoTrans.Core
 {
-    //nejmensi textovy usek - muze byt veta, vice slov nebo samotne slovo
+    /// <summary>
+    /// the smallest part of transcription with time tags.
+    /// </summary>
     public sealed class TranscriptionPhrase : TranscriptionElement
     {
-        private string _text = "";//slovo/a ktere obsahuji i mezery na konci
+        private string _text = "";
 
         public override string Text
         {
@@ -36,7 +38,7 @@ namespace NanoTrans.Core
 
 
 
-        #region serializace nova
+        #region serialization
         public Dictionary<string, string> Elements = new Dictionary<string, string>();
         private static readonly XAttribute EmptyAttribute = new XAttribute("empty", "");
 
@@ -165,25 +167,6 @@ namespace NanoTrans.Core
         public TranscriptionPhrase(TimeSpan begin, TimeSpan end, string aWords, ElementType aElementType)
             : this(begin, end, aWords)
         {
-            if (aElementType == ElementType.Phonetic)
-            {
-                Regex re = new Regex("{.*?}");
-                MatchCollection mc = re.Matches(aWords);
-                string s = aWords;
-                bool pPouzeNavrh = false;
-                if (mc != null && mc.Count > 0)
-                {
-                    s = mc[0].Value.Substring(1, mc[0].Value.Length - 2);
-                    pPouzeNavrh = true;
-                }
-                string[] pSplitS = s.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
-                if (pSplitS != null && pSplitS.Length > 1)
-                {
-                    this.Text = pSplitS[1];
-                    if (pPouzeNavrh)
-                        this.Text = "{" + this.Text + "}";
-                }
-            }
         }
 
         public override int GetTotalChildrenCount()

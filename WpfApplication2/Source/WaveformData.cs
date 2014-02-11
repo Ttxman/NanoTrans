@@ -51,18 +51,18 @@ namespace NanoTrans
 
         public bool ScaleAutomaticaly { get; set; }
 
-        private long _CarretPositionMS;
-        public long CarretPositionMS 
+        private long _CaretPositionMS;
+        public long CaretPositionMS 
         { 
             get
             {
-                return _CarretPositionMS; 
+                return _CaretPositionMS; 
             } 
             set
             {
 
 
-                _CarretPositionMS = value; 
+                _CaretPositionMS = value; 
             } 
         } 
         private TimeSpan _SelectionStart;
@@ -87,7 +87,7 @@ namespace NanoTrans
             this.audioBuffer.AddDataToBuffer(new short[480000], 30000);
             
             //constructor
-            CarretPositionMS = 0;
+            CaretPositionMS = 0;
             SelectionStart = TimeSpan.Zero ;
             SelectionEnd = TimeSpan.Zero;
             MouseLeftDown = false;
@@ -112,6 +112,5 @@ namespace NanoTrans
             LengthMS = mSekundy;
             DeltaMS = LengthMS / 60;
         }
-
     }
 }

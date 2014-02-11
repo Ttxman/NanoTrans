@@ -168,9 +168,6 @@ namespace NanoTrans
             }
         }
 
-
-        public bool SaveInShortFormat { get; set; }
-        
         /// <summary>
         /// Save whole speaker (with image) into trsxes
         /// </summary>
@@ -237,7 +234,6 @@ namespace NanoTrans
             
             Initialize();
             SaveWholeSpeaker = false;
-            SaveInShortFormat = true;
 
             ParagraphBackground = Brushes.AliceBlue;
             ActiveParagraphBackground = Brushes.AntiqueWhite;

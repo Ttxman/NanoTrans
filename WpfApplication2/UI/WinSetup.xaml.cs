@@ -26,68 +26,65 @@ namespace NanoTrans
         public GlobalSetup _setup;
         private SpeakerCollection _speakersDatabase;
 
-        public WinSetup(GlobalSetup aNastaveni, SpeakerCollection aDatabazeMluvcich)
+        public WinSetup(GlobalSetup setup, SpeakerCollection speakerDB)
         {
-            _setup = aNastaveni;
-            _speakersDatabase = aDatabazeMluvcich;
+            _setup = setup;
+            _speakersDatabase = speakerDB;
             InitializeComponent();
 
-            if (aNastaveni != null)
+            if (setup != null)
             {
                 //audio
-                cbVystupniAudioZarizeni.Items.Clear();
-                string[] pZarizeni = DXWavePlayer.DeviceNamesOUT;
-                if (pZarizeni != null)
+                cbOutputAudioDevices.Items.Clear();
+                string[] devices = DXWavePlayer.DeviceNamesOUT;
+                if (devices != null)
                 {
-                    foreach (string s in pZarizeni)
+                    foreach (string s in devices)
                     {
-                        cbVystupniAudioZarizeni.Items.Add(s);
+                        cbOutputAudioDevices.Items.Add(s);
                     }
                 }
-                if (_setup.audio.OutputDeviceIndex < cbVystupniAudioZarizeni.Items.Count) cbVystupniAudioZarizeni.SelectedIndex = _setup.audio.OutputDeviceIndex;
+                if (_setup.audio.OutputDeviceIndex < cbOutputAudioDevices.Items.Count) cbOutputAudioDevices.SelectedIndex = _setup.audio.OutputDeviceIndex;
 
-                cbVstupniAudioZarizeni.Items.Clear();
-                if (pZarizeni != null)
+                cbInputAudioDevices.Items.Clear();
+                if (devices != null)
                 {
-                    foreach (string s in pZarizeni)
+                    foreach (string s in devices)
                     {
-                        cbVstupniAudioZarizeni.Items.Add(s);
+                        cbInputAudioDevices.Items.Add(s);
                     }
                 }
-                if (_setup.audio.InputDeviceIndex < cbVstupniAudioZarizeni.Items.Count) cbVstupniAudioZarizeni.SelectedIndex = _setup.audio.InputDeviceIndex;
+                if (_setup.audio.InputDeviceIndex < cbInputAudioDevices.Items.Count) cbInputAudioDevices.SelectedIndex = _setup.audio.InputDeviceIndex;
 
-                //databaze mluvcich
-
-                string pCesta = aNastaveni.SpeakersDatabasePath;
+                string path = setup.SpeakersDatabasePath;
                 try
                 {
-                    if (!pCesta.Contains(":"))
+                    if (!path.Contains(":")) //absolute
                     {
-                        pCesta = aNastaveni.SpeakersDatabasePath;
+                        path = setup.SpeakersDatabasePath;
                     }
-                    //pCesta = new FileInfo(aNastaveni.CestaDatabazeMluvcich).FullName;
-                    pCesta = new FileInfo(pCesta).FullName;
+                    path = new FileInfo(path).FullName;
 
                 }
                 finally
                 {
-                    tbCestaDatabazeMluvcich.Text = pCesta;
+                    tbSpeakerDBPath.Text = path;
                 }
 
-                //velikost pisma
-                tbVelikostPisma.Text = aNastaveni.SetupTextFontSize.ToString();
-                chbZobrazitFotku.IsChecked = aNastaveni.ShowSpeakerImage;
-                slVelikostFotografie.Value = aNastaveni.MaxSpeakerImageWidth;
+                
+                tbTextSize.Text = setup.SetupTextFontSize.ToString();
+                chbShowSpeakerImage.IsChecked = setup.ShowSpeakerImage;
+                slSpeakerImageSize.Value = setup.MaxSpeakerImageWidth;
 
 
 
-                //prehravani
+                //playback
 
-                decimal val = (decimal)aNastaveni.SlowedPlaybackSpeed;
+                decimal val = (decimal)setup.SlowedPlaybackSpeed;
                 if (val >= UpDownSpeed.Minimum.Value && val <= UpDownSpeed.Maximum.Value)
                     UpDownSpeed.Value = val;
 
-                val = (decimal)(aNastaveni.WaveformSmallJump);
+                val = (decimal)(setup.WaveformSmallJump);
                 if (val >= UpDownJump.Minimum.Value && val <= UpDownJump.Maximum.Value)
                     UpDownJump.Value = val;
             }
@@ -96,12 +93,7 @@ namespace NanoTrans
 
 
 
-        /// <summary>
-        /// spusti okno a vrati hodnoty nastaveni
-        /// </summary>
-        /// <param name="aNastaveni"></param>
-        /// <returns></returns>
-        public static GlobalSetup WinSetupNastavit(GlobalSetup aNastaveni, SpeakerCollection aDatabazeMluvcich)
+        public static GlobalSetup WinSetupShowDialog(GlobalSetup aNastaveni, SpeakerCollection aDatabazeMluvcich)
         {
             WinSetup ws = new WinSetup(aNastaveni, aDatabazeMluvcich);
             ws.ShowDialog();
@@ -111,36 +103,37 @@ namespace NanoTrans
 
         private void btOK_Click(object sender, RoutedEventArgs e)
         {
-            //ulozit vse do promenne!
+            //properties on setup are from very old version and not binded... all items have to be saved manually
 
             //audio
-            _setup.audio.OutputDeviceIndex = cbVystupniAudioZarizeni.SelectedIndex;
+            _setup.audio.OutputDeviceIndex = cbOutputAudioDevices.SelectedIndex;
             if (_setup.audio.OutputDeviceIndex < 0) _setup.audio.OutputDeviceIndex = 0;
 
-            _setup.audio.InputDeviceIndex = cbVstupniAudioZarizeni.SelectedIndex;
+            _setup.audio.InputDeviceIndex = cbInputAudioDevices.SelectedIndex;
             if (_setup.audio.InputDeviceIndex < 0) _setup.audio.InputDeviceIndex = 0;
 
 
-            //databaze mluvcich
-            _setup.SpeakersDatabasePath = tbCestaDatabazeMluvcich.Text;
+            //spaker database
+            _setup.SpeakersDatabasePath = tbSpeakerDBPath.Text;
 
-            //velikost fontu
+            //fonts
             try
             {
-                _setup.SetupTextFontSize = double.Parse(tbVelikostPisma.Text);
+                _setup.SetupTextFontSize = double.Parse(tbTextSize.Text);
             }
             catch
             {
 
             }
-            _setup.ShowSpeakerImage = (bool)chbZobrazitFotku.IsChecked;
-            _setup.MaxSpeakerImageWidth = slVelikostFotografie.Value;
 
+            //image
+            _setup.ShowSpeakerImage = (bool)chbShowSpeakerImage.IsChecked;
+            _setup.MaxSpeakerImageWidth = slSpeakerImageSize.Value;
+
+            //playback
             _setup.SlowedPlaybackSpeed = (double)UpDownSpeed.Value;
             _setup.WaveformSmallJump = (double)UpDownJump.Value;
 
-
-            _setup.SaveInShortFormat = true;
             this.Close();
         }
 
@@ -171,7 +164,7 @@ namespace NanoTrans
                     _speakersDatabase.Serialize();
                 }
 
-                tbCestaDatabazeMluvcich.Text = _setup.SpeakersDatabasePath = fileDialog.FileName;
+                tbSpeakerDBPath.Text = _setup.SpeakersDatabasePath = fileDialog.FileName;
             }
         }
 

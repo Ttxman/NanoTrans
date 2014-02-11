@@ -369,9 +369,6 @@
     <Resource Include="icons\iAudio.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="icons\iHlasoveOvladani.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="icons\iMinus.png" />
     <Resource Include="icons\iPause.png" />
     <Resource Include="icons\iPlay.png" />

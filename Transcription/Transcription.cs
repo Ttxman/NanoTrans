@@ -13,7 +13,6 @@ using System.Xml.Serialization;
 
 namespace NanoTrans.Core
 {
-    //hlavni trida s titulky a se vsemi potrebnymi metodami pro serializaci
     public class Transcription : TranscriptionElement, IList<TranscriptionElement>
     {
         public double TotalHeigth;
@@ -99,27 +98,28 @@ namespace NanoTrans.Core
 
         public string DocumentID { get; set; }
         public DateTime Created { get; set; }
-        /// <summary>
-        /// zdroj odkud je transkripce - radio - nazev kanalu, televize, mikrofon, atd...
-        /// </summary>
-        public string source { get; set; }
-        /// <summary>
-        /// typ poradu - cele transkripce 
-        /// </summary>
-        public string type { get; set; }
-        /// <summary>
-        /// zdroj audio dat - muze byt stejny jako video a naopak
-        /// </summary>
-        public string mediaURI { get; set; }
-        /// <summary>
-        /// zdroj video dat - muze byt stejny jako audio a naopak
-        /// </summary>
-        public string videoFileName { get; set; }
 
         /// <summary>
-        /// vsechny kapitoly streamu
+        /// transcription source, not mandatory
         /// </summary>
-        public VirtualTypeList<TranscriptionChapter> Chapters;    //vsechny kapitoly streamu
+        public string Source { get; set; }
+        /// <summary>
+        /// transcription type, not mandatory
+        /// </summary>
+        public string Type { get; set; }
+        /// <summary>
+        /// file containing audio data for transcription
+        /// </summary>
+        public string MediaURI { get; set; }
+        /// <summary>
+        /// file containing video data - can be same as audio 
+        /// </summary>
+        public string VideoFileName { get; set; }
+
+        /// <summary>
+        /// all chapters in transcription
+        /// </summary>
+        public VirtualTypeList<TranscriptionChapter> Chapters;
 
         [XmlElement("SpeakersDatabase")]
         private SpeakerCollection _speakers = new SpeakerCollection();
@@ -146,31 +146,34 @@ namespace NanoTrans.Core
 
 
         /// <summary>
-        /// vytvori kopii objektu
+        /// copy contructor
         /// </summary>
-        /// <param name="aKopie"></param>
-        public Transcription(Transcription aKopie)
+        /// <param name="toCopy"></param>
+        public Transcription(Transcription toCopy)
             : this()
         {
-            this.source = aKopie.source;
-            this.mediaURI = aKopie.mediaURI;
-            this.videoFileName = aKopie.videoFileName;
-            this.type = aKopie.type;
-            this.Created = aKopie.Created;
-            if (aKopie.Chapters != null)
+            this.Source = toCopy.Source;
+            this.MediaURI = toCopy.MediaURI;
+            this.VideoFileName = toCopy.VideoFileName;
+            this.Type = toCopy.Type;
+            this.Created = toCopy.Created;
+            if (toCopy.Chapters != null)
             {
                 this.Chapters = new VirtualTypeList<TranscriptionChapter>(this);
-                for (int i = 0; i < aKopie.Chapters.Count; i++)
+                for (int i = 0; i < toCopy.Chapters.Count; i++)
                 {
-                    this.Chapters.Add(new TranscriptionChapter(aKopie.Chapters[i]));
+                    this.Chapters.Add(new TranscriptionChapter(toCopy.Chapters[i]));
                 }
             }
-            this.FileName = aKopie.FileName;
-            this._speakers = new SpeakerCollection(aKopie._speakers);
-            this.Saved = aKopie.Saved;
+            this.FileName = toCopy.FileName;
+            this._speakers = new SpeakerCollection(toCopy._speakers);
+            this.Saved = toCopy.Saved;
         }
 
-
+        /// <summary>
+        /// automaticly deserialize from file
+        /// </summary>
+        /// <param name="path"></param>
         public Transcription(string path)
             : this()
         {
@@ -187,12 +190,12 @@ namespace NanoTrans.Core
         /// </summary>
         /// <param name="aPoziceKurzoru"></param>
         /// <returns></returns>
-        public List<TranscriptionParagraph> VratElementDanehoCasu(TimeSpan cas)
+        public List<TranscriptionParagraph> ReturnElementsAtTime(TimeSpan time)
         {
             List<TranscriptionParagraph> toret = new List<TranscriptionParagraph>();
             foreach (var el in this)
             {
-                if (el.IsParagraph && el.Begin <= cas && el.End > cas)
+                if (el.IsParagraph && el.Begin <= time && el.End > time)
                 {
                     toret.Add((TranscriptionParagraph)el);
                 }
@@ -200,7 +203,7 @@ namespace NanoTrans.Core
             return toret;
         }
 
-        public TranscriptionParagraph VratElementKonciciPred(TimeSpan cas)
+        public TranscriptionParagraph ReturnLastElemenWithEndBeforeTime(TimeSpan cas)
         {
             List<TranscriptionParagraph> toret = new List<TranscriptionParagraph>();
             TranscriptionParagraph par = null;
@@ -220,7 +223,7 @@ namespace NanoTrans.Core
         }
 
 
-        public TranscriptionParagraph VratElementZacinajiciPred(TimeSpan cas)
+        public TranscriptionParagraph ReturnLastElemenWithBeginBeforeTime(TimeSpan cas)
         {
             List<TranscriptionParagraph> toret = new List<TranscriptionParagraph>();
             TranscriptionParagraph par = null;
@@ -240,7 +243,11 @@ namespace NanoTrans.Core
 
         }
 
-        //smazani speakera ze seznamu speakeru a odstraneni speakera v pouzitych odstavcich
+        /// <summary>
+        /// Remove speaker from all paragraphs (Paragraphs will return default Speaker.DefaultSpeaker)
+        /// </summary>
+        /// <param name="aSpeaker"></param>
+        /// <returns></returns>
         public bool RemoveSpeaker(Speaker aSpeaker)
         {
             try
@@ -274,40 +281,22 @@ namespace NanoTrans.Core
                 }
                 else return false;
             }
-            catch// (Exception ex)
+            catch
             {
                 return false;
             }
         }
 
-        /// <summary>
-        /// novy mluvci do databaze titulku
-        /// </summary>
-        /// <param name="aSpeaker"></param>
-        /// <returns></returns>
-        public bool AddSpeaker(Speaker aSpeaker)
+        public bool Serialize(string filename, bool savecompleteSpeakers = false)
         {
-            _speakers.Add(aSpeaker);
-            this.Saved = false;
-            return true;
-        }
-
-        /// <summary>
-        /// Serializuje tuto tridu a ulozi data do xml souboru - muze ulozit mluvci bez fotky
-        /// </summary>
-        /// <param name="jmenoSouboru"></param>
-        /// <param name="co"></param>
-        /// <returns></returns>
-        public bool Serialize(string jmenoSouboru, bool aUkladatKompletMluvci = false, bool StrictFormat = false)
-        {
-            using (FileStream s = new FileStream(jmenoSouboru, FileMode.Create, FileAccess.Write, FileShare.None, 1024 * 1024))
+            using (FileStream s = new FileStream(filename, FileMode.Create, FileAccess.Write, FileShare.None, 1024 * 1024))
             {
 
-                bool output = Serialize(s, aUkladatKompletMluvci, StrictFormat);
+                bool output = Serialize(s, savecompleteSpeakers);
 
                 if (output)
                 {
-                    this.FileName = jmenoSouboru;
+                    this.FileName = filename;
                     this.Saved = true;
 
                     return true;
@@ -320,22 +309,16 @@ namespace NanoTrans.Core
         }
 
 
-        /// <summary>
-        /// Serializuje tuto tridu a ulozi data do xml souboru - muze ulozit mluvci bez fotky
-        /// </summary>
-        /// <param name="jmenoSouboru"></param>
-        /// <param name="co"></param>
-        /// <returns></returns>
-        public bool Serialize(Stream datastream, bool aUkladatKompletMluvci = false, bool StrictFormat = false)
+        public bool Serialize(Stream datastream, bool SaveSpeakersDetailed = false)
         {
             ReindexSpeakers();
             XElement pars = new XElement("transcription", Elements.Select(e => new XAttribute(e.Key, e.Value)).Union(new[] { 
                         new XAttribute("version", "3.0"), 
-                        new XAttribute("mediauri", mediaURI ?? ""),
+                        new XAttribute("mediauri", MediaURI ?? ""),
                         new XAttribute("created",Created)
                         }),
                         this.Meta,
-                        Chapters.Select(c => c.Serialize(StrictFormat)),
+                        Chapters.Select(c => c.Serialize()),
                         SerializeSpeakers()
                     );
 
@@ -373,7 +356,8 @@ namespace NanoTrans.Core
             Deserialize(filename, tr);
             return tr;
         }
-        //Deserializuje soubor             
+        
+           
         public static void Deserialize(string filename, Transcription storage)
         {
             using (Stream s = File.Open(filename, FileMode.Open))
@@ -444,7 +428,7 @@ namespace NanoTrans.Core
             bool isStrict = style == "strict";
             string version = transcription.Attribute("version").Value;
             string mediaURI = transcription.Attribute("mediaURI").Value;
-            data.mediaURI = mediaURI;
+            data.MediaURI = mediaURI;
             data.Meta = transcription.Element("meta") ?? EmptyMeta;
             var chapters = transcription.Elements(isStrict ? "chapter" : "ch");
 
@@ -477,7 +461,7 @@ namespace NanoTrans.Core
 
             string version = transcription.Attribute("version").Value;
             string mediaURI = transcription.Attribute("mediauri").Value;
-            data.mediaURI = mediaURI;
+            data.MediaURI = mediaURI;
             data.Meta = transcription.Element("meta") ?? EmptyMeta;
             var chapters = transcription.Elements("ch");
 
@@ -520,7 +504,7 @@ namespace NanoTrans.Core
 
                 reader.Read(); //<?xml version ...
                 reader.Read();
-                data.mediaURI = reader.GetAttribute("audioFileName");
+                data.MediaURI = reader.GetAttribute("audioFileName");
                 string val = reader.GetAttribute("dateTime");
                 if (val != null)
                     data.Created = XmlConvert.ToDateTime(val, XmlDateTimeSerializationMode.Local);
@@ -955,9 +939,9 @@ namespace NanoTrans.Core
             catch (Exception ex)
             {
                 if (reader != null)
-                    throw new NanoTransSerializationException(string.Format("Chyba pri deserializaci souboru:(řádek:{0}, pozice:{1}) {2}", reader.LineNumber, reader.LinePosition, ex.Message), ex);
+                    throw new NanoTransSerializationException(string.Format("Deserialization error:(line:{0}, offset:{1}) {2}", reader.LineNumber, reader.LinePosition, ex.Message), ex);
                 else
-                    throw new NanoTransSerializationException("Chyba pri deserializaci souboru: " + ex.Message, ex);
+                    throw new NanoTransSerializationException("Deserialization error: " + ex.Message, ex);
             }
 
         }
@@ -1166,10 +1150,6 @@ namespace NanoTrans.Core
         {
             if (SubtitlesChanged != null)
                 SubtitlesChanged();
-            //if (CollectionChanged != null)
-            //{
-            //    CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-            //}
         }
 
         public override string Text

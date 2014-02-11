@@ -39,7 +39,7 @@ namespace NanoTrans
     public partial class Window1 : Window, System.ComponentModel.INotifyPropertyChanged
     {
         //timer pro posuvnik videa....
-        private DispatcherTimer carretRefreshTimer = new DispatcherTimer();
+        private DispatcherTimer caretRefreshTimer = new DispatcherTimer();
 
         private WPFTranscription _transcription;
         public WPFTranscription Transcription
@@ -48,10 +48,10 @@ namespace NanoTrans
             set
             {
                 if (_transcription != null)
-                    _transcription.SubtitlesChanged -= _mydatasource_SubtitlesChanged;
+                    _transcription.SubtitlesChanged -= _SubtitlesChanged;
                 _transcription = value;
                 if (_transcription != null)
-                    _transcription.SubtitlesChanged += _mydatasource_SubtitlesChanged;
+                    _transcription.SubtitlesChanged += _SubtitlesChanged;
 
                 if (PropertyChanged != null)
                     PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs("Transcription"));
@@ -59,7 +59,7 @@ namespace NanoTrans
             }
         }
 
-        void _mydatasource_SubtitlesChanged()
+        void _SubtitlesChanged()
         {
             waveform1.InvalidateSpeakers();
         }
@@ -80,7 +80,7 @@ namespace NanoTrans
         /// </summary>
         bool PlayingSelection = false;  //prehrava jen vybranou prepsanou sekci, pokud je specifikovan zacatek a konec
 
-        short carretRefreshTimerCounter = 0;
+        short caretRefreshTimerCounter = 0;
 
         private DXWavePlayer MWP = null;
 
@@ -333,7 +333,7 @@ namespace NanoTrans
 
             if (e.LengthMS >= oWav.FileLengthMS)
             {
-                ZobrazStavProgramu(Properties.Strings.mainWindowStatusbarStatusTextConversionDone);
+                ShowMessageInStatusbar(Properties.Strings.mainWindowStatusbarStatusTextConversionDone);
                 pbPrevodAudio.Visibility = Visibility.Hidden;
                 mainWindowStatusbarAudioConversionHeader.Visibility = Visibility.Hidden;
             }
@@ -357,7 +357,7 @@ namespace NanoTrans
                 waveform1.SetAudioData(me.data, TimeSpan.FromMilliseconds(me.StartMS), TimeSpan.FromMilliseconds(me.EndMS));
                 if (me.StartMS == 0)
                 {
-                    if (!carretRefreshTimer.IsEnabled) InitializeTimer();
+                    if (!caretRefreshTimer.IsEnabled) InitializeTimer();
                     if (waveform1.WaveLength < TimeSpan.FromSeconds(30))
                     {
                         waveform1.WaveLength = TimeSpan.FromSeconds(30);
@@ -466,7 +466,7 @@ namespace NanoTrans
 
 
 
-        public bool OpenTranscription(bool pouzitOpenDialog, string jmenoSouboru, bool aDavkovySoubor)
+        public bool OpenTranscription(bool useOpenDialog, string fileName)
         {
             try
             {
@@ -495,7 +495,7 @@ namespace NanoTrans
 
 
                 if (Transcription == null) Transcription = new WPFTranscription();
-                if (pouzitOpenDialog)
+                if (useOpenDialog)
                 {
                     Microsoft.Win32.OpenFileDialog fileDialog = new Microsoft.Win32.OpenFileDialog();
 
@@ -542,10 +542,10 @@ namespace NanoTrans
 
                             Transcription.Saved = true;
 
-                            //nacteni audio souboru pokud je k dispozici
-                            if (!string.IsNullOrEmpty(Transcription.mediaURI) && Transcription.FileName != null)
+                            //try to load the audio file
+                            if (!string.IsNullOrEmpty(Transcription.MediaURI) && Transcription.FileName != null)
                             {
-                                FileInfo fiA = new FileInfo(Transcription.mediaURI);
+                                FileInfo fiA = new FileInfo(Transcription.MediaURI);
                                 string pAudioFile = null;
                                 if (fiA.Exists)
                                 {
@@ -554,7 +554,7 @@ namespace NanoTrans
                                 else
                                 {
                                     FileInfo fi = new FileInfo(Transcription.FileName);
-                                    pAudioFile = fi.Directory.FullName + "\\" + Transcription.mediaURI;
+                                    pAudioFile = fi.Directory.FullName + "\\" + Transcription.MediaURI;
                                 }
                                 if (pAudioFile.Split(new string[] { ":\\" }, StringSplitOptions.None).Length == 2)
                                 {
@@ -566,10 +566,10 @@ namespace NanoTrans
                                 }
                             }
 
-                            if (Transcription.videoFileName != null && Transcription.FileName != null)
+                            if (Transcription.VideoFileName != null && Transcription.FileName != null)
                             {
                                 FileInfo fi = new FileInfo(Transcription.FileName);
-                                string pVideoFile = fi.Directory.FullName + "\\" + Transcription.videoFileName;
+                                string pVideoFile = fi.Directory.FullName + "\\" + Transcription.VideoFileName;
                                 FileInfo fi2 = new FileInfo(pVideoFile);
                                 if (fi2.Exists && (meVideo.Source == null || meVideo.Source.AbsolutePath.ToUpper() != pVideoFile.ToUpper()))
                                 {
@@ -594,15 +594,15 @@ namespace NanoTrans
                 else
                 {
 
-                    Transcription = WPFTranscription.Deserialize(jmenoSouboru);
+                    Transcription = WPFTranscription.Deserialize(fileName);
 
                     if (Transcription != null)
                     {
                         this.Title = Const.APP_NAME + " [" + Transcription.FileName + "]";
-                        //nacteni audio souboru pokud je k dispozici
-                        if (Transcription.mediaURI != null && Transcription.FileName != null)
+                        //try to load the audio file
+                        if (Transcription.MediaURI != null && Transcription.FileName != null)
                         {
-                            FileInfo fiA = new FileInfo(Transcription.mediaURI);
+                            FileInfo fiA = new FileInfo(Transcription.MediaURI);
                             string pAudioFile = null;
                             if (fiA.Exists)
                             {
@@ -611,7 +611,7 @@ namespace NanoTrans
                             else
                             {
                                 FileInfo fi = new FileInfo(Transcription.FileName);
-                                pAudioFile = fi.Directory.FullName + "\\" + Transcription.mediaURI;
+                                pAudioFile = fi.Directory.FullName + "\\" + Transcription.MediaURI;
                             }
                             if (pAudioFile.Split(new string[] { ":\\" }, StringSplitOptions.None).Length == 2)
                             {
@@ -624,10 +624,10 @@ namespace NanoTrans
                             }
                         }
 
-                        if (Transcription.videoFileName != null && Transcription.FileName != null)
+                        if (Transcription.VideoFileName != null && Transcription.FileName != null)
                         {
                             FileInfo fi = new FileInfo(Transcription.FileName);
-                            string pVideoFile = fi.Directory.FullName + "\\" + Transcription.videoFileName;
+                            string pVideoFile = fi.Directory.FullName + "\\" + Transcription.VideoFileName;
                             FileInfo fi2 = new FileInfo(pVideoFile);
                             if (fi2.Exists && (meVideo.Source == null || meVideo.Source.AbsolutePath.ToUpper() != pVideoFile.ToUpper()))
                             {
@@ -695,7 +695,7 @@ namespace NanoTrans
                         return false;
                 }
 
-                if (Transcription.Serialize(savePath, GlobalSetup.Setup.SaveWholeSpeaker, !GlobalSetup.Setup.SaveInShortFormat))
+                if (Transcription.Serialize(savePath, GlobalSetup.Setup.SaveWholeSpeaker))
                 {
                     this.Title = Const.APP_NAME + " [" + Transcription.FileName + "]";
                     return true;
@@ -713,12 +713,12 @@ namespace NanoTrans
 
 
         TimeSpan oldms = TimeSpan.Zero;
-        bool _pozicenastav = false;
-        public void NastavPoziciKurzoru(TimeSpan position, bool nastavitMedia, bool aNeskakatNaZacatekElementu)
+        bool _setCaret= false;
+        public void SetCaretPosition(TimeSpan position, bool nastavitMedia, bool aNeskakatNaZacatekElementu)
         {
-            if (!_pozicenastav)
+            if (!_setCaret)
             {
-                _pozicenastav = true;
+                _setCaret = true;
                 if (position < TimeSpan.Zero) return;
 
                 if (waveform1.CaretPosition != position)
@@ -731,7 +731,7 @@ namespace NanoTrans
                 {
                     meVideo.Position = waveform1.CaretPosition;
                 }
-                _pozicenastav = false;
+                _setCaret = false;
             }
         }
 
@@ -741,7 +741,7 @@ namespace NanoTrans
         }
 
 
-        private void VyberTextMeziCasovymiZnackami(TimeSpan aPoziceKurzoru)
+        private void SelectTextBetweenTimeOffsets(TimeSpan aPoziceKurzoru)
         {
             VirtualizingListBox.HiglightedPostion = aPoziceKurzoru;
 
@@ -750,9 +750,9 @@ namespace NanoTrans
 
         public void InitializeTimer()
         {
-            carretRefreshTimer.Interval = new TimeSpan(0, 0, 0, 0, Const.WAVEFORM_CARRET_REFRESH_MS);
-            carretRefreshTimer.IsEnabled = true;
-            carretRefreshTimer.Tick += new EventHandler(OnTimer);
+            caretRefreshTimer.Interval = new TimeSpan(0, 0, 0, 0, Const.WAVEFORM_CARET_REFRESH_MS);
+            caretRefreshTimer.IsEnabled = true;
+            caretRefreshTimer.Tick += new EventHandler(OnTimer);
         }
 
         void OnTimer(Object source, EventArgs e)
@@ -771,12 +771,12 @@ namespace NanoTrans
                 waveform1.CaretPosition = playpos;
             }
 
-            carretRefreshTimerCounter++;
-            if (carretRefreshTimerCounter > 0) //kazdy n ty tik dojde ke zmene pozice ctverce
+            caretRefreshTimerCounter++;
+            if (caretRefreshTimerCounter > 0) //kazdy n ty tik dojde ke zmene pozice ctverce
             {
-                if (carretRefreshTimerCounter > 2)
+                if (caretRefreshTimerCounter > 2)
                 {
-                    carretRefreshTimerCounter = 0;
+                    caretRefreshTimerCounter = 0;
                     if (!_playing && videoAvailable)
                     {
                         meVideo.Pause();
@@ -791,7 +791,7 @@ namespace NanoTrans
                     Playing = false;
 
                     oldms = TimeSpan.Zero;
-                    NastavPoziciKurzoru(waveform1.SelectionBegin, true, true);
+                    SetCaretPosition(waveform1.SelectionBegin, true, true);
 
                     playpos = waveform1.CaretPosition;
 
@@ -802,10 +802,10 @@ namespace NanoTrans
                 }
                 else
                 {
-                    NastavPoziciKurzoru(waveform1.CaretPosition, false, true);
+                    SetCaretPosition(waveform1.CaretPosition, false, true);
                 }
 
-                if (Playing) VyberTextMeziCasovymiZnackami(playpos);
+                if (Playing) SelectTextBetweenTimeOffsets(playpos);
             }
         }
 
@@ -846,7 +846,7 @@ namespace NanoTrans
                     FileInfo fi = new FileInfo(aFileName);
                     if (fi != null)
                     {
-                        Transcription.mediaURI = fi.Name;
+                        Transcription.MediaURI = fi.Name;
                     }
 
                     ////////////
@@ -875,7 +875,7 @@ namespace NanoTrans
 
                         //start prevodu docasnych souboru
                         oWav.AsynchronniPrevodMultimedialnihoSouboruNaDocasne2(aFileName); //spusti se thread ktery prevede soubor na temp wavy
-                        ZobrazStavProgramu(Properties.Strings.mainWindowStatusbarStatusTextConversionRunning);
+                        ShowMessageInStatusbar(Properties.Strings.mainWindowStatusbarStatusTextConversionRunning);
                         pbPrevodAudio.Visibility = Visibility.Visible;
                         mainWindowStatusbarAudioConversionHeader.Visibility = Visibility.Visible;
                         /////////////
@@ -889,15 +889,15 @@ namespace NanoTrans
                     try
                     {
 
-                        tbAudioSoubor.Text = new FileInfo(aFileName).Name;
+                        tbAudioFile.Text = new FileInfo(aFileName).Name;
                     }
                     catch
                     {
-                        tbAudioSoubor.Text = openDialog.FileName;
+                        tbAudioFile.Text = openDialog.FileName;
                     }
                     finally
                     {
-                        tbAudioSoubor.ToolTip = openDialog.FileName;
+                        tbAudioFile.ToolTip = openDialog.FileName;
 
                     }
                 }
@@ -945,8 +945,8 @@ namespace NanoTrans
 
                     try
                     {
-                        tbVideoSoubor.Text = new FileInfo(openDialog.FileName).Name;
-                        Transcription.videoFileName = tbVideoSoubor.Text;
+                        tbVideoFile.Text = new FileInfo(openDialog.FileName).Name;
+                        Transcription.VideoFileName = tbVideoFile.Text;
                     }
                     catch
                     {
@@ -983,7 +983,7 @@ namespace NanoTrans
 
         private void button6_Click(object sender, RoutedEventArgs e)
         {
-            MSoubor_Otevrit_Video_Click(null, new RoutedEventArgs());
+            Mfile_open_video_Click(null, new RoutedEventArgs());
         }
 
         /// <summary>
@@ -1018,73 +1018,71 @@ namespace NanoTrans
         }
         //menu----------------------------------------------------------------------
 
-        #region menu Soubor
-        private void MSoubor_Novy_Click(object sender, RoutedEventArgs e)
+        #region menu file
+        private void MFile_new_Click(object sender, RoutedEventArgs e)
         {
             CommandCreateNewTranscription.Execute(null, this);
         }
 
-        private void MSoubor_Otevrit_Titulky_Click(object sender, RoutedEventArgs e)
+        private void MFile_open_Click(object sender, RoutedEventArgs e)
         {
             CommandOpenTranscription.Execute(null, this);
         }
 
-        private void MSoubor_Otevrit_Video_Click(object sender, RoutedEventArgs e)
+        private void Mfile_open_video_Click(object sender, RoutedEventArgs e)
         {
             LoadVideo(null);
         }
 
-        private void MSoubor_Ulozit_Click(object sender, RoutedEventArgs e)
+        private void MFile_save_Click(object sender, RoutedEventArgs e)
         {
             CommandSaveTranscription.Execute(null, this);
         }
 
-        private void MSoubor_Ulozit_Titulky_Jako_Click(object sender, RoutedEventArgs e)
+        private void MFile_save_as_Click(object sender, RoutedEventArgs e)
         {
             CommandSaveTranscriptionAs.Execute(null, this);
         }
 
-        //Ukonceni aplikace z menu
-        private void MSoubor_Konec_Click(object sender, RoutedEventArgs e)
+
+        private void MFile_close_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
         }
 
-        //nacteni zvukoveho souboru - pro wav je vykreslena i vlna
-        private void MSoubor_Otevrit_Zvukovy_Soubor_Click(object sender, RoutedEventArgs e)
+        private void MFile_open_audio_Click(object sender, RoutedEventArgs e)
         {
             button1_Click(null, new RoutedEventArgs());
         }
         #endregion
 
-        #region menu Nastroje
-        private void MNastroje_Nastav_Mluvciho_Click(object sender, RoutedEventArgs e)
+        #region menu Tools
+        private void MTools_Set_Speaker_Click(object sender, RoutedEventArgs e)
         {
             CommandAssignSpeaker.Execute(null, null);
         }
 
-        private void MNastroje_Nastaveni_Click(object sender, RoutedEventArgs e)
+        private void MTools_Settings_Click(object sender, RoutedEventArgs e)
         {
-            GlobalSetup.Setup = WinSetup.WinSetupNastavit(GlobalSetup.Setup, SpeakersDatabase);
-            //pokus o ulozeni konfigurace
+            GlobalSetup.Setup = WinSetup.WinSetupShowDialog(GlobalSetup.Setup, SpeakersDatabase);
             GlobalSetup.Setup.Serialize(FilePaths.GetConfigFileWriteStream(), GlobalSetup.Setup);
             waveform1.SmallJump = TimeSpan.FromSeconds(GlobalSetup.Setup.WaveformSmallJump);
-            InitializeAudioPlayer();  //nove nastaveni prehravaciho zarizeni 
+            InitializeAudioPlayer(); 
         }
 
-        private void MNapoveda_Popis_Programu_Click(object sender, RoutedEventArgs e)
+        private void MHelp_Details_Click(object sender, RoutedEventArgs e)
         {
             CommandHelp.Execute(null, this);
         }
 
-        private void MNapoveda_O_Programu_Click(object sender, RoutedEventArgs e)
+        private void MHelp_about_Click(object sender, RoutedEventArgs e)
         {
             CommandAbout.Execute(null, this);
         }
 
         #endregion
 
-        //obsluha tlacitek v toolbaru u vlny....----------------------------------------------------------------------------
+        //toolbar buttons
         private void Toolbar1Btn5_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -1092,19 +1090,19 @@ namespace NanoTrans
                 TB5.IsChecked = TB10.IsChecked = TB20.IsChecked = TB30.IsChecked = TB60.IsChecked = TB120.IsChecked = TB180.IsChecked = false;
                 ToggleButton pButton = sender as ToggleButton;
                 pButton.IsChecked = true;
-                TimeSpan pDelka = TimeSpan.FromMilliseconds(long.Parse(pButton.Tag.ToString()));
-                TimeSpan pPocatek = waveform1.WaveBegin;
-                TimeSpan pKonec = waveform1.WaveBegin + pDelka;
-                if (pKonec < waveform1.WaveBegin)
-                    pPocatek = waveform1.CaretPosition - TimeSpan.FromTicks(pDelka.Ticks / 2);
+                TimeSpan length = TimeSpan.FromMilliseconds(long.Parse(pButton.Tag.ToString()));
+                TimeSpan begin = waveform1.WaveBegin;
+                TimeSpan end = waveform1.WaveBegin + length;
+                if (end < waveform1.WaveBegin)
+                    begin = waveform1.CaretPosition - TimeSpan.FromTicks(length.Ticks / 2);
 
-                if (pPocatek < TimeSpan.Zero) pPocatek = TimeSpan.Zero;
-                pKonec = pPocatek + pDelka;
-                carretRefreshTimer.IsEnabled = false;
-                waveform1.WaveBegin = pPocatek;
-                waveform1.WaveEnd = pKonec;
-                waveform1.WaveLength = pDelka;
-                carretRefreshTimer.IsEnabled = true;
+                if (begin < TimeSpan.Zero) begin = TimeSpan.Zero;
+                end = begin + length;
+                caretRefreshTimer.IsEnabled = false;
+                waveform1.WaveBegin = begin;
+                waveform1.WaveEnd = end;
+                waveform1.WaveLength = length;
+                caretRefreshTimer.IsEnabled = true;
             }
             catch
             {
@@ -1113,7 +1111,6 @@ namespace NanoTrans
         }
 
 
-        //osetreni ulozeni pri ukonceni aplikace
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             if (Pedalthread != null)
@@ -1174,18 +1171,18 @@ namespace NanoTrans
                 }
 
 
-                //ulozeni databaze mluvcich - i externi databaze
+
                 if (SpeakersDatabase != null)
                 {
                     string fname = System.IO.Path.GetFullPath(GlobalSetup.Setup.SpeakersDatabasePath);
-                    if (fname.StartsWith(FilePaths.ProgramDirectory))//kdyz je to v adresari (program files..)
+                    if (fname.StartsWith(FilePaths.ProgramDirectory))//check access to program files.
                     {
-                        if (!FilePaths.WriteToAppData) //checkni jestli muzes zapisovat
+                        if (!FilePaths.WriteToAppData)
                             SpeakersDatabase.Serialize(fname);
                         else
                             SpeakersDatabase.Serialize(FilePaths.AppDataDirectory + fname.Substring(FilePaths.ProgramDirectory.Length));
                     }
-                    else //neni to u me neresit prava
+                    else// not in ProgramFiles - NanoTrans not installed, don't do anything
                     {
                         try
                         {
@@ -1202,12 +1199,10 @@ namespace NanoTrans
                     }
                 }
 
-                //pokus o ulozeni nastaveni
                 if (GlobalSetup.Setup != null)
                 {
                     if (this.WindowState == WindowState.Normal)
                     {
-                        //nastaveni posledni zname souradnice okna a velikosti okna
                         GlobalSetup.Setup.WindowsPosition = new Point(this.Left, this.Top);
                         GlobalSetup.Setup.WindowSize = new Size(this.Width, this.Height);
                     }
@@ -1221,16 +1216,14 @@ namespace NanoTrans
                 }
             }
 
-            //smazani souboru...
             FilePaths.DeleteTemp();
 
-            Environment.Exit(0); // Vynuti ukonceni vsech vlaken a uvolneni prostredku
+            Environment.Exit(0); //Force close application
 
 
         }
 
 
-        //zavre okno s videem a video
         private void btCloseVideo_Click(object sender, RoutedEventArgs e)
         {
             meVideo.Close();
@@ -1242,17 +1235,17 @@ namespace NanoTrans
 
 
         #region menu uprava
-        private void MUpravy_Nova_Kapitola_Click(object sender, RoutedEventArgs e)
+        private void MEdit_new_chapter_Click(object sender, RoutedEventArgs e)
         {
             CommandNewChapter.Execute(null, null);
         }
 
-        private void MUpravy_Nova_Sekce_Click(object sender, RoutedEventArgs e)
+        private void MEdit_New_Section_Click(object sender, RoutedEventArgs e)
         {
             CommandNewSection.Execute(null, null);
         }
 
-        private void MUpravy_Smazat_Polozku_Click(object sender, RoutedEventArgs e)
+        private void MEdit_Delete_Element_Click(object sender, RoutedEventArgs e)
         {
             CommandDeleteElement.Execute(null, null);
         }
@@ -1261,7 +1254,7 @@ namespace NanoTrans
 
 
 
-        //pokusi se zamerit textbox pri spousteni aplikace
+        
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
 
@@ -1269,24 +1262,11 @@ namespace NanoTrans
 
             InitCommands();
             LoadPlugins();
-            //inicializuje (asynchronni) nacitani slovniku
+            //asyncronous spellcecking vocabluary load
             Thread t = new Thread(
                 delegate()
                 {
-                    if (SpellChecker.LoadVocabulary())
-                    {
-                        this.Dispatcher.Invoke(new Action(
-                    delegate()
-                    {
-                        //foreach (Element ee in VirtualizingListBox.listbox.VisualFindChildren<Element>())
-                        //{
-                        //    ee.editor.TextArea.TextView.LineTransformers.Remove();
-                        //    ee.editor.TextArea.TextView.LineTransformers.Add();
-
-                        //}
-                    }
-                    ));
-                    }
+                    SpellChecker.LoadVocabulary();
                 }
                 ) { Name = "Spellchecking_Load" };
             t.Start();
@@ -1307,20 +1287,20 @@ namespace NanoTrans
             PedalsInit();
 
 
-            string pCesta = null;
+            string path = null;
             bool import = false;
             if (App.Startup_ARGS != null && App.Startup_ARGS.Length > 0)
             {
                 if (App.Startup_ARGS[0] == "-i")
                 {
                     import = true;
-                    pCesta = App.Startup_ARGS[1];
+                    path = App.Startup_ARGS[1];
                 }
                 else
-                    pCesta = App.Startup_ARGS[0];
+                    path = App.Startup_ARGS[0];
             }
 
-            if (pCesta == null)
+            if (path == null)
             {
                 NewTranscription();
             }
@@ -1329,10 +1309,10 @@ namespace NanoTrans
                 if (import)
                 {
                     NewTranscription();
-                    CommandImportFile.Execute(pCesta, this);
+                    CommandImportFile.Execute(path, this);
                 }
                 else
-                    OpenTranscription(false, pCesta, false);
+                    OpenTranscription(false, path);
             }
 
             VirtualizingListBox.RequestTimePosition += delegate(out TimeSpan value) { value = waveform1.CaretPosition; };
@@ -1344,7 +1324,7 @@ namespace NanoTrans
         }
 
 
-        private void menuSouborExportovatClick(object sender, RoutedEventArgs e)
+        private void menuFileExportClick(object sender, RoutedEventArgs e)
         {
             Plugin p = (Plugin)((MenuItem)sender).Tag;
             p.ExecuteExport(Transcription);
@@ -1355,23 +1335,23 @@ namespace NanoTrans
             if (data == null)
                 return;
             Transcription = data;
-            //nacteni audio souboru pokud je k dispozici
-            if (!string.IsNullOrEmpty(Transcription.mediaURI))
+            //load audio if possible
+            if (!string.IsNullOrEmpty(Transcription.MediaURI))
             {
-                FileInfo fiA = new FileInfo(Transcription.mediaURI);
+                FileInfo fiA = new FileInfo(Transcription.MediaURI);
                 string pAudioFile = null;
                 if (fiA.Exists)
                 {
                     pAudioFile = fiA.FullName;
                 }
-                else if (System.IO.Path.IsPathRooted(Transcription.mediaURI))
+                else if (System.IO.Path.IsPathRooted(Transcription.MediaURI))
                 {
-                    tbAudioSoubor.Text = Transcription.mediaURI;
+                    tbAudioFile.Text = Transcription.MediaURI;
                 }
                 else
                 {
                     FileInfo fi = new FileInfo(Transcription.FileName);
-                    pAudioFile = fi.Directory.FullName + "\\" + Transcription.mediaURI;
+                    pAudioFile = fi.Directory.FullName + "\\" + Transcription.MediaURI;
                 }
 
                 if (pAudioFile != null && pAudioFile.Split(new string[] { ":\\" }, StringSplitOptions.None).Length == 2)
@@ -1383,7 +1363,7 @@ namespace NanoTrans
                     }
                     else
                     {
-                        tbAudioSoubor.Text = Transcription.mediaURI;
+                        tbAudioFile.Text = Transcription.MediaURI;
                     }
                 }
             }
@@ -1403,6 +1383,8 @@ namespace NanoTrans
 
         Thread Pedalthread = null;
         Process PedalProcess = null;
+
+        //init tool to handle pedals (foot control)
         private void PedalsInit()
         {
             string pedalsexe = FilePaths.PedalPath;
@@ -1476,28 +1458,18 @@ namespace NanoTrans
         }
 
 
-
-
-
-        private void btDiktat_Click(object sender, RoutedEventArgs e)
-        {
-            CommandStartStopDictate.Execute(null, this);
-        }
-
-
         /// <summary>
-        /// zobrazi zpravu o stavu programu ve spodni liste programu, je thread SAFE
+        /// threadsafe - show message in statusbar
         /// </summary>
-        /// <param name="aZprava"></param>
-        private void ZobrazStavProgramu(string aZprava)
+        /// <param name="message"></param>
+        private void ShowMessageInStatusbar(string message)
         {
             if (this.Dispatcher.Thread != System.Threading.Thread.CurrentThread)
             {
-                //do invoke stuff here
-                this.Dispatcher.Invoke(new Action<string>(ZobrazStavProgramu), aZprava);
+                this.Dispatcher.Invoke(new Action<string>(ShowMessageInStatusbar), message);
                 return;
             }
-            tbStavProgramu.Text = aZprava;
+            tbProgramStatus.Text = message;
         }
 
 
@@ -1506,46 +1478,26 @@ namespace NanoTrans
             CommandGeneratePhoneticTranscription.Execute(null, this);
         }
 
-        private void btHlasoveOvladani_Click(object sender, RoutedEventArgs e)
-        {
-            CommandStartStopVoiceControl.Execute(null, this);
 
-        }
-
-
-        /// <summary>
-        /// porizeni obrazku z videa a poslani fotky do spravce mluvcich
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void btPoriditObrazekZVidea_Click(object sender, RoutedEventArgs e)
+        private void btTakeSpeakerSnapshotFromVideo_Click(object sender, RoutedEventArgs e)
         {
             CommandTakeSpeakerSnapshotFromVideo.Execute(null, this);
         }
 
 
-        private void menuItemFonetickyPrepis_Click(object sender, RoutedEventArgs e)
+        private void menuItemShowPanelFoneticTranscription_Click(object sender, RoutedEventArgs e)
         {
             CommandShowPanelFoneticTranscription.Execute(null, this);
         }
 
 
-        /// <summary>
-        /// delegat pro zobrazeni fonetickeho prepisu z jineho threadu
-        /// </summary>
-        /// <param name="aTag"></param>
-        private delegate void ZobrazeniFonetickehoPrepisu(TranscriptionElement aTag);
+        private delegate void ShowPanelFoneticTranscriptionDelegate(TranscriptionElement aTag);
 
 
-        /// <summary>
-        /// zobrazi nebo skryje foneticky prepis - respektive okno pro upravu
-        /// </summary>
-        /// <param name="aZobrazit"></param>
-        /// <returns></returns>
-        private bool ShowPhoneticTranscription(bool aZobrazit)
+        private bool ShowPhoneticTranscription(bool show)
         {
 
-            if (aZobrazit)
+            if (show)
             {
                 GlobalSetup.Setup.PhoneticsPanelHeight = Math.Abs(GlobalSetup.Setup.PhoneticsPanelHeight);
 
@@ -1561,67 +1513,31 @@ namespace NanoTrans
             }
         }
 
-        private void btZavritFonPrepis_Click(object sender, RoutedEventArgs e)
+        private void btClosePhoneticsPanel_Click(object sender, RoutedEventArgs e)
         {
             ShowPhoneticTranscription(false);
         }
 
         private void gridSplitter2_DragCompleted(object sender, System.Windows.Controls.Primitives.DragCompletedEventArgs e)
         {
-            //      if (gPrepis.RowDefinitions[1].Height.Value > 40) MySetup.Setup.ZobrazitFonetickyPrepis = (float)gPrepis.RowDefinitions[1].Height.Value;
         }
 
 
-        private void button1_Click_1(object sender, RoutedEventArgs e)
-        {
-            menuItemNastrojeFonetickyPrepis_Click(null, new RoutedEventArgs());
 
-        }
-
-
-        /// <summary>
-        /// Normalizuje text
-        /// </summary>
-        /// <param name="aDokument">dokument s titulky, ktery bude normalizovan</param>
-        /// <param name="aElement"></param>
-        /// <param name="aIndexNormalizace">mensi nez 0, zavola okno pro vyber typu normalizace</param>
-        /// <returns></returns>
-        public int Normalizovat(TranscriptionElement aElement, int aIndexNormalizace)
+        public int NormalizePhonetics(TranscriptionElement aElement, int aIndexNormalizace)
         {
             throw new NotImplementedException();
         }
 
-        private void btNormalizovat_Click(object sender, RoutedEventArgs e)
+        private void btNormalize_Click(object sender, RoutedEventArgs e)
         {
-            menuItemNastrojeNormalizovat_Click(null, new RoutedEventArgs());
+            menuItemToolsNormalizePhonetics_Click(null, new RoutedEventArgs());
 
         }
 
-        private void menuItemNastrojeNormalizovat_Click(object sender, RoutedEventArgs e)
+        private void menuItemToolsNormalizePhonetics_Click(object sender, RoutedEventArgs e)
         {
             CommandNormalizeParagraph.Execute(null, this);
-        }
-
-        /// <summary>
-        /// spustu automaticky foneticky prepis - THREAD SAFE
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void menuItemNastrojeFonetickyPrepis_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void menuItemNastrojeAllignment_Click(object sender, RoutedEventArgs e)
-        {
-
-
-        }
-
-        private void btOdstranitNefonemy_Click(object sender, RoutedEventArgs e)
-        {
-            throw new NotImplementedException();
-
         }
 
         private void Window_Drop(object sender, DragEventArgs e)
@@ -1632,7 +1548,7 @@ namespace NanoTrans
                 if (p[i].ToLower() == "filenamew")
                 {
                     string[] o = (string[])e.Data.GetData(p[i]);
-                    OpenTranscription(false, o[0].ToString(), false);
+                    OpenTranscription(false, o[0].ToString());
                 }
             }
 
@@ -1654,7 +1570,7 @@ namespace NanoTrans
             }
         }
 
-        #region nerecove znacky
+        #region nonspeech events tags
 
         private void toolBar1_Loaded(object sender, RoutedEventArgs e)
         {
@@ -1674,7 +1590,7 @@ namespace NanoTrans
         }
         #endregion
 
-        #region undo
+        #region undo not working .)
         List<byte[]> Back_data = new List<byte[]>();
         private void button2_Click(object sender, RoutedEventArgs e)
         {
@@ -1686,7 +1602,7 @@ namespace NanoTrans
             if (Transcription != null)
             {
                 MemoryStream ms = new MemoryStream();
-                Transcription.Serialize(ms, true, !GlobalSetup.Setup.SaveInShortFormat);
+                Transcription.Serialize(ms, true);
                 ms.Close();
                 Back_data.Add(ms.ToArray());
             }
@@ -1711,7 +1627,7 @@ namespace NanoTrans
 
             }
         }
-        private void waveform1_CarretPostionChanged(object sender, Waveform.TimeSpanEventArgs e)
+        private void waveform1_CaretPostionChanged(object sender, Waveform.TimeSpanEventArgs e)
         {
             if (!Playing)
             {
@@ -1726,7 +1642,7 @@ namespace NanoTrans
             }
 
 
-            var list = _transcription.VratElementDanehoCasu(e.Value);
+            var list = _transcription.ReturnElementsAtTime(e.Value);
             if (list != null && list.Count > 0)
             {
                 if (VirtualizingListBox.ActiveTransctiption != list[0])
@@ -1738,7 +1654,7 @@ namespace NanoTrans
             }
         }
 
-        private void waveform1_CarretPostionChangedByUser(object sender, Waveform.TimeSpanEventArgs e)
+        private void waveform1_CaretPostionChangedByUser(object sender, Waveform.TimeSpanEventArgs e)
         {
             if (Playing)
             {
@@ -1753,18 +1669,18 @@ namespace NanoTrans
             }
 
             PlaybackBufferIndex = (int)waveform1.CaretPosition.TotalMilliseconds;
-            List<TranscriptionParagraph> pl = Transcription.VratElementDanehoCasu(waveform1.CaretPosition);
+            List<TranscriptionParagraph> pl = Transcription.ReturnElementsAtTime(waveform1.CaretPosition);
 
-            _pozicenastav = true;
-            var list = _transcription.VratElementDanehoCasu(e.Value);
+            _setCaret = true;
+            var list = _transcription.ReturnElementsAtTime(e.Value);
             if (list != null && list.Count > 0)
             {
                 if (VirtualizingListBox.ActiveTransctiption != list[0])
                     VirtualizingListBox.ActiveTransctiption = list[0];
 
             }
-            _pozicenastav = false;
-            VyberTextMeziCasovymiZnackami(e.Value);
+            _setCaret = false;
+            SelectTextBetweenTimeOffsets(e.Value);
         }
 
         private void waveform1_ParagraphClick(object sender, Waveform.MyTranscriptionElementEventArgs e)
@@ -1781,12 +1697,6 @@ namespace NanoTrans
             VirtualizingListBox.SpeakerChanged();
         }
 
-
-
-        private void waveform1_ElementChanged(object sender, Waveform.MyTranscriptionElementEventArgs e)
-        {
-            //VirtualizingListBox.RecreateElements(VirtualizingListBox.gridscrollbar.Value);
-        }
 
         private void waveform1_PlayPauseClick(object sender, RoutedEventArgs e)
         {
@@ -1808,7 +1718,7 @@ namespace NanoTrans
                 return;
             phoneticTranscription.ValueElement = VirtualizingListBox.ActiveTransctiption;
             phoneticTranscription.IsEnabled = true;
-            NastavPoziciKurzoru(VirtualizingListBox.ActiveTransctiption.Begin, true, true);
+            SetCaretPosition(VirtualizingListBox.ActiveTransctiption.Begin, true, true);
         }
 
         private void VirtualizingListBox_SetTimeRequest(TimeSpan obj)
@@ -1816,11 +1726,11 @@ namespace NanoTrans
             if (Playing)
                 CommandPlayPause.Execute(null, null);
 
-            NastavPoziciKurzoru(obj, true, true);
-            VyberTextMeziCasovymiZnackami(obj);
+            SetCaretPosition(obj, true, true);
+            SelectTextBetweenTimeOffsets(obj);
         }
 
-        private void menuNastrojeVideoZobrazit_Click(object sender, RoutedEventArgs e)
+        private void menuToolsShowVideoFrame_Click(object sender, RoutedEventArgs e)
         {
             gListVideo.ColumnDefinitions[1].Width = GridLength.Auto;
         }
@@ -1837,12 +1747,12 @@ namespace NanoTrans
         }
 
 
-        private void menuSouborImportovat_Click(object sender, RoutedEventArgs e)
+        private void menuFileImport_Click(object sender, RoutedEventArgs e)
         {
             CommandImportFile.Execute(null, null);
         }
 
-        private void menuSouborExportovat_Click(object sender, RoutedEventArgs e)
+        private void menuFileExport_Click(object sender, RoutedEventArgs e)
         {
             CommandExportFile.Execute(null, null);
         }
@@ -1899,7 +1809,7 @@ namespace NanoTrans
 
         #endregion
 
-        private void menuUpravySmazatNerecoveUdalosti_Click(object sender, RoutedEventArgs e)
+        private void menuToolsDeleteNonSpeechEvents_Click(object sender, RoutedEventArgs e)
         {
             using (new WaitCursor())
             {

@@ -21,7 +21,7 @@ namespace NanoTrans.Core
             set { _fileName  = value; }
         }
 
-        protected List<Speaker> _Speakers = new List<Speaker>();    //vsichni mluvci ve streamu
+        protected List<Speaker> _Speakers = new List<Speaker>(); 
 
 
         protected Dictionary<string, string> elements = new Dictionary<string, string>();
@@ -61,7 +61,7 @@ namespace NanoTrans.Core
 
         }
         /// <summary>
-        /// smazani speakera ze seznamu speakeru
+        /// remove speaker from list - NOT FROM TRANSCRIPTION !!!!
         /// </summary>
         /// <param name="aSpeaker"></param>
         /// <returns></returns>

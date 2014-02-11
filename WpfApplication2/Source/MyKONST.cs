@@ -18,7 +18,7 @@ namespace NanoTrans
 
         public static long TEMPORARY_AUDIO_FILE_LENGTH_MS = 60000;
 
-        public static int WAVEFORM_CARRET_REFRESH_MS = 20;
+        public static int WAVEFORM_CARET_REFRESH_MS = 20;
 
 
         public static long DISPLAY_BUFFER_LENGTH_MS = 300000;//180000;

@@ -65,36 +65,22 @@ namespace NanoTrans
 
         #region menu vlna events
         //obsluha kontextoveho menu image vlny
-        private void menuItemVlna1_prirad_zacatek_Click(object sender, RoutedEventArgs e)
+        private void menuItemVlna1_SetStart_Click(object sender, RoutedEventArgs e)
         {
             CommandAssignElementStart.Execute(null, null);
         }
-        private void menuItemVlna1_prirad_konec_Click(object sender, RoutedEventArgs e)
+        private void menuItemVlna1_SetEnd_Click(object sender, RoutedEventArgs e)
         {
             CommandAssignElementEnd.Execute(null, null);
         }
 
-        private void menuItemVlna1_prirad_vyber_Click(object sender, RoutedEventArgs e)
+        private void menuItemVlna1_SetSelection_Click(object sender, RoutedEventArgs e)
         {
             CommandAssignElementTimeSelection.Execute(null, null);
         }
 
-        private void menuItemVlna1_prirad_casovou_znacku_Click(object sender, RoutedEventArgs e)
-        {
-            //TODO:
-        }
-
-        private void menuItemVlna1_automaticke_rozpoznavani_useku_Click(object sender, RoutedEventArgs e)
-        {
-            SpustRozpoznavaniVybranehoElementu(VirtualizingListBox.ActiveTransctiption, waveform1.SelectionBegin, waveform1.SelectionEnd, false);
-        }
         #endregion
 
-
-        private void btPriraditVyber_Click(object sender, RoutedEventArgs e)
-        {
-            menuItemVlna1_prirad_vyber_Click(null, new RoutedEventArgs());
-        }
 
     }
     

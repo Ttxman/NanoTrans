@@ -33,7 +33,7 @@ namespace NanoTrans
     /// 
     public partial class Window1 : Window
     {
-        #region WPF commandy...
+        #region WPF commands...
         public static RoutedCommand CommandFindDialog = new RoutedCommand();
         public static RoutedCommand CommandPlayPause = new RoutedCommand();
         public static RoutedCommand CommandScrollUp = new RoutedCommand();
@@ -41,11 +41,8 @@ namespace NanoTrans
         public static RoutedCommand CommandSmallJumpRight = new RoutedCommand();
         public static RoutedCommand CommandSmallJumpLeft = new RoutedCommand();
         public static RoutedCommand CommandMaximizeMinimize = new RoutedCommand();
-        public static RoutedCommand CommandAutomaticFoneticTranscription = new RoutedCommand();
         public static RoutedCommand CommandShowPanelFoneticTranscription = new RoutedCommand();
         public static RoutedCommand CommandGeneratePhoneticTranscription = new RoutedCommand();
-        public static RoutedCommand CommandStartStopDictate = new RoutedCommand();
-        public static RoutedCommand CommandStartStopVoiceControl = new RoutedCommand();
         public static RoutedCommand CommandNormalizeParagraph = new RoutedCommand();
         public static RoutedCommand CommandRemoveNonphonemes = new RoutedCommand();
         public static RoutedCommand CommandTakeSpeakerSnapshotFromVideo = new RoutedCommand();
@@ -85,11 +82,8 @@ namespace NanoTrans
             this.CommandBindings.Add(new CommandBinding(CommandSmallJumpRight, CSmallJumpRight));
             this.CommandBindings.Add(new CommandBinding(CommandSmallJumpLeft, CSmallJumpLeft));
             this.CommandBindings.Add(new CommandBinding(CommandMaximizeMinimize, CMaximizeMinimize));
-            this.CommandBindings.Add(new CommandBinding(CommandAutomaticFoneticTranscription, CAutomaticFoneticTranscription));
             this.CommandBindings.Add(new CommandBinding(CommandShowPanelFoneticTranscription, CShowPanelFoneticTranscription));
             this.CommandBindings.Add(new CommandBinding(CommandGeneratePhoneticTranscription, CGeneratePhoneticTranscription));
-            this.CommandBindings.Add(new CommandBinding(CommandStartStopDictate, CStartStopDictate));
-            this.CommandBindings.Add(new CommandBinding(CommandStartStopVoiceControl, CStartStopVoiceControl));
             this.CommandBindings.Add(new CommandBinding(CommandNormalizeParagraph, CNormalizeParagraph));
             this.CommandBindings.Add(new CommandBinding(CommandRemoveNonphonemes, CRemoveNonphonemes));
             this.CommandBindings.Add(new CommandBinding(CommandTakeSpeakerSnapshotFromVideo, CTakeSpeakerSnapshotFromVideo));
@@ -147,10 +141,7 @@ namespace NanoTrans
             CommandSmallJumpRight.InputGestures.Add(new KeyGesture(Key.Right, ModifierKeys.Alt));
             CommandSmallJumpLeft.InputGestures.Add(new KeyGesture(Key.Left, ModifierKeys.Alt));
             CommandMaximizeMinimize.InputGestures.Add(new KeyGesture(Key.Return, ModifierKeys.Alt));
-            CommandAutomaticFoneticTranscription.InputGestures.Add(new KeyGesture(Key.F10, ModifierKeys.Alt));
             CommandGeneratePhoneticTranscription.InputGestures.Add(new KeyGesture(Key.F5));
-            CommandStartStopDictate.InputGestures.Add(new KeyGesture(Key.F6));
-            CommandStartStopVoiceControl.InputGestures.Add(new KeyGesture(Key.F7));
             CommandNormalizeParagraph.InputGestures.Add(new KeyGesture(Key.F9));
             CommandRemoveNonphonemes.InputGestures.Add(new KeyGesture(Key.F11));
             CommandTakeSpeakerSnapshotFromVideo.InputGestures.Add(new KeyGesture(Key.F12));
@@ -385,7 +376,7 @@ namespace NanoTrans
         {
             TranscriptionParagraph par = VirtualizingListBox.ActiveTransctiption as TranscriptionParagraph;
             oWav.RamecSynchronne = true;
-            bool nacteno = oWav.NactiRamecBufferu((long)par.Begin.TotalMilliseconds, (long)par.Delka.TotalMilliseconds, Const.ID_BUFFER_TRANSCRIBED_ELEMENT_PHONETIC);//)this.bPozadovanyPocatekRamce, this.bPozadovanaDelkaRamceMS, this.bIDBufferu);        
+            bool nacteno = oWav.NactiRamecBufferu((long)par.Begin.TotalMilliseconds, (long)par.Length.TotalMilliseconds, Const.ID_BUFFER_TRANSCRIBED_ELEMENT_PHONETIC);//)this.bPozadovanyPocatekRamce, this.bPozadovanaDelkaRamceMS, this.bIDBufferu);        
             oWav.RamecSynchronne = false;
 
             Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
@@ -473,13 +464,13 @@ namespace NanoTrans
 
                     if ((waveform1.SelectionBegin - waveform1.SelectionEnd).Duration() > TimeSpan.FromMilliseconds(100))
                     {
-                        NastavPoziciKurzoru(waveform1.SelectionBegin, true, false);
+                        SetCaretPosition(waveform1.SelectionBegin, true, false);
                     }
                     else
                     {
                         TranscriptionElement par = VirtualizingListBox.ActiveTransctiption;
                         TimeSpan konec = par.End + TimeSpan.FromMilliseconds(5);
-                        NastavPoziciKurzoru(konec, true, true);
+                        SetCaretPosition(konec, true, true);
                         waveform1.SelectionBegin = konec;
                         waveform1.SelectionEnd = konec + TimeSpan.FromMilliseconds(120000);
                     }
@@ -529,14 +520,14 @@ namespace NanoTrans
 
         private void CSmallJumpRight(object sender, ExecutedRoutedEventArgs e)
         {
-            NastavPoziciKurzoru(waveform1.CaretPosition + waveform1.SmallJump, true, true);
-            VyberTextMeziCasovymiZnackami(waveform1.CaretPosition);
+            SetCaretPosition(waveform1.CaretPosition + waveform1.SmallJump, true, true);
+            SelectTextBetweenTimeOffsets(waveform1.CaretPosition);
         }
 
         private void CSmallJumpLeft(object sender, ExecutedRoutedEventArgs e)
         {
-            NastavPoziciKurzoru(waveform1.CaretPosition - waveform1.SmallJump, true, true);
-            VyberTextMeziCasovymiZnackami(waveform1.CaretPosition);
+            SetCaretPosition(waveform1.CaretPosition - waveform1.SmallJump, true, true);
+            SelectTextBetweenTimeOffsets(waveform1.CaretPosition);
         }
 
         private void CMaximizeMinimize(object sender, ExecutedRoutedEventArgs e)
@@ -551,12 +542,6 @@ namespace NanoTrans
             }
         }
 
-        private void CAutomaticFoneticTranscription(object sender, ExecutedRoutedEventArgs e)
-        {
-            menuItemNastrojeFonetickyPrepis_Click(null, new RoutedEventArgs());
-            menuItemFonetickyPrepis_Click(null, new RoutedEventArgs());
-        }
-
         private void CShowPanelFoneticTranscription(object sender, ExecutedRoutedEventArgs e)
         {
             ShowPhoneticTranscription(true);
@@ -567,20 +552,9 @@ namespace NanoTrans
 
         }
 
-        private void CStartStopDictate(object sender, ExecutedRoutedEventArgs e)
-        {
-
-        }
-
-        private void CStartStopVoiceControl(object sender, ExecutedRoutedEventArgs e)
-        {
-
-
-        }
-
         private void CNormalizeParagraph(object sender, ExecutedRoutedEventArgs e)
         {
-            Normalizovat(VirtualizingListBox.ActiveTransctiption, -1);
+            NormalizePhonetics(VirtualizingListBox.ActiveTransctiption, -1);
         }
 
         private void CRemoveNonphonemes(object sender, ExecutedRoutedEventArgs e)
@@ -619,7 +593,7 @@ namespace NanoTrans
 
         private void COpenTranscription(object sender, ExecutedRoutedEventArgs e)
         {
-            OpenTranscription(true, "", false);
+            OpenTranscription(true, "");
         }
 
         private void CSaveTranscription(object sender, ExecutedRoutedEventArgs e)

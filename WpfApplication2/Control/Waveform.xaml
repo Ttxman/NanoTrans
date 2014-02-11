@@ -17,10 +17,10 @@
             <Image Margin="0,22,0,19" Name="myImage" MouseDown="myImage_MouseLeftButtonDown" MouseUp="myImage_MouseUp" MouseMove="myImage_MouseMove" Stretch="UniformToFill" />
             <Rectangle Fill="DarkGreen" HorizontalAlignment="Left" Margin="0,0,0,0" Name="rectangle1" Stroke="Black" Width="2" Focusable="False" IsHitTestVisible="False" />
             <Label Background="LightGray" HorizontalAlignment="Left" Margin="24.038,0,0,19" Name="rectangle2" Width="67" OpacityMask="Cyan" HorizontalContentAlignment="Center" Opacity="0.6" IsHitTestVisible="True" Visibility="Visible" MouseMove="rectangle2_MouseMove" MouseLeftButtonDown="rectangle2_MouseLeftButtonDown" MouseLeftButtonUp="rectangle2_MouseLeftButtonUp" ></Label>
-            <Button VerticalAlignment="Bottom" HorizontalAlignment="Left" Height="20" Margin="0,0,0,0" Click="btPosunLevo_Click" Name="btMoveLeft" Focusable="False" IsHitTestVisible="True" IsTabStop="False">
+            <Button VerticalAlignment="Bottom" HorizontalAlignment="Left" Height="20" Margin="0,0,0,0" Click="btMoveLeft_Click" Name="btMoveLeft" Focusable="False" IsHitTestVisible="True" IsTabStop="False">
                 <Image Source="../icons/iPlay.png" IsHitTestVisible="False" FlowDirection="RightToLeft" />
             </Button>
-            <Button VerticalAlignment="Bottom" HorizontalAlignment="Right" Height="20" Margin="0,0,0,0" Click="btPosunPravo_Click" Name="btMoveRight" Focusable="False" IsHitTestVisible="True" IsTabStop="False">
+            <Button VerticalAlignment="Bottom" HorizontalAlignment="Right" Height="20" Margin="0,0,0,0" Click="btMoveRight_Click" Name="btMoveRight" Focusable="False" IsHitTestVisible="True" IsTabStop="False">
                 <Image Source="../icons/iPlay.png" IsHitTestVisible="False" />
             </Button>
         </Grid>
@@ -32,7 +32,7 @@
                 </Button>
                 <Label Name="lAudioPosition" Margin="0,0,0,0" Height="24" Width="84.436" FontSize="12" FontWeight="Bold">0:00:00,00</Label>
             </StackPanel>
-            <Slider Name="slMediaPosition" PreviewMouseLeftButtonUp="slPoziceMedia_PreviewMouseUp" PreviewMouseLeftButtonDown="slPoziceMedia_MouseDown" PreviewMouseDown="slPoziceMedia_MouseDown" ValueChanged="slPoziceMedia_ValueChanged" LostMouseCapture="slPoziceMedia_LostMouseCapture" IsMoveToPointEnabled="True" IsTabStop="False" Focusable="False" IsSelectionRangeEnabled="True" Foreground="Black" Background="Transparent" BorderBrush="Transparent" BorderThickness="0" Margin="110,4,52,0" Maximum="1000" />
+            <Slider Name="slMediaPosition" PreviewMouseLeftButtonUp="slMediaPosition_PreviewMouseUp" PreviewMouseLeftButtonDown="slMediaPosition_MouseDown" PreviewMouseDown="slMediaPosition_MouseDown" ValueChanged="slMediaPosition_ValueChanged" LostMouseCapture="slMediaPosition_LostMouseCapture" IsMoveToPointEnabled="True" IsTabStop="False" Focusable="False" IsSelectionRangeEnabled="True" Foreground="Black" Background="Transparent" BorderBrush="Transparent" BorderThickness="0" Margin="110,4,52,0" Maximum="1000" />
             <Label Name="lAudioLength" FontSize="11" FontWeight="Normal" HorizontalAlignment="Right" Margin="0,1" ToolTip="Celková délka audio souboru [h:mm:ss]">0:00:00</Label>
         </Grid>
     </Grid>

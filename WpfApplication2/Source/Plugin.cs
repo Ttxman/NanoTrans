@@ -179,7 +179,7 @@ namespace NanoTrans
                     string inputfile = System.IO.Path.Combine(tempFolder, System.IO.Path.GetRandomFileName()) + ".trsx";
                     string tempFile = destfile;
 
-                    data.Serialize(inputfile, true, !GlobalSetup.Setup.SaveInShortFormat);
+                    data.Serialize(inputfile, true);
 
                     ProcessStartInfo psi = new ProcessStartInfo();
 

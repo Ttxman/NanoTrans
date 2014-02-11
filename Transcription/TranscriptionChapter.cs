@@ -44,7 +44,7 @@ namespace NanoTrans.Core
         public VirtualTypeList<TranscriptionSection> Sections;
 
 
-        #region serializace nova
+        #region serializtion 
         public Dictionary<string, string> Elements = new Dictionary<string, string>();
         private static readonly XAttribute EmptyAttribute = new XAttribute("empty", "");
 
@@ -72,34 +72,31 @@ namespace NanoTrans.Core
 
         }
 
-        public XElement Serialize(bool strict)
+        public XElement Serialize()
         {
 
-            XElement elm = new XElement(strict ? "chapter" : "ch",
+            XElement elm = new XElement("ch",
                 Elements.Select(e => new XAttribute(e.Key, e.Value)).Union(new[] { new XAttribute("name", name), }),
-                Sections.Select(s => s.Serialize(strict))
+                Sections.Select(s => s.Serialize())
             );
 
             return elm;
         }
         #endregion
 
-        /// <summary>
-        /// kopie objektu
-        /// </summary>
-        /// <param name="aKopie"></param>
-        public TranscriptionChapter(TranscriptionChapter aKopie)
+
+        public TranscriptionChapter(TranscriptionChapter toCopy)
             : this()
         {
-            this.Begin = aKopie.Begin;
-            this.End = aKopie.End;
-            this.name = aKopie.name;
-            if (aKopie.Sections != null)
+            this.Begin = toCopy.Begin;
+            this.End = toCopy.End;
+            this.name = toCopy.name;
+            if (toCopy.Sections != null)
             {
                 this.Sections = new VirtualTypeList<TranscriptionSection>(this);
-                for (int i = 0; i < aKopie.Sections.Count; i++)
+                for (int i = 0; i < toCopy.Sections.Count; i++)
                 {
-                    this.Sections.Add(new TranscriptionSection(aKopie.Sections[i]));
+                    this.Sections.Add(new TranscriptionSection(toCopy.Sections[i]));
                 }
             }
         }

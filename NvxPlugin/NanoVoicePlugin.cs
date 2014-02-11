@@ -60,7 +60,7 @@ namespace NvxPlugin
             TranscriptionSection sec = new TranscriptionSection();
             sec.Text = segmentation.Attribute("label").Value;
 
-            tr.mediaURI = medium.Attribute("url")!=null?medium.Attribute("url").Value:"";
+            tr.MediaURI = medium.Attribute("url")!=null?medium.Attribute("url").Value:"";
 
             var idss = segmentation.Element("Identities");
             if (idss != null)

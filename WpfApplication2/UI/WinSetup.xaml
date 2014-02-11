@@ -3,7 +3,15 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:tk="http://schemas.xceed.com/wpf/xaml/toolkit"
     xmlns:local="clr-namespace:NanoTrans"
-    Title="Nastavení" Height="484" Width="674" Icon="/NanoTrans;component/icons/iNastaveni.png">
+        
+        xmlns:lex="http://wpflocalizeextension.codeplex.com"
+        lex:LocalizeDictionary.DesignCulture="cs"
+        lex:LocalizeDictionary.IncludeInvariantCulture="False"
+        lex:ResxLocalizationProvider.DefaultAssembly="NanoTrans"
+        lex:ResxLocalizationProvider.DefaultDictionary="Strings"
+        
+        
+    Title="{lex:LocText Key=WinSetupTitle}" Height="484" Width="674" Icon="/NanoTrans;component/icons/iNastaveni.png">
     <Window.Resources>
         <local:CollapseOnNullConverter x:Key="CollapseOnNullConverter" />
         <local:CollapseOnNotNullConverter x:Key="CollapseOnNotNullConverter" />
@@ -15,75 +23,64 @@
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
                         <Image Source="/icons/iAudio.png" />
-                        <TextBlock Text=" Audio" Margin="2,0,0,0" VerticalAlignment="Center" />
+                        <TextBlock Text="{lex:Loc Key=WinSetupAudioTab}" Margin="2,0,0,0" VerticalAlignment="Center" />
                     </StackPanel>
                 </TabItem.Header>
                 <Grid>
-                    <GroupBox Header="Přehrávání zvuku" Margin="5,5,5,0" Height="99" VerticalAlignment="Top" FontWeight="Bold" >
+                    <GroupBox Header="{lex:Loc Key=WinSetupAudioPlayback}" Margin="5,5,5,0" Height="99" VerticalAlignment="Top" FontWeight="Bold" >
                         <Grid>
-                            <Label HorizontalAlignment="Left" Margin="5,9,0,0" Width="120" Height="27.723" VerticalAlignment="Top">Výstupní zažízení:</Label>
-                            <ComboBox Margin="119,9,12,0" Name="cbVystupniAudioZarizeni" Height="22.723" VerticalAlignment="Top" />
+                            <Label HorizontalAlignment="Left" Margin="5,9,0,0" Width="120" Height="27.723" VerticalAlignment="Top" Content="{lex:Loc Key=WinSetupOutputDevices}"/>
+                            <ComboBox Margin="119,9,12,0" Name="cbOutputAudioDevices" Height="22.723" VerticalAlignment="Top" />
                         </Grid>
                     </GroupBox>
-                    <GroupBox Header="Záznam zvuku" Margin="5,112,5,103.723" FontWeight="Bold" >
+                    <GroupBox Header="{lex:Loc Key=WinSetupAudioRecording}" Margin="5,112,5,103.723" FontWeight="Bold" >
                         <Grid>
-                            <Label HorizontalAlignment="Left" Margin="5,9,0,0" Width="120" Height="27.723" VerticalAlignment="Top">Vstupní zažízení:</Label>
-                            <ComboBox Margin="119,9,12,0" Name="cbVstupniAudioZarizeni" Height="22.723" VerticalAlignment="Top" />
+                            <Label HorizontalAlignment="Left" Margin="5,9,0,0" Width="120" Height="27.723" VerticalAlignment="Top" Content="{lex:Loc Key=WinSetupInputDevices}"/>
+                            <ComboBox Margin="119,9,12,0" Name="cbInputAudioDevices" Height="22.723" VerticalAlignment="Top" />
                         </Grid>
                     </GroupBox>
 
                 </Grid>
             </TabItem>
 
-            <TabItem Header="Ostatní">
+            <TabItem Header="{lex:Loc Key=WinSetupOthersTab}">
                 <Grid>
                     <StackPanel>
-                        <GroupBox Header="Výchozí databáze mluvčích" Height="61" VerticalAlignment="Top" FontWeight="Bold"  Margin="5,5,5,0">
+                        <GroupBox Header="{lex:Loc Key=WinSetupSpeakersDatabaseTitle}" Height="61" VerticalAlignment="Top" FontWeight="Bold"  Margin="5,5,5,0">
                             <Grid>
-                                <Label Margin="0,7,0,0" Height="27.723" VerticalAlignment="Top" HorizontalAlignment="Left" Width="56">Soubor:</Label>
-                                <TextBox Height="23" Margin="55,9,117,0" Name="tbCestaDatabazeMluvcich" VerticalAlignment="Top" Background="LightYellow" IsReadOnly="True" />
+                                <Label Margin="0,7,0,0" Height="27.723" VerticalAlignment="Top" HorizontalAlignment="Left" Width="56" Content=""/>
+                                <TextBox Height="23" Margin="55,9,117,0" Name="tbSpeakerDBPath" VerticalAlignment="Top" Background="LightYellow" IsReadOnly="True" />
                                 <Button HorizontalAlignment="Right" Width="92"  Margin="0,7,12,0" Height="27.723" VerticalAlignment="Top" Click="ButtonLoadSpeakersDatabase_Click">
                                     <StackPanel Orientation="Horizontal">
                                         <Image Margin="0,0,5,0" Height="17" Source="../icons/iOtevrit.png" />
-                                        <TextBlock Text="Načíst..." Margin="2,0,0,0" VerticalAlignment="Center" />
+                                        <TextBlock Text="{lex:Loc Key=WinSetupSpeakersDatabaseButtonTitle}" Margin="2,0,0,0" VerticalAlignment="Center" />
                                     </StackPanel>
                                 </Button>
                             </Grid>
                         </GroupBox>
-                        <GroupBox FontWeight="Bold" Header="Textový přepis" Height="83" VerticalAlignment="Top" Margin="5,5,5,0">
+
+                        <GroupBox FontWeight="Bold" Header="{lex:Loc Key=WinSetupTextualTranscriptionTitle}" Height="83" VerticalAlignment="Top" Margin="5,5,5,0">
                             <Grid>
-                                <Label Height="27.723" HorizontalAlignment="Left" Margin="0,7,0,0" VerticalAlignment="Top" >Velikost textu přepisu:</Label>
-                                <TextBox HorizontalAlignment="Left" Margin="8.733,0,0,11.446" Name="tbVelikostPisma" Width="38"  VerticalAlignment="Bottom" Height="19.277" />
-                                <CheckBox Margin="177,12,247,0" Name="chbZobrazitFotku" VerticalAlignment="Top" Height="13.277">Zobrazit fotografii mluvčího</CheckBox>
-                                <Slider Margin="251,0,258,9.723" Name="slVelikostFotografie" VerticalAlignment="Bottom" Height="22" Maximum="150" Minimum="20" Value="50" />
-                                <Label HorizontalAlignment="Left" Margin="186,31,0,4" Name="label1" Width="71" FontWeight="Normal">Velikost:</Label>
-                                <CheckBox Height="13.277" HorizontalAlignment="Right" Margin="0,12,13,0" Name="chbZobrazitIndexyPocatku" VerticalAlignment="Top" Width="205">Zobrazit poč. čas. indexy v přepisu</CheckBox>
-                                <CheckBox Height="13.277" HorizontalAlignment="Right" Margin="0,0,13,17.446" Name="chbZobrazitIndexyKonce" VerticalAlignment="Bottom" Width="205">Zobrazit kon. čas. indexy v přepisu</CheckBox>
+                                <Label Height="27.723" HorizontalAlignment="Left" Margin="0,7,0,0" VerticalAlignment="Top" Content="{lex:Loc Key=WinSetupTextualTranscriptionFontSize}"/>
+                                <TextBox HorizontalAlignment="Left" Margin="8.733,0,0,11.446" Name="tbTextSize" Width="38"  VerticalAlignment="Bottom" Height="19.277" />
+                                <CheckBox Margin="177,12,247,0" Name="chbShowSpeakerImage" VerticalAlignment="Top" Height="13.277" Content="{lex:Loc Key=WinSetupTextualTranscriptionShowImage}"/>
+                                <Slider Margin="251,0,258,9.723" Name="slSpeakerImageSize" VerticalAlignment="Bottom" Height="22" Maximum="150" Minimum="20" Value="50" />
+                                <Label HorizontalAlignment="Left" Margin="186,31,0,4" Name="label1" Width="71" FontWeight="Normal" Content="{lex:Loc Key=WinSetupTextualTranscriptionImageSize}"/>
                             </Grid>
                         </GroupBox>
 
-                        <GroupBox FontWeight="Bold" Header="Spellcheking Slovníky" Height="83" Margin="5,5,5,0" VerticalAlignment="Top">
+                        <GroupBox FontWeight="Bold" Header="{lex:Loc Key=WinSetupSpellchekingTitle}" Height="83" Margin="5,5,5,0" VerticalAlignment="Top">
                             <StackPanel Orientation="Horizontal">
-                                <Button Height="27.723" Margin="0,0,10,0" Visibility="{Binding Source={StaticResource SpellEngine}, Converter={StaticResource CollapseOnNotNullConverter}}" Click="Button_Click_1">Stáhnout slovník automaticky</Button>
-                                <Button Height="27.723" Margin="0,0,10,0" Visibility="{Binding Source={StaticResource SpellEngine}, Converter={StaticResource CollapseOnNullConverter}}" Click="Button_Click_1">Aktualizovat slovník automaticky</Button>
-                                <Button Height="27.723" Margin="0,0,10,0" Click="ButtonLoadOpenOfficeSpellchekingDictionaries">Načíst slovníky ručně</Button>
-                            </StackPanel>
-                        </GroupBox>
-                        <GroupBox FontWeight="Bold" Header="Rychlé zobrazování" IsEnabled="False" >
-                            <StackPanel Orientation="Horizontal" >
-                                <CheckBox Content="Načíst a vytvořit celý přepis v paměti (velká spotřeba RAM - stovky MB)" Height="16" Name="checkboxQuickScroll" />
-                            </StackPanel>
-                        </GroupBox>
-                        <GroupBox FontWeight="Bold" Header="Ukládání dat">
-                            <StackPanel Orientation="Horizontal">
-                                <CheckBox Content="Ukládat přepisy ve zkácené formě" Height="16" Name="checkBoxSaveShortened" />
+                                <Button Height="27.723" Margin="0,0,10,0" Visibility="{Binding Source={StaticResource SpellEngine}, Converter={StaticResource CollapseOnNotNullConverter}}" Click="Button_Click_1" Content="{lex:Loc Key=WinSetupSpellchekingDownloadAutomatically}"/>
+                                <Button Height="27.723" Margin="0,0,10,0" Visibility="{Binding Source={StaticResource SpellEngine}, Converter={StaticResource CollapseOnNullConverter}}" Click="Button_Click_1" Content="{lex:Loc Key=WinSetupSpellchekingUpdateAutomatically}"/>
+                                <Button Height="27.723" Margin="0,0,10,0" Click="ButtonLoadOpenOfficeSpellchekingDictionaries" Content="{lex:Loc Key=WinSetupSpellchekingSetManually}"/>
                             </StackPanel>
                         </GroupBox>
                     </StackPanel>
                 </Grid>
             </TabItem>
-            <TabItem Header="Přehrávání">
-                <GroupBox Header="Nastavení Přehrávání" Height="75" Name="groupBox7" Margin="0,0,0,0" VerticalAlignment="Top" FontWeight="ExtraBold">
+            <TabItem Header="{lex:Loc Key=WinSetupPlaybackTab}">
+                <GroupBox Header="{lex:Loc Key=WinSetupPlaybackSettings}" Height="75" Name="groupBox7" Margin="0,0,0,0" VerticalAlignment="Top" FontWeight="ExtraBold">
                     <Grid Height="51">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
@@ -93,31 +90,29 @@
                             <RowDefinition Height="25" />
                             <RowDefinition Height="25" />
                         </Grid.RowDefinitions>
-                        <Label Margin="-2,0,0,0" HorizontalAlignment="Left" Width="197" Height="25" VerticalAlignment="Top">Zpomalené přehrávání - rychlost:</Label>
+                        <Label Margin="-2,0,0,0" HorizontalAlignment="Left" Width="197" Height="25" VerticalAlignment="Top" Content="{lex:Loc Key=WinSetupSlowPlaybackSpeed}"/>
                         <tk:DecimalUpDown Grid.Column="1" FormatString="F2" Margin="6,0,0,0" DefaultValue="0.66" Maximum="0.9" Minimum="0.2" Value="0.6" Increment="0.05" HorizontalAlignment="Left" Width="65" Height="23" VerticalAlignment="Top" Name="UpDownSpeed" ></tk:DecimalUpDown>
-                        <Label Grid.Row="1" Margin="-2,0,0,0" HorizontalAlignment="Left" Width="197" Height="25" VerticalAlignment="Top">Délka skoku:</Label>
+                        <Label Grid.Row="1" Margin="-2,0,0,0" HorizontalAlignment="Left" Width="197" Height="25" VerticalAlignment="Top" Content="{lex:Loc Key=WinSetupJumpLength}"/>
                         <tk:DecimalUpDown Grid.Row="1" Grid.Column="1" FormatString="F2" Margin="6,0,0,0" DefaultValue="0.66" Maximum="20" Minimum="0.5" Value="1" Increment="0.05" HorizontalAlignment="Left" Width="65" Height="23" VerticalAlignment="Top" Name="UpDownJump" ></tk:DecimalUpDown>
                         <Label Grid.Row="1" Grid.Column="1" Content="s" Height="25" HorizontalAlignment="Left" Margin="69,0,0,0" VerticalAlignment="Top" Width="19" Grid.RowSpan="2" />
                         <Label Grid.Column="1" Content="krát" Height="25" HorizontalAlignment="Left" Margin="69,0,0,0" VerticalAlignment="Top" Width="50" />
                     </Grid>
-
-
                 </GroupBox>
-
-
             </TabItem>
         </TabControl>
-        <Button Height="27" Margin="0,0,115,5" Name="btOK" VerticalAlignment="Bottom" IsDefault="True" Click="btOK_Click" HorizontalAlignment="Right" Width="63">
-            <StackPanel Orientation="Horizontal">
-                <Image Source="/icons/iOK.png" Height="16" />
-                <TextBlock FontWeight="Bold" Margin="3">OK</TextBlock>
-            </StackPanel>
-        </Button>
-        <Button Height="27" Margin="0,0,6,5" Name="button1" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="89" IsCancel="True">
-            <StackPanel Orientation="Horizontal">
-                <Image Source="/icons/iStorno.png" Height="16" />
-                <TextBlock FontWeight="Bold" Margin="3">Storno</TextBlock>
-            </StackPanel>
-        </Button>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Height="27" Margin="0,0,6,5" Name="btOK" VerticalAlignment="Bottom" IsDefault="True" Click="btOK_Click"  >
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="/icons/iOK.png" Height="16" />
+                    <TextBlock FontWeight="Bold" Margin="3" Text="{lex:Loc Key=WinSetupOKButton}"/>
+                </StackPanel>
+            </Button>
+            <Button Height="27" Margin="0,0,6,5" Name="button1" VerticalAlignment="Bottom" HorizontalAlignment="Right" IsCancel="True">
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="/icons/iStorno.png" Height="16" />
+                    <TextBlock FontWeight="Bold" Margin="3" Text="{lex:Loc Key=WinSetupStornoButton}"/>
+                </StackPanel>
+            </Button>
+        </StackPanel>
     </Grid>
 </Window>
