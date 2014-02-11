@@ -1700,7 +1700,8 @@ namespace NanoTrans
             }
 
             VirtualizingListBox.RequestTimePosition += delegate(out TimeSpan value){value = waveform1.CaretPosition;};
-
+            VirtualizingListBox.RequestPlaying += delegate(out bool value) { value = Playing; };
+            VirtualizingListBox.RequestPlayPause += delegate() { CommandPlayPause.Execute(null,null); };
         }
 
         void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)

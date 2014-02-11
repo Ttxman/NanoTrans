@@ -65,7 +65,12 @@ namespace NanoTrans
 
 
         public delegate void TimespanRequestDelegate(out TimeSpan value);
-        public event TimespanRequestDelegate RequestTimePosition;
+        public TimespanRequestDelegate RequestTimePosition;
+
+        public Action RequestPlayPause;
+
+        public delegate void FlagStatusRequestDelegate(out bool value);
+        public FlagStatusRequestDelegate RequestPlaying;
 
 
         public void RecalculateSizes()
@@ -179,6 +184,13 @@ namespace NanoTrans
 
         void l_MoveUpRequest(object sender, EventArgs e)
         {
+            bool playing = false;
+            if (RequestPlaying != null)
+                RequestPlaying(out playing);
+
+            if (playing && RequestPlayPause != null)
+                RequestPlayPause();
+
             Element el = (Element)sender;
             TranscriptionElement tr = el.ValueElement;
             if (tr == null)
@@ -213,10 +225,20 @@ namespace NanoTrans
                 }
                 n.SetCaretOffset(pos);
             }
+
+            if (playing && RequestPlayPause != null)
+                RequestPlayPause();
         }
 
         void l_MoveDownRequest(object sender, EventArgs e)
         {
+            bool playing = false;
+            if (RequestPlaying != null)
+                RequestPlaying(out playing);
+
+            if (playing && RequestPlayPause != null)
+                RequestPlayPause();
+
             Element el = (Element)sender;
             TranscriptionElement tr = el.ValueElement;
 
@@ -247,6 +269,9 @@ namespace NanoTrans
 
                 n.SetCaretOffset(pos);
             }
+
+            if (playing && RequestPlayPause != null)
+                RequestPlayPause();
         }
 
 
