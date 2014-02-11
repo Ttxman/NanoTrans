@@ -53,7 +53,6 @@ namespace NanoTrans
                 if (bNastaveni.audio.VystupniZarizeniIndex < cbVystupniAudioZarizeni.Items.Count) cbVystupniAudioZarizeni.SelectedIndex = bNastaveni.audio.VystupniZarizeniIndex;
 
                 cbVstupniAudioZarizeni.Items.Clear();
-                pZarizeni = MyWaveRecorder.DeviceNamesIN;
                 if (pZarizeni != null)
                 {
                     foreach (string s in pZarizeni)

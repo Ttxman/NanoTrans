@@ -12,6 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Text.RegularExpressions;
+using System.Reflection;
 
 namespace NanoTrans
 {
@@ -30,16 +31,17 @@ namespace NanoTrans
             }
         }
         public event EventHandler<IntEventArgs> CarretPositionJump;
-        public MyTextBox():base()
+        public MyTextBox()
+            : base()
         {
-            this.Background = new SolidColorBrush(Color.FromArgb(0,255,255,255));
-            this.SizeChanged+=new SizeChangedEventHandler(MyTextBox_SizeChanged);
-            
+            this.Background = new SolidColorBrush(Color.FromArgb(0, 255, 255, 255));
+            this.SizeChanged += new SizeChangedEventHandler(MyTextBox_SizeChanged);
+
         }
 
-        void  MyTextBox_SizeChanged(object sender, SizeChangedEventArgs e)
+        void MyTextBox_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-    	    if(m_BGcanvas!=null)
+            if (m_BGcanvas != null)
             {
                 m_BGcanvas.Height = this.Height;
                 m_BGcanvas.Width = this.Width;
@@ -61,7 +63,7 @@ namespace NanoTrans
         public Canvas m_BGcanvas = null;
         public Canvas BGcanvas
         {
-            get{return m_BGcanvas;}
+            get { return m_BGcanvas; }
             set
             {
                 m_BGcanvas = value;
@@ -70,7 +72,7 @@ namespace NanoTrans
             }
         }
         public static HashSet<string> Vocabulary = new HashSet<string>();
-        
+
         public void RefreshTextMarking()
         {
             this.OnTextChanged(null);
@@ -79,13 +81,13 @@ namespace NanoTrans
         public static Regex wordSplitter = new Regex(@"(?:\w+|\[.*?\])", RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase);
         public static Regex wordIgnoreChecker = new Regex(@"(?:\[.*?\]|\d+)", RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-    
+
         public static Regex ignoredGroup = new Regex(@"\[.*?\]", RegexOptions.Singleline | RegexOptions.Compiled);
         public static Key suggestionKey = Key.Divide;
         public static string[] suggestions = { };
         static MyTextBox()
         {
-            
+
         }
 
         bool i_leftDown = false;
@@ -93,8 +95,8 @@ namespace NanoTrans
 
         int GetRepairedMouseIndex(Point pos)
         {
-            
-            int indx = GetCharacterIndexFromPoint(pos,true);
+
+            int indx = GetCharacterIndexFromPoint(pos, true);
             if (indx < 0 || indx > this.Text.Length)
                 return -1;
 
@@ -102,7 +104,7 @@ namespace NanoTrans
             Rect r1 = GetRectFromCharacterIndex(indx, false);
             Rect r2 = GetRectFromCharacterIndex(indx, true);
 
-            if (pos.X >= (r1.Left + 0.5*(r2.Left-r1.Left)))
+            if (pos.X >= (r1.Left + 0.5 * (r2.Left - r1.Left)))
                 indx++;
 
             return indx;
@@ -116,7 +118,7 @@ namespace NanoTrans
             m_stroredTCEvent = null;
         }
 
-        
+
         protected override void OnTextChanged(TextChangedEventArgs e)
         {
             if (!m_supressTextChangedEvent)
@@ -130,14 +132,17 @@ namespace NanoTrans
                 return;
             }
 
-            if(BGcanvas == null)
+            if (BGcanvas == null)
                 return;
 
             if (Vocabulary.Count > 0)
             {
-                BGcanvas.Children.Clear();
 
-
+                System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+                foreach (TextChange c in e.Changes)
+                {
+                   
+                    BGcanvas.Children.Clear();
                     foreach (Match m in wordSplitter.Matches(this.Text))
                     {
                         string subst = this.Text.Substring(m.Index, m.Length).ToLower();
@@ -152,9 +157,11 @@ namespace NanoTrans
                                 l.StrokeThickness = -1;
                                 l.StrokeDashArray = new DoubleCollection(new double[] { 2, 2 });
 
-                                
+
+                                sw.Start();
                                 Rect r1 = this.GetRectFromCharacterIndex(beg);
                                 Rect r2 = this.GetRectFromCharacterIndex(i);
+                                sw.Stop();
 
                                 if (r1 != Rect.Empty && r2 != Rect.Empty)
                                 {
@@ -170,15 +177,16 @@ namespace NanoTrans
                             }
                         }
                     }
+                }
 
-                    BGcanvas.InvalidateVisual();
-                
+                BGcanvas.InvalidateVisual();
+                System.Diagnostics.Debug.WriteLine(sw.ElapsedMilliseconds);
             }
-        } 
+        }
         protected override void OnMouseDown(MouseButtonEventArgs e)
         {
-            
-           // Console.WriteLine("down");
+
+            // Console.WriteLine("down");
             if (e.LeftButton == MouseButtonState.Pressed)
             {
                 i_backSelect = false;
@@ -193,16 +201,17 @@ namespace NanoTrans
                 foreach (Match m in matches)
                 {
                     int beginindex = m.Index;
-                    int endindex = m.Index+m.Length;
+                    int endindex = m.Index + m.Length;
                     if (indx >= beginindex && indx < endindex)
                     {
                         double l1 = GetRectFromCharacterIndex(beginindex, false).Left;
                         double l2 = GetRectFromCharacterIndex(endindex, true).Left;
-                        
+
                         if (pos.X >= (l1 + 0.5 * (l2 - l1)))
                         {
                             indx = endindex;
-                        }else 
+                        }
+                        else
                         {
                             indx = beginindex;
                         }
@@ -213,14 +222,13 @@ namespace NanoTrans
                 }
 
                 i_sindex = indx;
-                if(indx>=0)
+                if (indx >= 0)
                     this.CaretIndex = indx;
                 e.Handled = true;
             }
 
             base.OnMouseDown(e);
         }
-
         protected override void OnMouseUp(MouseButtonEventArgs e)
         {
             if (e.RightButton == MouseButtonState.Released)
@@ -230,10 +238,26 @@ namespace NanoTrans
             base.OnMouseUp(e);
         }
 
+
+        static FieldInfo TCoffsetInfo = typeof(TextChange).GetField("_offset", BindingFlags.Instance | BindingFlags.NonPublic);
+        static FieldInfo TCaddedLengthInfo = typeof(TextChange).GetField("_addedLength", BindingFlags.Instance | BindingFlags.NonPublic);
+        static FieldInfo TCremovedLengthInfo = typeof(TextChange).GetField("_removedLength", BindingFlags.Instance | BindingFlags.NonPublic);
+        static ConstructorInfo TCconstructorInfo = typeof(TextChange).GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[0], new ParameterModifier[0]);
+
+        static TextChange CreateTextChange(int offset, int added, int removed)
+        {
+            TextChange tc = (TextChange)TCconstructorInfo.Invoke(new object[0]);
+            TCoffsetInfo.SetValue(tc, offset);
+            TCaddedLengthInfo.SetValue(tc, added);
+            TCremovedLengthInfo.SetValue(tc, removed);
+
+            return tc;
+        }
+
         protected override void OnMouseMove(MouseEventArgs e)
         {
             //Console.WriteLine("move");   
-            if ((Mouse.LeftButton == MouseButtonState.Pressed) && i_leftDown && i_sindex>=0)
+            if ((Mouse.LeftButton == MouseButtonState.Pressed) && i_leftDown && i_sindex >= 0)
             {
                 int sindx = i_sindex;
                 Point pos = e.GetPosition(this);
@@ -315,7 +339,7 @@ namespace NanoTrans
                         {
                             int len = SelectionLength + GetStepLength(SelectionStart + SelectionLength, false);
                             int start = SelectionStart;
-                            CaretIndex = start+len;
+                            CaretIndex = start + len;
 
                             SelectionStart = start;
                             SelectionLength = len;
@@ -358,11 +382,11 @@ namespace NanoTrans
                         int pos = this.CaretIndex;
                         if (pos >= 0 && pos < this.Text.Length)
                         {
-                            MatchCollection mc= wordSplitter.Matches(this.Text);
-                            for(int i=0;i<mc.Count;i++ )
+                            MatchCollection mc = wordSplitter.Matches(this.Text);
+                            for (int i = 0; i < mc.Count; i++)
                             {
                                 Match m = mc[i];
-                                if (i< mc.Count-1 && m.Index <= pos && m.Index + m.Length >= pos)
+                                if (i < mc.Count - 1 && m.Index <= pos && m.Index + m.Length >= pos)
                                 {
                                     this.CaretIndex = m.Index + m.Length;
                                     if (CarretPositionJump != null)
@@ -371,17 +395,17 @@ namespace NanoTrans
                                 }
                             }
                         }
-                       
+
                         break;
                     case Key.Left:
                         pos = this.CaretIndex;
                         if (pos >= 0 && pos < this.Text.Length)
                         {
-                            MatchCollection mc= wordSplitter.Matches(this.Text);
-                            for(int i=0;i<mc.Count;i++ )
+                            MatchCollection mc = wordSplitter.Matches(this.Text);
+                            for (int i = 0; i < mc.Count; i++)
                             {
                                 Match m = mc[i];
-                                if ( i>0 && m.Index <= pos && m.Index + m.Length >= pos)
+                                if (i > 0 && m.Index <= pos && m.Index + m.Length >= pos)
                                 {
                                     m = mc[i - 1];
                                     this.CaretIndex = m.Index + m.Length;
@@ -390,7 +414,7 @@ namespace NanoTrans
                                 }
                             }
                         }
-                       
+
                         break;
                 }
             }
@@ -404,7 +428,7 @@ namespace NanoTrans
                         {
                             CaretIndex = SelectionStart + SelectionLength;
                         }
-                        
+
                         int step = GetStepLength(CaretIndex, false);
                         CaretIndex += step;
 
@@ -427,19 +451,27 @@ namespace NanoTrans
                         {
                             string pre = this.Text.Substring(0, SelectionStart);
                             string post = this.Text.Substring(SelectionStart + SelectionLength);
+
+                            int offset = SelectionStart;
+                            int removed = SelectionLength;
                             m_supressTextChangedEvent = true;//blokace eventu, nejsou poradne nastaveny pozice carety
-                            this.Text = pre + post; 
+                            this.Text = pre + post;
                             this.SelectionLength = 0;
                             CaretIndex = pre.Length;
+                            m_stroredTCEvent = new TextChangedEventArgs(m_stroredTCEvent.RoutedEvent, m_stroredTCEvent.UndoAction, new List<TextChange>() { CreateTextChange(offset, 0, removed) });
                             RestoreTextChangedEvent(); //nastaveno odpalim event....
                         }
                         else
                         {
                             string pre = this.Text.Substring(0, CaretIndex);
                             string post = this.Text.Substring(CaretIndex + step);
+                            int offset = pre.Length;
+                            int removed = 1;
+
                             m_supressTextChangedEvent = true;
                             this.Text = pre + post;
                             CaretIndex = pre.Length;
+                            m_stroredTCEvent = new TextChangedEventArgs(m_stroredTCEvent.RoutedEvent, m_stroredTCEvent.UndoAction, new List<TextChange>() { CreateTextChange(offset, 0, removed) });
                             RestoreTextChangedEvent(); //nastaveno odpalim event....
                         }
                         e.Handled = true;
@@ -453,28 +485,54 @@ namespace NanoTrans
                         {
                             string pre = this.Text.Substring(0, SelectionStart);
                             string post = this.Text.Substring(SelectionStart + SelectionLength);
+
+                            int offset = SelectionStart;
+                            int removed = SelectionLength;
+
                             m_supressTextChangedEvent = true;//blokace eventu, nejsou poradne nastaveny pozice carety
                             this.Text = pre + post;
                             this.SelectionLength = 0;
                             CaretIndex = pre.Length;
+                            m_stroredTCEvent = new TextChangedEventArgs(m_stroredTCEvent.RoutedEvent, m_stroredTCEvent.UndoAction, new List<TextChange>() { CreateTextChange(offset, 0, removed) });
                             RestoreTextChangedEvent(); //nastaveno odpalim event....
                         }
                         else
-                        { 
+                        {
                             string pre = this.Text.Substring(0, CaretIndex - step);
                             string post = this.Text.Substring(CaretIndex);
+
+                            int offset = pre.Length;
+                            int removed = 1;
+
                             m_supressTextChangedEvent = true;//blokace eventu, nejsou poradne nastaveny pozice carety
                             this.Text = pre + post;
                             CaretIndex = pre.Length;
-                            RestoreTextChangedEvent();
+                            m_stroredTCEvent = new TextChangedEventArgs(m_stroredTCEvent.RoutedEvent, m_stroredTCEvent.UndoAction, new List<TextChange>() { CreateTextChange(offset, 0, removed) });
+                            RestoreTextChangedEvent();//nastaveno odpalim event....
                         }
 
                         e.Handled = true;
                         break;
                 }
-                
+
             }
         }
+
+        public void InsertText(int index, int length, string insertion)
+        {
+            string pre = this.Text.Substring(0, CaretIndex);
+            string post = this.Text.Substring(CaretIndex);
+
+            int offset = index;
+            int added = SelectionLength;
+
+            m_supressTextChangedEvent = true;//blokace eventu, nejsou poradne nastaveny pozice carety
+            this.Text = pre + post + insertion;
+            CaretIndex = pre.Length;
+            m_stroredTCEvent = new TextChangedEventArgs(m_stroredTCEvent.RoutedEvent, m_stroredTCEvent.UndoAction, new List<TextChange>() { CreateTextChange(offset, added, 0) });
+            RestoreTextChangedEvent();//nastaveno odpalim event....
+        }
+
 
         int GetStepLength(int position, bool stepleft)
         {
@@ -553,6 +611,11 @@ namespace NanoTrans
             return true;
         }
 
-        
+        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
+        {
+            base.OnRenderSizeChanged(sizeInfo);
+            RefreshTextMarking();
+
+        }
     }
 }

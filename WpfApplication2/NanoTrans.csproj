@@ -231,13 +231,8 @@
     </Compile>
     <Compile Include="MyEnumParagraphAttributes.cs" />
     <Compile Include="MyPopupListbox.cs" />
+    <Compile Include="MyPrepisovac.cs" />
     <Compile Include="MyTextbox.cs" />
-    <Compile Include="MyWaveNative.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="MyWaveRecorder.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="SubtitlesVizualizer.xaml.cs">
       <DependentUpon>SubtitlesVizualizer.xaml</DependentUpon>
     </Compile>
@@ -247,7 +242,6 @@
     <Compile Include="Waveform.xaml.cs">
       <DependentUpon>Waveform.xaml</DependentUpon>
     </Compile>
-    <Compile Include="window1_docasne.cs" />
     <Compile Include="Window1_KeyboardRelatedItems.cs">
       <DependentUpon>Window1.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -261,14 +255,10 @@
     <Compile Include="MyBuffer16.cs" />
     <Compile Include="MyEnumTypElementu.cs" />
     <Compile Include="MyFonetic.cs" />
-    <Compile Include="MyLog.cs" />
     <Compile Include="MyKONST.cs" />
-    <Compile Include="MyMakro.cs" />
-    <Compile Include="MyPrepisovac.cs" />
     <Compile Include="MySetup.cs" />
     <Compile Include="MySpeakers.cs" />
     <Compile Include="MySubtitlesData.cs" />
-    <Compile Include="MyTag.cs" />
     <Compile Include="MyVlna.cs" />
     <Compile Include="MyWav.cs" />
     <Compile Include="MyWavePlayer.cs" />

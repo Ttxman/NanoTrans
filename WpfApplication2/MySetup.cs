@@ -88,22 +88,7 @@ namespace NanoTrans
             
         }
 
-        /// <summary>
-        /// vrati string aktualniho souboru jaz.modelu pro prepisovac v nastaveni
-        /// </summary>
-        public string JazykovyModelVybrany
-        {
-            get
-            {
-                string s = "";
-                FileInfo fi2 = new FileInfo(JazykovyModel);
-                if (fi2 != null)
-                {
-                    s = fi2.Name;
-                }
-                return s;
-            }
-        }
+    
 
         /// <summary>
         /// vrati seznam vsech mluvcich v danem adresari - seznam souboru
@@ -184,24 +169,6 @@ namespace NanoTrans
             }
             return ret.ToArray();
         }
-
-        /// <summary>
-        /// vrati string aktualniho souboru mluvciho pro prepisovac v nastaveni
-        /// </summary>
-        public string PrepisovaciPravidlaVybrana
-        {
-            get
-            {
-                string s = "";
-                FileInfo fi2 = new FileInfo(PrepisovaciPravidla);
-                if (fi2 != null)
-                {
-                    s = fi2.Name;
-                }
-                return s;
-            }
-        }
-        
     }
 
     public struct Audio
@@ -214,7 +181,7 @@ namespace NanoTrans
     }
 
 
-        public class SingletonRefresher : System.ComponentModel.INotifyPropertyChanged
+    public class SingletonRefresher : System.ComponentModel.INotifyPropertyChanged
         {
             private MySetup m_setup;
             public MySetup Setup
@@ -331,41 +298,18 @@ namespace NanoTrans
         /// </summary>
         [XmlIgnore]
         public Brush BarvaTextBoxuFoneticky { get; set; }
-        [XmlIgnore]
-        public Brush BarvaTextBoxuFonetickyAktualni { get; set; }
+
         /// <summary>
         /// pokud nelze foneticky text editovat nebo tvorit
         /// </summary>
         [XmlIgnore]
         public Brush BarvaTextBoxuFonetickyZakazany { get; set; }
-        [XmlIgnore]
-        public Brush BarvaStartTime { get; set; }                           //udava barvu pro kruznici casoveho indexu
-        [XmlIgnore]
-        public Brush BarvaStopTime { get; set; }
-
-
-
-        [XmlIgnore]
-        public bool RichFocus { get; set; }  //info o aktivnim richtextboxu
-        [XmlIgnore]
-        public bool BylFocus { get; set; }  //info zda byl focus na textboxu
-        [XmlIgnore]
-        public MyTag RichTag { get; set; }   //tag aktivniho richtextboxu
         
-        [XmlIgnore]
-        public List<MyCasovaZnacka> CasoveZnacky { get; set; } //casove znacky pokud je vybran textbox s odstavcem
-        [XmlIgnore]
-        public string CasoveZnackyText { get; set; } //uchovava informace o samotnem! textu ulozenem v textboxu-bez koncu/r/n...
-
-
 
         public double ZpomalenePrehravaniRychlost { get; set; } //rychlost zpomaleneho prehravani
         public double VlnaMalySkok { get; set; } //delka maleho skoku na vlne
         public string[] NerecoveUdalosti { get; set; }
         
-        public bool SetupSkocitNaPozici { get; set; }  //pri kliknuti na textbox, v pripade casove znacky skoci na pozici
-        public bool SetupSkocitZastavit { get; set; }  //pri kliknuti na textbox, v pripade casove znacky skoci na pozici a pozastavi pripadne prehravani
-
         double m_SetupTextFontSize;
         public double SetupTextFontSize //udava velikost pisma v textboxech   
         { 
@@ -527,19 +471,10 @@ namespace NanoTrans
             PriponaDatabazeMluvcich = ".xml";
             UkladatKompletnihoMluvciho = false;
 
-            RichFocus = false;
-            RichTag = new MyTag(-1, -1, -1);
-
-            SetupSkocitNaPozici = true;
-            SetupSkocitZastavit = true;
-
             BarvaTextBoxuOdstavce = Brushes.AliceBlue;
             BarvaTextBoxuOdstavceAktualni = Brushes.AntiqueWhite;
             BarvaTextBoxuFoneticky = Brushes.AliceBlue;
-            BarvaTextBoxuFonetickyAktualni = Brushes.AntiqueWhite;
             BarvaTextBoxuFonetickyZakazany = Brushes.LightGray;
-            BarvaStartTime = Brushes.Green;
-            BarvaStopTime = Brushes.Red;
         }
         
         public MySetup(string aAbsolutniCestaEXEprogramu)
@@ -553,21 +488,12 @@ namespace NanoTrans
             
             PriponaTitulku = ".trsx";
             PriponaDatabazeMluvcich = ".xml";
-      
-            RichFocus = false;
-            RichTag = new MyTag(-1, -1, -1);
 
-            SetupSkocitNaPozici = true;
-            SetupSkocitZastavit = true;
 
             BarvaTextBoxuOdstavce = Brushes.AliceBlue;
             BarvaTextBoxuOdstavceAktualni = Brushes.AntiqueWhite;
             BarvaTextBoxuFoneticky = Brushes.AliceBlue;
-            BarvaTextBoxuFonetickyAktualni = Brushes.AntiqueWhite;
             BarvaTextBoxuFonetickyZakazany = Brushes.LightGray;
-            BarvaStartTime = Brushes.Green;
-            BarvaStopTime = Brushes.Red;
-
         }
 
         /// <summary>
@@ -588,10 +514,9 @@ namespace NanoTrans
                 writer.Close();
                 return true;
             }
-            catch (Exception ex)
+            catch //(Exception ex)
             {
                 //MessageBox.Show("Chyba pri serializaci konfiguračního souboru: " + ex.Message);
-                MyLog.LogujChybu(ex);
                 return false;
             }
 
@@ -615,7 +540,6 @@ namespace NanoTrans
             catch (Exception ex)
             {
                 MessageBox.Show("Chyba pri derializaci konfiguračního souboru souboru: " + ex.Message);
-                MyLog.LogujChybu(ex);
                 return this;
             }
 

@@ -121,19 +121,6 @@
             </Grid.ColumnDefinitions>
             
             <GridSplitter  Margin="0,0,0,7" Width="5" Focusable="False" IsTabStop="False" ShowsPreview="True" HorizontalAlignment="Right" />
-
-            <Grid Margin="0,0,6,0" Name="gPrepis" Panel.ZIndex="100">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="200" />
-                    <RowDefinition />
-                </Grid.RowDefinitions>
-                <ScrollViewer Grid.Row="0" Name="svDokument" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" Margin="0,0,0,1.998">
-                    
-                    <StackPanel Name="spSeznam" Orientation="Vertical" CanVerticallyScroll="True" CanHorizontallyScroll="False" AllowDrop="False">
-                        
-                    </StackPanel>
-                </ScrollViewer>
-            </Grid>
             <!--ListBox Name="spSeznam" IsSynchronizedWithCurrentItem="True" SizeChanged="spSeznam_SizeChanged" SelectionMode="Extended" Margin="0,0,17.221,0" Focusable="False" Height="50" VerticalAlignment="Top">
                 
             </ListBox-->
@@ -210,7 +197,6 @@
                     </Grid>
                 </TabItem>
             </TabControl>
-          
             <!--StackPanel Margin="58.622,0,0,-68.868" Name="stackPanel1" Background="Cyan" Height="65.774" VerticalAlignment="Bottom" Grid.Column="1">
                 <Button Height="18.887" Name="button9" Width="83.325" Click="button9_Click">nova kapitola</Button>
                 <Button Height="18.887" Name="button11" Width="77.77" Click="button11_Click">nova sekce</Button>
@@ -301,7 +287,7 @@
 
         </StatusBar>
         <Grid Name="gFonetickyPrepis" Grid.Row="1" Margin="0,0,0,8">
-            <TextBox Name="tbFonetickyPrepis" TextWrapping="Wrap" SelectionChanged="richX_SelectionChanged" TextChanged="RichText_TextChanged" GotFocus="richX_GotFocus" LostFocus="richX_LostFocus" Margin="19,11.573,213,30" TextDecorations="None" KeyDown="tbFonetickyPrepis_PreviewKeyDown" PreviewKeyDown="richX_PreviewKeyDown" VerticalScrollBarVisibility="Auto"></TextBox>
+            <TextBox Name="tbFonetickyPrepis" TextWrapping="Wrap" Margin="19,11.573,213,30" TextDecorations="None" VerticalScrollBarVisibility="Auto"></TextBox>
             <Button Focusable="False" Height="20" IsTabStop="False" Padding="0,0,1,1" Width="20" HorizontalAlignment="Right" Margin="0,10.573,1.337,0" Grid.Row="1" VerticalAlignment="Top" Name="btZavritFonPrepis" Click="btZavritFonPrepis_Click">X</Button>
             <Button Focusable="False" HorizontalAlignment="Left" IsTabStop="False" Name="btOdstranitNefonemy" ToolTip="Odstraní znaky z fonetického přepisu, které nejsou fonémy" Click="btOdstranitNefonemy_Click" VerticalAlignment="Bottom" Margin="129,0,0,5.724" Height="21.277">Odstr. nefonémy (F11)</Button>
             <Button Focusable="False" HorizontalAlignment="Left" IsTabStop="False" Margin="19,0,0,5.724" Name="btNormalizovat" Click="btNormalizovat_Click" VerticalAlignment="Bottom" Height="21.277">Normalizovat (F9)</Button>
@@ -324,7 +310,6 @@
                 </Grid>
             </GroupBox>
             <CheckBox Height="16" Margin="0,0,231,11" Name="chbPrehravatRozpoznane" VerticalAlignment="Bottom" HorizontalAlignment="Right" Checked="chbPrehravatRozpoznane_Checked" Focusable="False" IsTabStop="False">Přehrávat rozpoznané</CheckBox>
-            <local:SubtitlesVizualizer x:Name="VirtualizingListBox" Background="#FF7DAF7D"  Margin="6,-79,231,0" ClipToBounds="True" />
         </Grid>
         <GridSplitter Grid.Row="1" Margin="0,0,0,-3" Name="gridSplitter3" Height="5" VerticalAlignment="Bottom" Focusable="False" IsTabStop="False" Grid.IsSharedSizeScope="False" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" ResizeBehavior="PreviousAndNext" ShowsPreview="True" />
         <Button Grid.Row="2" Height="23" HorizontalAlignment="Left" Margin="280,0,0,2" Name="btPriraditVyber" VerticalAlignment="Bottom" Click="btPriraditVyber_Click" Focusable="False" IsTabStop="False">Přiřadit výběr k elementu</Button>
@@ -349,6 +334,7 @@
             </Popup>
         </Canvas>
         <local:Waveform Grid.Row="2" Margin="3,52,1,26" x:Name="waveform1" PlayPauseClick="waveform1_PlayPauseClick" SliderPositionChanged="waveform1_SliderPositionChanged" UpdateBegin="waveform1_UpdateBegin" UpdateEnd="waveform1_UpdateEnd" CarretPostionChangedByUser="waveform1_CarretPostionChangedByUser" ParagraphClick="waveform1_ParagraphClick" ParagraphDoubleClick="waveform1_ParagraphDoubleClick" CarretPostionChanged="waveform1_CarretPostionChanged" ElementChanged="waveform1_ElementChanged" SelectionChanged="waveform1_SelectionChanged" />
+        <local:SubtitlesVizualizer x:Name="VirtualizingListBox" Background="#FF7DAF7D" Margin="0,55,306,5" ClipToBounds="True" Subtitles="{Binding ElementName=MainWindow, Path=myDataSource}"/>
     </Grid>
     
     

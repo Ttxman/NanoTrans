@@ -202,10 +202,8 @@ namespace NanoTrans
                 }
                 return true;
             }
-            catch (Exception ex)
+            catch// (Exception ex)
             {
-                //MessageBox.Show("Chyba pri serializaci souboru s ruchy: " + ex.Message, "Varování");
-                MyLog.LogujChybu(ex);
                 return false;
             }
             finally
@@ -249,10 +247,9 @@ namespace NanoTrans
                     _CestaSlovnikUzivatelsky = aJmenoSouboru;
                 return true;
             }
-            catch (Exception ex)
+            catch// (Exception ex)
             {
                 //MessageBox.Show("Chyba pri serializaci souboru s ruchy: " + ex.Message, "Varování");
-                MyLog.LogujChybu(ex);
                 return false;
             }
             finally
@@ -491,12 +488,6 @@ namespace NanoTrans
         /// info zda uz dochazi k prepisovani jineho elementu
         /// </summary>
         public bool Prepisovani { get { return _Prepisovani; } }
-        
-        /// <summary>
-        /// promenna s textem k prepsani pro pristup z vnejsku, kvuli threadum a pod.
-        /// </summary>
-        public string TextKPrepsani;
-        public MyTag TagKPrepsani;
 
         public MyFonetic(string aAbsolutniCestaAdresareProgramu)
         {
@@ -662,16 +653,16 @@ namespace NanoTrans
 
         }
 
-        public bool OdstraneniNefonetickychZnakuZPrepisu(MySubtitlesData aDokument, MyTag aTag)
+        public bool OdstraneniNefonetickychZnakuZPrepisu(MySubtitlesData aDokument, TranscriptionElement aTag)
         {
             try
             {
-                if (aDokument == null) return false;
+
+                //TODO: odstrannei nefonetiky
+          /*      if (aDokument == null) return false;
                 if (aTag == null) return false;
-                if (!aTag.JeOdstavec) return false;
-                MyTag pTag = new MyTag(aTag);
-                pTag.tTypElementu = MyEnumTypElementu.foneticky;
-                MyParagraph pP = aDokument[pTag];
+                if (!aTag.IsParagraph) return false;
+                MyParagraph pP =(MyParagraph)aTag;
                 if (pP == null) return false;
                 bool pPredchoziMezera = true;
                 for (int i = 0; i < pP.Phrases.Count; i++)
@@ -735,74 +726,8 @@ namespace NanoTrans
         /// <returns></returns>
         public string VratFonetickyPrepis(string aText)
         {
-            try
-            {
-                
-                
-
-                if (aText == null || aText == "") return "";
-                //zmenseni vsech pismen
-                string ret = aText.ToLower();
-
-                //pridani mezer pred a za konec vety (textu)
-                if (ret[0] != ' ')
-                {
-                    ret = " " + ret;
-                }
-                if (ret[ret.Length - 1] != ' ')
-                {
-                    ret += " ";
-                }
-
-                for (int i = 0; i < this.prepisovaciPravidla.Count; i++)
-                {
-                    MyRule pRule = this.prepisovaciPravidla[i];
-
-                    //for pro prepis vice znaku na vice - neznele parove na znele atd.
-                    for (int pIndex = 0; pIndex < pRule.Znaky.Length; pIndex++)
-                    {
-
-
-                        if (pRule.ZnakyZa == null && pRule.ZnakyPred == null)
-                        {
-                            ret = ret.Replace(pRule.Znaky[pIndex], pRule.NaCO[pIndex]);
-                        }
-                        if (pRule.ZnakyPred == null && pRule.ZnakyZa != null)
-                        {
-                            for (int j = 0; j < prepisovaciPravidla[i].ZnakyZa.Length; j++)
-                            {
-                                string pSekvence = pRule.Znaky[pIndex] + pRule.ZnakyZa[j];
-                                ret = ret.Replace(pSekvence, pRule.NaCO[pIndex] + pRule.ZnakyZa[j]);
-                            }
-                        }
-                        if (pRule.ZnakyZa == null && pRule.ZnakyPred != null)
-                        {
-                            for (int j = 0; j < pRule.ZnakyPred.Length; j++)
-                            {
-                                string pSekvence = pRule.ZnakyPred[j] + pRule.Znaky[pIndex];
-                                ret = ret.Replace(pSekvence, pRule.ZnakyPred[j] + pRule.NaCO[pIndex]);
-                            }
-                        }
-                        if (pRule.ZnakyZa != null && pRule.ZnakyPred != null)
-                        {
-                            for (int j = 0; j < pRule.ZnakyPred.Length; j++)
-                            {
-                                for (int k = 0; k < pRule.ZnakyZa.Length; k++)
-                                {
-                                    string pSekvence = pRule.ZnakyPred[j] + pRule.Znaky[pIndex] + pRule.ZnakyZa[k];
-                                    ret = ret.Replace(pSekvence, pRule.ZnakyPred[j] + pRule.NaCO[pIndex] + pRule.ZnakyZa[k]);
-                                }
-                            }
-                        }
-                    }
-                }
-                return ret;
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-
+            //TODO: G2P
+            throw new NotImplementedException();
 
         }
 

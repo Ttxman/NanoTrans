@@ -34,49 +34,6 @@ namespace NanoTrans
         public static MyEnumVerze VERZE = MyEnumVerze.Interni;
                 
 
-
-        [System.Runtime.InteropServices.DllImport("user32.dll")]
-        public static extern int GetKeyboardState(byte[] lpKeyState);
-        [System.Runtime.InteropServices.DllImport("user32.dll")]
-        public static extern uint MapVirtualKey(uint uCode, uint uMapType);
-        [System.Runtime.InteropServices.DllImport("user32.dll")]
-        public static extern int ToUnicode(uint wVirtKey, uint wScanCode, byte[] lpKeyState, byte[] pwszBuff, int cchBuff, uint wFlags);     
-        public static  int VratZnak(Key aKey, out char c)
-        {
-            c=' ';
-            try
-            {
-                
-                int VirtualKey = KeyInterop.VirtualKeyFromKey(aKey);
-                byte[] State = new byte[256];
-                int pstav = GetKeyboardState(State);
-                uint uVirtualKey = (uint)VirtualKey;
-                uint pScanCode = MapVirtualKey(uVirtualKey, (uint)0x0);
-                
-
-                byte[] output = new byte[256];
-                int outBufferLength = 256;
-                uint flags = 1;
-                int pStavUnicode = 0;
-                lock (output)
-                {
-                    pStavUnicode = ToUnicode(uVirtualKey, pScanCode, State, output, outBufferLength, flags);
-                }
-                if (pStavUnicode > 0)
-                {
-                    c = (char)output[0];
-                    return 1;
-                }
-                 
-                return 0;
-            }
-            catch
-            {
-                return -1;
-            }
-        }
-
-
         public static string CESTA_SLOVNIK_SPELLCHECK = "/Data/Vocabulary.txt";
         public static string KONFIGURACNI_SOUBOR = "/Data/config.xml";
         /// <summary>
@@ -168,17 +125,6 @@ namespace NanoTrans
         
         
 
-        
-        
-        //prevede string na flowdocument beze zmeny struktury
-        //public static FlowDocument PrevedTextNaFlowDocument(string aText)
-        public static string PrevedTextNaFlowDocument(string aText)
-        {
-            /*if (aText == null) return null;
-            return new FlowDocument(new Paragraph(new Run(aText)));*/
-            return aText;
-        }
-
 
         //vraci index od kterym se novy string lisi od stareho
         [Obsolete]
@@ -243,64 +189,6 @@ namespace NanoTrans
         }
 
 
-        /// <summary>
-        /// overi zda dany text je mozny zapsat do textboxu
-        /// </summary>
-        /// <param name="aTb"></param>
-        /// <param name="aPuvodniText"></param>
-        /// <param name="e"></param>
-        /// <param name="aTypElementu"></param>
-        [Obsolete]
-        public static void OverZmenyTextBoxu(System.Windows.Controls.TextBox aTb, string aPuvodniText, ref System.Windows.Controls.TextChangedEventArgs e, MyEnumTypElementu aTypElementu)
-        {
-            try
-            {
-                if (aTypElementu != MyEnumTypElementu.foneticky) return;
-
-                int pIndex = MyKONST.VratIndexZmenyStringu(aPuvodniText, aTb.Text, aTb.CaretIndex);
-                if (pIndex >= 0 && aTb.Text.Length >= aPuvodniText.Length)
-                {
-                    char c = aTb.Text[pIndex];
-                    bool pNalezeno = false;
-                    for (int i = 0; i < MyFonetic.ABECEDA_FONETICKA.Length; i++)
-                    {
-
-                        if (MyFonetic.ABECEDA_FONETICKA[i] == c)
-                        {
-                            pNalezeno = true;
-                            break;
-                        }
-                    }
-                    if (!pNalezeno)
-                    {
-                        e.Handled = true;
-                        string pNovyText = aTb.Text;
-                        pNovyText = pNovyText.Remove(pIndex, 1);
-                        if (c == ' ' || c == '_')
-                        {
-                            pNovyText = pNovyText.Insert(pIndex, "_");
-                            aTb.Text = pNovyText;
-                            aTb.SelectionStart = pIndex + 1;
-                        }
-                        else
-                        {
-                            aTb.Text = pNovyText;
-                            aTb.SelectionStart = pIndex;
-                            System.Windows.Point ppp = new System.Windows.Point(aTb.GetRectFromCharacterIndex(pIndex).Left, aTb.GetRectFromCharacterIndex(pIndex).Top);
-                            ppp = aTb.PointToScreen(ppp);
-                            ZobrazToolTip("Jsou povoleny pouze symboly fonetické abecedy", ppp, 600);
-                            System.Media.SystemSounds.Beep.Play();
-                        }
-
-                    }
-                }
-            }
-            catch
-            {
-
-            }
-
-        }
 
         /// <summary>
         /// prevede bitmap frame do base64 stringu
@@ -359,84 +247,5 @@ namespace NanoTrans
                 return null;
             }
         }
-
-        /// <summary>
-        /// audio data prevede na pole,ktere je mozno vykreslit
-        /// </summary>
-        /// <param name="aData"></param>
-        /// <param name="aPocetPixelu"></param>
-        /// <returns></returns>
-        public static float[] VytvorDataProVykresleniVlny(short[] aData, int aPocetPixeluNaSekundu)
-        {
-            try
-            {
-
-                int pPocetZobrazovanychPixelu = (int)((double)aPocetPixeluNaSekundu * (double)aData.Length / 16000);
-                if (pPocetZobrazovanychPixelu <= 0) pPocetZobrazovanychPixelu = 1300;
-
-                int pKolikVzorkuKomprimovat = (int)((double)(aData.Length) / (double)pPocetZobrazovanychPixelu);
-                float[] pPoleVykresleni = new float[((aData.Length) / pKolikVzorkuKomprimovat) * 2];
-
-                float pMezivypocetK = 0;
-                int pocetK = 0;
-                float pMezivypocetZ = 0;
-                int pocetZ = 0;
-                int j = 1;
-                int Xsouradnice = 0;
-                for (long i = 0; i < aData.Length; i++)
-                {
-                    if (aData[i] > 0)
-                    {
-                        pMezivypocetK += aData[i];
-                        pocetK++;
-                    }
-                    else
-                    {
-                        pMezivypocetZ += aData[i];
-                        pocetZ++;
-                    }
-                    if (j > pKolikVzorkuKomprimovat)
-                    {
-                        if (pocetK > 0)
-                        {
-                            pMezivypocetK = pMezivypocetK / pocetK;
-                        }
-                        else
-                        {
-                            //pMezivypocetK = pPoleVykresleni[Xsouradnice - 2];
-                            pMezivypocetK = 0;
-                        }
-                        pPoleVykresleni[Xsouradnice] = pMezivypocetK;
-                        if (pocetZ > 0)
-                        {
-                            pMezivypocetZ = pMezivypocetZ / pocetZ;
-
-                        }
-                        else
-                        {
-                            //pMezivypocetZ = pPoleVykresleni[Xsouradnice - 1];
-                            pMezivypocetZ = 0;
-                        }
-                        pPoleVykresleni[Xsouradnice + 1] = pMezivypocetZ;
-
-                        pMezivypocetK = 0;
-                        pMezivypocetZ = 0;
-                        pocetK = 0;
-                        pocetZ = 0;
-
-                        Xsouradnice += 2;
-                        j = 0;
-                    }
-
-                    j++;
-                }
-                return pPoleVykresleni;
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
     }
 }

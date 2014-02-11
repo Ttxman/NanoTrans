@@ -294,9 +294,9 @@ namespace NanoTrans
         public event EventHandler SelectionChanged;
         public event EventHandler<TimeSpanEventArgs> CarretPostionChangedByUser;
         public event EventHandler<TimeSpanEventArgs> CarretPostionChanged;
-        public event EventHandler<MyTagEventArgs> ParagraphClick;
-        public event EventHandler<MyTagEventArgs> ParagraphDoubleClick;
-        public event EventHandler<MyTagEventArgs> ElementChanged;
+        public event EventHandler<MyTranscriptionElementEventArgs> ParagraphClick;
+        public event EventHandler<MyTranscriptionElementEventArgs> ParagraphDoubleClick;
+        public event EventHandler<MyTranscriptionElementEventArgs> ElementChanged;
 
 
         public class TimeSpanEventArgs : EventArgs
@@ -308,10 +308,10 @@ namespace NanoTrans
             }
         }
 
-        public class MyTagEventArgs : EventArgs
+        public class MyTranscriptionElementEventArgs : EventArgs
         {
-            public MyTag Value;
-            public MyTagEventArgs(MyTag value)
+            public TranscriptionElement Value;
+            public MyTranscriptionElementEventArgs(TranscriptionElement value)
             {
                 Value = value;
             }
@@ -599,9 +599,9 @@ namespace NanoTrans
                 KresliVlnuAOstatni(myDrawingImage);
 
             }
-            catch (Exception ex)
+            catch// (Exception ex)
             {
-                MyLog.LogujChybu(ex);
+                
             }
 
 
@@ -679,8 +679,6 @@ namespace NanoTrans
 
         private void iInvalidateTimeLine()
         {
-            try
-            {
                 long zacatek = oVlna.mSekundyVlnyZac;
                 long konec = oVlna.mSekundyVlnyKon;
                 //casova osa
@@ -779,12 +777,6 @@ namespace NanoTrans
 
 
                 }
-
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-            }
         }
 
         public void iInvalidateCarret()
@@ -816,8 +808,6 @@ namespace NanoTrans
         {
             MySubtitlesData aDokument = m_subtitlesData;
             MyVlna aZobrazenaVlna = oVlna;
-            try
-            {
 
                 if (aDokument == null) return;
                 if (aZobrazenaVlna == null) return;
@@ -880,7 +870,7 @@ namespace NanoTrans
                                     pMluvci.Cursor = Cursors.Arrow;
                                     //pMluvci.IsHitTestVisible = false;
                                     if (pText != null && pText != "") pMluvci.ToolTip = pMluvci.Content;
-                                    pMluvci.Tag = new MyTag(i, j, k);
+                                    pMluvci.Tag = pParagraph;
                                     pMluvci.Click += new RoutedEventHandler(pMluvci_Click);
                                     pMluvci.MouseDoubleClick += new MouseButtonEventHandler(pMluvci_MouseDoubleClick);
 
@@ -938,10 +928,10 @@ namespace NanoTrans
                 for (int i = 0; i < this.bObelnikyMluvcich.Count; i++)
                 {
                     Button pMluvci = this.bObelnikyMluvcich[i];
-                    MyParagraph pPar = aDokument[(pMluvci.Tag as MyTag)];
+                    MyParagraph pPar = pMluvci.Tag as MyParagraph;
                     if (i < this.bObelnikyMluvcich.Count - 1)
                     {
-                        pNasledujici = aDokument[(this.bObelnikyMluvcich[i + 1].Tag as MyTag)];
+                        pNasledujici = this.bObelnikyMluvcich[i + 1].Tag as MyParagraph;
                     }
                     if (pPredchozi != null && pPredchozi.End > pPar.Begin && bObelnikyMluvcich[i - 1].Margin.Top < 5)
                     {
@@ -958,12 +948,14 @@ namespace NanoTrans
 
 
                 return;
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-                return;
-            }
+        }
+
+        void pMluvci_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            MyParagraph pTag = (sender as Button).Tag as MyParagraph;
+            if (ParagraphDoubleClick != null)
+                ParagraphDoubleClick(this, new MyTranscriptionElementEventArgs(pTag));
+
         }
 
 
@@ -979,17 +971,6 @@ namespace NanoTrans
             }
         }
 
-        void pMluvci_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-
-            MyTag pTag = (sender as Button).Tag as MyTag;
-            if (ParagraphDoubleClick != null)
-                ParagraphDoubleClick(this, new MyTagEventArgs(pTag));
-
-
-
-        }
-
         /// <summary>
         /// co se deje pri kliknuti na tlacitko mluvciho v signalu
         /// </summary>
@@ -998,9 +979,9 @@ namespace NanoTrans
         void pMluvci_Click(object sender, RoutedEventArgs e)
         {
 
-            MyTag pTag = (sender as Button).Tag as MyTag;
+            MyParagraph pTag = (sender as Button).Tag as MyParagraph;
             if (ParagraphClick != null)
-                ParagraphClick(this, new MyTagEventArgs(pTag));
+                ParagraphClick(this,new MyTranscriptionElementEventArgs( pTag));
 
         }
 
@@ -1140,16 +1121,13 @@ namespace NanoTrans
                     oVlna.KurzorVyberPocatek = pom;
                 }
 
-                MyTag atag = m_subtitlesData.VratElementDanehoCasu(new TimeSpan((SelectionEnd + SelectionBegin).Ticks / 2), null)[0];
-                MyTag pPredchoziTag = m_subtitlesData.VratOdstavecPredchoziTag(atag);
-                MyParagraph pPredchozi = m_subtitlesData[pPredchoziTag];
-                MyParagraph pAktualni = m_subtitlesData[atag];
-                MyTag pNasledujiciTag = m_subtitlesData.VratOdstavecNasledujiciTag(atag);
-                MyParagraph pNasledujici = m_subtitlesData[pNasledujiciTag];
+                TranscriptionElement pAktualni = m_subtitlesData.VratElementDanehoCasu(new TimeSpan((SelectionEnd + SelectionBegin).Ticks / 2))[0];
+                TranscriptionElement pPredchozi = pAktualni.Previous();
+                TranscriptionElement pNasledujici = pAktualni.Next();
 
-                int sekce = atag.tSekce;
-                int sekcepred = pPredchoziTag.tSekce;
-                int sekceza = pNasledujiciTag.tSekce;
+                int sekce = pAktualni.Parent.ParentIndex;
+                int sekcepred = pPredchozi.Parent.ParentIndex;
+                int sekceza = pNasledujici.Parent.ParentIndex;
 
                 if (pAktualni != null)
                 {
@@ -1165,9 +1143,8 @@ namespace NanoTrans
                         //upraveni predchoziho elementu
                         if ((pPredchozi.End == pAktualni.Begin && !rozhrani) || pPredchozi.End > oVlna.KurzorVyberPocatek)
                         {
-                            m_subtitlesData.UpravCasZobraz(pPredchoziTag, new TimeSpan(-2) , oVlna.KurzorVyberPocatek, !leftshift);
                             if (ElementChanged != null)
-                                ElementChanged(this, new MyTagEventArgs(pPredchoziTag));
+                                ElementChanged(this, new MyTranscriptionElementEventArgs(pPredchozi));
 
                         }
                     }
@@ -1184,9 +1161,8 @@ namespace NanoTrans
                         if ((pNasledujici.Begin == pAktualni.End && !rozhrani) || pNasledujici.Begin < oVlna.KurzorVyberKonec)
                         {
 
-                            m_subtitlesData.UpravCasZobraz(pNasledujiciTag, oVlna.KurzorVyberKonec, new TimeSpan(-2), !leftshift);
                             if (ElementChanged != null)
-                                ElementChanged(this, new MyTagEventArgs(pNasledujiciTag));
+                                ElementChanged(this, new MyTranscriptionElementEventArgs(pNasledujici));
                         }
                     }
                     //upraveni aktualniho elementu
@@ -1201,11 +1177,8 @@ namespace NanoTrans
                             pNovyKonec = new TimeSpan(-2);
                     }
 
-                    bool aStav = m_subtitlesData.UpravCasZobraz(atag, pNovyPocatek, pNovyKonec, !leftshift) != null;
-
-
                     if (ElementChanged != null)
-                        ElementChanged(this, new MyTagEventArgs(atag));
+                        ElementChanged(this, new MyTranscriptionElementEventArgs(pAktualni));
 
                 }
                 oVlna.MouseLeftDown = false;
@@ -1390,7 +1363,7 @@ namespace NanoTrans
 
         private bool r2drag = false;
         private bool r2dragLeft = false;
-        private MyTag r2dragelement = null;
+        private MyParagraph r2dragelement = null;
         private void rectangle2_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             TimeSpan selbeg = SelectionBegin;
@@ -1411,13 +1384,13 @@ namespace NanoTrans
             }
 
 
-            List<MyTag> beg = m_subtitlesData.VratElementDanehoCasu(selbeg, null);
+            List<MyParagraph> beg = m_subtitlesData.VratElementDanehoCasu(selbeg);
 
             if (beg != null && beg.Count > 0)
             {
-                foreach (MyTag t in beg)
+                foreach (MyParagraph t in beg)
                 {
-                    TimeSpan konec = m_subtitlesData.VratCasElementuKonec(t);
+                    TimeSpan konec = t.End;
                     if (konec == selend)
                     {
                         r2dragelement = t;
@@ -1438,25 +1411,24 @@ namespace NanoTrans
 
             if (r2dragelement != null)
             {
-                MyTag pPredchoziTag = m_subtitlesData.VratOdstavecPredchoziTag(r2dragelement);
-                MyParagraph pPredchozi = m_subtitlesData[pPredchoziTag];
-                MyParagraph pAktualni = m_subtitlesData[r2dragelement];
-                MyTag pNasledujiciTag = m_subtitlesData.VratOdstavecNasledujiciTag(r2dragelement);
-                MyParagraph pNasledujici = m_subtitlesData[pNasledujiciTag];
+                MyParagraph pPredchozi = r2dragelement.Previous() as MyParagraph;
+                MyParagraph pAktualni = r2dragelement;
+                MyParagraph pNasledujici = r2dragelement.Next() as MyParagraph;
                 bool shift = Keyboard.Modifiers == ModifierKeys.Shift;
-                int sekce = r2dragelement.tSekce;
+
+                int sekce = r2dragelement.Parent.ParentIndex;
                 int sekcepred = -1;
-                if (pPredchoziTag != null)
-                    sekcepred = pPredchoziTag.tSekce;
+                if (pPredchozi != null)
+                    sekcepred = pPredchozi.Parent.ParentIndex;
 
                 int sekceza = -1;
-                if (pNasledujiciTag != null)
-                    sekceza = pNasledujiciTag.tSekce;
+                if (pNasledujici != null)
+                    sekceza = pNasledujici.Parent.ParentIndex;
 
                 if (pAktualni != null)
                 {
-                    TimeSpan actualb = m_subtitlesData.VratCasElementuPocatek(r2dragelement);
-                    TimeSpan actuale = m_subtitlesData.VratCasElementuKonec(r2dragelement);
+                    TimeSpan actualb = r2dragelement.Begin;
+                    TimeSpan actuale = r2dragelement.End;
                     TimeSpan pNovyPocatek = oVlna.KurzorVyberPocatek;
                     TimeSpan pNovyKonec = oVlna.KurzorVyberKonec;
                     if (Keyboard.Modifiers == ModifierKeys.Shift)
@@ -1467,20 +1439,14 @@ namespace NanoTrans
                             pNovyKonec = new TimeSpan(-2);
                     }
 
-                    m_subtitlesData.UpravCasZobraz(r2dragelement, pNovyPocatek, pNovyKonec, Keyboard.Modifiers == ModifierKeys.Shift);
 
                     if(ElementChanged!=null)
-                        ElementChanged.Invoke(this,new MyTagEventArgs(r2dragelement));
+                        ElementChanged.Invoke(this,new MyTranscriptionElementEventArgs(r2dragelement));
                     //musi to tu byt dvakrat ta funkce si vnitne meni hodnoty...
-                    oVlna.KurzorVyberPocatek = m_subtitlesData.VratCasElementuPocatek(r2dragelement);
-                    oVlna.KurzorVyberKonec = m_subtitlesData.VratCasElementuKonec(r2dragelement);
+                    oVlna.KurzorVyberPocatek = r2dragelement.Begin;
+                    oVlna.KurzorVyberKonec = r2dragelement.End;
                     pNovyPocatek = oVlna.KurzorVyberPocatek;
                     pNovyKonec = oVlna.KurzorVyberKonec;
-
-
-                    pPredchozi = m_subtitlesData[pPredchoziTag];
-                    pAktualni = m_subtitlesData[r2dragelement];
-                    pNasledujici = m_subtitlesData[pNasledujiciTag];
 
                     //TODO: nejak to prefiltrovat do jedny funkce...
                     //pokud se z messageboxu povolil prekryv, musime ho povolit i tady... :/
@@ -1514,9 +1480,8 @@ namespace NanoTrans
 
                         if ((pPredchozi.End == actualb && !rozhrani) || pNasledujici.Begin < oVlna.KurzorVyberKonec)
                         {
-                            m_subtitlesData.UpravCasZobraz(pPredchoziTag, new TimeSpan(-2), pNovyPocatek, Keyboard.Modifiers == ModifierKeys.Shift);
                             if (ElementChanged != null)
-                                ElementChanged.Invoke(this, new MyTagEventArgs(pPredchoziTag));
+                                ElementChanged.Invoke(this, new MyTranscriptionElementEventArgs(pPredchozi));
                         }
 
                     }
@@ -1532,9 +1497,8 @@ namespace NanoTrans
                         //upraveni nasl. elementu
                         if ((pNasledujici.Begin == actuale && !rozhrani) || pNasledujici.Begin < oVlna.KurzorVyberKonec)
                         {
-                            m_subtitlesData.UpravCasZobraz(pNasledujiciTag, pNovyKonec,new TimeSpan(-2), Keyboard.Modifiers == ModifierKeys.Shift);
                             if (ElementChanged != null)
-                                ElementChanged.Invoke(this, new MyTagEventArgs(pNasledujiciTag));
+                                ElementChanged.Invoke(this, new MyTranscriptionElementEventArgs(pNasledujici));
                         }
                     }
 

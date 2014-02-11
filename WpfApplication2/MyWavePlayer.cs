@@ -307,9 +307,8 @@ namespace NanoTrans
                     m_soundBuffer.Write(i, one, LockFlag.None);
                 }
             }
-            catch (Exception e)
+            catch// (Exception e)
             { 
-                MyLog.LogujChybu(e); 
             }
         }
 

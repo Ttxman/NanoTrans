@@ -95,16 +95,6 @@ namespace NanoTrans
         public UInt16 pVelikostVzorku { get; set; }
         public long pPocetVzorku { get; set; }
         public UInt16 pPocetKanalu { get; set; }
-
-        
-        private long _PrevedenoDatMS;
-        /// <summary>
-        /// vraci koli je prevedeno dat na disku i v promenne pro kresleni vlny
-        /// </summary>
-        public long PrevedenoDatMS
-        {
-            get { return _PrevedenoDatMS; }
-        }
         
 
         private Int16[] pDataNacitana;                  //po nacteni do zalozniho bufferu,jsou data poslana ven z tridy pomoci udalosti
@@ -158,7 +148,6 @@ namespace NanoTrans
             _Prevedeno = false;
             _CestaSouboru = null;
             pPocetVzorku = 0;
-            _PrevedenoDatMS = 0;
             ///_dataProVykresleniNahleduVlny = null;
         }
 
@@ -505,7 +494,6 @@ namespace NanoTrans
             {
                 //nulovani promennych
                 this.docasneZvukoveSoubory.Clear();
-                this._PrevedenoDatMS = 0;
                 
                 this._DelkaSouboruMS = this.VratDelkuSouboruMS(aCesta);
                 if (aCesta == null || aCestaDocasnychWAV == null || DelkaSouboruMS <= 0) return false; //chybne nastaveni nebo delka souboru k prevodu
@@ -709,7 +697,6 @@ namespace NanoTrans
                 if (TemporaryWavesDone != null && !(ex is ThreadAbortException))
                     TemporaryWavesDone(this,new EventArgs());
                 //MessageBox.Show("Načítání a převod audio souboru se nezdařily..."+ ex.Message);
-                MyLog.LogujChybu(ex);
                 
                 return false;
             }
@@ -850,7 +837,7 @@ namespace NanoTrans
                 this._NacitaniBufferu = false;
                 return false;
             }
-            catch (Exception ex)
+            catch //(Exception ex)
             {
                 if (input != null)
                 {
@@ -859,7 +846,6 @@ namespace NanoTrans
                 }
                 
                 //MessageBox.Show("Chyba pri nacitani dalsich ramcu: " + ex.Message);
-                MyLog.LogujChybu(ex);
                 this._NacitaniBufferu = false;
                 return false;
             }
@@ -911,9 +897,8 @@ namespace NanoTrans
                     {
                         i.Delete();
                     }
-                    catch (Exception ex)
+                    catch //(Exception ex)
                     {
-                        MyLog.LogujChybu(ex);
                     }
                 }
                 
@@ -921,15 +906,13 @@ namespace NanoTrans
                 this._Prevedeno = false;
                 this._Nacteno = false;
                 ///this._dataProVykresleniNahleduVlny = null;
-                this._PrevedenoDatMS = 0;
                 this.docasneZvukoveSoubory.Clear();
 
 
 
             }
-            catch (Exception ex)
+            catch// (Exception ex)
             {
-                MyLog.LogujChybu(ex);
             }
         }
 

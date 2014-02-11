@@ -108,10 +108,6 @@ namespace NanoTrans
 
 
         /// <summary>
-        /// Tag prepisovaneho elementu - pro externi praci
-        /// </summary>
-        public MyTag PrepisovanyElementTag = new MyTag(-1, -1, -1);
-        /// <summary>
         /// zde je uchovavan prepsany text od posledniho spusteni new_session - pomocna promenna pro externi zapis
         /// </summary>
         public string PrepsanyText;
@@ -216,7 +212,6 @@ namespace NanoTrans
 
                     this.pomocnaCasPlneniMS = 0;
                     this.pomocnaCasPrepsaniMS = 0;
-                    this.PrepisovanyElementTag = new MyTag();
                     this.PrepsanyText = "";
                     this.PrepsanyTextCasoveZnacky = null;
                     this.bufferProHlasoveOvladani.SmazBuffer();
@@ -349,18 +344,11 @@ namespace NanoTrans
         /// </summary>
         public void AsynchronniStop()
         {
-            try
-            {
                 if (this.threadZapisStop == null || this.threadZapisStop.ThreadState != System.Threading.ThreadState.Running)
                 {
                     threadZapisStop = new Thread(Stop) { Name = "AsynchronniStop()" };
                     threadZapisStop.Start();
                 }
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-            }
         }
         
         /// <summary>
@@ -369,8 +357,6 @@ namespace NanoTrans
         /// <returns></returns>
         private void Stop()
         {
-            try
-            {
                 if (prRozpoznavac != null && !prRozpoznavac.HasExited && !Ukoncovani && Rozpoznavani)
                 {
                     this._Ukoncovani = true;
@@ -389,11 +375,7 @@ namespace NanoTrans
                     prRozpoznavac.StandardInput.BaseStream.Write(zprava, 0, zprava.Length);
                     prRozpoznavac.StandardInput.BaseStream.Flush();
                 }
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-            }
+
         }
 
 
@@ -436,7 +418,6 @@ namespace NanoTrans
                     //prRozpoznavac.StandardInput.Write(zprava);
                     if (prRozpoznavac.StandardInput == null || !prRozpoznavac.StandardInput.BaseStream.CanWrite)
                     {
-                        MyLog.LogujChybu(new Exception("spadlo to kua"));
                     }
                     else
                     {
@@ -446,9 +427,8 @@ namespace NanoTrans
                 }
                 this.pZapisZpravy = false;
             }
-            catch (Exception ex)
+            catch// (Exception ex)
             {
-                MyLog.LogujChybu(ex);
                 this.pZapisZpravy = false;
             }
 
@@ -487,9 +467,8 @@ namespace NanoTrans
                     //t1.Start(aData);
                 }
             }
-            catch (Exception ex)
+            catch// (Exception ex)
             {
-                MyLog.LogujChybu(ex);
                 return false;
             }
 
@@ -621,72 +600,10 @@ namespace NanoTrans
             return Encoding.GetEncoding(1250).GetBytes(s);
         }
 
-
-        public bool ZapisMakra(List<MyMakro> aSeznamMaker)
-        {
-            try
-            {
-                ZapisMakraZprava(aSeznamMaker);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        private void ZapisMakraZprava(List<MyMakro> aSeznamMaker)
-        {
-            try
-            {
-                if (!_Inicializovano)
-                {
-                    return;
-                }
-                if (this.pZapisZpravy)
-                {
-                    return;
-                }
-                else
-                {
-                    if (aSeznamMaker == null || aSeznamMaker.Count == 0) return;
-                    pZapisZpravy = true;
-
-                    Int32 PocetSlov = aSeznamMaker.Count;
-                    
-                    string pZprava = "";
-
-                    foreach (MyMakro i in aSeznamMaker)
-                    {
-                        
-                        pZprava += "8\t25\t" + i.HodnotaVraceniMakro + "\t" + i.fonetickyPrepis + "\n";
-                                                
-                    }
-                    
-                    //zapis cele zpravy                    
-                    prRozpoznavac.StandardInput.BaseStream.Write(BitConverter.GetBytes((int)5), 0, 4);
-                    prRozpoznavac.StandardInput.BaseStream.Write(BitConverter.GetBytes((int)(pZprava.Length+4)), 0, 4);
-                    prRozpoznavac.StandardInput.BaseStream.Write(BitConverter.GetBytes((int)PocetSlov), 0, 4);
-                    prRozpoznavac.StandardInput.BaseStream.Write(StringToByteArray(pZprava), 0, pZprava.Length);
-                    prRozpoznavac.StandardInput.BaseStream.Flush();
-                    
-                    
-                    pZapisZpravy = false;
-                }
-            }
-            catch (Exception)
-            {
-                pZapisZpravy = false;
-            }
-
-        }
-
                
 
         public void Dispose()
         {
-            try
-            {
                 _IsDisposed = true;
                 if (threadCteniZpravy != null) threadCteniZpravy.Abort();
                 if (threadZapisStop != null) threadZapisStop.Abort();
@@ -695,12 +612,7 @@ namespace NanoTrans
                 {
                     prRozpoznavac.Kill();
                 }
-                
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-            }
+
         }
 
         

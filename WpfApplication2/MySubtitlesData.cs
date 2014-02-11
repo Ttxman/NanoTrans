@@ -83,18 +83,6 @@ namespace NanoTrans
             Comment = aSpeaker.Comment;
         }
 
-        public MySpeaker(string aSpeakerFirstname, string aSpeakerSurname) //constructor ktery vytvori speakera
-        {
-            ID = -1;
-            FirstName = aSpeakerFirstname;
-            Surname = aSpeakerSurname;
-            Sex = null;
-            RozpoznavacMluvci = null;
-            RozpoznavacJazykovyModel = null;
-            RozpoznavacPrepisovaciPravidla = null;
-            FotoJPGBase64 = null;
-            Comment = null;
-        }
         public MySpeaker(string aSpeakerFirstname, string aSpeakerSurname, string aPohlavi, string aRozpoznavacMluvci, string aRozpoznavacJazykovyModel, string aRozpoznavacPrepisovaciPravidla, string aSpeakerFotoBase64, string aPoznamka) //constructor ktery vytvori speakera
         {
             ID = -1;
@@ -113,7 +101,7 @@ namespace NanoTrans
     public abstract class TranscriptionElement
     {
         public double heigth;
-        protected TimeSpan m_begin;
+        protected TimeSpan m_begin = new TimeSpan(-1);
         public TimeSpan Begin
         {
             get { return m_begin; }
@@ -124,7 +112,7 @@ namespace NanoTrans
                     BeginChanged(this, new EventArgs());
             }
         }
-        protected TimeSpan m_end;
+        protected TimeSpan m_end = new TimeSpan(-1);
         public TimeSpan End
         {
             get { return m_end; }
@@ -145,6 +133,11 @@ namespace NanoTrans
             set;
         }
 
+        public abstract string Phonetics
+        {
+            get;
+            set;
+        }
 
         public virtual bool IsSection
         {
@@ -167,7 +160,7 @@ namespace NanoTrans
             m_children = new List<TranscriptionElement>() ;
         }
 
-        public TranscriptionElement this[int Index]
+        public virtual TranscriptionElement this[int Index]
         { 
             get
             {
@@ -178,6 +171,11 @@ namespace NanoTrans
                 }
 
                 return null;
+            }
+
+            set
+            {
+                throw new NotSupportedException();
             }
         
         }
@@ -206,14 +204,15 @@ namespace NanoTrans
             get { return Children.Count > 0; }
         }
 
-        public void Add(TranscriptionElement data)
+        public virtual void Add(TranscriptionElement data)
         {
             m_children.Add(data);
             data.m_Parent = this;
             data.m_ParentIndex = m_children.Count - 1;
+            ChildrenCountChanged();
         }
 
-        public void Insert(TranscriptionElement data, int index)
+        public virtual void Insert(int index, TranscriptionElement data)
         {
             if(index <0 || index>Children.Count)
                 throw new IndexOutOfRangeException();
@@ -224,12 +223,12 @@ namespace NanoTrans
             {
                 m_children[i].m_ParentIndex = i;
             }
-            
 
+            ChildrenCountChanged();
         
         }
 
-        public void RemoveAt(int index)
+        public virtual void RemoveAt(int index)
         {
              
             if(index < 0 || index >= Children.Count)
@@ -246,12 +245,14 @@ namespace NanoTrans
                 m_children[i].m_ParentIndex = i;
             }
 
+            ChildrenCountChanged();
         }
 
-        public bool Remove(TranscriptionElement value)
-        {
-           
+        public virtual bool Remove(TranscriptionElement value)
+        { 
              RemoveAt(m_children.IndexOf(value));
+
+             ChildrenCountChanged();
              return true;
         }
 
@@ -263,7 +264,11 @@ namespace NanoTrans
                     return null;
                 if (m_ParentIndex == m_Parent.m_children.Count - 1)
                 {
-                    return m_Parent.Next();
+                    TranscriptionElement te = m_Parent.Next();
+                    if (te != null && te.Children.Count >0)
+                        return te.m_children[0];
+                    else
+                        return null;
                 }
                 else
                 {
@@ -275,16 +280,20 @@ namespace NanoTrans
         public TranscriptionElement Previous()
         {
 
-                if (m_Parent == null)
-                    return null;
-                if (m_ParentIndex == 0)
-                {
-                    return m_Parent.Previous();
-                }
+            if (m_Parent == null)
+                return null;
+            if (m_ParentIndex == 0)
+            {
+                TranscriptionElement te = m_Parent.Previous();
+                if (te != null && te.Children.Count > 0)
+                    return te.m_children[te.m_children.Count - 1];
                 else
-                {
-                    return m_Parent.m_children[m_ParentIndex - 1];
-                }
+                    return null;
+            }
+            else
+            {
+                return m_Parent.m_children[m_ParentIndex - 1];
+            }
      
         }
     
@@ -296,8 +305,13 @@ namespace NanoTrans
 
             return c;
         }
-    }
 
+        public virtual void ChildrenCountChanged()
+        {
+            if (Parent != null)
+                Parent.ChildrenCountChanged();
+        }
+    }
 
     //nejmensi textovy usek - muze byt veta, vice slov nebo samotne slovo
     public sealed class MyPhrase : TranscriptionElement
@@ -310,12 +324,28 @@ namespace NanoTrans
             set { m_text = value; }
         }
 
-        /// <summary>
-        /// text ze ktereho vznikl foneticky prepis
-        /// </summary>
-        public string TextPrepisovany;
+        private string m_phonetics;
 
-        public int speakerID;  //index mluvciho v seznamu dole
+        public override string Phonetics
+        {
+            get
+            {
+                return m_phonetics;
+            }
+            set
+            {
+                m_phonetics = value;
+            }
+        }
+
+        public MyPhrase(MyPhrase kopie)
+        {
+            this.m_begin = kopie.m_begin;
+            this.m_end = kopie.m_end;
+            this.m_text = kopie.m_text;
+            this.m_phonetics = kopie.m_phonetics;
+            this.heigth = kopie.heigth;
+        }
 
         public MyPhrase():base()
         {
@@ -327,7 +357,6 @@ namespace NanoTrans
             this.Begin = begin;
             this.End = end;
             this.Text = aWords;
-            this.TextPrepisovany = null;
         }
 
         public MyPhrase(TimeSpan begin, TimeSpan end, string aWords, MyEnumTypElementu aElementType):this(begin,end,aWords)
@@ -347,7 +376,6 @@ namespace NanoTrans
                 if (pSplitS != null && pSplitS.Length > 1)
                 {
                     this.Text = pSplitS[1];
-                    this.TextPrepisovany = pSplitS[0];
                     if (pPouzeNavrh)
                         this.Text = "{" + this.Text + "}";
                 }
@@ -358,20 +386,24 @@ namespace NanoTrans
         {
             return 0;
         }
+
+
+        public override void ChildrenCountChanged()
+        {
+        }
+
     }
-
-
 
     public class VirtualTypeList<T> : IList<T> where T : TranscriptionElement
     {
         List<TranscriptionElement> m_elementlist;
         TranscriptionElement m_parent;
-        public VirtualTypeList(List<TranscriptionElement> elementlist, TranscriptionElement parent)
+        public VirtualTypeList(TranscriptionElement parent)
         {
-            if(elementlist == null || parent == null)
+            if(parent == null)
                 throw new ArgumentNullException();
 
-            m_elementlist = elementlist;
+            m_elementlist = parent.Children;
             m_parent = parent;
         }
 
@@ -384,7 +416,7 @@ namespace NanoTrans
 
         public void Insert(int index, T item)
         {
-            m_parent.Insert(item, index);
+            m_parent.Insert(index, item);
         }
 
         public void RemoveAt(int index)
@@ -548,6 +580,28 @@ namespace NanoTrans
             set { }
         }
 
+
+        /// <summary>
+        /// GET, text bloku dat,ktery se bude zobrazovat v jenom textboxu - fonetika
+        /// </summary>
+        public override string  Phonetics
+        {
+            get
+            {
+                string ret = "";
+                if (this.Phrases != null)
+                {
+                    for (int i = 0; i < this.Phrases.Count; i++)
+                    {
+                        ret += this.Phrases[i].Phonetics;
+                    }
+                }
+
+                return ret;
+            }
+            set { }
+        }
+
         public MyEnumParagraphAttributes DataAttributes = MyEnumParagraphAttributes.None;
 
 
@@ -622,10 +676,6 @@ namespace NanoTrans
             }
         }
 
-        public bool IsPhonetic = false;
-
-
-
 
         /// <summary>
         /// kopie objektu
@@ -639,10 +689,10 @@ namespace NanoTrans
             this.DataAttributes = aKopie.DataAttributes;
             if (aKopie.Phrases != null)
             {
-                this.Phrases = new VirtualTypeList<MyPhrase>(m_children, this);
+                this.Phrases = new VirtualTypeList<MyPhrase>(this);
                 for (int i = 0; i < aKopie.Phrases.Count; i++)
                 {
-                    this.Phrases.Add(aKopie.Phrases[i]);
+                    this.Phrases.Add(new MyPhrase( aKopie.Phrases[i]));
                 }
             }
             this.speakerID = aKopie.speakerID;
@@ -661,16 +711,12 @@ namespace NanoTrans
 
         public MyParagraph():base()
         {
-            Phrases = new VirtualTypeList<MyPhrase>(m_children, this);
+            Phrases = new VirtualTypeList<MyPhrase>(this);
             this.Begin = new TimeSpan(-1);
             this.End = new TimeSpan(-1);
             this.trainingElement = false;
             this.speakerID = -1;
             
-        }
-        public MyParagraph(String aText, List<MyCasovaZnacka> aCasoveZnacky):this()
-        {
-            UlozTextOdstavce(aText, aCasoveZnacky);
         }
 
         public MyParagraph(String aText, List<MyCasovaZnacka> aCasoveZnacky, TimeSpan aBegin, TimeSpan aEnd) : this()
@@ -680,233 +726,7 @@ namespace NanoTrans
             this.End = aEnd;
             this.trainingElement = false;
             this.speakerID = -1;
-            UlozTextOdstavce(aText, aCasoveZnacky);
         }
-
-        /// <summary>
-        /// ulozi text odstavce a provede jeho rozdeleni podle casovych znacek - casove znacky jsou mimo pocatek a konec odstavce?
-        /// </summary>
-        /// <param name="aText"></param>
-        /// <param name="pZnacky"></param>
-        /// <returns></returns>
-        public bool UlozTextOdstavce(string aText, List<MyCasovaZnacka> pZnacky)
-        {
-            return UlozTextOdstavce(aText, pZnacky, MyEnumTypElementu.normalni);
-        }
-
-        /// <summary>
-        /// ulozi text odstavce a provede jeho rozdeleni podle casovych znacek - casove znacky jsou mimo pocatek a konec odstavce?
-        /// </summary>
-        /// <param name="aText"></param>
-        /// <param name="pZnacky"></param>
-        /// <returns></returns>
-        public bool UlozTextOdstavce(string aText, List<MyCasovaZnacka> pZnacky, MyEnumTypElementu aTypOdstavce)
-        {
-            try
-            {
-                //this.Phrases.Clear();
-                List<MyPhrase> pPhrases = new List<MyPhrase>();
-                if (pZnacky != null)
-                {
-                    if (pZnacky.Count == 0 && aText != null && aText != "")
-                    {
-                        pPhrases.Add(new MyPhrase(new TimeSpan(-1), new TimeSpan(-1), aText, aTypOdstavce));
-                    }
-
-                    for (int i = 0; i < pZnacky.Count; i++)
-                    {
-                        string pText1 = "";
-                        if (pZnacky[i].Index1 >= aText.Length) break; //pokud jsou casove znacky mimo text, jsou ignorovany a vymazany
-
-                        if (pZnacky[i].Index2 >= 0)
-                        {
-                            if (i + 1 < pZnacky.Count)
-                            {
-                                if (pZnacky[i + 1].Index1 >= aText.Length)
-                                {
-                                    pText1 = aText.Substring(pZnacky[i].Index2);
-                                    pPhrases.Add(new MyPhrase(pZnacky[i].Time, new TimeSpan(-1), pText1, aTypOdstavce));
-                                }
-                                else
-                                {
-                                    //jestli existuje jen 1 znacka,tak musi byt ulozen pocatek odstavce,ktery muze byt bez znacky
-                                    if (i == 0 && pZnacky[i].Index2 > 0)
-                                    {
-                                        pText1 = aText.Substring(0, pZnacky[i].Index2);
-                                        if (pText1 != null && pText1 != "")
-                                        {
-                                            pPhrases.Add(new MyPhrase(new TimeSpan(-1),new TimeSpan( -1), pText1, aTypOdstavce));
-                                        }
-                                    }
-
-                                    if (pZnacky[i + 1].Index2 - pZnacky[i].Index2 >= 0) //ohlidani zda nejsou znacky posunuty
-                                    {
-                                        pText1 = aText.Substring(pZnacky[i].Index2, pZnacky[i + 1].Index2 - pZnacky[i].Index2);
-                                        pPhrases.Add(new MyPhrase(pZnacky[i].Time, pZnacky[i + 1].Time, pText1, aTypOdstavce));
-                                    }
-                                }
-
-
-                            }
-                            else
-                            {
-                                //jestli existuje jen 1 znacka,tak musi byt ulozen pocatek odstavce,ktery muze byt bez znacky
-                                if (i == 0 && pZnacky[i].Index2 > 0)
-                                {
-                                    pText1 = aText.Substring(0, pZnacky[i].Index2);
-                                    if (pText1 != null && pText1 != "")
-                                    {
-                                        Phrases.Add(new MyPhrase(new TimeSpan(-1),new TimeSpan( -1), pText1, aTypOdstavce));
-                                    }
-                                }
-                                pText1 = aText.Substring(pZnacky[i].Index2, aText.Length - pZnacky[i].Index2);
-                                pPhrases.Add(new MyPhrase(pZnacky[i].Time,new TimeSpan( -1), pText1, aTypOdstavce));
-
-                            }
-                        }
-
-
-                    }
-
-                    if (pPhrases.Count <= Phrases.Count)
-                    {
-                        int pKamDosloKopirovani = -1;
-                        for (int i = 0; i < pPhrases.Count; i++)
-                        {
-                            if (pPhrases[i].Text == Phrases[i].Text)
-                            {
-                                pPhrases[i].TextPrepisovany = Phrases[i].TextPrepisovany;
-                                pKamDosloKopirovani = i;
-                            }
-                            else
-                            {
-                                break;
-                                //pPhrases[i].TextPrepisovany = Phrases[i].TextPrepisovany;
-                            }
-                        }
-                        int pKamSesloKopirovaniOdKonce = pPhrases.Count;
-                        int pI = Phrases.Count - 1;
-                        for (int i = pPhrases.Count - 1; i > pKamDosloKopirovani; i--)
-                        {
-                            if (pPhrases[i].Text == Phrases[pI].Text && pI >= 0)
-                            {
-                                pPhrases[i].TextPrepisovany = Phrases[pI].TextPrepisovany;
-                                pKamSesloKopirovaniOdKonce = i;
-                                pI--;
-                            }
-                            else
-                            {
-                                break;
-                                //pPhrases[i].TextPrepisovany = Phrases[i].TextPrepisovany;
-                            }
-                        }
-                        if (pKamDosloKopirovani + 1 == pKamSesloKopirovaniOdKonce)
-                        {
-
-                        }
-                        else
-                        {
-                            if (pKamDosloKopirovani + 2 == pKamSesloKopirovaniOdKonce && Phrases.Count == pPhrases.Count)
-                            {
-                                pPhrases[pKamDosloKopirovani + 1].TextPrepisovany = Phrases[pKamDosloKopirovani + 1].TextPrepisovany;
-                            }
-                        }
-                    }
-                    else
-                    {
-
-                    }
-
-                }
-                Phrases.Clear();
-                foreach(var p in pPhrases)
-                    Phrases.Add(p);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-                return false;
-            }
-
-        }
-
-        public int PridejCasovouZnacku(MyCasovaZnacka aCasovaZnacka)
-        {
-            try
-            {
-                if (this.Text == null) return 1; //odstavec nema zadny text, nelze pridat znacku
-                List<MyCasovaZnacka> pCasoveZnacky = this.VratCasoveZnackyTextu;
-                if (pCasoveZnacky.Count == 0)
-                {
-                    pCasoveZnacky.Add(aCasovaZnacka);
-                }
-                else
-                {
-                    bool pVlozeno = false;
-                    for (int i = 0; i < pCasoveZnacky.Count; i++)
-                    {
-                        if (pCasoveZnacky[i].Index2 > aCasovaZnacka.Index2)
-                        {
-                            pCasoveZnacky.Insert(i, aCasovaZnacka);
-                            pVlozeno = true;
-                            break;
-                        }
-                    }
-                    if (!pVlozeno)
-                    {
-                        pCasoveZnacky.Add(aCasovaZnacka);
-                    }
-                }
-
-
-                this.UlozTextOdstavce(this.Text, pCasoveZnacky);
-
-                return 0;
-            }
-            catch
-            {
-                return -1;
-            }
-
-        }
-        /// <summary>
-        /// vraci list casovych znacek v textu bez casu pocatku a konce
-        /// </summary>
-        /// <returns></returns>
-        public List<MyCasovaZnacka> VratCasoveZnackyTextu
-        {
-            get
-            {
-                List<MyCasovaZnacka> pZnacky = new List<MyCasovaZnacka>();
-                try
-                {
-                    //pZnacky.Add(new MyCasovaZnacka(this.begin, 0));//casova znacka pocatku se shoduje s casem odstavce
-                    if (Phrases != null && Phrases.Count > 0)
-                    {
-                        int pIndexTextu1 = -1;
-                        int pIndexTextu2 = 0;
-                        for (int i = 0; i < Phrases.Count; i++)
-                        {
-                            if (((MyPhrase)Phrases[i]).Begin >= TimeSpan.Zero)
-                            {
-                                pZnacky.Add(new MyCasovaZnacka(((MyPhrase)Phrases[i]).Begin, pIndexTextu1, pIndexTextu2));
-                            }
-                            pIndexTextu1 += ((MyPhrase)Phrases[i]).Text.Length;
-                            pIndexTextu2 += ((MyPhrase)Phrases[i]).Text.Length;
-                        }
-                    }
-                    //if (pZnacky.Count == 0) pZnacky.Add(new MyCasovaZnacka(this.begin, -1, 0));//casova znacka pocatku se shoduje s casem odstavce pokud neexistuji napocatku
-                }
-                catch (Exception ex)
-                {
-                    MyLog.LogujChybu(ex);
-                }
-                return pZnacky;
-            }
-        }
-
-
     }
 
 
@@ -934,67 +754,22 @@ namespace NanoTrans
             }
         }
 
+        public override string Phonetics
+        {
+            get
+            {
+                return null;
+            }
+            set
+            {
+            }
+        }
+
         public String name;
 
         public VirtualTypeList<MyParagraph> Paragraphs;
-        /// <summary>
-        /// foneticka verze obycejneho odstavce
-        /// </summary>
-        public List<MyParagraph> PhoneticParagraphs = new List<MyParagraph>();
-
 
         public int speaker;
-
-        /// <summary>
-        /// Informace, jestli ma tato sekce odstavec nebo vice
-        /// </summary>
-        public bool hasParagraph
-        {
-            get { if (this.Paragraphs != null && this.Paragraphs.Count > 0) return true; else return false; }
-        }
-
-        /// <summary>
-        /// Informace, jestli ma tato sekce foneticky neprazdny odstavec nebo vice
-        /// </summary>
-        public bool hasPhoneticParagraph
-        {
-            get
-            {
-                if (this.PhoneticParagraphs == null || this.PhoneticParagraphs.Count == 0) return false;
-                bool pMa = false;
-                foreach (MyParagraph ppp in PhoneticParagraphs)
-                {
-                    if (ppp.Text != null && ppp.Text != "")
-                    {
-                        pMa = true;
-                        break;
-                    }
-                }
-                return pMa;
-            }
-        }
-
-        /// <summary>
-        /// Informace, jestli ma tato sekce trenovaci element - finalni uzamceny
-        /// </summary>
-        public bool hasTrainingParagraph
-        {
-            get
-            {
-                if (this.Paragraphs == null || this.Paragraphs.Count == 0) return false;
-                bool pMa = false;
-                foreach (MyParagraph ppp in Paragraphs)
-                {
-                    if (ppp.trainingElement)
-                    {
-                        pMa = true;
-                        break;
-                    }
-                }
-                return pMa;
-            }
-        }
-
 
 
         /// <summary>
@@ -1008,25 +783,17 @@ namespace NanoTrans
             this.name = aKopie.name;
             if (aKopie.Paragraphs != null)
             {
-                this.Paragraphs = new VirtualTypeList<MyParagraph>(m_children,this);
+                this.Paragraphs = new VirtualTypeList<MyParagraph>(this);
                 for (int i = 0; i < aKopie.Paragraphs.Count; i++)
                 {
                     this.Paragraphs.Add(new MyParagraph(aKopie.Paragraphs[i]));
-                }
-            }
-            if (aKopie.PhoneticParagraphs != null)
-            {
-                this.PhoneticParagraphs = new List<MyParagraph>();
-                for (int i = 0; i < aKopie.PhoneticParagraphs.Count; i++)
-                {
-                    this.PhoneticParagraphs.Add(new MyParagraph(aKopie.PhoneticParagraphs[i]));
                 }
             }
         }
 
         public MySection()
         {
-            Paragraphs = new VirtualTypeList<MyParagraph>(m_children, this);
+            Paragraphs = new VirtualTypeList<MyParagraph>(this);
             Begin = new TimeSpan(-1);
             End = new TimeSpan(-1);
         }
@@ -1068,17 +835,21 @@ namespace NanoTrans
                 this.name = value;
             }
         }
+
+        public override string Phonetics
+        {
+            get
+            {
+                return null;
+            }
+            set
+            {
+            }
+        }
+
         public String name;
 
         public VirtualTypeList<MySection> Sections;
-
-        /// <summary>
-        /// Informace, jestli ma tato kapitola nejakou sekci
-        /// </summary>
-        public bool hasSection
-        {
-            get { if (this.Sections != null && this.Sections.Count > 0) return true; else return false; }
-        }
 
 
         /// <summary>
@@ -1092,7 +863,7 @@ namespace NanoTrans
             this.name = aKopie.name;
             if (aKopie.Sections != null)
             {
-                this.Sections = new VirtualTypeList<MySection>(m_children, this);
+                this.Sections = new VirtualTypeList<MySection>(this);
                 for (int i = 0; i < aKopie.Sections.Count; i++)
                 {
                     this.Sections.Add(new MySection(aKopie.Sections[i]));
@@ -1102,10 +873,10 @@ namespace NanoTrans
 
         public MyChapter():base()
         {
-            Sections = new VirtualTypeList<MySection>(m_children, this);
+            Sections = new VirtualTypeList<MySection>(this);
             Begin = new TimeSpan(-1);
             End = new TimeSpan(-1);
-            Sections = new VirtualTypeList<MySection>(m_children, this);
+            Sections = new VirtualTypeList<MySection>(this);
         }
 
         public MyChapter(String aName): this(aName, new TimeSpan(-1), new TimeSpan(-1))
@@ -1114,27 +885,26 @@ namespace NanoTrans
         }
         public MyChapter(String aName, TimeSpan aBegin, TimeSpan aEnd)
         {
-            Sections = new VirtualTypeList<MySection>(m_children, this);
+            Sections = new VirtualTypeList<MySection>(this);
             this.name = aName;
             this.Begin = aBegin;
             this.End = aEnd;
         }
+
     }
 
 
     //hlavni trida s titulky a se vsemi potrebnymi metodami pro serializaci
 
-    public class MySubtitlesData : IList<TranscriptionElement>
+    public class MySubtitlesData : TranscriptionElement, IList<TranscriptionElement>
     {
         public double TotalHeigth;
-        public bool FindNext(ref MyTag paragraph,ref int TextOffset,string pattern, bool isregex, bool CaseSensitive)
+        public bool FindNext(ref TranscriptionElement paragraph,ref int TextOffset,string pattern, bool isregex, bool CaseSensitive)
         {
-            MyParagraph par = this[paragraph];
+            TranscriptionElement par = paragraph;
 
             if (par == null)
                 return false;
-
-
 
             Regex r;
             if (isregex)
@@ -1146,7 +916,7 @@ namespace NanoTrans
                 r = new Regex(".*?"+pattern);
             }
 
-            MyTag tag = paragraph;
+            TranscriptionElement tag = paragraph;
             while (par != null)
             {
                 string s = par.Text;
@@ -1162,13 +932,11 @@ namespace NanoTrans
                     return true;
                 }
 
-                tag = this.VratOdstavecNasledujiciTag(tag);
+                tag = tag.Next() as MyParagraph; ;
                 if (tag == null)
                     return false;
-                par = this[tag];
+                par = tag;
                 TextOffset = 0;
-
-            
             }
 
             return false;
@@ -1205,18 +973,10 @@ namespace NanoTrans
         [XmlAttribute]
         public string videoFileName { get; set; }
 
-        /*        [XmlAttribute]
-                [DefaultValueAttribute(0)]
-                public int SecondsSpendWriting { get; set; }
-
-                [XmlAttribute]
-                [DefaultValueAttribute(0)]
-                public TimeSpan SecondsSpendPlaying { get; set; }
-                */
         /// <summary>
         /// vsechny kapitoly streamu
         /// </summary>
-        public List<MyChapter> Chapters = new List<MyChapter>();    //vsechny kapitoly streamu
+        public VirtualTypeList<MyChapter> Chapters;    //vsechny kapitoly streamu
 
         [XmlElement("SpeakersDatabase")]
         public MySpeakers SeznamMluvcich = new MySpeakers();
@@ -1228,18 +988,10 @@ namespace NanoTrans
             JmenoSouboru = null;
             Ulozeno = false;
 
+            Chapters = new VirtualTypeList<MyChapter>(this);
             //constructor  
         }
 
-
-        public MyParagraph this[MyTag tag]
-        {
-            get 
-            {
-                return this.VratOdstavec(tag);
-            }
-        
-        }
 
 
         /// <summary>
@@ -1255,7 +1007,7 @@ namespace NanoTrans
             this.type = aKopie.type;
             if (aKopie.Chapters != null)
             {
-                this.Chapters = new List<MyChapter>();
+                this.Chapters = new VirtualTypeList<MyChapter>(this);
                 for (int i = 0; i < aKopie.Chapters.Count; i++)
                 {
                     this.Chapters.Add(new MyChapter(aKopie.Chapters[i]));
@@ -1266,686 +1018,61 @@ namespace NanoTrans
             this.Ulozeno = aKopie.Ulozeno;
         }
 
-        //funkce pridavajici jesnotlive kapitoly, vraci index pridane kapitoly
-        //tvori 'rozhranni pro komunikaci'
-        [Obsolete]
-        public int NovaKapitola()
-        {
-            try
-            {
-                Ulozeno = false;
-                Chapters.Add(new MyChapter());
-                return Chapters.Count - 1;
-            }
-            catch
-            {
-                return -1;
-            }
-        }
-        [Obsolete]
-        public int NovaKapitola(int aIndexNoveKapitoly, string nazev)
-        {
-            if (aIndexNoveKapitoly > Chapters.Count) return -1;
-            Ulozeno = false;
-            if (aIndexNoveKapitoly < 0)
-            {
-                Chapters.Add(new MyChapter(nazev));
-                return Chapters.Count - 1;
-            }
-            else
-            {
-                Chapters.Insert(aIndexNoveKapitoly, new MyChapter(nazev));
-                return aIndexNoveKapitoly;
-            }
-        }
-        [Obsolete]
-        public int NovaKapitola(int aIndexNoveKapitoly, string nazev, TimeSpan begin, TimeSpan end)
-        {
-            if (aIndexNoveKapitoly > Chapters.Count) return -1;
-            Ulozeno = false;
-            if (aIndexNoveKapitoly < 0)
-            {
-                Chapters.Add(new MyChapter(nazev, begin, end));
-                return Chapters.Count - 1;
-            }
-            else
-            {
-                Chapters.Insert(aIndexNoveKapitoly, new MyChapter(nazev, begin, end));
-                return aIndexNoveKapitoly;
-            }
-        }
-
-        [Obsolete]
-        public int NovaSekce(int kapitola, string nazev, int index, TimeSpan begin, TimeSpan end)
-        {
-            try
-            {
-                if (index < -1)
-                {
-                    Ulozeno = false;
-                    //return ((MyChapter)chapters[kapitola]).sections.Add(new MySection(nazev, begin, end));
-                    Chapters[kapitola].Sections.Add(new MySection(nazev, begin, end));
-                    return Chapters[kapitola].Sections.Count - 1;
-                }
-                else
-                {
-                    index++;
-                    //((MyChapter)chapters[kapitola]).sections.Insert(index, new MySection(nazev, begin, end));
-                    Chapters[kapitola].Sections.Insert(index, new MySection(nazev, begin, end));
-                    Ulozeno = false;
-                    return index;
-
-                }
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-                return -1;
-            }
-        }
-        [Obsolete]
-        public int NovyOdstavec(int kapitola, int sekce, int index)
-        {
-            try
-            {
-                if (index < 0)
-                {
-                    Ulozeno = false;
-                    //return ((MySection)((MyChapter)chapters[kapitola]).sections[sekce]).paragraphs.Add(new MyParagraph());
-                    Chapters[kapitola].Sections[sekce].Paragraphs.Add(new MyParagraph());
-                    Chapters[kapitola].Sections[sekce].PhoneticParagraphs.Add(new MyParagraph()); //prida odpovidajici foneticky odstavec jako null, ptz je prazdny
-                    return Chapters[kapitola].Sections[sekce].Paragraphs.Count - 1;
-                }
-                else
-                {
-                    index++;
-                    Chapters[kapitola].Sections[sekce].Paragraphs.Insert(index, new MyParagraph());
-                    Chapters[kapitola].Sections[sekce].PhoneticParagraphs.Insert(index, new MyParagraph());//prida odpovidajici foneticky odstavec jako null, ptz je prazdny
-                    Ulozeno = false;
-                    return index;
-                }
-            }
-            catch (Exception ex)
-            {
-                //MessageBox.Show("Chyba pri vkladani odstavce..." + ex.Message);
-                MyLog.LogujChybu(ex);
-                return -1;
-            }
-        }
-
-        /// <summary>
-        /// smaze kapitolu z datove struktury
-        /// </summary>
-        /// <param name="kapitola"></param>
-        /// <returns></returns>
-        [Obsolete]
-        public bool SmazKapitolu(int aKapitola)
-        {
-            try
-            {
-                Chapters.RemoveAt(aKapitola);
-                Ulozeno = false;
-                return true;
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-                return false;
-            }
-        }
-        [Obsolete]
-        public bool SmazSekci(int kapitola, int sekce)
-        {
-            try
-            {
-                ((MyChapter)Chapters[kapitola]).Sections.RemoveAt(sekce);
-                Ulozeno = false;
-                return true;
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-                return false;
-            }
-        }
-        [Obsolete]
-        public bool SmazOdstavec(int kapitola, int sekce, int index)
-        {
-            try
-            {
-                Chapters[kapitola].Sections[sekce].Paragraphs.RemoveAt(index);
-                Chapters[kapitola].Sections[sekce].PhoneticParagraphs.RemoveAt(index);//smazani foneticke varianty
-                Ulozeno = false;
-                return true;
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-                return false;
-            }
-        }
-        [Obsolete]
-        public int NovyOdstavec(int kapitola, int sekce, String text, List<MyCasovaZnacka> aCasoveZnacky, int index)
-        {
-            try
-            {
-                if (index < 0)
-                {
-                    Ulozeno = false;
-                    //return ((MySection)((MyChapter)chapters[kapitola]).sections[sekce]).paragraphs.Add(new MyParagraph(text,aCasoveZnacky));
-                    Chapters[kapitola].Sections[sekce].Paragraphs.Add(new MyParagraph(text, aCasoveZnacky));
-                    Chapters[kapitola].Sections[sekce].PhoneticParagraphs.Add(new MyParagraph());
-                    return Chapters[kapitola].Sections[sekce].Paragraphs.Count - 1;
-
-                }
-                else
-                {
-                    index++;
-                    Chapters[kapitola].Sections[sekce].Paragraphs.Insert(index, new MyParagraph(text, aCasoveZnacky));
-                    Chapters[kapitola].Sections[sekce].PhoneticParagraphs.Insert(index, new MyParagraph());
-                    Ulozeno = false;
-                    return index;
-                }
-            }
-            catch (Exception ex)
-            {
-                //MessageBox.Show("Chyba pri vkladani odstavce..." + ex.Message);
-                MyLog.LogujChybu(ex);
-                return -1;
-            }
-        }
-        [Obsolete]
-        public int NovyOdstavec(Int32 kapitola, int sekce, String text, List<MyCasovaZnacka> aCasoveZnacky, TimeSpan begin, TimeSpan end, int index)
-        {
-            try
-            {
-                if (index < 0)
-                {
-                    int i = 0;
-                    if (index < -1)
-                    {
-                        Chapters[kapitola].Sections[sekce].Paragraphs.Insert(0, new MyParagraph(text, aCasoveZnacky, begin, end));
-                        Chapters[kapitola].Sections[sekce].PhoneticParagraphs.Insert(0, new MyParagraph("", null, begin, end));
-                    }
-                    else
-                    {
-                        Chapters[kapitola].Sections[sekce].Paragraphs.Add(new MyParagraph(text, aCasoveZnacky, begin, end));
-                        Chapters[kapitola].Sections[sekce].PhoneticParagraphs.Add(new MyParagraph("", null, begin, end));
-                        i = Chapters[kapitola].Sections[sekce].Paragraphs.Count - 1;
-                    }
-                    Ulozeno = false;
-                    return i;
-                }
-                else
-                {
-                    index++;
-                    //((MySection)((MyChapter)chapters[kapitola]).sections[sekce]).paragraphs.Insert(index, new MyParagraph(text,aCasoveZnacky, begin, end));
-                    Chapters[kapitola].Sections[sekce].Paragraphs.Insert(index, new MyParagraph(text, aCasoveZnacky, begin, end));
-                    Chapters[kapitola].Sections[sekce].PhoneticParagraphs.Insert(index, new MyParagraph("", null, begin, end));
-                    Ulozeno = false;
-                    return index;
-                }
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-                return -1;
-            }
-        }
-
-        /// <summary>
-        /// upravi nazev kapitoly nebo sekce
-        /// </summary>
-        /// <param name="aTag"></param>
-        /// <param name="text"></param>
-        /// <returns></returns>
-        [Obsolete]
-        public bool UpravElement(MyTag aTag, string text)
-        {
-            return UpravElement(aTag.tKapitola, aTag.tSekce, aTag.tOdstavec, text);
-        }
-
-        /// <summary>
-        /// upravi nazev kapitoly nebo sekce
-        /// </summary>
-        /// <param name="kapitola"></param>
-        /// <param name="sekce"></param>
-        /// <param name="odstavec"></param>
-        /// <param name="text"></param>
-        /// <returns></returns>
-        [Obsolete]
-        public bool UpravElement(int kapitola, int sekce, int odstavec, string text)
-        {
-            try
-            {
-                if (odstavec > -1)
-                {
-                    //sem by nemel prijit, ptz je toto nahrazeno upravenim elementu odstavce
-                    Chapters[kapitola].Sections[sekce].Paragraphs[odstavec].UlozTextOdstavce(text, null);
-                    Ulozeno = false;
-                    return true;
-                }
-                else if (sekce > -1)
-                {
-                    Chapters[kapitola].Sections[sekce].name = text;
-                    Ulozeno = false;
-                    return true;
-                }
-                else if (kapitola > -1)
-                {
-                    Chapters[kapitola].name = text;
-                    Ulozeno = false;
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-                return false;
-            }
-
-        }
-
-        /// <summary>
-        /// upravi odstavec - text a casove znacky, zvlast pro normalni odstavec a jeho fonetickou variantu
-        /// </summary>
-        /// <param name="kapitola"></param>
-        /// <param name="sekce"></param>
-        /// <param name="odstavec"></param>
-        /// <param name="text"></param>
-        /// <param name="aCasoveZnacky"></param>
-        /// <param name="aTypOdstavce">Cislo udavajici typ odstavce: 0 - normalni, 1 - foneticky</param>
-        /// <returns></returns>
-        public bool UpravElementOdstavce(MyTag aTag, string text, List<MyCasovaZnacka> aCasoveZnacky)
-        {
-            try
-            {
-                if (aTag.JeOdstavec)
-                {
-                    if (aTag.tTypElementu == MyEnumTypElementu.normalni)
-                    {
-                        Chapters[aTag.tKapitola].Sections[aTag.tSekce].Paragraphs[aTag.tOdstavec].UlozTextOdstavce(text, aCasoveZnacky, aTag.tTypElementu);
-                    }
-                    else if (aTag.tTypElementu == MyEnumTypElementu.foneticky)
-                    {
-                        Chapters[aTag.tKapitola].Sections[aTag.tSekce].PhoneticParagraphs[aTag.tOdstavec].UlozTextOdstavce(text, aCasoveZnacky, aTag.tTypElementu);
-                    }
-                    Ulozeno = false;
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-                return false;
-            }
-
-        }
-
-        /// <summary>
-        /// edituje cas po ktery element trva, pro vsechny verze odstavcu jsou tyto casy shodne
-        /// </summary>
-        /// <param name="aTag"></param>
-        /// <param name="timeStart"></param>
-        /// <param name="timeStop"></param>
-        /// <returns></returns>
-        public bool UpravCasElementu(MyTag aTag, TimeSpan timeStart, TimeSpan timeStop)
-        {
-            try
-            {
-                int kapitola = aTag.tKapitola;
-                int sekce = aTag.tSekce;
-                int odstavec = aTag.tOdstavec;
-                if (odstavec > -1)
-                {
-                    if (timeStart > new TimeSpan(-2))
-                    {
-                        Chapters[kapitola].Sections[sekce].Paragraphs[odstavec].Begin = timeStart;
-                        Chapters[kapitola].Sections[sekce].PhoneticParagraphs[odstavec].Begin = timeStart;
-                    }
-                    if (timeStop > new TimeSpan(-2))
-                    {
-                        Chapters[kapitola].Sections[sekce].Paragraphs[odstavec].End = timeStop;
-                        Chapters[kapitola].Sections[sekce].PhoneticParagraphs[odstavec].End = timeStop;
-                    }
-                    Ulozeno = false;
-                    return true;
-                }
-                else if (sekce > -1)
-                {
-                    if (timeStart > new TimeSpan(-2)) ((MySection)((MyChapter)Chapters[kapitola]).Sections[sekce]).Begin = timeStart;
-                    if (timeStop > new TimeSpan(-2)) ((MySection)((MyChapter)Chapters[kapitola]).Sections[sekce]).End = timeStop;
-                    Ulozeno = false;
-                    return true;
-                }
-                else if (kapitola > -1)
-                {
-                    if (timeStart >new TimeSpan( -2)) ((MyChapter)Chapters[kapitola]).Begin = timeStart;
-                    if (timeStop > new TimeSpan(-2)) ((MyChapter)Chapters[kapitola]).End = timeStop;
-                    Ulozeno = false;
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-                return false;
-            }
-
-        }
-
-        /// <summary>
-        /// podle tagu vraci cas elementu...begin
-        /// </summary>
-        /// <param name="aTag"></param>
-        /// <returns></returns>
-        public TimeSpan VratCasElementuPocatek(MyTag aTag)
-        {
-            if (aTag.tKapitola >= 0)
-            {
-                if (aTag.tKapitola >= Chapters.Count)
-                    return new TimeSpan(-1);
-
-                MyChapter chapter = Chapters[aTag.tKapitola];
-                if (aTag.tSekce >= 0)
-                {
-                    if (aTag.tSekce >= chapter.Sections.Count)
-                        return new TimeSpan(-1);
-
-                    MySection section = chapter.Sections[aTag.tSekce];
-                    if (aTag.tOdstavec >= 0)
-                    {
-                        if (aTag.tOdstavec >= section.Paragraphs.Count)
-                            return new TimeSpan(-1);
-
-                        return section.Paragraphs[aTag.tOdstavec].Begin;
-                    }
-                    return section.Begin;
-                }
-                return chapter.Begin;
-            }
-
-            return new TimeSpan(-1);
-        }
-
-
-        //podle tagu vraci cas elementu...end
-        public TimeSpan VratCasElementuKonec(MyTag aTag)
-        {
-            if (aTag.tKapitola >= 0)
-            {
-                if (aTag.tKapitola >= Chapters.Count)
-                    return new TimeSpan(-1);
-
-                MyChapter chapter = Chapters[aTag.tKapitola];
-                if (aTag.tSekce >= 0)
-                {
-                    if (aTag.tSekce >= chapter.Sections.Count)
-                        return new TimeSpan(-1);
-
-                    MySection section = chapter.Sections[aTag.tSekce];
-                    if (aTag.tOdstavec >= 0)
-                    {
-                        if (aTag.tOdstavec >= section.Paragraphs.Count)
-                            return new TimeSpan(-1);
-
-                        return section.Paragraphs[aTag.tOdstavec].End;
-                    }
-                    return section.End;
-                }
-                return chapter.End;
-            }
-
-            return new TimeSpan(-1);
-
-        }
-
-        /// <summary>
-        /// oznaci podle tagu data pro trenovani - umi kapitoly, sekce a odstavec - upravi i foneticky
-        /// </summary>
-        /// <param name="aTag"></param>
-        /// <param name="aStav"></param>
-        /// <returns></returns>
-        public bool OznacTrenovaciData(MyTag aTag, bool aStav)
-        {
-            try
-            {
-                if (aTag == null) return false;
-                if (aTag.JeOdstavec)
-                {
-                    MyParagraph pP = VratOdstavec(aTag);
-                    MyParagraph pP2 = VratOdstavec(new MyTag(aTag.tKapitola, aTag.tSekce, aTag.tOdstavec, MyEnumTypElementu.foneticky, null));
-                    if (pP == null) return false;
-                    pP.trainingElement = aStav;
-                    if (pP2 != null) pP2.trainingElement = aStav;
-
-                }
-                else if (aTag.JeSekce) //oznaceni cele sekce
-                {
-                    MySection pS = VratSekci(aTag);
-                    if (pS == null) return false;
-                    for (int i = 0; i < pS.Paragraphs.Count; i++)
-                    {
-                        pS.Paragraphs[i].trainingElement = aStav;
-                        pS.PhoneticParagraphs[i].trainingElement = aStav;
-                    }
-                }
-                else if (aTag.JeKapitola)
-                {
-                    MyChapter pCh = VratKapitolu(aTag);
-                    if (pCh == null) return false;
-                    for (int j = 0; j < pCh.Sections.Count; j++)
-                    {
-                        MySection pS = pCh.Sections[j];
-                        for (int i = 0; i < pS.Paragraphs.Count; i++)
-                        {
-                            pS.Paragraphs[i].trainingElement = aStav;
-                            pS.PhoneticParagraphs[i].trainingElement = aStav;
-                        }
-                    }
-                }
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-
-        }
-
         /// <summary>
         /// vrati vsechny vyhovujici elementy casu
         /// </summary>
         /// <param name="aPoziceKurzoru"></param>
         /// <returns></returns>
-        public List<TranscriptionElement> VratElementDanehoCasu(TimeSpan PoziceKurzoru)
+        public List<MyParagraph> VratElementDanehoCasu(TimeSpan cas)
         {
-            List<TranscriptionElement> pRet = new List<TranscriptionElement>();
-
-            foreach (var tr in this)
+            List<MyParagraph> toret = new List<MyParagraph>();
+            foreach (var el in this)
             {
-                if (tr.Begin <= PoziceKurzoru && tr.End >= PoziceKurzoru && tr.IsParagraph)
-                    pRet.Add(tr);
+                if (el.IsParagraph && el.Begin <= cas && el.End >= cas)
+                {
+                    toret.Add((MyParagraph)el);
+                }
             }
-
-            return pRet;
+            return toret;
         }
 
-
-        /// <summary>
-        /// vrati vsechny vyhovujici elementy casu
-        /// </summary>
-        /// <param name="aPoziceKurzoruMS"></param>
-        /// <returns></returns>
-        [Obsolete]
-        public List<MyTag> VratElementDanehoCasu(TimeSpan aPoziceKurzoru, MyTag aVychoziTag)
+        public MyParagraph VratElementKonciciPred(TimeSpan cas)
         {
-            List<MyTag> pRet = new List<MyTag>();
-            try
+            List<MyParagraph> toret = new List<MyParagraph>();
+            MyParagraph par = null;
+            foreach (var el in this)
             {
-                if (aVychoziTag == null) aVychoziTag = new MyTag(0, 0, 0);
-                if (!aVychoziTag.JeSekce && !aVychoziTag.JeOdstavec) aVychoziTag = new MyTag(aVychoziTag.tKapitola, 0, 0);
-                if (!aVychoziTag.JeOdstavec) aVychoziTag = new MyTag(aVychoziTag.tKapitola, aVychoziTag.tSekce, 0);
-
-                int pi = aVychoziTag.tKapitola;
-                int pj = aVychoziTag.tSekce;
-                int pk = aVychoziTag.tOdstavec;
-                MyParagraph pP1 = VratOdstavec(aVychoziTag);
-                if (pP1 != null && pP1.Delka >= TimeSpan.Zero)
+                if(el.End <cas)
                 {
-                    if (aPoziceKurzoru >= pP1.Begin && aPoziceKurzoru < pP1.End)
+                    if (el.IsParagraph)
                     {
-                        pRet.Add(aVychoziTag);
-                        return pRet;
+                        par = (MyParagraph)el;
                     }
-                }
-
-                for (int i = pi; i < this.Chapters.Count; i++)
-                {
-                    for (int j = pj; j < this.Chapters[i].Sections.Count; j++)
-                    {
-                        for (int k = pk; k < this.Chapters[i].Sections[j].Paragraphs.Count; k++)
-                        {
-                            MyParagraph pP = this.Chapters[i].Sections[j].Paragraphs[k];
-                            if (pP.Delka >= TimeSpan.Zero)
-                            {
-                                if (aPoziceKurzoru > pP.Begin && aPoziceKurzoru < pP.End)
-                                {
-                                    pRet.Add(new MyTag(i, j, k));
-
-                                }
-                                else if (aPoziceKurzoru == pP.Begin || aPoziceKurzoru == pP.End)
-                                {
-                                    pRet.Add(new MyTag(i, j, k));
-
-                                }
-                                else if (aPoziceKurzoru < pP.Begin)
-                                {
-                                    return pRet;
-                                }
-                            }
-                        }
-                        pk = 0;
-
-                    }
-
-                }
-                return pRet;
+                }else
+                    break;
             }
-            catch
+            return par;
+        }
+        
+
+        public MyParagraph VratElementZacinajiciPred(TimeSpan cas)
+        {
+            List<MyParagraph> toret = new List<MyParagraph>();
+            MyParagraph par = null;
+            foreach (var el in this)
             {
-                return pRet;
+                if(el.Begin <cas)
+                {
+                    if (el.IsParagraph)
+                    {
+                        par = (MyParagraph)el;
+                    }
+                }else
+                    break;
             }
+            return par;
 
         }
-
-
-
-
-        public MyTag VratElementKonciciPred(TimeSpan aPoziceKurzoru)
-        {
-
-                 MyTag aVychoziTag = new MyTag(0, 0, 0);
-
-
-                int pi = aVychoziTag.tKapitola;
-                int pj = aVychoziTag.tSekce;
-                int pk = aVychoziTag.tOdstavec;
-                MyParagraph nejlepsi = this[aVychoziTag];
-                MyTag nejlepsitag = new MyTag();
-
-                for (int i = pi; i < this.Chapters.Count; i++)
-                {
-                    for (int j = pj; j < this.Chapters[i].Sections.Count; j++)
-                    {
-                        for (int k = pk; k < this.Chapters[i].Sections[j].Paragraphs.Count; k++)
-                        {
-                            MyParagraph pP = this.Chapters[i].Sections[j].Paragraphs[k];
-                            if (pP.Delka >= TimeSpan.Zero)
-                            {
-                                if (aPoziceKurzoru > pP.End && pP.End > nejlepsi.End )
-                                {
-                                    nejlepsi = pP;
-                                    nejlepsitag = new MyTag(i, j, k);
-
-                                }
-
-                            }
-                            else if (pP.Begin > aPoziceKurzoru)
-                            {
-                                return nejlepsitag;
-                            }
-                        }
-                        
-                        pk = 0;
-
-                    }
-
-                }
-                return nejlepsitag;
-
-        }
-
-        public MyTag VratElementZacinajiciPred(TimeSpan aPoziceKurzoruMS)
-        {
-
-            MyTag aVychoziTag = new MyTag(0, 0, 0);
-
-
-            int pi = aVychoziTag.tKapitola;
-            int pj = aVychoziTag.tSekce;
-            int pk = aVychoziTag.tOdstavec;
-            MyParagraph nejlepsi = this[aVychoziTag];
-            MyTag nejlepsitag = new MyTag(0,0,0);
-
-            for (int i = pi; i < this.Chapters.Count; i++)
-            {
-                for (int j = pj; j < this.Chapters[i].Sections.Count; j++)
-                {
-                    for (int k = pk; k < this.Chapters[i].Sections[j].Paragraphs.Count; k++)
-                    {
-                        MyParagraph pP = this.Chapters[i].Sections[j].Paragraphs[k];
-                        if (pP.Delka >= TimeSpan.Zero)
-                        {
-                            if (aPoziceKurzoruMS > pP.Begin && pP.Begin > nejlepsi.Begin)
-                            {
-                                nejlepsi = pP;
-                                nejlepsitag = new MyTag(i, j, k);
-
-                            }
-
-                        }
-                        else if (pP.Begin > aPoziceKurzoruMS)
-                        {
-                            return nejlepsitag;
-                        }
-                    }
-
-                    pk = 0;
-
-                }
-
-            }
-            return nejlepsitag;
-
-        }
-
-
 
         //smazani speakera ze seznamu speakeru a odstraneni speakera v pouzitych odstavcich
         public bool OdstranSpeakera(MySpeaker aSpeaker)
@@ -1966,8 +1093,6 @@ namespace NanoTrans
                                     if (Chapters[k].Sections[l].Paragraphs[m].speakerID == aSpeaker.ID)
                                     {
                                         Chapters[k].Sections[l].Paragraphs[m].speakerID = new MySpeaker().ID;
-                                        Chapters[k].Sections[l].PhoneticParagraphs[m].speakerID = new MySpeaker().ID;
-
                                     }
                                 }
 
@@ -1983,9 +1108,8 @@ namespace NanoTrans
                 }
                 else return false;
             }
-            catch (Exception ex)
+            catch// (Exception ex)
             {
-                MyLog.LogujChybu(ex);
                 return false;
             }
         }
@@ -2002,109 +1126,6 @@ namespace NanoTrans
             return i;
         }
 
-        /// <summary>
-        /// zadani speakera do datove struktury
-        /// </summary>
-        /// <param name="aTag"></param>
-        /// <param name="indexSpeakera"></param>
-        /// <returns></returns>
-        public bool ZadejSpeakera(MyTag aTag, int aIDSpeakera)
-        {
-
-
-            try
-            {
-                MySpeaker aSpeaker = new MySpeaker();
-
-                aSpeaker = this.SeznamMluvcich.VratSpeakera(aIDSpeakera);
-
-
-                if (aTag.tOdstavec > -1)
-                {
-                    //nastavi mluvciho pro odstavec podle tagu
-                    Chapters[aTag.tKapitola].Sections[aTag.tSekce].Paragraphs[aTag.tOdstavec].speakerID = aSpeaker.ID;
-                    Chapters[aTag.tKapitola].Sections[aTag.tSekce].PhoneticParagraphs[aTag.tOdstavec].speakerID = aSpeaker.ID;
-                    Ulozeno = false;
-                    return true;
-                }
-                else if (aTag.tSekce > -1)
-                {
-                    //nastavi mluvciho pro celou sekci podle tagu
-                    ((MySection)((MyChapter)Chapters[aTag.tKapitola]).Sections[aTag.tSekce]).speaker = aSpeaker.ID;
-
-                    if (((MySection)((MyChapter)Chapters[aTag.tKapitola]).Sections[aTag.tSekce]).Paragraphs.Count > 0)
-                    {
-                        for (int i = 0; i < ((MySection)((MyChapter)Chapters[aTag.tKapitola]).Sections[aTag.tSekce]).Paragraphs.Count; i++)
-                        {
-                            ((MyParagraph)((MySection)((MyChapter)Chapters[aTag.tKapitola]).Sections[aTag.tSekce]).Paragraphs[i]).speakerID = aSpeaker.ID;
-                        }
-                        Ulozeno = false;
-                        return true;
-                    }
-                    else return false;
-
-
-                }
-                else if (aTag.tKapitola > -1)
-                {
-                    //u kapitoly se speaktrer nenastavuje
-                    return false;
-                }
-                else
-                {
-
-                    return false;
-                }
-
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-                return false;
-            }
-
-        }
-
-
-
-        /// <summary>
-        /// vraci speakera z datove struktury podle tagu
-        /// </summary>
-        /// <param name="aTag"></param>
-        /// <returns></returns>
-        public MySpeaker VratSpeakera(MyTag aTag)
-        {
-            try
-            {
-
-                if (aTag.tOdstavec > -1)
-                {
-
-                    int ms = Chapters[aTag.tKapitola].Sections[aTag.tSekce].Paragraphs[aTag.tOdstavec].speakerID;
-                    return this.SeznamMluvcich.VratSpeakera(ms);
-
-                }
-                else if (aTag.tSekce > -1)
-                {
-                    return new MySpeaker();
-                }
-                else if (aTag.tKapitola > -1)
-                {
-                    return new MySpeaker();
-                }
-                else
-                {
-                    return new MySpeaker();
-                }
-
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-                return new MySpeaker();
-            }
-
-        }
 
         public MySpeaker VratSpeakera(int aIDSpeakera)
         {
@@ -2119,152 +1140,6 @@ namespace NanoTrans
         public int NajdiSpeakera(string aJmeno)
         {
             return this.SeznamMluvcich.NajdiSpeakeraID(aJmeno);
-        }
-
-
-        /// <summary>
-        /// vrati odstavec podle typu
-        /// </summary>
-        /// <param name="aTag"></param>
-        /// <param name="aTypOdstavce"></param>
-        /// <returns></returns>
-        private MyParagraph VratOdstavec(MyTag aTag)
-        {
-            if (aTag == null || aTag.tKapitola < 0 || aTag.tSekce < 0 || aTag.tOdstavec < 0) return null;
-
-            if (aTag.tKapitola < Chapters.Count)
-            {
-                MyChapter chapter = Chapters[aTag.tKapitola];
-                if (aTag.tSekce < chapter.Sections.Count)
-                {
-                    MySection section = chapter.Sections[aTag.tSekce];
-
-                    if (aTag.tOdstavec < section.Paragraphs.Count)
-                    {
-                        if (aTag.tTypElementu == MyEnumTypElementu.normalni)
-                        {
-                            return section.Paragraphs[aTag.tOdstavec];
-                        }
-                        else if (aTag.tTypElementu == MyEnumTypElementu.foneticky)
-                        {
-                            return section.PhoneticParagraphs[aTag.tOdstavec];
-                        }
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// vrati nasledujici odstavec, pokud existuje - i z dalsi sekce, nikoliv kapitoly!! jinak null
-        /// </summary>
-        /// <param name="aTag"></param>
-        /// <returns></returns>
-        public MyTag VratOdstavecNasledujiciTag(MyTag aTag)
-        {
-            try
-            {
-                if (aTag.tKapitola < 0 || aTag.tSekce < 0 || aTag.tOdstavec < 0) return null;
-                int pPocetSekci = Chapters[aTag.tKapitola].Sections.Count;
-                int pPocetOdstavcu = Chapters[aTag.tKapitola].Sections[aTag.tSekce].Paragraphs.Count;
-                if (pPocetOdstavcu > aTag.tOdstavec + 1)
-                {
-                    //return Chapters[aTag.tKapitola].Sections[aTag.tSekce].Paragraphs[aTag.tOdstavec + 1];
-                    return new MyTag(aTag.tKapitola, aTag.tSekce, aTag.tOdstavec + 1);
-                }
-                else
-                {
-                    if (pPocetSekci > aTag.tSekce + 1)
-                    {
-                        if (Chapters[aTag.tKapitola].Sections[aTag.tSekce + 1].hasParagraph)
-                        {
-                            //return Chapters[aTag.tKapitola].Sections[aTag.tSekce + 1].Paragraphs[0];
-                            return new MyTag(aTag.tKapitola, aTag.tSekce + 1, 0);
-                        }
-                    }
-                }
-                return null;
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// vrati predchozi odstavec, pokud existuje - i z predchozi sekce, nikoliv kapitoly!! jinak null
-        /// </summary>
-        /// <param name="aTag"></param>
-        /// <returns></returns>
-        public MyTag VratOdstavecPredchoziTag(MyTag aTag)
-        {
-            try
-            {
-                if (aTag.tKapitola < 0 || aTag.tSekce < 0 || aTag.tOdstavec < 0) return null;
-                int pPocetSekci = Chapters[aTag.tKapitola].Sections.Count;
-                int pPocetOdstavcu = Chapters[aTag.tKapitola].Sections[aTag.tSekce].Paragraphs.Count;
-                if (aTag.tOdstavec > 0)
-                {
-                    //return Chapters[aTag.tKapitola].Sections[aTag.tSekce].Paragraphs[aTag.tOdstavec - 1];
-                    return new MyTag(aTag.tKapitola, aTag.tSekce, aTag.tOdstavec - 1);
-                }
-                else
-                {
-                    if (aTag.tSekce > 0)
-                    {
-                        if (Chapters[aTag.tKapitola].Sections[aTag.tSekce - 1].hasParagraph)
-                        {
-                            //return Chapters[aTag.tKapitola].Sections[aTag.tSekce - 1].Paragraphs[Chapters[aTag.tKapitola].Sections[aTag.tSekce - 1].Paragraphs.Count - 1];
-                            return new MyTag(aTag.tKapitola, aTag.tSekce - 1, Chapters[aTag.tKapitola].Sections[aTag.tSekce - 1].Paragraphs.Count - 1);
-                        }
-                    }
-                }
-                return null;
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Vraci sekci podle tagu, pokud neexistuje, vraci null
-        /// </summary>
-        /// <param name="aTag"></param>
-        /// <returns></returns>
-        public MySection VratSekci(MyTag aTag)
-        {
-            try
-            {
-                if (aTag.tKapitola < 0 || aTag.tSekce < 0 || aTag.tOdstavec >= 0) return null;
-                return ((MySection)((MyChapter)Chapters[aTag.tKapitola]).Sections[aTag.tSekce]);
-
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-
-        /// <summary>
-        /// Vraci kapitolu podle tagu, pokud neexistuje, vraci null
-        /// </summary>
-        /// <param name="aTag"></param>
-        /// <returns></returns>
-        public MyChapter VratKapitolu(MyTag aTag)
-        {
-            try
-            {
-                if (aTag.tKapitola < 0 || aTag.tSekce > 0 || aTag.tOdstavec >= 0) return null;
-                return ((MyChapter)Chapters[aTag.tKapitola]);
-
-            }
-            catch
-            {
-                return null;
-            }
         }
 
 
@@ -2315,33 +1190,6 @@ namespace NanoTrans
                 }
 
                 MySubtitlesData pCopy = new MySubtitlesData(co);
-                //odstraneni prazdnych fonetickych prepisu, aby se zbytecne nezapisovaly
-                for (int i = 0; i < pCopy.Chapters.Count; i++)
-                {
-                    for (int j = 0; j < pCopy.Chapters[i].Sections.Count; j++)
-                    {
-                        bool pPrazdne = true;
-                        for (int k = 0; k < pCopy.Chapters[i].Sections[j].Paragraphs.Count; k++)
-                        {
-                            MyParagraph pP = pCopy.VratOdstavec(new MyTag(i, j, k, MyEnumTypElementu.foneticky, null));
-                            if (pP.Text != null && pP.Text != "")
-                            {
-                                pPrazdne = false;
-                                break;
-                            }
-                        }
-                        if (pPrazdne) pCopy.Chapters[i].Sections[j].PhoneticParagraphs.Clear();
-                    }
-                }
-
-
-               // TextWriter writer = new StreamWriter(datastream);
-               // XmlSerializer serializer = new XmlSerializer(typeof(MySubtitlesData));
-
-                //XmlTextWriter writer = new XmlTextWriter(jmenoSouboru, Encoding.UTF8);
-
-               // serializer.Serialize(writer, pCopy);
-               // writer.Close();
 
                 System.Xml.XmlTextWriter writer = new XmlTextWriter(datastream, Encoding.UTF8);
 
@@ -2404,7 +1252,7 @@ namespace NanoTrans
 
 
                         writer.WriteStartElement("PhoneticParagraphs");
-                        foreach (MyParagraph p in s.PhoneticParagraphs)
+                        foreach (MyParagraph p in s.Paragraphs)
                         {
                             writer.WriteStartElement("Paragraph");
                             writer.WriteAttributeString("begin", XmlConvert.ToString(p.Begin));
@@ -2419,7 +1267,7 @@ namespace NanoTrans
                                 writer.WriteStartElement("Phrase");
                                 writer.WriteAttributeString("begin", XmlConvert.ToString(p.Begin));
                                 writer.WriteAttributeString("end", XmlConvert.ToString(p.End));
-                                writer.WriteElementString("Text", ph.Text);
+                                writer.WriteElementString("Text", ph.Phonetics);
                                 writer.WriteEndElement();//Phrase
                             }
 
@@ -2482,7 +1330,6 @@ namespace NanoTrans
             catch (Exception ex)
             {
                 MessageBox.Show("Chyba pri serializaci souboru: " + ex.Message);
-                MyLog.LogujChybu(ex);
                 return false;
             }
 
@@ -2662,7 +1509,7 @@ namespace NanoTrans
 
                         while (reader.Name == "Paragraph")
                         {
-                            MyParagraph p = new MyParagraph() { IsPhonetic = true};
+                            MyParagraph p = new MyParagraph();
                             val = reader.GetAttribute("begin");
                             if (int.TryParse(val, out result))
                                 if (result < 0)
@@ -2714,7 +1561,7 @@ namespace NanoTrans
 
                                 if (reader.Name == "TextPrepisovany")
                                 {
-                                    ph.TextPrepisovany = reader.ReadElementString();
+                                    reader.ReadElementString();
                                 }
 
                                 p.Phrases.Add(ph);
@@ -2728,7 +1575,57 @@ namespace NanoTrans
                             p.speakerID = XmlConvert.ToInt32(reader.ReadElementString());
 
                             reader.ReadEndElement();//paragraph
-                            s.PhoneticParagraphs.Add(p);
+                            
+                            //zarovnani fonetiky k textu
+
+
+                            MyParagraph bestpar = null;
+                            TimeSpan timeinboth = TimeSpan.Zero;
+                            foreach (MyParagraph v in s.Paragraphs)
+                            {
+                                if (bestpar == null)
+                                    bestpar = v;
+                                else
+                                {
+                                    TimeSpan beg = v.Begin > p.Begin ? v.Begin : p.Begin;
+                                    TimeSpan end = v.End < p.End ? v.End : p.End;
+
+                                    TimeSpan duration = end - beg;
+
+                                    if (duration > timeinboth)
+                                    {
+                                        timeinboth = duration;
+                                        bestpar = v;
+                                    }
+                                }
+                            }
+
+                            foreach (MyPhrase hn in p.Phrases)
+                            {
+                                MyPhrase bestphrase = null;
+                                foreach (MyPhrase h in bestpar.Phrases)
+                                {
+                                    if (bestphrase == null)
+                                        bestphrase = h;
+                                    else
+                                    {
+                                        TimeSpan beg = h.Begin > hn.Begin ? h.Begin : hn.Begin;
+                                        TimeSpan end = h.End < hn.End ? h.End : hn.End;
+
+                                        TimeSpan duration = end - beg;
+
+                                        if (duration > timeinboth)
+                                        {
+                                            timeinboth = duration;
+                                            bestphrase = h;
+                                        }
+                                    }
+                                }
+
+                                bestphrase.Phonetics = hn.Text;
+                            }
+
+
                         }
 
 
@@ -2767,30 +1664,11 @@ namespace NanoTrans
                     data.SeznamMluvcich.Speakers.Add(sp);
                 }
 
-                //pokud nebyly v souboru ulozeny foneticke prepisy odstavcu, jsou automaticky vytvoreny podle struktury
-                for (int i = 0; i < data.Chapters.Count; i++)
-                {
-                    for (int j = 0; j < data.Chapters[i].Sections.Count; j++)
-                    {
-                        if (data.Chapters[i].Sections[j].Paragraphs.Count != data.Chapters[i].Sections[j].PhoneticParagraphs.Count)
-                        {
-                            data.Chapters[i].Sections[j].PhoneticParagraphs.Clear();
-                            for (int k = 0; k < data.Chapters[i].Sections[j].Paragraphs.Count; k++)
-                            {
-                                MyParagraph pP = data.VratOdstavec(new MyTag(i, j, k));
-                                data.Chapters[i].Sections[j].PhoneticParagraphs.Add(new MyParagraph("", null, pP.Begin, pP.End));
-                                data.ZadejSpeakera(new MyTag(i, j, k), pP.speakerID);
-                            }
-                        }
-                    }
-                }
-
                 return data;
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Chyba pri derializaci souboru: " + ex.Message);
-                MyLog.LogujChybu(ex);
                 return null;
             }
 
@@ -2798,123 +1676,6 @@ namespace NanoTrans
 
         }
 
-        public MyTag UpravCasZobraz(MyTag aTag, TimeSpan aBegin, TimeSpan aEnd)
-        {
-            return UpravCasZobraz(aTag, aBegin, aEnd,false);
-        }
-
-        /// <summary>
-        /// upravi a zobrazi cas u textboxu....begin a end.. pokud -2 tak se nemeni hodnoty casu..., -1 znamena vynulovani hodnot casu pocatku nebo konce
-        /// </summary>
-        /// <param name="aTag"></param>
-        /// <param name="aBegin"></param>
-        /// <param name="aEnd"></param>
-        /// <returns></returns>
-        public MyTag UpravCasZobraz(MyTag aTag, TimeSpan aBegin, TimeSpan aEnd, bool aIgnorovatPrekryv)
-        {
-
-            MyTag pTagPredchozi = new MyTag(-1, -1, -1);     //predchozi element
-            MyTag newTag2 = new MyTag(-1, -1, -1);  //nasledujici element
-            MyParagraph pParPredchozi = null;
-            MyParagraph pParAktualni = VratOdstavec(aTag);
-            MyParagraph pParNasledujici = null;
-
-
-            if (aTag.tOdstavec > 0)
-            {
-                pTagPredchozi = new MyTag(aTag.tKapitola, aTag.tSekce, aTag.tOdstavec - 1);
-                pParPredchozi = VratOdstavec(pTagPredchozi);
-
-            }
-            if (aTag.tOdstavec > -1)
-            {
-                newTag2 = new MyTag(aTag.tKapitola, aTag.tSekce, aTag.tOdstavec + 1);
-                pParNasledujici = VratOdstavec(newTag2);
-            }
-
-            TimeSpan pKonecPredchoziho = VratCasElementuKonec(pTagPredchozi);
-            TimeSpan pZacatekSoucasneho = VratCasElementuPocatek(aTag);
-            TimeSpan pKonecSoucasneho = VratCasElementuKonec(aTag);
-            TimeSpan pZacatekNasledujiciho = VratCasElementuPocatek(newTag2);
-
-
-            if (VratCasElementuPocatek(pTagPredchozi) > new TimeSpan(-1) && aBegin > new TimeSpan(-1))
-            {
-                TimeSpan pCasElementuKonec = VratCasElementuKonec(aTag);
-
-                if (pCasElementuKonec >= TimeSpan.Zero && pCasElementuKonec < aBegin && aEnd < aBegin)
-                {
-                    MessageBox.Show("Nelze nastavit počáteční čas bloku větší než jeho konec. ", "Varování", MessageBoxButton.OK);
-                    return null;
-                }
-
-                if (VratCasElementuPocatek(pTagPredchozi) <= aBegin) //dopsano ==
-                {
-                    if (VratCasElementuKonec(pTagPredchozi) > aBegin)
-                    {
-                        if (VratSpeakera(aTag).FullName == VratSpeakera(pTagPredchozi).FullName && !aIgnorovatPrekryv)
-                        {
-                            MessageBox.Show("Nelze nastavit počáteční čas bloku nižší než konec předchozího pro stejného mluvčího ", "Varování", MessageBoxButton.OK);
-                            return null;
-                        }
-                        else
-                        {
-                            MessageBoxResult mbr = MessageBoxResult.Yes;
-                            bool pZobrazitHlasku = pKonecPredchoziho <= pZacatekSoucasneho;
-                         
-                            //TODO: proc jsou z tychle funkce volany messageboxy
-                            if (!aIgnorovatPrekryv && pZobrazitHlasku) mbr = MessageBox.Show("Mluvčí se bude překrývat s předchozím, chcete toto povolit?", "Varování", MessageBoxButton.YesNoCancel);
-                            if (mbr != MessageBoxResult.Yes)
-                            {
-                                aBegin = pKonecPredchoziho;
-                            }
-
-                        }
-                    }
-                }
-                else
-                {
-                    MessageBox.Show("Nelze nastavit počáteční čas bloku nižší než začátek předchozího. ", "Varování", MessageBoxButton.OK);
-                    return aTag;
-                }
-
-            }
-
-
-            if (VratCasElementuKonec(newTag2) > new TimeSpan(-1) && aEnd > new TimeSpan(-1))
-            {
-                if (VratCasElementuPocatek(aTag) > aEnd)
-                {
-                    MessageBox.Show("Nelze nastavit koncový čas bloku menší než jeho počátek. ", "Varování", MessageBoxButton.OK);
-                    return null;
-                }
-                else
-                {
-                    if (VratCasElementuPocatek(newTag2) < aEnd)
-                    {
-                        if (VratSpeakera(aTag).FullName == VratSpeakera(newTag2).FullName && !aIgnorovatPrekryv)
-                        {
-                            MessageBox.Show("Nelze nastavit koncový čas bloku vyšší než počátek následujícího pro stejného mluvčího ", "Varování", MessageBoxButton.OK);
-                            return aTag;
-                        }
-                        else
-                        {
-                            MessageBoxResult mbr = MessageBoxResult.Yes;
-                            bool pZobrazitHlasku = pKonecSoucasneho <= pZacatekNasledujiciho;
-                            if (!aIgnorovatPrekryv && pZobrazitHlasku) mbr = MessageBox.Show("Mluvčí se bude překrývat s následujícím, chcete toto povolit?", "Varování", MessageBoxButton.YesNoCancel);
-                            if (mbr != MessageBoxResult.Yes)
-                            {
-                                aEnd = pZacatekNasledujiciho;
-                            }
-                        }
-                    }
-                }
-            }
-
-
-            UpravCasElementu(aTag, aBegin, aEnd);
-            return aTag;
-        }
 
         #region IList<TranscriptionElement> Members
 
@@ -2935,17 +1696,17 @@ namespace NanoTrans
             return i;
         }
 
-        public void Insert(int index, TranscriptionElement item)
+        public override void Insert(int index, TranscriptionElement item)
         {
             throw new NotSupportedException();
         }
 
-        public void RemoveAt(int index)
+        public override void RemoveAt(int index)
         {
             throw new NotSupportedException();
         }
 
-        public TranscriptionElement this[int index]
+        public override TranscriptionElement this[int index]
         {
             get
             {
@@ -2986,9 +1747,19 @@ namespace NanoTrans
 
         #region ICollection<TranscriptionElement> Members
 
-        public void Add(TranscriptionElement item)
+        public override void Add(TranscriptionElement item)
         {
-            throw new NotSupportedException();
+            if (item is MyChapter)
+            { 
+                m_children.Add((MyChapter)item);
+                this.ChildrenCountChanged();
+            }else if(item is MySection)
+            {
+                m_children[m_children.Count - 1].Add(item as MySection);
+            }else if(item is MyParagraph)
+            {
+                m_children[m_children.Count - 1].Children[m_children[m_children.Count - 1].Children.Count - 1].Add(item as MySection);
+            }
         }
 
         public void Clear()
@@ -3016,16 +1787,25 @@ namespace NanoTrans
             get { return true ; }
         }
 
-        public bool Remove(TranscriptionElement item)
+        public override bool Remove(TranscriptionElement item)
         {
-            throw new NotSupportedException();
+            if (item is MyChapter)
+            {
+                return Chapters.Remove(item as MyChapter);
+            }
+
+            foreach (TranscriptionElement el in this)
+            {
+                if (el == item)
+                {
+                    return item.Parent.Remove(item);
+                }
+            }
+
+            return false;
         }
 
         #endregion
-
-
-
-
 
         #region IEnumerable<TranscriptionElement> Members
 
@@ -3059,6 +1839,39 @@ namespace NanoTrans
         }
 
         #endregion
+
+
+        public event Action SubtitlesChanged;
+
+
+        public override void ChildrenCountChanged()
+        {
+            if (SubtitlesChanged != null)
+                SubtitlesChanged();
+        }
+        public override string Text
+        {
+            get
+            {
+                return null;
+            }
+            set
+            {
+            }
+        }
+
+        public override string Phonetics
+        {
+            get
+            {
+                return null;
+            }
+            set
+            {
+            }
+        }
+
+
     }
 
     //trida ktera obsahuje informace o casove znacce jednotlicych useku - pocatek a konec a index pozice v textu

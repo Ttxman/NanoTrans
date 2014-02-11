@@ -29,6 +29,10 @@ namespace NanoTrans
             TranscriptionElement val = (TranscriptionElement)e.NewValue;
             Element el = (Element)d;
             el.m_Element = val;
+
+            if (e.NewValue == null)
+                return;
+
             Type t = e.NewValue.GetType();
 
             if (t == typeof(MyParagraph))
@@ -73,7 +77,9 @@ namespace NanoTrans
                 el.checkBox1.Visibility = Visibility.Collapsed;
             }
 
+            el.updating = true;
             el.myTextBox1.Text = val.Text;
+            el.updating = false;
         }
 
         TranscriptionElement m_Element;
@@ -85,12 +91,12 @@ namespace NanoTrans
             }
             set
             {
+                updating = true;
                 if (ValueElement != null)
                 {
                     ValueElement.BeginChanged -= BeginChanged;
                     ValueElement.EndChanged -= EndChanged;
                 }
-
                 SetValue(ValueElementProperty, value);
                 DataContext = value;
                 if (value != null)
@@ -119,6 +125,8 @@ namespace NanoTrans
                         }
                     }
                 }
+
+                updating = false;
             }
         }
 
@@ -204,16 +212,12 @@ namespace NanoTrans
             }
         }
 
+        private bool updating = false;
 
         public Element()
         {
             InitializeComponent();
             RepaintAttributes();
-        }
-
-        private void UserControl_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-
         }
 
         private void BeginChanged(object sendet, EventArgs value)
@@ -232,11 +236,11 @@ namespace NanoTrans
         {
             if (ValueElement is MyParagraph)
             {
-                this.Background = MySetup.Setup.BarvaTextBoxuOdstavceAktualni;
+                textboxcanvas.Background = MySetup.Setup.BarvaTextBoxuOdstavceAktualni;
             }
             else
             {
-                this.Background = null;
+                textboxcanvas.Background = null;
             }
         }
 
@@ -244,7 +248,7 @@ namespace NanoTrans
         {
             if (ValueElement is MyParagraph)
             {
-                this.Background = null;
+                textboxcanvas.Background = null;
             }
 
         }
@@ -267,7 +271,7 @@ namespace NanoTrans
 
         private void myTextBox1_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (ValueElement == null)
+            if (ValueElement == null || updating)
                 return;
             if (!(ValueElement is MyParagraph))
             {
@@ -277,56 +281,76 @@ namespace NanoTrans
             }
 
             MyParagraph par = ValueElement as MyParagraph;
-            TextBox pTb = myTextBox1;
-
-            if (par.IsPhonetic)
+            string text = myTextBox1.Text;
+            foreach (TextChange c in e.Changes)
             {
-                MyKONST.OverZmenyTextBoxu(pTb, par.Text, ref e, MyEnumTypElementu.foneticky);
-            }
+                int offset = c.Offset;
+                int removedl = c.RemovedLength;
+                int addedl = c.AddedLength;
 
-            string tr = pTb.Text;
-
-            int carretpos = (pTb.SelectionLength <= 0) ? pTb.CaretIndex : pTb.SelectionStart;
-            int pIndexZmeny = e.Changes.Last<TextChange>().Offset;//MyKONST.VratIndexZmenyStringu(MySetup.Setup.CasoveZnackyText, tr, carretpos);// pTb.SelectionStart);
-            if (pIndexZmeny >= 0) //doslo ke zmene ve stringu
-            {
-                //jak se zmenila delka - novy je o kolik delsi - muze byt i zaporny - tzn je ktratsi nez puvodni
-                int pDelka = tr.Length - MySetup.Setup.CasoveZnackyText.Length;
-
-                //nalezeni od ktereho indexu dojde k prepoctu
-                for (int i = 0; i < MySetup.Setup.CasoveZnacky.Count; i++)
+                if (c.RemovedLength > 0)
                 {
-                    if (pIndexZmeny <= MySetup.Setup.CasoveZnacky[i].Index2) //&& i>0)
+                    List<MyPhrase> todelete = new List<MyPhrase>();
+                    int pos = 0;
+                    foreach (MyPhrase p in par.Phrases)
                     {
-                        //smazani indexove casove znacky
-                        if (pIndexZmeny == MySetup.Setup.CasoveZnacky[i].Index2 && pDelka < 0)
+                        if (pos + p.Text.Length > offset)
                         {
-
-                        }
-                        else if (pIndexZmeny < MySetup.Setup.CasoveZnacky[i].Index2)// uprava casove znacky-podminka,aby slo psat za prave vlozenou znacku
-                        {
-                            //mazalo se pred indexem, tento se musi posunout
-
-                            if (MySetup.Setup.CasoveZnacky[i].Index2 + pDelka < pIndexZmeny)
+                            int iidx = offset - pos;
+                            if(removedl > p.Text.Length - iidx)
                             {
-                                MySetup.Setup.CasoveZnacky.RemoveAt(i);
-                                i--;
-                            }
-                            else
+                                removedl -= p.Text.Length - iidx;
+                                offset = pos + p.Text.Length;
+                                p.Text = p.Text.Remove(iidx);
+                            }else
                             {
-                                MySetup.Setup.CasoveZnacky[i].Index1 += pDelka;
-                                MySetup.Setup.CasoveZnacky[i].Index2 += pDelka;
+                                p.Text = p.Text.Remove(iidx, removedl);
+                                break;
                             }
                         }
+                        else if (pos + p.Text.Length == offset)
+                        {
+                            if (removedl > p.Text.Length)
+                            {
+                                todelete.Add(p);
+                                removedl -= p.Text.Length;
+                                offset = pos + p.Text.Length;
+                            }
+                            else if (removedl == p.Text.Length)
+                            {
+                                todelete.Add(p);
+                                break;
+                            }else
+                            {
+                                p.Text = p.Text.Remove(offset-pos,removedl);
+                                break;
+                            }
+                        }
 
+                        pos += p.Text.Length;
                     }
 
+                    foreach (var v in todelete)
+                        par.Phrases.Remove(v);
+
+                }else if (c.AddedLength > 0)
+                {
+                    int pos = 0;
+                    foreach (MyPhrase p in par.Phrases)
+                    {
+                        if (c.Offset <= pos + p.Text.Length) //vlozeni
+                        { 
+                            p.Text = p.Text.Insert(c.Offset-pos,text.Substring(c.Offset,c.AddedLength));
+                            break;
+                        }
+                        pos += p.Text.Length;
+                    }
                 }
             }
+
+           
         }
 
-
-        public event EventHandler CreateNewElement;
         private void myTextBox1_PreviewKeyDown(object sender, KeyEventArgs e)
         {
 
@@ -360,42 +384,51 @@ namespace NanoTrans
 
                 if ((e.Key == Key.Up))
                 {
-                    if (par.IsPhonetic)
-                        return;
 
                     int TP = myTextBox1.GetLineIndexFromCharacterIndex(myTextBox1.SelectionStart + myTextBox1.SelectionLength);
-                    if (TP == 0)
-                    { 
-                        
+                    if (TP == 0 && MoveUpRequest!=null)
+                    {
+                        MoveUpRequest(this, new EventArgs());
                     }
                 }
                 else if ((e.Key == Key.Down))
                 {
-                    if (par.IsPhonetic)
-                        return;
-
+                    int TP = myTextBox1.GetLineIndexFromCharacterIndex(myTextBox1.SelectionStart + myTextBox1.SelectionLength);
+                    if (TP ==  myTextBox1.GetLineIndexFromCharacterIndex(myTextBox1.Text.Length-1) && MoveDownRequest != null)
+                    {
+                        MoveDownRequest(this, new EventArgs());
+                    }
                 }
                 else if (e.Key == Key.Right)
                 {
-                    if (par.IsPhonetic)
-                        return;
+                    if (myTextBox1.CaretIndex == myTextBox1.Text.Length && MoveRightRequest!=null)
+                        MoveRightRequest(this, new EventArgs());
 
                 }
                 else if (e.Key == Key.Left)
                 {
-                    if (par.IsPhonetic)
-                        return;
+                    if (myTextBox1.CaretIndex == 0 && MoveLeftRequest!=null)
+                        MoveLeftRequest(this, new EventArgs());
 
                 }
                 else if (e.Key == Key.Back)
                 {
-
+                    if (myTextBox1.CaretIndex == 0 && MergeWithPreviousRequest != null)
+                        MergeWithPreviousRequest(this, new EventArgs());
 
                 }
                 else if (e.Key == Key.Delete)
                 {
-                   
+                    if (myTextBox1.CaretIndex == myTextBox1.Text.Length && MergeWithnextRequest != null)
+                        MergeWithnextRequest(this, new EventArgs());
 
+                }
+                else if (e.Key == Key.Enter || e.Key == Key.Return)
+                {
+                    if (myTextBox1.CaretIndex != 0 && myTextBox1.CaretIndex != myTextBox1.Text.Length && SplitRequest!=null)
+                    {
+                        SplitRequest(this, new EventArgs());
+                    }
                 }
         }
 
@@ -403,7 +436,12 @@ namespace NanoTrans
         
         public event EventHandler MoveUpRequest;
         public event EventHandler MoveDownRequest;
-        public event EventHandler ElementRemoved;
 
+        public event EventHandler MoveRightRequest;
+        public event EventHandler MoveLeftRequest;
+
+        public event EventHandler MergeWithPreviousRequest;
+        public event EventHandler MergeWithnextRequest;
+        public event EventHandler SplitRequest;
     }
 }

@@ -41,7 +41,6 @@ namespace NanoTrans
         public long mSekundyVlnyKon { get; set; }
         public long MSekundyDelta { get; set; }
         
-        public bool PouzeCasovaOsa { get; set; }            //nakresli pouze casovou osu bez vlny
 
         public long mSekundyMalySkok { get; set; }              //o kolik se posune kurzor audia pri skoku pomoci alt a sipek
 
@@ -111,7 +110,6 @@ namespace NanoTrans
 
             mSekundyMalySkok = 1000;
 
-            PouzeCasovaOsa = false;
 
             ZvetseniVlnyYSmerProcenta = 100;
             AutomatickeMeritko = true;

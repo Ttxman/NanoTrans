@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 //using System.Linq;
-using System.Text;  
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -30,34 +30,34 @@ namespace NanoTrans
     /// Interaction logic for Window1.xaml
     /// </summary>
     /// 
-    public partial class Window1 : Window
+    public partial class Window1 : Window, System.ComponentModel.INotifyPropertyChanged
     {
         WinLog mWL = null;
 
         /// <summary>
         /// udava v jakem stavu chceme rozpoznavac spustit
         /// </summary>
-        private short pPozadovanyStavRozpoznavace;
-        private List<MyTag> pSeznamOdstavcuKRozpoznani;
+        //private short pPozadovanyStavRozpoznavace;
+        //private List<TranscriptionElement> pSeznamOdstavcuKRozpoznani;
 
         private List<int> pSeznamZpracovanychPrikazuRozpoznavace = new List<int>();
-        private List<MyMakro> pSeznamNahranychMaker = null;
-
-        /// <summary>
-        /// seznam ktere foneticke odstavce prepsat
-        /// </summary>
-        private List<MyTag> pSeznamOdstavcuKRozpoznaniFonetika;
-        /// <summary>
-        /// pokud je treba zanechat puvodni dokument - napr. allignmentm tak je tato promenna ruzna od mydatasource
-        /// </summary>
-        private MySubtitlesData pDokumentFonetickehoPrepisu;
 
         //timer pro posuvnik videa....
         private DispatcherTimer timer1 = new DispatcherTimer();
         private DispatcherTimer timerRozpoznavace = new DispatcherTimer();
 
+        private MySubtitlesData m_mydatasource;
+        public MySubtitlesData myDataSource
+        {
+            get { return m_mydatasource; }
+            set
+            {
+                m_mydatasource = value;
+                if (PropertyChanged != null)
+                    PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs("myDataSource"));
+            }
+        }
 
-        public MySubtitlesData myDataSource;
         /// <summary>
         /// databaze mluvcich konkretniho programu
         /// </summary>
@@ -76,10 +76,7 @@ namespace NanoTrans
         /// trida starajici se o beh automatickeho prepisovace
         /// </summary>
         private MyPrepisovac oPrepisovac = null;
-        /// <summary>
-        /// trida starajici se o hlasove ovladani
-        /// </summary>
-        private MyPrepisovac oHlasoveOvladani = null;
+
 
         /// <summary>
         /// trida starajici se o foneticke prepisy
@@ -96,7 +93,6 @@ namespace NanoTrans
         /// <summary>
         /// info zda je nacitan audio soubor kvuli davce
         /// </summary>
-        bool pNacitaniAudiaDavka = false;
 
         static bool nahled = false;
 
@@ -106,30 +102,15 @@ namespace NanoTrans
         /// <summary>
         /// po vybrani elementu pokracuje v prehravani
         /// </summary>
-        bool pPokracovatVprehravaniPoVyberu = false;
 
 
         static long mSekundyKonec = 0;   //informace o pozici konce vykreslene vlny...
         short pocetTikuTimeru = 0;    //pomocna pro deleni tiku timeru
-        bool skocitNaPoziciSlovaTextboxu = false;
-        private bool pSkocitNahoru = false;
-        private bool pSkocitDolu = false;
-        private int pPocatecniIndexVyberu = -1;
-        private int pKoncovyIndexVyberu = -1;
-        private bool pZiskatNovyIndex = true;
-        /// <summary>
-        /// neskakat na zacatek ve vlne pri vyberu elemetu
-        /// </summary>
-        private bool pNeskakatNaZacatekElementu;
 
         /// <summary>
         /// obdelniky mluvcich pro zobrazeni v audio signalu
         /// </summary>
         private List<Button> bObelnikyMluvcich = new List<Button>();
-
-
-        bool pUpravitOdstavec = true;
-
 
         /// <summary>
         /// trida pro prehravani audio dat
@@ -140,13 +121,13 @@ namespace NanoTrans
         private int pIndexBufferuVlnyProPrehrani
         {
             get { return m_pIndexBufferuVlnyProPrehrani; }
-            set 
+            set
             {
                 m_pIndexBufferuVlnyProPrehrani = value;
-             
+
             }
 
-        
+
         }
         private bool pZacloPrehravani = false;
         private bool _playing = false;
@@ -185,25 +166,8 @@ namespace NanoTrans
             }
         }
 
-
-        /// <summary>
-        /// trida pro nahravani audia
-        /// </summary>
-        private MyWaveRecorder MWR = null;
-        /// <summary>
-        /// informace zda je nahravan zvuk
-        /// </summary>
-
-        private bool recording = false;
-
-
         byte[] pVyrovnavaciPametNahravani = new byte[320000];    //vterina vyrovnavaci pameti pro nahravani-10s!!!!!
-        int pVyrovnavaciPametIndexVrcholu = 0;
-
-        /// <summary>
-        /// pomocna promenna - pocet tiku timeru rozpoznavace - pro zobrazeni hlasoveho povelu
-        /// </summary>
-        private int pDelkaZobrazeniHlasovehoPovelu = 0;
+        //int pVyrovnavaciPametIndexVrcholu = 0;
 
 
         ContextMenu ContextMenuGridX;
@@ -294,868 +258,25 @@ namespace NanoTrans
 
 
         /// <summary>
-        /// podle tagu zkusi vratit sendera richtextboxu
-        /// </summary>
-        /// <param name="aTag"></param>
-        /// <returns></returns>
-        public object VratSenderTextboxu(MyTag aTag)
-        {
-            try
-            {
-                for (int i = 0; i < spSeznam.Children.Count; i++)
-                {
-                    MyTag pTag = (MyTag)((TextBox)((Grid)spSeznam.Children[i]).Children[0]).Tag;
-                    if (aTag.tKapitola == pTag.tKapitola && aTag.tSekce == pTag.tSekce && aTag.tOdstavec == pTag.tOdstavec)
-                    {
-                        return (pTag.tSender);
-                    }
-                }
-                return null;
-            }
-            catch
-            {
-                return null;
-            }
-
-        }
-
-
-        /// <summary>
-        /// Zobrazi nactena XML data do listboxu
-        /// </summary>
-        /// <returns></returns>
-        public bool ZobrazXMLData()
-        {
-            return ZobrazXMLData(null);
-        }
-
-        /// <summary>
-        /// Zobrazi nactena XML data do listboxu
-        /// </summary>
-        /// <param name="aTagFocusu"></param>
-        /// <returns></returns>
-        public bool ZobrazXMLData(MyTag aTagFocusu)
-        {
-            try
-            {
-                if (myDataSource != null)
-                {
-                    waveform1.SubtitlesData = myDataSource;
-                    spSeznam.Children.Clear();
-                    for (int i = 0; i < myDataSource.Chapters.Count; i++)
-                    {
-                        PridejTextBox(-1, MyKONST.PrevedTextNaFlowDocument(((MyChapter)myDataSource.Chapters[i]).name), new MyTag(i, -1, -1)); //prida textbox kapitoly
-                        for (int j = 0; j < ((MyChapter)myDataSource.Chapters[i]).Sections.Count; j++)
-                        {
-                            PridejTextBox(-1, MyKONST.PrevedTextNaFlowDocument(((MySection)((MyChapter)myDataSource.Chapters[i]).Sections[j]).name), new MyTag(i, j, -1)); //prida textbox sekce
-                            for (int k = 0; k < ((MySection)((MyChapter)myDataSource.Chapters[i]).Sections[j]).Paragraphs.Count; k++)
-                            {
-                                //FlowDocument pFd = VytvorFlowDocumentOdstavce(((MyParagraph)((MySection)((MyChapter)myDataSource.chapters[i]).sections[j]).paragraphs[k]));
-                                string pFd = ((MyParagraph)((MySection)((MyChapter)myDataSource.Chapters[i]).Sections[j]).Paragraphs[k]).Text;
-                                PridejTextBox(-1, pFd, new MyTag(i, j, k));
-
-                            }
-                        }
-
-                    }
-                    UpdateXMLData();
-                    UpdateXMLData();
-                    //if (spSeznam.Children.Count > 0) ((TextBox)((Grid)spSeznam.Children[0]).Children[0]).Focus();
-                    if (spSeznam.Children.Count > 0) ((TextBox)((Grid)spSeznam.Children[0]).Children[0]).Focus();
-                    spSeznam.UpdateLayout();
-                    if (aTagFocusu != null)
-                    {
-                        try
-                        {
-                            aTagFocusu.tSender = VratSenderTextboxu(aTagFocusu);
-                            (aTagFocusu.tSender as TextBox).Focus();
-                        }
-                        catch
-                        {
-
-                        }
-                    }
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-                return false;
-            }
-
-        }
-
-
-
-        /// <summary>
-        /// THREAD SAFE, zobrazi a aktualizuje odstavce, casy, mluvci u odstavcu
-        /// </summary>
-        /// <returns></returns>
-        public bool UpdateXMLData()
-        {
-
-
-            return UpdateXMLData(true, true, true, true, true);
-        }
-
-        /// <summary>
-        /// thread SAFE, zobrazi a aktualizuje u listu s daty u odstavcu a ostatnich polozek jmena mluvcich, a velikkost fontu prepisu
-        /// </summary>
-        /// <returns></returns>
-        public bool UpdateXMLData(bool aUpdateText, bool aUpdateCasy, bool aUpdateMluvci, bool aUpdateTrainingElement, bool aUpdateMluvciSignalu)
-        {
-            try
-            {
-
-                if (this.Dispatcher.Thread != System.Threading.Thread.CurrentThread)
-                {
-                    //do invoke stuff here
-                    this.Dispatcher.Invoke(new Func<bool>(UpdateXMLData), new object[] { });
-                    return false;
-                }
-
-                if (myDataSource != null)
-                {
-                    //info o dokumentu
-                    cbZdroj.Text = this.myDataSource.source;
-                    cbTypPoradu.Text = this.myDataSource.type;
-                    DateTime pDatum = this.myDataSource.dateTime;
-                    if (pDatum < new DateTime(1900, 1, 1)) pDatum = DateTime.Now;
-                    tbDatumCasDokumentu.Text = pDatum.ToString();// this.myDataSource.dateTime.ToShortTimeString();
-
-                    //foneticky prepis
-                    if (MySetup.Setup.fonetickyPrepis.Jazyk == null || MySetup.Setup.fonetickyPrepis.Jazyk == "") cbJazyk.SelectedIndex = 0; else cbJazyk.Text = MySetup.Setup.fonetickyPrepis.Jazyk;
-                    if (MySetup.Setup.fonetickyPrepis.Pohlavi == null || MySetup.Setup.fonetickyPrepis.Pohlavi == "") cbPohlavi.SelectedIndex = 0; else cbPohlavi.Text = MySetup.Setup.fonetickyPrepis.Pohlavi;
-                    chbPrehravatRozpoznane.IsChecked = MySetup.Setup.fonetickyPrepis.PrehratAutomatickyRozpoznanyOdstavec;
-
-
-
-
-                    tbFonetickyPrepis.FontSize = MySetup.Setup.SetupTextFontSize;
-
-                    int defaultLeftPositionRichX = MySetup.Setup.defaultLeftPositionRichX;
-
-                    string pNameSpeakerPredchozi = null;
-                    string pNameSpeakerPredchoziKratky = null;
-                    spSeznam.UpdateLayout();
-                    for (int i = 0; i < spSeznam.Children.Count; i++)
-                    {
-                        //update tlacitek
-                        //MyTag aTag = ((MyTag)((RichTextBox)((Grid)spSeznam.Children[i]).Children[0]).Tag);
-                        MyTag aTag = ((MyTag)((TextBox)((Grid)spSeznam.Children[i]).Children[0]).Tag);
-                        TextBox pTB = (TextBox)((Grid)spSeznam.Children[i]).Children[0];
-                        Button pBt = ((Button)(((Grid)spSeznam.Children[i]).Children[1] as StackPanel).Children[0]);
-                        TextBlock pTextBlock = ((TextBlock)((StackPanel)pBt.Content).Children[0]);
-                        Image pImage = ((Image)((StackPanel)pBt.Content).Children[1]);
-                        FrameworkElement pEl = ((Grid)spSeznam.Children[i]).Children[2] as FrameworkElement;
-                        // if (((Grid)spSeznam.Children[i]).Children[2] is Ellipse)
-                        //     pEl = ((Grid)spSeznam.Children[i]).Children[2] as Ellipse;
-                        // else
-                        //     pEl = new Ellipse();
-
-                        Label pLbBegin = ((Label)(((Grid)spSeznam.Children[i]).Children[1] as StackPanel).Children[1]);
-                        Label pLbEnd = ((Label)(((Grid)spSeznam.Children[i]).Children[1] as StackPanel).Children[2]);
-                        CheckBox pChbTrenovani = ((CheckBox)((Grid)spSeznam.Children[i]).Children[3]);
-
-                        //zmena velikosti pisma prepisu
-                        pBt.FontSize = MySetup.Setup.SetupTextFontSize * 0.87;
-                        pTB.FontSize = MySetup.Setup.SetupTextFontSize;
-                        pLbBegin.FontSize = MySetup.Setup.SetupTextFontSize * 0.87;
-                        pLbEnd.FontSize = MySetup.Setup.SetupTextFontSize * 0.87;
-                        //
-
-
-
-
-                        double pDown = 0;
-
-                        TimeSpan pBegin = myDataSource.VratCasElementuPocatek(aTag);
-                        TimeSpan pEnd = myDataSource.VratCasElementuKonec(aTag);
-
-                        if (aUpdateCasy)
-                        {
-                            if (pBegin > new TimeSpan( -1) && MySetup.Setup.zobrazitCasBegin)
-                            {
-                                //pLbBegin.Background = Brushes.Red;
-                                //pTop = pLbBegin.FontSize;
-                                pDown += pLbBegin.FontSize;
-                                pEl.Visibility = Visibility.Visible;
-                                pLbBegin.Visibility = Visibility.Visible;
-                                TimeSpan ts = pBegin;
-                                pLbBegin.Content = ts.Hours.ToString() + ":" + ts.Minutes.ToString("D2") + ":" + ts.Seconds.ToString("D2") + "," + ((int)ts.Milliseconds / 10).ToString("D2");
-                            }
-                            else
-                            {
-                                pEl.Visibility = Visibility.Hidden;
-                                pLbBegin.Visibility = Visibility.Hidden;
-                            }
-
-                            if (pEnd > new TimeSpan(-1) && MySetup.Setup.zobrazitCasEnd)
-                            {
-                                pDown += pLbEnd.FontSize;
-                                pLbEnd.Visibility = Visibility.Visible;
-                                TimeSpan ts = pEnd;
-                                pLbEnd.Content = ts.Hours.ToString() + ":" + ts.Minutes.ToString("D2") + ":" + ts.Seconds.ToString("D2") + "," + ((int)ts.Milliseconds / 10).ToString("D2");
-                            }
-                            else
-                            {
-                                pLbEnd.Visibility = Visibility.Hidden;
-                            }
-                        }
-
-                        if (aTag.JeOdstavec)
-                        {
-                            MyParagraph pP = myDataSource[aTag];
-                            if (aUpdateTrainingElement)
-                            {
-                                if (pP != null)
-                                {
-                                    pChbTrenovani.IsChecked = pP.trainingElement;
-                                }
-                            }
-
-                            if (aUpdateMluvci)
-                            {
-
-                                if (myDataSource.VratSpeakera(aTag).FullName != null && myDataSource.VratSpeakera(aTag).FullName != "")
-                                {
-                                    TextBox pRtb = ((TextBox)((Grid)spSeznam.Children[i]).Children[0]);
-
-                                    //uprava zobrazovaneho jmena mluvciho
-
-                                    MySpeaker pSpeaker = myDataSource.VratSpeakera(aTag);
-                                    string pName = pSpeaker.FullName;
-                                    if (pName != pNameSpeakerPredchozi)
-                                    {
-                                        pNameSpeakerPredchozi = pName;
-                                        pNameSpeakerPredchoziKratky = pName;
-
-                                        FormattedText fmtText = new FormattedText(pName, System.Globalization.CultureInfo.CurrentCulture, FlowDirection.LeftToRight, new Typeface(pTextBlock.FontFamily, pTextBlock.FontStyle, pTextBlock.FontWeight, pTextBlock.FontStretch), pTextBlock.FontSize, pTextBlock.Foreground);
-                                        if (pName != null && fmtText.Width > MySetup.Setup.maximalniSirkaMluvciho)
-                                        {
-                                            pBt.ToolTip = pName;
-                                            while (pName.Length > 0 && fmtText.Width > MySetup.Setup.maximalniSirkaMluvciho)
-                                            {
-                                                pName = pName.Remove(pName.Length - 1);
-                                                fmtText = new FormattedText(pName + "...", System.Globalization.CultureInfo.CurrentCulture, FlowDirection.LeftToRight, new Typeface(pTextBlock.FontFamily, pTextBlock.FontStyle, pTextBlock.FontWeight, pTextBlock.FontStretch), pTextBlock.FontSize, pTextBlock.Foreground);
-                                            }
-                                            pName += "...";
-                                            pNameSpeakerPredchoziKratky = pName;
-                                        }
-                                        else
-                                        {
-                                            pBt.ToolTip = null;
-                                        }
-
-
-                                    }
-                                    else
-                                    {
-                                        pName = pNameSpeakerPredchoziKratky;
-                                        pBt.ToolTip = null;
-                                    }
-
-                                    if (pSpeaker.Comment != null && pSpeaker.Comment != "")
-                                    {
-                                        if (pBt.ToolTip == null) pBt.ToolTip = ""; else pBt.ToolTip += "\n";
-                                        pBt.ToolTip = pBt.ToolTip.ToString() + pSpeaker.Comment;
-                                    }
-
-                                    //pName = "0:00:00\n" + pName + "\n0:00:00";
-
-                                    //pTextBlock.Text = myDataSource.VratSpeakera(aTag).Name;
-                                    pTextBlock.Text = pName;
-
-
-                                    if (MySetup.Setup.ZobrazitFotografieMluvcich)
-                                    {
-                                        if (myDataSource.VratSpeakera(aTag).FullName == myDataSource.VratSpeakera(new MyTag(aTag.tKapitola, aTag.tSekce, aTag.tOdstavec - 1)).FullName && myDataSource.VratSpeakera(aTag).FullName != null && myDataSource.VratSpeakera(aTag).FullName != "")
-                                        {
-                                            pBt.Visibility = Visibility.Collapsed;
-                                            pImage.Source = null;
-                                        }
-                                        else
-                                        {
-                                            pImage.Source = MyKONST.PrevedBase64StringNaJPG(myDataSource.VratSpeakera(aTag).FotoJPGBase64);
-                                            pImage.MaxHeight = MySetup.Setup.Fotografie_VyskaMax;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        pImage.Source = null;
-                                    }
-                                    pBt.UpdateLayout();
-                                    if (pBt.Margin.Left + pBt.ActualWidth > pRtb.Margin.Left - 16)
-                                    {
-
-                                        pRtb.Margin = new Thickness(pBt.Margin.Left + pBt.ActualWidth + 15, 0, 0, 0);
-                                        pEl.Margin = new Thickness(pBt.Margin.Left + pBt.ActualWidth + 5, 0, 0, 0);
-                                    }
-                                    else if (pBt.Margin.Left + pBt.ActualWidth <= defaultLeftPositionRichX + 35)
-                                    {
-                                        pRtb.Margin = new Thickness(defaultLeftPositionRichX + 35 + 8, 0, 0, 0);
-                                        pEl.Margin = new Thickness(defaultLeftPositionRichX + 25, 0, 0, 0);
-                                    }
-
-                                }
-                                else
-                                {
-                                    //((Button)((Grid)spSeznam.Children[i]).Children[1]).Content = "mluvci...";
-                                    pTextBlock.Text = "mluvci...";
-                                    pBt.ToolTip = null;
-                                    pImage.Source = null;
-                                    pTB.Margin = new Thickness(defaultLeftPositionRichX + 35 + 8, 0, 0, 0);
-                                    pEl.Margin = new Thickness(defaultLeftPositionRichX + 25, 0, 0, 0);
-                                }
-                            }
-                            if (aTag.tOdstavec == 0)
-                            {
-                                ((Button)(((Grid)spSeznam.Children[i]).Children[1] as StackPanel).Children[0]).Visibility = Visibility.Visible;
-                            }
-                            else
-                            {
-                                if (myDataSource.VratSpeakera(aTag).FullName == myDataSource.VratSpeakera(new MyTag(aTag.tKapitola, aTag.tSekce, aTag.tOdstavec - 1)).FullName && myDataSource.VratSpeakera(aTag).FullName != null && myDataSource.VratSpeakera(aTag).FullName != "")
-                                {
-                                    pBt.Visibility = Visibility.Collapsed;
-                                    pImage.Source = null;
-                                }
-                                else
-                                {
-                                    pBt.Visibility = Visibility.Visible;
-                                    if (MySetup.Setup.ZobrazitFotografieMluvcich)
-                                    {
-                                        pImage.Source = MyKONST.PrevedBase64StringNaJPG(myDataSource.VratSpeakera(aTag).FotoJPGBase64);
-                                        pImage.MaxHeight = MySetup.Setup.Fotografie_VyskaMax;
-                                    }
-                                    else
-                                    {
-                                        pImage.Source = null;
-                                    }
-                                }
-
-
-                            }
-
-
-                        }
-                        else if (aTag.JeSekce)
-                        {
-
-
-                            pTB.Margin = new Thickness(pBt.Margin.Left + pBt.ActualWidth + 15, 0, 0, 0);
-                            pEl.Margin = new Thickness(pBt.Margin.Left + pBt.ActualWidth + 2, 0, 0, 0);
-                        }
-                        if (!aTag.JeOdstavec)
-                        {
-                            pLbBegin.Visibility = System.Windows.Visibility.Collapsed;
-                            pLbEnd.Visibility = System.Windows.Visibility.Collapsed;
-                        }
-                        else
-                        {
-                            pLbBegin.Visibility = System.Windows.Visibility.Visible;
-                            pLbEnd.Visibility = System.Windows.Visibility.Visible;
-                        }
-
-                    }
-                    if (aUpdateMluvciSignalu)
-                    {
-                        waveform1.InvalidateSpeakers();
-                    }
-
-
-
-
-
-                    return true;
-                }
-                else
-                {
-
-                    return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-                return false;
-            }
-
-        }
-
-        /// <summary>
-        /// zobrazi informace o cas. indexech elementu na formular
-        /// </summary>
-        /// <param name="aTag"></param>
-        public void ZobrazInformaceElementu(MyTag aTag)
-        {
-            try
-            {
-                if (myDataSource.VratCasElementuPocatek(aTag) > new TimeSpan(-1))
-                {
-                    TimeSpan ts = myDataSource.VratCasElementuPocatek(aTag);
-                    lAudioIndex1.Content = ts.Hours.ToString() + ":" + ts.Minutes.ToString("D2") + ":" + ts.Seconds.ToString("D2") + "," + ((int)ts.Milliseconds / 10).ToString("D2"); ;
-
-                }
-                else
-                {
-                    lAudioIndex1.Content = "N/A";
-                }
-                if (myDataSource.VratCasElementuKonec(aTag) > new TimeSpan(-1))
-                {
-                    TimeSpan ts = myDataSource.VratCasElementuKonec(aTag);
-                    lAudioIndex2.Content = ts.Hours.ToString() + ":" + ts.Minutes.ToString("D2") + ":" + ts.Seconds.ToString("D2") + "," + ((int)ts.Milliseconds / 10).ToString("D2"); ;
-
-                }
-                else
-                {
-                    lAudioIndex2.Content = "N/A";
-                }
-
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-            }
-
-        }
-
-        /// <summary>
         /// zobrazi informace o vyberu vlny na formular
         /// </summary>
         public void ZobrazInformaceVyberu()
         {
-            try
+            if (waveform1.SelectionEnd >= waveform1.SelectionBegin)
             {
-                if (waveform1.SelectionEnd >= waveform1.SelectionBegin)
-                {
-                    TimeSpan ts = waveform1.SelectionBegin;
-                    lAudioIndex1.Content = ts.Hours.ToString() + ":" + ts.Minutes.ToString("D2") + ":" + ts.Seconds.ToString("D2") + "," + ((int)ts.Milliseconds / 10).ToString("D2"); ;
-                    ts = waveform1.SelectionEnd;
-                    lAudioIndex2.Content = ts.Hours.ToString() + ":" + ts.Minutes.ToString("D2") + ":" + ts.Seconds.ToString("D2") + "," + ((int)ts.Milliseconds / 10).ToString("D2"); ;
-                }
-                else
-                {
-                    TimeSpan ts = waveform1.SelectionEnd;
-                    lAudioIndex1.Content = ts.Hours.ToString() + ":" + ts.Minutes.ToString("D2") + ":" + ts.Seconds.ToString("D2") + "," + ((int)ts.Milliseconds / 10).ToString("D2"); ;
-                    ts = waveform1.SelectionBegin;
-                    lAudioIndex2.Content = ts.Hours.ToString() + ":" + ts.Minutes.ToString("D2") + ":" + ts.Seconds.ToString("D2") + "," + ((int)ts.Milliseconds / 10).ToString("D2"); ;
-                }
-
+                TimeSpan ts = waveform1.SelectionBegin;
+                lAudioIndex1.Content = ts.Hours.ToString() + ":" + ts.Minutes.ToString("D2") + ":" + ts.Seconds.ToString("D2") + "," + ((int)ts.Milliseconds / 10).ToString("D2"); ;
+                ts = waveform1.SelectionEnd;
+                lAudioIndex2.Content = ts.Hours.ToString() + ":" + ts.Minutes.ToString("D2") + ":" + ts.Seconds.ToString("D2") + "," + ((int)ts.Milliseconds / 10).ToString("D2"); ;
             }
-            catch (Exception ex)
+            else
             {
-                MyLog.LogujChybu(ex);
-            }
-
-        }
-
-        #region kapitoly, sekce odstavce
-
-        /// <summary>
-        /// prida kapitolu do datove struktury a vytvori textbox,vraci tag nove kapitoly...
-        /// </summary>
-        /// <param name="nazev_Kapitoly"></param>
-        /// <returns></returns>
-        public MyTag PridejKapitolu(int aIndexNoveKapitoly, string nazev_Kapitoly)
-        {
-            try
-            {
-
-                int index_Kapitoly = myDataSource.NovaKapitola(aIndexNoveKapitoly, nazev_Kapitoly);
-                if (index_Kapitoly < 0) return null; //nezdarilo se priani kapitoly na dany index
-                int index = -1;
-                for (int i = 0; i <= index_Kapitoly; i++)
-                {
-                    index = index + 1; //zvyseni indexu o 1 kvuli radku s nazvem kapitoly
-                    index = index + ((MyChapter)myDataSource.Chapters[i]).Sections.Count;
-                    for (int j = 0; j <= ((MyChapter)myDataSource.Chapters[i]).Sections.Count - 1; j++)
-                    {
-                        index = index + ((MySection)((MyChapter)myDataSource.Chapters[i]).Sections[j]).Paragraphs.Count;
-                    }
-                }
-                int pomIndex = PridejTextBox(index, MyKONST.PrevedTextNaFlowDocument(nazev_Kapitoly), new MyTag(index_Kapitoly, -1, -1)); //textbox do seznamu
-                for (int i = pomIndex + 1; i < spSeznam.Children.Count; i++)
-                {
-                    ((MyTag)(((TextBox)(((Grid)(spSeznam.Children[i])).Children[0])).Tag)).tKapitola++;
-                }
-                //((RichTextBox)((Grid)spSeznam.Children[pomIndex-1]).Children[0]).Focus();
-                return new MyTag(index_Kapitoly, -1, -1);
-
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-                return null;
+                TimeSpan ts = waveform1.SelectionEnd;
+                lAudioIndex1.Content = ts.Hours.ToString() + ":" + ts.Minutes.ToString("D2") + ":" + ts.Seconds.ToString("D2") + "," + ((int)ts.Milliseconds / 10).ToString("D2"); ;
+                ts = waveform1.SelectionBegin;
+                lAudioIndex2.Content = ts.Hours.ToString() + ":" + ts.Minutes.ToString("D2") + ":" + ts.Seconds.ToString("D2") + "," + ((int)ts.Milliseconds / 10).ToString("D2"); ;
             }
         }
-
-
-        /// <summary>
-        /// vlozi sekci nakonec soucasne sekce nebo na index odstavce
-        /// </summary>
-        /// <param name="aKapitola"></param>
-        /// <param name="nazev_Sekce"></param>
-        /// <param name="aIndex"></param>
-        /// <param name="aIndexOdstavce"></param>
-        /// <returns></returns>
-        public MyTag PridejSekci(int aKapitola, string nazev_Sekce, int aIndex, int aIndexOdstavce, TimeSpan aBegin, TimeSpan aEnd)
-        {
-            try
-            {
-                int index_Sekce = myDataSource.NovaSekce(aKapitola, nazev_Sekce, aIndex, aBegin, aEnd);
-                if (aIndexOdstavce > -1)
-                {
-                    int pom0 = ((MySection)((MyChapter)myDataSource.Chapters[aKapitola]).Sections[aIndex]).Paragraphs.Count;
-
-                    for (int i = aIndexOdstavce; i < pom0; i++)
-                    {
-                        MyParagraph mp = (MyParagraph)((MySection)((MyChapter)myDataSource.Chapters[aKapitola]).Sections[aIndex]).Paragraphs[i];
-                        int pomIndex = myDataSource.NovyOdstavec(aKapitola, index_Sekce, mp.Text, null, mp.Begin, mp.End, -1);
-                        myDataSource.ZadejSpeakera(new MyTag(aKapitola, index_Sekce, pomIndex), mp.speakerID);
-
-                    }
-                    for (int i = aIndexOdstavce; i < pom0; i++)
-                    {
-                        myDataSource.SmazOdstavec(aKapitola, aIndex, aIndexOdstavce);
-                    }
-
-                }
-                int index = -1;
-                for (int i = 0; i <= aKapitola; i++)
-                {
-                    index = index + 1; //zvyseni indexu o 1 kvuli radku s nazvem kapitoly
-                    int pom1;
-                    if (aKapitola == i) pom1 = aIndex; else pom1 = ((MyChapter)myDataSource.Chapters[i]).Sections.Count - 1;
-
-                    for (int j = 0; j <= pom1; j++)
-                    {
-                        index++; //pridani radku se sekci
-                        index = index + ((MySection)((MyChapter)myDataSource.Chapters[i]).Sections[j]).Paragraphs.Count;
-                    }
-                }
-                index++;
-
-
-                PridejTextBox(index, MyKONST.PrevedTextNaFlowDocument(nazev_Sekce), new MyTag(aKapitola, index_Sekce, -1)); //textbox do seznamu
-
-                //prepocitani nasledujicich indexu po vlozeni noveho odstavce mezi ostatni
-                MyTag pom;
-
-                index++;    //zvyseni na nasledujici index
-                if ((index <= spSeznam.Children.Count - 1))
-                {
-
-                    //pom = ((MyTag)(((RichTextBox)(((Grid)(spSeznam.Children[index])).Children[0])).Tag));
-                    pom = ((MyTag)(((TextBox)(((Grid)(spSeznam.Children[index])).Children[0])).Tag));
-                    int pomRozdil = pom.tOdstavec;
-
-                    while ((index <= spSeznam.Children.Count - 1) && (pom.tKapitola == aKapitola))
-                    {
-                        //((MyTag)(((RichTextBox)(((Grid)(spSeznam.Children[index])).Children[0])).Tag)).tSekce++;
-                        ((MyTag)(((TextBox)(((Grid)(spSeznam.Children[index])).Children[0])).Tag)).tSekce++;
-                        if (aIndexOdstavce > -1)
-                        {
-                            //((MyTag)(((RichTextBox)(((Grid)(spSeznam.Children[index])).Children[0])).Tag)).tOdstavec = ((MyTag)(((RichTextBox)(((Grid)(spSeznam.Children[index])).Children[0])).Tag)).tOdstavec - pomRozdil;
-                            ((MyTag)(((TextBox)(((Grid)(spSeznam.Children[index])).Children[0])).Tag)).tOdstavec = ((MyTag)(((TextBox)(((Grid)(spSeznam.Children[index])).Children[0])).Tag)).tOdstavec - pomRozdil;
-                        }
-                        index++;
-                        //if (index <= spSeznam.Children.Count - 1) pom = ((MyTag)(((RichTextBox)(((Grid)(spSeznam.Children[index])).Children[0])).Tag));
-                        if (index <= spSeznam.Children.Count - 1) pom = ((MyTag)(((TextBox)(((Grid)(spSeznam.Children[index])).Children[0])).Tag));
-
-                    }
-                }
-
-                if (aIndexOdstavce > -1)
-                {
-                    UpdateXMLData();
-                }
-                MyTag pMT = new MyTag(aKapitola, index_Sekce, -1);
-                pMT.tSender = VratSenderTextboxu(pMT);
-                return pMT;
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// index -2, pridani textboxu hned za sekci
-        /// </summary>
-        /// <param name="aKapitola"></param>
-        /// <param name="aSekce"></param>
-        /// <param name="text_Odstavce"></param>
-        /// <param name="aCasoveZnacky"></param>
-        /// <param name="aIndex"></param>
-        /// <param name="aBegin"></param>
-        /// <param name="aEnd"></param>
-        /// <param name="aSpeaker"></param>
-        /// <returns></returns>
-        public MyTag PridejOdstavec(int aKapitola, int aSekce, string text_Odstavce, List<MyCasovaZnacka> aCasoveZnacky, int aIndex, TimeSpan aBegin, TimeSpan aEnd, MySpeaker aSpeaker)
-        {
-            try
-            {
-                int index_Odstavce = myDataSource.NovyOdstavec(aKapitola, aSekce, text_Odstavce, aCasoveZnacky, aBegin, aEnd, aIndex);
-                myDataSource.ZadejSpeakera(new MyTag(aKapitola, aSekce, index_Odstavce), aSpeaker.ID);
-                int index = -1;
-                for (int i = 0; i <= aKapitola; i++)
-                {
-                    index = index + 1; //zvyseni indexu o 1 kvuli radku s nazvem kapitoly
-                    //index = index + ((MyChapter)myDataSource.chapters[i]).sections.Count;
-
-                    int pom1;
-                    if (aKapitola == i) pom1 = aSekce; else pom1 = ((MyChapter)myDataSource.Chapters[i]).Sections.Count - 1;
-
-                    for (int j = 0; j <= pom1; j++)
-                    {
-                        index = index + 1;  //zvyseni indexu o 1 kvuli radku s nazvem sekce
-                        index = index + ((MySection)((MyChapter)myDataSource.Chapters[i]).Sections[j]).Paragraphs.Count;
-
-                    }
-                    if ((i == aKapitola))
-                    {
-                        index = index - ((MySection)((MyChapter)myDataSource.Chapters[i]).Sections[aSekce]).Paragraphs.Count;
-                        index = index + index_Odstavce + 1;
-                    }
-                }
-                MyTag mT = new MyTag(aKapitola, aSekce, index_Odstavce);
-                //index = PridejTextBox(index, MyPRACE.PrevedTextNaFlowDocument(text_Odstavce), mT); //textbox do seznamu
-                //index = PridejTextBox(index, VytvorFlowDocumentOdstavce(myDataSource.VratOdstavec(mT)), mT); //textbox do seznamu
-                index = PridejTextBox(index, myDataSource[mT].Text, mT); //textbox do seznamu
-
-
-                //prepocitani nasledujicich indexu po vlozeni noveho odstavce mezi ostatni
-                MyTag pom;
-                //index++;    //zvyseni na nasledujici index
-                if ((index <= spSeznam.Children.Count - 1))
-                {
-                    //pom = ((MyTag)(((RichTextBox)(((Grid)(spSeznam.Children[index])).Children[0])).Tag));
-                    pom = ((MyTag)(((TextBox)(((Grid)(spSeznam.Children[index])).Children[0])).Tag));
-
-                    while ((index <= spSeznam.Children.Count - 1) && (pom.tKapitola == aKapitola) && (pom.tSekce == aSekce) && (pom.tOdstavec >= 1 - 1))//odectena 1... kdyztak vratit
-                    {
-                        //((MyTag)(((RichTextBox)(((Grid)(spSeznam.Children[index])).Children[0])).Tag)).tOdstavec++;
-                        ((MyTag)(((TextBox)(((Grid)(spSeznam.Children[index])).Children[0])).Tag)).tOdstavec++;
-                        index++;
-                        //if (index <= spSeznam.Children.Count-1) pom = ((MyTag)(((RichTextBox)(((Grid)(spSeznam.Children[index])).Children[0])).Tag));
-                        if (index <= spSeznam.Children.Count - 1) pom = ((MyTag)(((TextBox)(((Grid)(spSeznam.Children[index])).Children[0])).Tag));
-
-                    }
-                }
-                spSeznam.UpdateLayout();
-                mT.tSender = VratSenderTextboxu(mT);
-                return mT;
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-                MessageBox.Show("Chyba pri vkladani richtextboxu odstavce..." + ex.Message);
-                return null;
-            }
-        }
-
-
-        public bool OdstranKapitolu(int aKapitola)
-        {
-            try
-            {
-                if (oPrepisovac != null && oPrepisovac.Rozpoznavani && oPrepisovac.PrepisovanyElementTag.tKapitola == aKapitola)
-                {
-                    MessageBox.Show("Nelze odstranit kapitolu,která je automaticky přepisována", "Upozornění", MessageBoxButton.OK, MessageBoxImage.Information);
-                    return false;
-                }
-                if (aKapitola < 0) return false;
-                int pomPocetSekciKapitoly = ((MyChapter)myDataSource.Chapters[aKapitola]).Sections.Count;
-                if (pomPocetSekciKapitoly > 0)
-                {
-                    MessageBoxResult mbr = MessageBox.Show("Opravdu chcete smazat vybranou kapitolu se vším co obsahuje?", "Varování", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
-                    if (mbr != MessageBoxResult.Yes) return false;
-                }
-                if (myDataSource.SmazKapitolu(aKapitola))
-                {
-                    ZobrazXMLData();
-                    try
-                    {
-                        int pKap = aKapitola;
-                        if (pKap > myDataSource.Chapters.Count - 1) pKap--;
-                        if (pKap < 0) pKap = 0;
-
-                        ((TextBox)VratSenderTextboxu(new MyTag(pKap, -1, -1))).Focus();
-                    }
-                    catch
-                    { }
-                }
-
-                return false;
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-                return false;
-            }
-
-        }
-
-        public bool OdstranSekci(int aKapitola, int aSekce)
-        {
-            try
-            {
-                if (oPrepisovac != null && oPrepisovac.Rozpoznavani && oPrepisovac.PrepisovanyElementTag.tKapitola == aKapitola && oPrepisovac.PrepisovanyElementTag.tSekce == aSekce)
-                {
-                    MessageBox.Show("Nelze odstranit sekci,která je automaticky přepisována", "Upozornění", MessageBoxButton.OK, MessageBoxImage.Information);
-                    return false;
-                }
-                if (aSekce < 0) return false;
-                int pomPocetOdstavcuSekce = ((MySection)((MyChapter)myDataSource.Chapters[aKapitola]).Sections[aSekce]).Paragraphs.Count;
-                if (pomPocetOdstavcuSekce > 0)
-                {
-                    MessageBoxResult mbr = MessageBox.Show("Opravdu chcete smaazt vybranou sekci se všemi odstavci?", "Varování", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
-                    if (mbr != MessageBoxResult.Yes) return false;
-                }
-                if (myDataSource.SmazSekci(aKapitola, aSekce))
-                {
-                    int index_Sekce = aSekce;
-                    int index = -1;
-                    for (int i = 0; i <= aKapitola; i++)
-                    {
-                        index = index + 1; //zvyseni indexu o 1 kvuli radku s nazvem kapitoly
-
-
-                        int pom1;
-                        if (aKapitola == i) pom1 = aSekce; else pom1 = ((MyChapter)myDataSource.Chapters[i]).Sections.Count;
-
-                        for (int j = 0; j < pom1; j++)
-                        {
-                            index = index + 1;  //zvyseni indexu o 1 kvuli radku s nazvem sekce
-                            index = index + ((MySection)((MyChapter)myDataSource.Chapters[i]).Sections[j]).Paragraphs.Count;
-
-                        }
-                        if ((i == aKapitola))
-                        {
-                            index = index + 1;
-                        }
-                    }
-                    bool pomOK = true;
-                    for (int ii = 0; ii <= pomPocetOdstavcuSekce; ii++)
-                    {
-                        pomOK = SmazTextBox(index);
-                        if (!pomOK) return false;
-
-                    }
-                    if (pomOK)
-                    {
-                        MyTag pom;
-
-                        if ((index <= spSeznam.Children.Count - 1))
-                        {
-                            //pom = ((MyTag)(((RichTextBox)(((Grid)(spSeznam.Children[index])).Children[0])).Tag));
-                            pom = ((MyTag)(((TextBox)(((Grid)(spSeznam.Children[index])).Children[0])).Tag));
-
-                            while ((index <= spSeznam.Children.Count - 1) && (pom.tKapitola == aKapitola) && (pom.tSekce > aSekce))
-                            {
-                                //((MyTag)(((RichTextBox)(((Grid)(spSeznam.Children[index])).Children[0])).Tag)).tSekce--;
-                                ((MyTag)(((TextBox)(((Grid)(spSeznam.Children[index])).Children[0])).Tag)).tSekce--;
-                                index++;
-                                //if (index <= spSeznam.Children.Count - 1) pom = ((MyTag)(((RichTextBox)(((Grid)(spSeznam.Children[index])).Children[0])).Tag));
-                                if (index <= spSeznam.Children.Count - 1) pom = ((MyTag)(((TextBox)(((Grid)(spSeznam.Children[index])).Children[0])).Tag));
-
-                            }
-                        }
-
-
-                        return true;
-                    }
-                    else return false;
-                }
-                else return false;
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-                //MessageBox.Show("Chyba pri mazani richtextboxu odstavce..." + ex.Message);
-                return false;
-            }
-        }
-
-        public bool OdstranOdstavec(int aKapitola, int aSekce, int aIndex)
-        {
-            try
-            {
-                if (oPrepisovac != null && oPrepisovac.Rozpoznavani && oPrepisovac.PrepisovanyElementTag.tKapitola == aKapitola && oPrepisovac.PrepisovanyElementTag.tSekce == aSekce && oPrepisovac.PrepisovanyElementTag.tOdstavec == aIndex)
-                {
-                    MessageBox.Show("Nelze odstranit odstavec,který je automaticky přepisován", "Upozornění", MessageBoxButton.OK, MessageBoxImage.Information);
-                    return false;
-                }
-                if (myDataSource.SmazOdstavec(aKapitola, aSekce, aIndex))
-                {
-                    int index_Odstavce = aIndex;
-                    int index = -1;
-                    for (int i = 0; i <= aKapitola; i++)
-                    {
-                        index = index + 1; //zvyseni indexu o 1 kvuli radku s nazvem kapitoly
-                        //index = index + ((MyChapter)myDataSource.chapters[i]).sections.Count;
-
-
-                        int pom1;
-                        if (aKapitola == i) pom1 = aSekce; else pom1 = ((MyChapter)myDataSource.Chapters[i]).Sections.Count - 1;
-
-                        for (int j = 0; j <= pom1; j++)
-                        {
-                            index = index + 1;  //zvyseni indexu o 1 kvuli radku s nazvem sekce
-                            index = index + ((MySection)((MyChapter)myDataSource.Chapters[i]).Sections[j]).Paragraphs.Count;
-
-                        }
-                        if ((i == aKapitola))
-                        {
-                            index = index - ((MySection)((MyChapter)myDataSource.Chapters[i]).Sections[aSekce]).Paragraphs.Count;
-                            index = index + index_Odstavce + 1;
-                        }
-                    }
-                    if (SmazTextBox(index))
-                    {
-
-
-                        //prepocitani nasledujicich indexu po vlozeni noveho odstavce mezi ostatni
-                        MyTag pom;
-                        //index++;    //zvyseni na nasledujici index
-                        if ((index <= spSeznam.Children.Count - 1))
-                        {
-                            //pom = ((MyTag)(((RichTextBox)(((Grid)(spSeznam.Children[index])).Children[0])).Tag));
-                            pom = ((MyTag)(((TextBox)(((Grid)(spSeznam.Children[index])).Children[0])).Tag));
-
-                            while ((index <= spSeznam.Children.Count - 1) && (pom.tKapitola == aKapitola) && (pom.tSekce == aSekce) && (pom.tOdstavec >= 1))
-                            {
-                                //((MyTag)(((RichTextBox)(((Grid)(spSeznam.Children[index])).Children[0])).Tag)).tOdstavec--;
-                                ((MyTag)(((TextBox)(((Grid)(spSeznam.Children[index])).Children[0])).Tag)).tOdstavec--;
-                                index++;
-                                //if (index <= spSeznam.Children.Count - 1) pom = ((MyTag)(((RichTextBox)(((Grid)(spSeznam.Children[index])).Children[0])).Tag));
-                                if (index <= spSeznam.Children.Count - 1) pom = ((MyTag)(((TextBox)(((Grid)(spSeznam.Children[index])).Children[0])).Tag));
-
-                            }
-                        }
-
-
-                        return true;
-                    }
-                    else return false;
-                }
-                else return false;
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-                MessageBox.Show("Chyba pri mazani richtextboxu odstavce..." + ex.Message);
-                return false;
-            }
-        }
-
-        #endregion
 
         public Window1()
         {
@@ -1360,57 +481,46 @@ namespace NanoTrans
         short[] WOP_ChciData(out int zacatekbufferums)
         {
             zacatekbufferums = -1;
-            try
+            if (MWP != null)
             {
-                if (MWP != null)
+                if (_playing && oWav != null && oWav.Nacteno)
                 {
-                    if (_playing && oWav != null && oWav.Nacteno)
+                    TimeSpan pOmezeniMS = new TimeSpan(-1);
+                    if (prehratVyber)
                     {
-                        TimeSpan pOmezeniMS = new TimeSpan(-1);
-                        if (prehratVyber)
-                        {
-                            pOmezeniMS = waveform1.SelectionEnd;
-                        }
-
-                        short[] bfr = waveform1.GetAudioData(TimeSpan.FromMilliseconds(pIndexBufferuVlnyProPrehrani), TimeSpan.FromMilliseconds(150), pOmezeniMS);
-                        zacatekbufferums = pIndexBufferuVlnyProPrehrani;
-                        pIndexBufferuVlnyProPrehrani += 150;
-                        
-                        if (pIndexBufferuVlnyProPrehrani > oWav.DelkaSouboruMS)
-                        {
-                            if (!prehratVyber)
-                            {
-                                Playing = false;
-                                pIndexBufferuVlnyProPrehrani = 0;
-                            }
-                            else
-                            {
-                                pIndexBufferuVlnyProPrehrani = (int)waveform1.SelectionBegin.TotalMilliseconds;
-                            }
-                        }
-
-                        if (!pZacloPrehravani)
-                        {
-                            pZacloPrehravani = true;
-
-                        }
-
-                        return bfr;
+                        pOmezeniMS = waveform1.SelectionEnd;
                     }
-                    else //pause
+
+                    short[] bfr = waveform1.GetAudioData(TimeSpan.FromMilliseconds(pIndexBufferuVlnyProPrehrani), TimeSpan.FromMilliseconds(150), pOmezeniMS);
+                    zacatekbufferums = pIndexBufferuVlnyProPrehrani;
+                    pIndexBufferuVlnyProPrehrani += 150;
+
+                    if (pIndexBufferuVlnyProPrehrani > oWav.DelkaSouboruMS)
                     {
+                        if (!prehratVyber)
+                        {
+                            Playing = false;
+                            pIndexBufferuVlnyProPrehrani = 0;
+                        }
+                        else
+                        {
+                            pIndexBufferuVlnyProPrehrani = (int)waveform1.SelectionBegin.TotalMilliseconds;
+                        }
                     }
+
+                    if (!pZacloPrehravani)
+                    {
+                        pZacloPrehravani = true;
+
+                    }
+
+                    return bfr;
                 }
-
-
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-
+                else //pause
+                {
+                }
             }
             return new short[0];
-
         }
 
 
@@ -1421,9 +531,9 @@ namespace NanoTrans
         /// <param name="size"></param>
         void MWR_MamData(IntPtr data, int size)
         {
-            try
-            {
-                if ((oPrepisovac != null && oPrepisovac.bufferProHlasoveOvladani != null) || (oHlasoveOvladani != null && oHlasoveOvladani.bufferProHlasoveOvladani != null))
+             //TODO:
+            
+            /*if ((oPrepisovac != null && oPrepisovac.bufferProHlasoveOvladani != null))
                 {
                     byte[] pData2 = new byte[size];
 
@@ -1447,17 +557,12 @@ namespace NanoTrans
                         {
                             oPrepisovac.AsynchronniZapsaniDat(p);
                         }
-                        else
-                        {
-                            oHlasoveOvladani.AsynchronniZapsaniDat(p);
-                        }
+
                     }
                     else
                     {
                         bool pDoBufferu = false;
                         if (oPrepisovac != null && oPrepisovac.TypRozpoznavani == MyKONST.ROZPOZNAVAC_1_DIKTAT && !oPrepisovac.AsynchronniZapsaniDat(pData2)) pDoBufferu = true;
-                        if (oHlasoveOvladani != null && oHlasoveOvladani.TypRozpoznavani == MyKONST.ROZPOZNAVAC_2_HLASOVE_OVLADANI && !oHlasoveOvladani.AsynchronniZapsaniDat(pData2)) pDoBufferu = true;
-                        //if ((pPozadovanyStavRozpoznavace != MyKONST.ROZPOZNAVAC_2_HLASOVE_OVLADANI && !oPrepisovac.AsynchronniZapsaniDat(pData2)) || (pPozadovanyStavRozpoznavace == MyKONST.ROZPOZNAVAC_2_HLASOVE_OVLADANI && !oHlasoveOvladani.AsynchronniZapsaniDat(pData2)))
                         if (pDoBufferu)
                         {
                             pData2.CopyTo(pVyrovnavaciPametNahravani, pVyrovnavaciPametIndexVrcholu);
@@ -1466,12 +571,7 @@ namespace NanoTrans
                         }
 
                     }
-                }
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-            }
+                }*/
         }
 
 
@@ -1482,15 +582,8 @@ namespace NanoTrans
         /// <param name="e"></param>
         private void oWav_HaveFileNumber(object sender, EventArgs e)
         {
-            try
-            {
                 MyEventArgs2 e2 = (MyEventArgs2)e;
                 this.Dispatcher.Invoke(DispatcherPriority.Normal, new Action<MyEventArgs2>(ZobrazProgressPrevoduSouboru), e2);
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-            }
         }
 
         private void oWav_TemporaryWavesDone(object sender, EventArgs e)
@@ -1549,8 +642,7 @@ namespace NanoTrans
         /// <param name="e"></param>
         void oWav_HaveData(object sender, EventArgs e)
         {
-            try
-            {
+
                 MyEventArgs me = (MyEventArgs)e;
                 if (me.IDBufferu == MyKONST.ID_ZOBRAZOVACIHO_BUFFERU_VLNY)
                 {
@@ -1561,16 +653,6 @@ namespace NanoTrans
                         if (waveform1.WaveLength < TimeSpan.FromSeconds(30))
                         {
                             waveform1.WaveLength = TimeSpan.FromSeconds(30);
-                        }
-                        if (pNacitaniAudiaDavka && oWav.Nacteno)
-                        {
-                            MyTag pTag0 = new MyTag(0, 0, 0);
-                            if (myDataSource.VratCasElementuKonec(pTag0) < TimeSpan.Zero)
-                                myDataSource.UpravCasElementu(pTag0, new TimeSpan(-2), TimeSpan.FromMilliseconds(oWav.DelkaSouboruMS));
-                            UpdateXMLData();
-                            //spSeznam.UpdateLayout();
-                            VyberElement(pTag0, true);
-                            pNacitaniAudiaDavka = false;
                         }
                     }
                     if (pAutomaticky)
@@ -1587,294 +669,10 @@ namespace NanoTrans
                 }
                 else if (me.IDBufferu == MyKONST.ID_BUFFERU_PREPISOVANEHO_ELEMENTU_FONETICKY_PREPIS)
                 {
-                    if (bFonetika != null)
-                    {
-                        MyBuffer16 bufferProPrepsani = new MyBuffer16(me.koncovyCasMS - me.pocatecniCasMS);
-                        bufferProPrepsani.UlozDataDoBufferu(me.data, me.pocatecniCasMS, me.koncovyCasMS);
-                        bFonetika.SpustFonetickyPrepisHTKAsynchronne(bufferProPrepsani, bFonetika.TextKPrepsani, bSlovnikFonetickehoDoplneni, MySetup.Setup.fonetickyPrepis, new DelegatePhoneticOut(FonetickyPrepisDokoncen));
-                    }
-                    else
-                    {
-
-                    }
+                    throw new NotImplementedException();
                 }
 
                 waveform1.Invalidate();
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-            }
-
-
-
-        }
-
-        //TODO: tohle odhadem moc fungovat nebude... opravit
-        public bool SmazTextBox(int index)
-        {
-            try
-            {
-                spSeznam.Children.RemoveAt(index);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// prida textbox a dalsi ovladaci prvky 1 elementu a vraci index v listboxu,kam byl pridan
-        /// </summary>
-        /// <param name="index"></param>
-        /// <param name="aText"></param>
-        /// <param name="aTag"></param>
-        /// <returns></returns>
-        public int PridejTextBox(int index, string aText, MyTag aTag)
-        {
-
-            int defaultLeftPositionRichX = MySetup.Setup.defaultLeftPositionRichX;
-            if (MySetup.Setup != null && MySetup.Setup.defaultLeftPositionRichX > 20) defaultLeftPositionRichX = MySetup.Setup.defaultLeftPositionRichX;
-
-            Grid gridX = new Grid();
-
-            gridX.ContextMenu = ContextMenuGridX;
-            gridX.ContextMenu.Tag = gridX;
-
-            gridX.MouseUp += new MouseButtonEventHandler(gridX_MouseUp);
-
-
-
-            gridX.VerticalAlignment = VerticalAlignment.Stretch;
-            gridX.HorizontalAlignment = HorizontalAlignment.Stretch;
-            gridX.Background = MySetup.Setup.BarvaTextBoxuOdstavce;
-
-
-            //RichTextBox richX = new RichTextBox(aText);
-            MyTextBox richX = new MyTextBox();
-            richX.TextWrapping = TextWrapping.Wrap;
-            richX.Text = aText;
-            richX.BorderThickness = new Thickness(0);
-            //richX.Background = nastaveniAplikace.BarvaTextBoxuOdstavce;
-
-            Canvas cx = new Canvas();
-            richX.BGcanvas = cx;
-            cx.Background = MySetup.Setup.BarvaTextBoxuOdstavce;
-
-            richX.AcceptsReturn = false;
-            richX.FontSize = MySetup.Setup.SetupTextFontSize;
-            
-            richX.HorizontalAlignment = HorizontalAlignment.Stretch;
-            richX.Tag = new MyTag(aTag.tKapitola, aTag.tSekce, aTag.tOdstavec, richX);
-            richX.TextChanged += new TextChangedEventHandler(RichText_TextChanged);
-            richX.PreviewKeyDown += new KeyEventHandler(richX_PreviewKeyDown);
-            richX.PreviewTextInput += new TextCompositionEventHandler(richX_PreviewTextInput);
-
-            richX.LostFocus += new RoutedEventHandler(richX_LostFocus);
-            richX.GotFocus += new RoutedEventHandler(richX_GotFocus);
-
-            richX.PreviewMouseUp += new MouseButtonEventHandler(richX_PreviewMouseUp);
-
-            richX.SelectionChanged += new RoutedEventHandler(richX_SelectionChanged);
-            richX.MouseDown += new MouseButtonEventHandler(richX_MouseDown);
-            richX.CaretPositionJump += new EventHandler<MyTextBox.IntEventArgs>(richX_CaretPositionJump);
-
-            richX.PreviewMouseLeftButtonDown += new MouseButtonEventHandler(richX_MouseLeftButtonDown);
-            richX.PreviewMouseMove += new MouseEventHandler(richX_PreviewMouseMove);
-            richX.MouseEnter += new MouseEventHandler(richX_MouseEnter);
-            richX.ContextMenu = gridX.ContextMenu;
-
-            //checkbox pro zobrazeni 
-            CheckBox checkX = new CheckBox();
-            checkX.HorizontalAlignment = HorizontalAlignment.Right;
-            checkX.VerticalAlignment = VerticalAlignment.Center;
-            checkX.Margin = new Thickness(0, 0, 4, 0);
-
-            checkX.ToolTip = "Určuje, zda je vybraný element zahrnut do trénovacích dat.";
-            checkX.IsTabStop = false;
-            checkX.Focusable = false;
-            checkX.Click += new RoutedEventHandler(checkX_Click);
-
-
-            StackPanel stackX = new StackPanel();
-            TextBlock textX = new TextBlock();
-            Image imageX = new Image();
-            imageX.Stretch = Stretch.Uniform;
-            imageX.StretchDirection = StretchDirection.DownOnly;
-
-            imageX.MaxWidth = MySetup.Setup.defaultLeftPositionRichX;
-            imageX.MaxHeight = MySetup.Setup.Fotografie_VyskaMax;
-            stackX.Children.Add(textX);
-            stackX.Children.Add(imageX);
-
-            Button buttonX = new Button();
-            buttonX.HorizontalAlignment = HorizontalAlignment.Stretch;
-            buttonX.VerticalAlignment = VerticalAlignment.Stretch;
-            buttonX.Content = stackX;
-            buttonX.Focusable = false;
-
-            //labely casu startu a konce
-            Label labelStartX = new Label();
-            labelStartX.HorizontalAlignment = HorizontalAlignment.Left;
-            labelStartX.VerticalAlignment = VerticalAlignment.Bottom;
-            labelStartX.Margin = new Thickness(0, 0, 0, 0);
-            labelStartX.Foreground = Brushes.Green;
-            labelStartX.Padding = new Thickness(0);
-            //labelStartX.Content = "0:00:00,00";
-
-            Label labelEndX = new Label();
-            labelEndX.HorizontalAlignment = HorizontalAlignment.Left;
-            labelEndX.VerticalAlignment = VerticalAlignment.Bottom;
-            labelEndX.Margin = new Thickness(0, 0, 0, 0);
-            labelEndX.Foreground = Brushes.Red;
-            labelEndX.Padding = new Thickness(0);
-            //labelEndX.Content = "0:00:00,00";
-
-
-            string s = myDataSource.VratSpeakera(aTag).FullName;
-            if (s == null || s == "")
-            {
-                if (aTag.tOdstavec > -1)
-                {
-                    textX.Text = "mluvci...";
-                }
-                else if (aTag.tSekce > -1)
-                {
-                    //buttonX.Content = "mluvci sekce";
-                    textX.Text = "mluvci sekce";
-                }
-
-            }
-            else
-            {
-                //buttonX.Content = s;
-                textX.Text = s;
-
-            }
-            buttonX.HorizontalAlignment = HorizontalAlignment.Left;
-            buttonX.Click += new RoutedEventHandler(buttonX_Click);
-
-
-
-
-
-            //richX.OnTextChanged(null);
-
-            gridX.Children.Add(richX);
-            StackPanel attrs = new StackPanel();
-            attrs.HorizontalAlignment = HorizontalAlignment.Left;
-
-            attrs.Margin = new Thickness(0, 0, 0, 0);
-
-
-            richX.Padding = new Thickness(3, 0, 18, 0);
-
-            if (aTag.tOdstavec < 0 && aTag.tSekce < 0)
-            {
-                richX.Background = Brushes.LightPink;
-                richX.Margin = new Thickness(defaultLeftPositionRichX + 8, 0, 0, 0);
-                //attrs.Margin = new Thickness(defaultLeftPositionRichX - 15, 0, 0, 0);
-                //circleStartX.Margin = new Thickness(defaultLeftPositionRichX - 15, 0, 0, 0);
-                buttonX.Visibility = Visibility.Collapsed;
-            }
-            else if (aTag.tOdstavec < 0 && aTag.tSekce > -1)
-            {
-                richX.Background = Brushes.LightGreen;
-                richX.Margin = new Thickness(defaultLeftPositionRichX + 15 + 8, 0, 0, 0);
-                // circleStartX.Margin = new Thickness(defaultLeftPositionRichX + 2, 0, 0, 0);
-                //attrs.Margin = new Thickness(defaultLeftPositionRichX + 2, 0, 0, 0);
-
-                buttonX.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                richX.Margin = new Thickness(defaultLeftPositionRichX + 35 + 8, 0, 0, 0);
-                // circleStartX.Margin = new Thickness(defaultLeftPositionRichX + 25, 0, 0, 0);
-                // attrs.Margin = new Thickness(defaultLeftPositionRichX + 25, 0, 0, 0);
-                buttonX.Visibility = Visibility.Visible;
-
-            }
-
-            attrs.Margin = new Thickness(defaultLeftPositionRichX + 15, 5, 0, 0);
-
-            if (aTag.JeOdstavec)
-            {
-                MyEnumParagraphAttributes[] all = (MyEnumParagraphAttributes[])Enum.GetValues(typeof(MyEnumParagraphAttributes));
-
-                foreach (MyEnumParagraphAttributes at in all)
-                {
-                    if (at != MyEnumParagraphAttributes.None)
-                    {
-                        string nam = Enum.GetName(typeof(MyEnumParagraphAttributes), at);
-
-                        Rectangle r = new Rectangle();
-                        r.Stroke = Brushes.Green;
-                        r.Width = 10;
-                        r.Height = 8;
-                        r.ToolTip = nam;
-                        r.Margin = new Thickness(0, 0, 0, 1);
-                        MyParagraph par = myDataSource[aTag];
-                        if ((par.DataAttributes & at) != 0)
-                        {
-                            r.Fill = GetRectangleInnenrColor(at);
-                        }
-                        else
-                        {
-                            r.Fill = GetRectangleBgColor(at);
-                        }
-
-                        r.Tag = aTag;
-                        r.MouseLeftButtonDown += new MouseButtonEventHandler(richX_attributes_MouseLeftButtonDown);
-                        attrs.Children.Add(r);
-
-
-                    }
-                }
-            }
-            attrs.Width = 15;
-            attrs.Background = Brushes.LightBlue;
-            //attrs.MinHeight = 40;
-
-            StackPanel sp3 = new StackPanel();
-            //sp3.MaxWidth = 50;
-            sp3.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
-
-            sp3.Children.Add(buttonX);
-
-            if (!aTag.JeOdstavec)
-            {
-                labelEndX.Visibility = System.Windows.Visibility.Collapsed;
-                labelStartX.Visibility = System.Windows.Visibility.Collapsed;
-            }
-
-            sp3.Children.Add(labelStartX);
-            sp3.Children.Add(labelEndX);
-
-            gridX.Children.Add(sp3);
-            //attrs.Visibility = System.Windows.Visibility.Visible;
-            if (aTag.JeOdstavec)
-                gridX.Children.Add(attrs);
-            else
-                gridX.Children.Add(new Ellipse() { Width = 10, Height = 10, Visibility = System.Windows.Visibility.Hidden });
-
-
-            gridX.Children.Add(checkX);
-            gridX.Children.Add(cx);
-            Grid.SetZIndex(cx, -1);
-            Grid.SetZIndex(richX, 0);
-
-            if (index < 0) //pokud je index mensi nez 0, je pridan textbox  nakonec listboxu
-            {
-                index = spSeznam.Children.Add(gridX);
-            }
-            else
-            {
-                spSeznam.Children.Insert(index, gridX);
-            }
-
-            return index + 1;
-
 
         }
 
@@ -1883,18 +681,11 @@ namespace NanoTrans
         void richX_PreviewMouseUp(object sender, MouseButtonEventArgs e)
         {
             if (!blockfocus)
-            {  
+            {
                 return;
             }
             blockfocus = false;
             e.Handled = true;
-        }
-
-        void richX_CaretPositionJump(object sender, MyTextBox.IntEventArgs e)
-        {
-            MyTag tag = (MyTag)(sender as MyTextBox).Tag;
-
-
         }
 
         Brush GetRectangleBgColor(MyEnumParagraphAttributes param)
@@ -1920,71 +711,6 @@ namespace NanoTrans
             }
         }
 
-        void richX_attributes_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            int i = ((sender as Rectangle).Parent as StackPanel).Children.IndexOf(sender as UIElement) + 1;
-            MyEnumParagraphAttributes[] attrs = (MyEnumParagraphAttributes[])Enum.GetValues(typeof(MyEnumParagraphAttributes));
-
-            MyTag tag = (MyTag)(sender as Rectangle).Tag;
-            MyParagraph par = myDataSource[tag];
-
-            par.DataAttributes ^= attrs[i];
-            if ((par.DataAttributes & attrs[i]) != 0)
-            {
-                (sender as Rectangle).Fill = GetRectangleInnenrColor(attrs[i]);
-            }
-            else
-            {
-                (sender as Rectangle).Fill = GetRectangleBgColor(attrs[i]);
-            }
-        }
-
-
-        void checkX_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                MyTag mt = ((MyTag)((TextBox)((Grid)((CheckBox)sender).Parent).Children[0]).Tag);
-                myDataSource.OznacTrenovaciData(mt, (bool)(((CheckBox)sender).IsChecked));
-                UpdateXMLData();
-            }
-            catch
-            {
-
-            }
-        }
-
-
-
-        /// <summary>
-        /// smaze vybery textboxu krome specifikovaneho
-        /// </summary>
-        /// <param name="a1"></param>
-        /// <param name="a2"></param>
-        /// <param name="krome"></param>
-        private void SmazatVyberyTextboxu(int a1, int a2, int krome)
-        {
-            try
-            {
-                if (a1 >= 0 && a2 >= 0 && a1 < spSeznam.Children.Count && a2 < spSeznam.Children.Count)
-                {
-                    for (int i = a1; i <= a2; i++)
-                    {
-                        if (i != krome)
-                        {
-                            TextBox pTB = (TextBox)((Grid)spSeznam.Children[i]).Children[0];
-                            pTB.CaretIndex = pTB.CaretIndex;
-                        }
-
-                    }
-                }
-            }
-            catch
-            {
-
-            }
-
-        }
 
         void gridX_MouseUp(object sender, MouseButtonEventArgs e)
         {
@@ -2004,126 +730,45 @@ namespace NanoTrans
         //--------------------------------obsluha context menu pro gridy v listboxu--------------------------------------------------
         void menuItemX_Nastav_Mluvciho_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-
-                //MyTag mt = ((MyTag)((RichTextBox)((Grid)((ContextMenu)((MenuItem)sender).Parent).Parent).Children[0]).Tag);
-                Grid ss = ((Grid)((ContextMenu)((MenuItem)sender).Parent).Tag);
-                MyTag mT = ((MyTag)((TextBox)ss.Children[0]).Tag);
-                mT = MySetup.Setup.RichTag;
-                //((Button)ss.Children[1]).Visibility = Visibility.Visible;
-                //buttonX_Click(((Button)ss.Children[1]), new RoutedEventArgs());
-                new WinSpeakers(mT, MySetup.Setup, this.myDatabazeMluvcich, myDataSource, null).ShowDialog();
-
-                UpdateXMLData();
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-            }
+            new WinSpeakers(VirtualizingListBox.ActiveTransctiption as MyParagraph, MySetup.Setup, this.myDatabazeMluvcich, myDataSource, null).ShowDialog();
         }
 
         void menuItemX2_Nova_Sekce_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                Grid ss = ((Grid)((ContextMenu)((MenuItem)sender).Parent).Tag);
-                MyTag mT = ((MyTag)((RichTextBox)ss.Children[0]).Tag);
-                mT = MySetup.Setup.RichTag;
-                PridejSekci(mT.tKapitola, "", mT.tSekce, -1, new TimeSpan(-1), new TimeSpan(-1));
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-            }
+            //TODO: pridej sekci
         }
 
         void menuItemX2b_Nova_Sekce_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                Grid ss = ((Grid)((ContextMenu)((MenuItem)sender).Parent).Tag);
-                MyTag mT = ((MyTag)((RichTextBox)ss.Children[0]).Tag);
-                mT = MySetup.Setup.RichTag;
-                PridejSekci(mT.tKapitola, "", mT.tSekce, mT.tOdstavec, new TimeSpan(-1), new TimeSpan(-1));
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-            }
+            //TODO: pridej sekci na pozici
         }
 
         void menuItemX3_Nova_Kapitola_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                Grid ss = ((Grid)((ContextMenu)((MenuItem)sender).Parent).Tag);
-                MyTag mT = ((MyTag)((MyTextBox)ss.Children[0]).Tag);
-                mT = MySetup.Setup.RichTag;
 
-                int pIndex = -1;
-                if (mT != null) pIndex = mT.tKapitola;
-                PridejKapitolu(pIndex + 1, "");
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-            }
+            //TODO: pridej kapitolu
         }
 
         void menuItemX4_Smaz_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                Grid ss = ((Grid)((ContextMenu)((MenuItem)sender).Parent).Tag);
-                MyTag mT = ((MyTag)((TextBox)ss.Children[0]).Tag);
-                mT = MySetup.Setup.RichTag;
-                if (mT.JeKapitola) OdstranKapitolu(mT.tKapitola);
-                else if (mT.JeSekce) OdstranSekci(mT.tKapitola, mT.tSekce);
-                else if (mT.JeOdstavec) OdstranOdstavec(mT.tKapitola, mT.tSekce, mT.tOdstavec);
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-            }
+            //TODO: odstran
         }
 
         void menuItemX5_Smaz_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                MyTag mT;
-                mT = MySetup.Setup.RichTag;
-                UpravCasZobraz(mT, new TimeSpan(-1), new TimeSpan(-2));
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-            }
+            //TODO: odstran
         }
 
         void menuItemX6_Smaz_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                MyTag mT;// = ((MyTag)((RichTextBox)ss.Children[0]).Tag);
-                mT = MySetup.Setup.RichTag;
-                UpravCasZobraz(mT, new TimeSpan(-2), new TimeSpan(-1));
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-            }
+            //TODO: odstran
         }
 
         static Encoding win1250 = Encoding.GetEncoding("windows-1250");
 
         void menuItemX7_Click(object sender, RoutedEventArgs e)
         {
-            MyTag tag = new MyTag(MySetup.Setup.RichTag);
-            MyParagraph par = myDataSource[tag];
-            tag.tTypElementu = MyEnumTypElementu.foneticky;
-            MyParagraph parf = myDataSource[tag];
+            MyParagraph par = VirtualizingListBox.ActiveTransctiption as MyParagraph;
             oWav.RamecSynchronne = true;
             bool nacteno = oWav.NactiRamecBufferu((long)par.Begin.TotalMilliseconds, (long)par.Delka.TotalMilliseconds, MyKONST.ID_BUFFERU_PREPISOVANEHO_ELEMENTU_FONETICKY_PREPIS);//)this.bPozadovanyPocatekRamce, this.bPozadovanaDelkaRamceMS, this.bIDBufferu);        
             oWav.RamecSynchronne = false;
@@ -2147,10 +792,10 @@ namespace NanoTrans
                 File.WriteAllBytes(textf, win1250.GetBytes(par.Text));
 
 
-                if (parf != null && !string.IsNullOrEmpty(parf.Text))
+                if (!string.IsNullOrEmpty(par.Phonetics))
                 {
                     textf = filename + ".phn";
-                    File.WriteAllBytes(textf, win1250.GetBytes(parf.Text));
+                    File.WriteAllBytes(textf, win1250.GetBytes(par.Phonetics));
                 }
             }
 
@@ -2164,350 +809,12 @@ namespace NanoTrans
         /// <param name="e"></param>
         void buttonX_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-
-
-                MyTag mt = ((MyTag)((TextBox)((Grid)((sender as Button).Parent as StackPanel).Parent).Children[0]).Tag);
-                new WinSpeakers(mt, MySetup.Setup, this.myDatabazeMluvcich, myDataSource, null).ShowDialog();
-
-                UpdateXMLData();
-
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-            }
+            //TODO:
         }
 
         #region richX  - textboxy...
 
-
-        void richX_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            try
-            {
-                skocitNaPoziciSlovaTextboxu = true;
-                TextBox pTB = ((TextBox)sender);
-
-                pPocatecniIndexVyberu = spSeznam.Children.IndexOf((Grid)((TextBox)(sender)).Parent);
-
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-            }
-        }
-
-
-        void richX_MouseEnter(object sender, MouseEventArgs e)
-        {
-            try
-            {
-                if (e.LeftButton == MouseButtonState.Pressed)
-                {
-                    TextBox pTB = ((TextBox)sender);
-                    int pIndex = spSeznam.Children.IndexOf((Grid)((TextBox)(sender)).Parent);
-                    if (pPocatecniIndexVyberu != pIndex)
-                    {
-                        //pTB.Background = Brushes.Gray;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-            }
-        }
-
-
-        void richX_PreviewMouseMove(object sender, MouseEventArgs e)
-        {
-            try
-            {
-
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-            }
-        }
-
-
-
-
-
-        /// <summary>
-        /// obsluha nastaveni pozice kurzoru pri zmene pozice - pouze pri stisknute klavese ctrl
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void richX_SelectionChanged(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                TextBox pTB = ((TextBox)sender);
-                MyTag pTag = (MyTag)pTB.Tag;
-
-
-                if (pTB != null)
-                {
-                    Rect r = pTB.GetRectFromCharacterIndex(pTB.CaretIndex);
-
-                    popup.PlacementTarget = pTB;
-                    popup.HorizontalOffset = r.Left;
-                    popup.VerticalOffset = r.Bottom;
-
-                }
-
-
-                #region slinkovani se zvukem
-                if (Keyboard.Modifiers == ModifierKeys.Control && skocitNaPoziciSlovaTextboxu || (!Playing && !pTB.IsReadOnly && Keyboard.Modifiers == ModifierKeys.Control))
-                {
-                    skocitNaPoziciSlovaTextboxu = false;
-                    TextBox pTB2 = ((TextBox)MySetup.Setup.RichTag.tSender);
-                    int pPoziceKurzoru = pTB2.CaretIndex;
-                    int j = -1;
-                    TimeSpan pTime = new TimeSpan(-1);
-                    //long pTime = myDataSource.VratCasElementuPocatek((MyTag)pTB.Tag);
-
-                    if (pTag.JeOdstavec)
-                    {
-                        List<MyCasovaZnacka> pCZnacky = myDataSource[pTag].VratCasoveZnackyTextu;
-
-
-                        for (int i = 0; i < pCZnacky.Count; i++)
-                        {
-                            if (pPoziceKurzoru >= pCZnacky[i].Index2) j = i;
-                        }
-
-                        if (pTB.CaretIndex == 0)
-                        {
-                            pTime = myDataSource.VratCasElementuPocatek((MyTag)pTB.Tag);
-                        }
-                        else if (pTB.CaretIndex == pTB.Text.Length)
-                        {
-                            pTime = myDataSource.VratCasElementuKonec((MyTag)pTB.Tag);
-                            if (pTime < TimeSpan.Zero)
-                            {
-                                //pTime = myDataSource.VratCasElementuPocatek((MyTag)pTB.Tag);
-                            }
-                        }
-                        else if (j >= 0) pTime = pCZnacky[j].Time;
-                    }
-                    if (pTime >= TimeSpan.Zero)
-                    {
-                        //if (oVlna.KurzorPoziceMS > pTime)
-                        {
-                            NastavPoziciKurzoru(pTime, true, true);
-                        }
-                    }
-                }
-
-                int index = spSeznam.Children.IndexOf((Grid)((TextBox)(sender)).Parent);
-
-                if (pSkocitNahoru && index > 0)
-                {
-                    pSkocitNahoru = false;
-                    e.Handled = true;
-                    if ((pTB.SelectionStart == 0))
-                    {
-                        TextBox pTBPredchozi = (TextBox)((Grid)spSeznam.Children[index - 1]).Children[0];
-                        pTBPredchozi.Focus();
-                        if (Keyboard.Modifiers == ModifierKeys.Shift)
-                        {
-                            if (pPocatecniIndexVyberu > index - 1) pPocatecniIndexVyberu = index - 1; else pKoncovyIndexVyberu = index - 1;
-                        }
-                        if (Keyboard.Modifiers == ModifierKeys.Shift && pTBPredchozi.SelectionLength == 0)
-                        {
-                            pTBPredchozi.CaretIndex = pTBPredchozi.Text.Length;
-
-                        }
-                    }
-                }
-                else if (pSkocitDolu && index < spSeznam.Children.Count - 1)
-                {
-                    pSkocitDolu = false;
-                    e.Handled = true;
-                    TextBox pTBDalsi = (TextBox)((Grid)spSeznam.Children[index + 1]).Children[0];
-                    pTBDalsi.Focus();
-                    if (Keyboard.Modifiers == ModifierKeys.Shift && pTBDalsi.SelectionLength == 0)
-                    {
-                        pTBDalsi.CaretIndex = 0;
-
-                    }
-                    if (Keyboard.Modifiers == ModifierKeys.Shift)
-                    {
-                        if (pKoncovyIndexVyberu <= index + 1)
-                        {
-                            pKoncovyIndexVyberu = index + 1;
-                        }
-                        else
-                        {
-                            pPocatecniIndexVyberu = index + 1;
-                        }
-                    }
-
-
-                }
-
-                #endregion
-
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-            }
-        }
-
-
-
-        //pri zamereni...
-        void richX_GotFocus(object sender, RoutedEventArgs e)
-        {
-            popup.IsOpen = false;
-            searchtextoffset = 0;
-            try
-            {
-                if (pZiskatNovyIndex)
-                {
-                    int pIndex = spSeznam.Children.IndexOf((Grid)((TextBox)(sender)).Parent);
-                    pPocatecniIndexVyberu = pIndex;
-                    pKoncovyIndexVyberu = pIndex;
-                    pZiskatNovyIndex = false;
-
-                }
-                MySetup.Setup.RichFocus = true;
-                MyTag pPuvodniTag = new MyTag(MySetup.Setup.RichTag);
-
-                if (pPuvodniTag.tTypElementu != MyEnumTypElementu.foneticky)
-                    foneticshavefocus = false;
-
-
-                MySetup.Setup.RichTag = (MyTag)((TextBox)(sender)).Tag;
-                MySetup.Setup.RichTag.tSender = sender;
-
-                if (MySetup.Setup.RichTag.tOdstavec >= 0)
-                {
-                    MyParagraph pP = myDataSource[MySetup.Setup.RichTag];
-                    MySetup.Setup.CasoveZnacky = pP.VratCasoveZnackyTextu;    //casove znacky, ktere jsou nastaveny v odstavci
-                    MySetup.Setup.CasoveZnackyText = ((TextBox)sender).Text;
-
-                }
-
-                MyTag ftag = tbFonetickyPrepis.Tag as MyTag;
-                if (ftag != null && (ftag.tKapitola != MySetup.Setup.RichTag.tKapitola || ftag.tOdstavec != MySetup.Setup.RichTag.tOdstavec || ftag.tSekce != MySetup.Setup.RichTag.tSekce))
-                    foneticshavefocus = false;
-
-
-                if (sender != tbFonetickyPrepis && !foneticshavefocus)//pri prekliku do fonetiky preskok obtezuje
-                {
-                    //provede zvyrazneni vyberu ve vlne podle dat
-                    waveform1.SelectionBegin = myDataSource.VratCasElementuPocatek(MySetup.Setup.RichTag);
-                    
-                    if(!richX_manualfocus)
-                    {
-                        waveform1.CaretPosition = waveform1.SelectionBegin;
-                        
-                    }
-                    
-
-                    waveform1.SelectionEnd = myDataSource.VratCasElementuKonec(MySetup.Setup.RichTag);
-
-                    //waveform1.SliderPostion = waveform1.SelectionEnd;
-
-                    //nastaveni pozice kurzoru a obsluha prehravani podle nastaveni
-                    if (MySetup.Setup.SetupSkocitNaPozici && !pNeskakatNaZacatekElementu)
-                    {
-                        if (!richX_manualfocus)
-                            waveform1.CaretPosition = waveform1.SelectionBegin;
-                        pIndexBufferuVlnyProPrehrani = (int)waveform1.CaretPosition.TotalMilliseconds;
-                        if (MySetup.Setup.SetupSkocitZastavit)
-                        {
-                            if (jeVideo) meVideo.Play();
-                            Playing = false;
-                        }
-                    }
-
-
-
-
-                    if (pNeskakatNaZacatekElementu) pNeskakatNaZacatekElementu = false;
-                    if (MySetup.Setup.RichTag.JeOdstavec)
-                    {
-                        if (!Playing)
-                            NastavPoziciKurzoru(waveform1.CaretPosition, true, true);
-                    }
-                }
-
-                
-                ZobrazInformaceElementu(MySetup.Setup.RichTag);
-                if (MySetup.Setup.RichTag.tOdstavec > -1)
-                {
-                    if (MySetup.Setup.RichTag.tTypElementu == MyEnumTypElementu.normalni)
-                    {
-                        ((MyTextBox)sender).BGcanvas.Background = MySetup.Setup.BarvaTextBoxuOdstavceAktualni;
-                        ((Grid)((TextBox)sender).Parent).Background = MySetup.Setup.BarvaTextBoxuOdstavceAktualni;
-                    }
-                    else if (MySetup.Setup.RichTag.tTypElementu == MyEnumTypElementu.foneticky)
-                    {
-                        if (pPuvodniTag.tTypElementu != MyEnumTypElementu.foneticky)
-                        {
-                            ((MyTextBox)pPuvodniTag.tSender).BGcanvas.Background = MySetup.Setup.BarvaTextBoxuOdstavceAktualni;
-                            ((Grid)((MyTextBox)pPuvodniTag.tSender).Parent).Background = MySetup.Setup.BarvaTextBoxuOdstavceAktualni;
-                            tbFonetickyPrepis.Background = MySetup.Setup.BarvaTextBoxuFonetickyAktualni;
-                        }
-                    }
-
-
-                }
-                ZobrazitFonetickyPrepisOdstavce(MySetup.Setup.RichTag);
-                foneticshavefocus = (sender == tbFonetickyPrepis);
-
-                richX_manualfocus = false;
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-            }
-        }
-
-        bool foneticshavefocus = false;
         //pri ztrate zamereni textboxu...
-        void richX_LostFocus(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                MySetup.Setup.RichFocus = false;
-                MySetup.Setup.BylFocus = true;
-                ///nastaveniAplikace.RichTag = (MyTag)((RichTextBox)(sender)).Tag;
-                MySetup.Setup.RichTag = (MyTag)((TextBox)(sender)).Tag;
-                MySetup.Setup.RichTag.tSender = sender;
-                if (MySetup.Setup.RichTag.tOdstavec > -1)
-                {
-                    if (MySetup.Setup.RichTag.tTypElementu == MyEnumTypElementu.normalni)
-                    {
-                        ((MyTextBox)sender).BGcanvas.Background = MySetup.Setup.BarvaTextBoxuOdstavce;
-                        ((Grid)((TextBox)sender).Parent).Background = MySetup.Setup.BarvaTextBoxuOdstavce;
-                    }
-                    else if (MySetup.Setup.RichTag.tTypElementu == MyEnumTypElementu.foneticky)
-                    {
-                        object pTb = VratSenderTextboxu(((MyTag)((TextBox)tbFonetickyPrepis).Tag));
-                        ((MyTextBox)pTb).BGcanvas.Background = MySetup.Setup.BarvaTextBoxuOdstavce;
-                        ((Grid)((TextBox)pTb).Parent).Background = MySetup.Setup.BarvaTextBoxuOdstavce;
-                        tbFonetickyPrepis.Background = MySetup.Setup.BarvaTextBoxuFoneticky;
-                    }
-
-
-                }
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-            }
-        }
-
-
 
         /// <summary>
         /// otevreni popup okna na aktualnim editu
@@ -2531,118 +838,6 @@ namespace NanoTrans
         void richX_MouseDown(object sender, MouseButtonEventArgs e)
         {
             popup.IsOpen = false;
-        }
-
-
-
-
-        //pri zmene textu v textboxech dojde k uprave v datove strukture----------------------------------------------DODELAT PRO POSUNY CASOVYCH ZNACEK
-        private void RichText_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            try
-            {
-                #region popup window
-                TextBox tb = sender as TextBox;
-                if (tb != null)
-                {
-                    Rect r = tb.GetRectFromCharacterIndex(tb.CaretIndex);
-
-                    popup.PlacementTarget = tb;
-                    popup.HorizontalOffset = r.Left;
-                    popup.VerticalOffset = r.Bottom;
-
-                }
-
-                #endregion
-
-
-
-                if (this.pUpravitOdstavec)
-                {
-                    TextBox pTb = (TextBox)sender;
-                    MyTag pTag = ((MyTag)pTb.Tag);
-
-                    if (pTag.tTypElementu == MyEnumTypElementu.foneticky)
-                    {
-                        MyParagraph pP = myDataSource[pTag];
-                        if (pP != null)
-                        {
-                            pUpravitOdstavec = false;
-                            MyKONST.OverZmenyTextBoxu(pTb, pP.Text, ref e, MyEnumTypElementu.foneticky);
-                            pUpravitOdstavec = true;
-                        }
-                    }
-
-                    string tr = pTb.Text;
-                    if (!pTag.JeOdstavec)
-                    {
-                        if (pTag.tTypElementu == MyEnumTypElementu.normalni)
-                        {
-                            myDataSource.UpravElement(pTag, tr);    //je upravena kapitola a sekce
-                        }
-                    }
-                    else
-                    {
-                        //jinak je upraven odstavec a jeho casove znacky
-
-                        if (MySetup.Setup.RichTag.tOdstavec == pTag.tOdstavec)   //dojde k uprave jestli souhlasi vybrany odstavec a odstavec ze ktereho je volana tato funkce
-                        {
-                            MyParagraph pP = myDataSource[pTag];
-                            int carretpos = (pTb.SelectionLength <= 0) ? pTb.CaretIndex : pTb.SelectionStart;
-                            int pIndexZmeny = MyKONST.VratIndexZmenyStringu(MySetup.Setup.CasoveZnackyText, tr, carretpos);// pTb.SelectionStart);
-                            if (pIndexZmeny >= 0) //doslo ke zmene ve stringu
-                            {
-                                //jak se zmenila delka - novy je o kolik delsi - muze byt i zaporny - tzn je ktratsi nez puvodni
-                                int pDelka = tr.Length - MySetup.Setup.CasoveZnackyText.Length;
-
-                                //nalezeni od ktereho indexu dojde k prepoctu
-                                for (int i = 0; i < MySetup.Setup.CasoveZnacky.Count; i++)
-                                {
-                                    if (pIndexZmeny <= MySetup.Setup.CasoveZnacky[i].Index2) //&& i>0)
-                                    {
-                                        //smazani indexove casove znacky
-                                        if (pIndexZmeny == MySetup.Setup.CasoveZnacky[i].Index2 && pDelka < 0)
-                                        {
-                                            //mazalo se tesne za indexem -> nebude s timhle se nebude delat nic
-                                            //nastaveniAplikace.CasoveZnacky.RemoveAt(i);
-                                            //i--; //aby doslo k uprave nasledujici znacky pokud navazuje
-
-                                        }
-                                        else if (pIndexZmeny < MySetup.Setup.CasoveZnacky[i].Index2)// uprava casove znacky-podminka,aby slo psat za prave vlozenou znacku
-                                        {
-                                            //mazalo se pred indexem, tento se musi posunout
-
-                                            if (MySetup.Setup.CasoveZnacky[i].Index2 + pDelka < pIndexZmeny)
-                                            {
-                                                MySetup.Setup.CasoveZnacky.RemoveAt(i);
-                                                i--;
-                                            }
-                                            else
-                                            {
-                                                MySetup.Setup.CasoveZnacky[i].Index1 += pDelka;
-                                                MySetup.Setup.CasoveZnacky[i].Index2 += pDelka;
-                                            }
-                                        }
-
-                                    }
-
-                                }
-                                myDataSource.UpravElementOdstavce(pTag, tr, MySetup.Setup.CasoveZnacky);
-
-                                MySetup.Setup.CasoveZnackyText = tr;               //cely text bez koncu - pro pozdejsi porovnani pri zmene
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    pUpravitOdstavec = true;
-                }
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-            }
         }
 
         #endregion
@@ -2674,11 +869,15 @@ namespace NanoTrans
                         myDataSource = new MySubtitlesData();
 
                         this.Title = MyKONST.NAZEV_PROGRAMU + " [novy]";
-                        PridejKapitolu(-1, "Kapitola 0");
-                        PridejSekci(0, "Sekce 0", -1, -1, new TimeSpan(-1), new TimeSpan(-1));
-                        PridejOdstavec(0, 0, "", null, -1, TimeSpan.Zero, new TimeSpan(-1), new MySpeaker());
-                        myDataSource.Ulozeno = true;
-                        ZobrazXMLData();
+
+                        var c = new MyChapter();
+                        var s = new MySection();
+                        var p = new MyParagraph();
+                        c.Add(s);
+                        s.Add(p);
+
+
+                        myDataSource.Chapters.Add(c);
 
                         return true;
                     }
@@ -2689,18 +888,20 @@ namespace NanoTrans
                 {
                     myDataSource = new MySubtitlesData();
                     this.Title = MyKONST.NAZEV_PROGRAMU + " [novy]";
-                    PridejKapitolu(-1, "Kapitola 0");
-                    PridejSekci(0, "Sekce 0", -1, -1, new TimeSpan(-1), new TimeSpan(-1));
-                    PridejOdstavec(0, 0, "", null, -1, TimeSpan.Zero, new TimeSpan(-1), new MySpeaker());
+                    var c = new MyChapter("Kapitola 0");
+                    var s = new MySection("Sekce 0");
+                    var p = new MyParagraph();
+
+                    c.Add(s);
+                    s.Add(p);
+                    myDataSource.Add(c);
                     myDataSource.Ulozeno = true;
-                    ZobrazXMLData();
                     return true;
                 }
                 return true;
             }
             catch (Exception ex)
             {
-                MyLog.LogujChybu(ex);
                 MessageBox.Show("Chyba pri vytvareni novych titulku " + ex.Message, "Chyba");
                 return false;
             }
@@ -2786,7 +987,6 @@ namespace NanoTrans
         {
             try
             {
-                pNacitaniAudiaDavka = false;
                 if (myDataSource == null) myDataSource = new MySubtitlesData();
                 if (pouzitOpenDialog)
                 {
@@ -2870,7 +1070,7 @@ namespace NanoTrans
                             myDataSource = null;
                             myDataSource = pDataSource;
 
-                           
+
                             myDataSource.Ulozeno = true;
 
                             //nacteni audio souboru pokud je k dispozici
@@ -2922,17 +1122,8 @@ namespace NanoTrans
                             {
                             }
                         }
-
-
-                        Stopwatch sw = new Stopwatch();
-                        sw.Start();
                         //TODO: funkcni databinding na mydatasource mainformu
                         VirtualizingListBox.Subtitles = myDataSource;
-                        sw.Stop();
-                        sw.Reset();
-                        sw.Start();
-                        ZobrazXMLData();
-                        sw.Stop();
                         this.Title = MyKONST.NAZEV_PROGRAMU + " [" + myDataSource.JmenoSouboru + "]";
                         return true;
                     }
@@ -2968,19 +1159,21 @@ namespace NanoTrans
                                     string pText = sr.ReadToEnd();
                                     sr.Close();
                                     fs.Close();
-                                    pDataSource.NovaKapitola();
-                                    pDataSource.NovaSekce(0, "", -1, new TimeSpan(-1), new TimeSpan(-1));
-                                    pDataSource.NovyOdstavec(0, 0, pText, new List<MyCasovaZnacka>(), -1);
-                                    pDataSource.UpravCasElementu(new MyTag(0, 0, 0), TimeSpan.Zero, new TimeSpan(-1));
-                                    //pDataSource.Chapters[0].Sections[0].Paragraphs[0].begin = 0;
-                                    //pDataSource.Chapters[0].Sections[0].PhoneticParagraphs[0].begin = 0;
+
+                                    var c = new MyChapter("");
+                                    var s = new MySection("");
+                                    var p = new MyParagraph() { Begin = TimeSpan.Zero };
+                                    c.Add(s);
+                                    s.Add(p);
+                                    pDataSource.Add(c);
+
+
+
                                     pDataSource.JmenoSouboru = fi.FullName.ToUpper().Replace(".TXT", "_PHONETIC.XML");
-                                    //pDataSource.Serializovat(, pDataSource, false);
 
                                 }
                                 myDataSource = pDataSource;
                                 string pWav = fi.FullName.ToUpper().Replace(".TXT", ".WAV");
-                                pNacitaniAudiaDavka = true;
                                 NactiAudio(pWav);
 
                             }
@@ -2997,7 +1190,6 @@ namespace NanoTrans
                     if (myDataSource != null)
                     {
                         this.Title = MyKONST.NAZEV_PROGRAMU + " [" + myDataSource.JmenoSouboru + "]";
-                        ZobrazXMLData();
                         //nacteni audio souboru pokud je k dispozici
                         if (myDataSource.audioFileName != null && myDataSource.JmenoSouboru != null)
                         {
@@ -3040,7 +1232,6 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                MyLog.LogujChybu(ex);
                 MessageBox.Show("Chyba pri nacitani titulku: " + ex.Message, "Chyba");
                 return false;
             }
@@ -3098,7 +1289,6 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                MyLog.LogujChybu(ex);
                 MessageBox.Show("Chyba pri ukladani titulku: " + ex.Message, "Chyba");
                 Console.WriteLine(ex);
                 return false;
@@ -3123,42 +1313,17 @@ namespace NanoTrans
             }
 
 
-            try
+
+            if (position < TimeSpan.Zero) return;
+            waveform1.CaretPosition = position;
+            if (!Playing)
+                oldms = TimeSpan.Zero;
+
+            if (!Playing && jeVideo && Math.Abs(meVideo.Position.TotalMilliseconds) > 200)
             {
-
-                if (position < TimeSpan.Zero) return;
-                waveform1.CaretPosition = position;
-                if (!Playing)
-                    oldms = TimeSpan.Zero;
-
-                if (!Playing && jeVideo && Math.Abs(meVideo.Position.TotalMilliseconds) > 200)
-                {
-                    meVideo.Position = waveform1.CaretPosition;
-                }
-
-                if (nastavitMedia)
-                {
-                    //pIndexBufferuVlnyProPrehrani = (int)position.TotalMilliseconds;
-                    if (jeVideo) meVideo.Position = waveform1.CaretPosition;
-                    List<MyTag> pTagy = myDataSource.VratElementDanehoCasu(position, null);
-                    for (int i = 0; i < pTagy.Count; i++)
-                    {
-                        if (pTagy[i].tKapitola == MySetup.Setup.RichTag.tKapitola && pTagy[i].tSekce == MySetup.Setup.RichTag.tSekce && pTagy[i].tOdstavec == MySetup.Setup.RichTag.tOdstavec)
-                        {
-                            return;
-                        }
-                    }
-
-                    if (pTagy.Count > 0 && !prehratVyber) // nechceme kazdy pruchod chybu...
-                    {
-                        VyberElement(pTagy[0], aNeskakatNaZacatekElementu);
-                    }
-                }
+                meVideo.Position = waveform1.CaretPosition;
             }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-            }
+
 
 
         }
@@ -3178,35 +1343,13 @@ namespace NanoTrans
             {
 
 
-                //if (oPrepisovac != null && (oPrepisovac.Rozpoznavani || oPrepisovac.Ukoncovani))
-                if (oHlasoveOvladani != null)//&& oHlasoveOvladani.TypRozpoznavani == MyKONST.ROZPOZNAVAC_2_HLASOVE_OVLADANI)
+                if (oPrepisovac != null && oPrepisovac.Inicializovano)
                 {
-                    if (oHlasoveOvladani != null && oHlasoveOvladani.Inicializovano)
-                    {
-                        oHlasoveOvladani.GetText();
-                        oHlasoveOvladani.GetDelay();
-                        oHlasoveOvladani.AsynchronniRead();
-                    }
-
-                    if (pDelkaZobrazeniHlasovehoPovelu == 4)
-                    {
-                        ZobrazRozpoznanyPrikaz("...");
-                        pDelkaZobrazeniHlasovehoPovelu = 5;
-                    }
-                    else if (pDelkaZobrazeniHlasovehoPovelu < 4)
-                    {
-                        pDelkaZobrazeniHlasovehoPovelu++;
-                    }
+                    oPrepisovac.GetText();
+                    oPrepisovac.GetDelay();
+                    oPrepisovac.AsynchronniRead();
                 }
 
-                {
-                    if (oPrepisovac != null && oPrepisovac.Inicializovano)
-                    {
-                        oPrepisovac.GetText();
-                        oPrepisovac.GetDelay();
-                        oPrepisovac.AsynchronniRead();
-                    }
-                }
             }
             catch
             {
@@ -3216,182 +1359,16 @@ namespace NanoTrans
 
         private void VyberFonetikuMeziCasovymiZnackami(TimeSpan aPoziceKurzoru)
         {
-            try
-            {
-                MyTag pTag = new MyTag(MySetup.Setup.RichTag);
-                pTag.tTypElementu = MyEnumTypElementu.foneticky;
-                
-                List<MyTag> pTagy = myDataSource.VratElementDanehoCasu(aPoziceKurzoru, pTag);
-                if (pTagy != null && pTagy.Count > 0)
-                {
-                    pTag = pTagy[0];
-                }
-                if (pTag != null && !prehratVyber)
-                {
-                    VyberElement(pTag, true);
-                }
-
-
-                if (MySetup.Setup.RichTag != null)
-                {
-                    MyParagraph pP = myDataSource[pTag];
-                    List<MyCasovaZnacka> pCasZnacky = null;
-                    if (pP != null) pCasZnacky = pP.VratCasoveZnackyTextu;
-                    if (pCasZnacky != null && pCasZnacky.Count > 1)
-                    {
-                        TextBox pRTB = tbFonetickyPrepis;
-
-                        if (aPoziceKurzoru >= pP.Begin && aPoziceKurzoru <= pP.End)
-                        {
-                            int aIndex1 = -1;
-                            int aIndex2 = -1;
-                            int i1 = -1;
-                            int i2 = -1;
-
-                            for (int i = 0; i < pCasZnacky.Count; i++)
-                            {
-                                if (pCasZnacky[i].Time <= aPoziceKurzoru)
-                                {
-                                    aIndex1 = pCasZnacky[i].Index2;
-                                    i1 = i;
-                                }
-                                if (pCasZnacky[i].Time <= aPoziceKurzoru)
-                                {
-                                    if (aIndex1 >= 0)
-                                    {
-                                        aIndex2 = pCasZnacky[i].Index2;
-                                        i2 = i;
-                                    }
-                                }
-                                else
-                                {
-                                    if (aIndex1 >= 0 && aIndex2 >= 0 && pCasZnacky[i2].Time - pCasZnacky[i1].Time == TimeSpan.Zero)
-                                    {
-                                        i2 += 1;
-                                        if (i2 >= pCasZnacky.Count) i2 = pCasZnacky.Count - 1;
-                                    }
-                                    break;
-                                }
-                            }
-                            if (aIndex1 >= 0 && aIndex2 >= 0)
-                            {
-                                ///aIndex1+=2;
-                                aIndex2 = pCasZnacky[i2].Index2;// +2;
-
-
-
-
-                                ///pRTB.Selection.Select(pRTB.Document.ContentStart.GetPositionAtOffset(aIndex1), pRTB.Document.ContentStart.GetPositionAtOffset(aIndex2));
-                                pRTB.Select(aIndex1, aIndex2 - aIndex1);
-
-                            }
-                            else
-                            {
-                                aIndex1 = 0;
-                                aIndex2 = pCasZnacky[0].Index2;
-                                pRTB.Select(aIndex1, aIndex2 - aIndex1);
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-            }
-
-
+            //TODO: fonetika 
         }
 
 
 
         private void VyberTextMeziCasovymiZnackami(TimeSpan aPoziceKurzoru)
         {
-            try
-            {
-                MyTag pTag = new MyTag(MySetup.Setup.RichTag);
-                List<MyTag> pTagy = myDataSource.VratElementDanehoCasu(aPoziceKurzoru, pTag);
-                if (pTagy != null && pTagy.Count > 0)
-                {
-                    pTag = pTagy[0];
-                }
-                if (pTag != null && !prehratVyber)
-                {
-                    VyberElement(pTag, true);
-                }
-
-
-                if (MySetup.Setup.RichTag != null)
-                {
-                    MyParagraph pP = myDataSource[MySetup.Setup.RichTag];
-                    List<MyCasovaZnacka> pCasZnacky = null;
-                    if (pP != null) pCasZnacky = pP.VratCasoveZnackyTextu;
-                    if (pCasZnacky != null && pCasZnacky.Count > 1)
-                    {
-                        TextBox pRTB = (TextBox)MySetup.Setup.RichTag.tSender;
-
-                        if (aPoziceKurzoru >= pP.Begin && aPoziceKurzoru <= pP.End)
-                        {
-                            int aIndex1 = -1;
-                            int aIndex2 = -1;
-                            int i1 = -1;
-                            int i2 = -1;
-
-                            for (int i = 0; i < pCasZnacky.Count; i++)
-                            {
-                                if (pCasZnacky[i].Time <= aPoziceKurzoru)
-                                {
-                                    aIndex1 = pCasZnacky[i].Index2;
-                                    i1 = i;
-                                }
-                                if (pCasZnacky[i].Time <= aPoziceKurzoru)
-                                {
-                                    if (aIndex1 >= 0)
-                                    {
-                                        aIndex2 = pCasZnacky[i].Index2;
-                                        i2 = i;
-                                    }
-                                }
-                                else
-                                {
-                                    if (aIndex1 >= 0 && aIndex2 >= 0 && pCasZnacky[i2].Time - pCasZnacky[i1].Time == TimeSpan.Zero)
-                                    {
-                                        i2 += 1;
-                                        if (i2 >= pCasZnacky.Count) i2 = pCasZnacky.Count - 1;
-                                    }
-                                    break;
-                                }
-                            }
-                            if (aIndex1 >= 0 && aIndex2 >= 0)
-                            {
-                                ///aIndex1+=2;
-                                aIndex2 = pCasZnacky[i2].Index2;// +2;
-
-
-
-
-                                ///pRTB.Selection.Select(pRTB.Document.ContentStart.GetPositionAtOffset(aIndex1), pRTB.Document.ContentStart.GetPositionAtOffset(aIndex2));
-                                pRTB.Select(aIndex1, aIndex2 - aIndex1);
-
-                            }
-                            else
-                            {
-                                aIndex1 = 0;
-                                aIndex2 = pCasZnacky[0].Index2;
-                                pRTB.Select(aIndex1, aIndex2 - aIndex1);
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-            }
+            //TODO: text mezi casovymi znackami
 
             VyberFonetikuMeziCasovymiZnackami(aPoziceKurzoru);
-
-
         }
 
         public void InitializeTimer()
@@ -3403,125 +1380,117 @@ namespace NanoTrans
 
         void OnTimer(Object source, EventArgs e)
         {
-            try
+            long rozdil = (long)waveform1.WaveLength.TotalMilliseconds; //delka zobrazeni v msekundach
+
+            TimeSpan playpos = waveform1.CaretPosition;
+            if (_playing)
+            {
+                playpos = MWP.PlayPosition;
+
+                if (prehratVyber && playpos < waveform1.SelectionBegin)
+                {
+                    playpos = waveform1.SelectionBegin;
+                }
+                waveform1.CaretPosition = MWP.PlayPosition;
+            }
+
+            pocetTikuTimeru++;
+            if (pocetTikuTimeru > 0) //kazdy n ty tik dojde ke zmene pozice ctverce
+            {
+                if (pocetTikuTimeru > 2)
+                {
+                    pocetTikuTimeru = 0;
+                    if (!_playing && jeVideo)
+                    {
+                        meVideo.Pause();
+                    }
+                }
+
+
+
+                if (prehratVyber && playpos >= waveform1.SelectionEnd && waveform1.SelectionEnd >= TimeSpan.Zero)
+                {
+
+                    Playing = false;
+
+                    oldms = TimeSpan.Zero;
+                    NastavPoziciKurzoru(waveform1.SelectionBegin, true, true);
+
+                    playpos = waveform1.CaretPosition;
+
+                    Playing = true;
+                    if (MWP != null)
+                        MWP.Play(MWP.PlaySpeed);
+
+                }
+                else
+                {
+                    NastavPoziciKurzoru(waveform1.CaretPosition, false, true);
+                }
+
+                if (Playing) VyberTextMeziCasovymiZnackami(playpos);
+            }
+
+            long pPozadovanyPocatekVlny = (long)waveform1.WaveBegin.TotalMilliseconds;
+
+            long celkMilisekundy = (long)playpos.TotalMilliseconds;
+            if (playpos.TotalMilliseconds >= mSekundyKonec - waveform1.WaveLengthDelta.TotalMilliseconds && mSekundyKonec < oWav.DelkaSouboruMS && !nahled)
             {
 
-                long rozdil = (long)waveform1.WaveLength.TotalMilliseconds; //delka zobrazeni v msekundach
-
-                TimeSpan playpos = waveform1.CaretPosition;
-                if (_playing)
+                if (celkMilisekundy < oWav.DelkaSouboruMS)// && celkMilisekundy < waveform1.AudioBuffer.KonecMS)
                 {
-                    playpos = MWP.PlayPosition;
+                    long pKonec = celkMilisekundy - (long)waveform1.WaveLengthDelta.TotalMilliseconds + rozdil;
+                    long pPocatekMS = pKonec - rozdil;
+                    if (pKonec > waveform1.WaveEnd.TotalMilliseconds)
+                        pPocatekMS = (long)waveform1.CaretPosition.TotalMilliseconds - rozdil / 2;
 
-                    if (prehratVyber && playpos < waveform1.SelectionBegin)
-                    {
-                        playpos = waveform1.SelectionBegin;
-                    }
-                    waveform1.CaretPosition = MWP.PlayPosition;
+                    if (pPocatekMS < 0)
+                        pPocatekMS = 0;
+                    pKonec = pPocatekMS + rozdil;
+                    mSekundyKonec = pKonec;
+                    waveform1.WaveBegin = TimeSpan.FromMilliseconds(pPocatekMS);
+                    waveform1.WaveEnd = TimeSpan.FromMilliseconds(mSekundyKonec);
+                }
+            }
+            else if (playpos < waveform1.WaveBegin && waveform1.WaveBegin >= TimeSpan.Zero && !nahled)
+            {
+                if (celkMilisekundy < oWav.DelkaSouboruMS && celkMilisekundy < waveform1.AudioBufferEnd.TotalMilliseconds && celkMilisekundy >= waveform1.AudioBufferBegin.TotalMilliseconds)
+                {
+                    long pKonec = celkMilisekundy + (long)(rozdil * 0.3);
+                    long pPocatekMS = pKonec - rozdil;
+                    if (pKonec > waveform1.WaveEnd.TotalMilliseconds)
+                        pPocatekMS = (long)waveform1.CaretPosition.TotalMilliseconds - rozdil / 2;
+
+                    if (pPocatekMS < 0)
+                        pPocatekMS = 0;
+                    pKonec = pPocatekMS + rozdil;
+                    mSekundyKonec = pKonec;
+                    waveform1.WaveBegin = TimeSpan.FromMilliseconds(pPocatekMS);
+                    waveform1.WaveEnd = TimeSpan.FromMilliseconds(mSekundyKonec);
                 }
 
-                pocetTikuTimeru++;
-                if (pocetTikuTimeru > 0) //kazdy n ty tik dojde ke zmene pozice ctverce
+            }
+            else if (slPoziceMedia_mouseDown == false && nahled == true)
+            {
+                nahled = false;
+            }
+
+            if (oWav.Nacteno && celkMilisekundy > waveform1.AudioBufferEnd.TotalMilliseconds - (waveform1.AudioBufferEnd - waveform1.AudioBufferBegin).TotalMilliseconds * 0.2)
+            {
+                if (!oWav.NacitaniBufferu && !nahled) //pokud jiz neni nacitano vlakno,dojde k inicializaci threadu
                 {
-                    if (pocetTikuTimeru > 2)
+                    if (waveform1.AudioBufferEnd.TotalMilliseconds < oWav.DelkaSouboruMS && !oWav.NacitaniBufferu)
                     {
-                        pocetTikuTimeru = 0;
-                        if (!_playing && jeVideo)
-                        {
-                            meVideo.Pause();
-                        }
-                    }
-
-
-
-                    if (prehratVyber && playpos >= waveform1.SelectionEnd && waveform1.SelectionEnd >= TimeSpan.Zero)
-                    {
-
-                        Playing = false;
-
-                        oldms = TimeSpan.Zero;
-                        NastavPoziciKurzoru(waveform1.SelectionBegin, true, true);
-
-                        playpos = waveform1.CaretPosition;
-
-                        Playing = true;
-                        if (MWP != null)
-                            MWP.Play(MWP.PlaySpeed);
-
-                    }
-                    else
-                    {
-                        NastavPoziciKurzoru(waveform1.CaretPosition, false, true);
-                    }
-
-                    if (Playing) VyberTextMeziCasovymiZnackami(playpos);
-                }
-
-                long pPozadovanyPocatekVlny = (long)waveform1.WaveBegin.TotalMilliseconds;
-
-                long celkMilisekundy = (long)playpos.TotalMilliseconds;
-                if (playpos.TotalMilliseconds >= mSekundyKonec - waveform1.WaveLengthDelta.TotalMilliseconds && mSekundyKonec < oWav.DelkaSouboruMS && !nahled)
-                {
-
-                    if (celkMilisekundy < oWav.DelkaSouboruMS)// && celkMilisekundy < waveform1.AudioBuffer.KonecMS)
-                    {
-                        long pKonec = celkMilisekundy - (long)waveform1.WaveLengthDelta.TotalMilliseconds + rozdil;
-                        long pPocatekMS = pKonec - rozdil;
-                        if (pKonec > waveform1.WaveEnd.TotalMilliseconds)
-                            pPocatekMS = (long)waveform1.CaretPosition.TotalMilliseconds - rozdil / 2;
-
-                        if (pPocatekMS < 0)
-                            pPocatekMS = 0;
-                        pKonec = pPocatekMS + rozdil;
-                        mSekundyKonec = pKonec;
-                        waveform1.WaveBegin = TimeSpan.FromMilliseconds(pPocatekMS);
-                        waveform1.WaveEnd = TimeSpan.FromMilliseconds(mSekundyKonec);
-                    }
-                }
-                else if (playpos < waveform1.WaveBegin && waveform1.WaveBegin >= TimeSpan.Zero && !nahled)
-                {
-                    if (celkMilisekundy < oWav.DelkaSouboruMS && celkMilisekundy < waveform1.AudioBufferEnd.TotalMilliseconds && celkMilisekundy >= waveform1.AudioBufferBegin.TotalMilliseconds)
-                    {
-                        long pKonec = celkMilisekundy + (long)(rozdil * 0.3);
-                        long pPocatekMS = pKonec - rozdil;
-                        if (pKonec > waveform1.WaveEnd.TotalMilliseconds)
-                            pPocatekMS = (long)waveform1.CaretPosition.TotalMilliseconds - rozdil / 2;
-
-                        if (pPocatekMS < 0)
-                            pPocatekMS = 0;
-                        pKonec = pPocatekMS + rozdil;
-                        mSekundyKonec = pKonec;
-                        waveform1.WaveBegin = TimeSpan.FromMilliseconds(pPocatekMS);
-                        waveform1.WaveEnd = TimeSpan.FromMilliseconds(mSekundyKonec);
-                    }
-
-                }
-                else if (slPoziceMedia_mouseDown == false && nahled == true)
-                {
-                    nahled = false;
-                }
-
-                if (oWav.Nacteno && celkMilisekundy > waveform1.AudioBufferEnd.TotalMilliseconds - (waveform1.AudioBufferEnd - waveform1.AudioBufferBegin).TotalMilliseconds * 0.2)
-                {
-                    if (!oWav.NacitaniBufferu && !nahled) //pokud jiz neni nacitano vlakno,dojde k inicializaci threadu
-                    {
-                        if (waveform1.AudioBufferEnd.TotalMilliseconds < oWav.DelkaSouboruMS && !oWav.NacitaniBufferu)
-                        {
-                            oWav.AsynchronniNacteniRamce2((long)(celkMilisekundy - (waveform1.AudioBufferEnd - waveform1.AudioBufferBegin).TotalMilliseconds * 0.3), MyKONST.DELKA_VYCHOZIHO_ZOBRAZOVACIHO_BUFFERU_MS, 0);
-                        }
-                    }
-                }
-                else if (oWav.Nacteno && (waveform1.AudioBufferBegin > TimeSpan.Zero && celkMilisekundy < waveform1.AudioBufferBegin.TotalMilliseconds + (waveform1.AudioBufferEnd - waveform1.AudioBufferBegin).TotalMilliseconds * 0.2) || pPozadovanyPocatekVlny < waveform1.AudioBufferBegin.TotalMilliseconds)
-                {
-                    if (!oWav.NacitaniBufferu && !nahled) //pokud jiz neni nacitano vlakno,dojde k inicializaci threadu
-                    {
-                        oWav.AsynchronniNacteniRamce2((long)(celkMilisekundy - (waveform1.AudioBufferEnd - waveform1.AudioBufferBegin).TotalMilliseconds * 0.6), MyKONST.DELKA_VYCHOZIHO_ZOBRAZOVACIHO_BUFFERU_MS, 0);
+                        oWav.AsynchronniNacteniRamce2((long)(celkMilisekundy - (waveform1.AudioBufferEnd - waveform1.AudioBufferBegin).TotalMilliseconds * 0.3), MyKONST.DELKA_VYCHOZIHO_ZOBRAZOVACIHO_BUFFERU_MS, 0);
                     }
                 }
             }
-            catch (Exception ex)
+            else if (oWav.Nacteno && (waveform1.AudioBufferBegin > TimeSpan.Zero && celkMilisekundy < waveform1.AudioBufferBegin.TotalMilliseconds + (waveform1.AudioBufferEnd - waveform1.AudioBufferBegin).TotalMilliseconds * 0.2) || pPozadovanyPocatekVlny < waveform1.AudioBufferBegin.TotalMilliseconds)
             {
-                MyLog.LogujChybu(ex);
+                if (!oWav.NacitaniBufferu && !nahled) //pokud jiz neni nacitano vlakno,dojde k inicializaci threadu
+                {
+                    oWav.AsynchronniNacteniRamce2((long)(celkMilisekundy - (waveform1.AudioBufferEnd - waveform1.AudioBufferBegin).TotalMilliseconds * 0.6), MyKONST.DELKA_VYCHOZIHO_ZOBRAZOVACIHO_BUFFERU_MS, 0);
+                }
             }
 
 
@@ -3622,9 +1591,8 @@ namespace NanoTrans
                 }
                 return true;
             }
-            catch (Exception ex)
+            catch// (Exception ex)
             {
-                MyLog.LogujChybu(ex);
                 return false;
             }
 
@@ -3693,69 +1661,14 @@ namespace NanoTrans
                 return true;
 
             }
-            catch (Exception ex)
+            catch// (Exception ex)
             {
-                MyLog.LogujChybu(ex);
                 return false;
             }
 
         }
 
-        delegate bool DelegatVyberElementu(MyTag aTag, bool aNezastavovatPrehravani);
-
-        /// <summary>
-        /// THREAD SAFE - vybere element xml
-        /// </summary>
-        /// <param name="aTagVyberu"></param>
-        /// <returns></returns>
-        private bool VyberElement(MyTag aTagVyberu, bool aNezastavovatPrehravani)
-        {
-            if (this.Dispatcher.Thread != System.Threading.Thread.CurrentThread)
-            {
-                this.Dispatcher.Invoke(new DelegatVyberElementu(VyberElement), aTagVyberu, aNezastavovatPrehravani);
-
-                return false;
-            }
-            bool pStav = MySetup.Setup.SetupSkocitZastavit;
-            try
-            {
-
-                if (aTagVyberu == null) return false;
-                TimeSpan pPocatekMS = myDataSource.VratCasElementuPocatek(aTagVyberu);
-                TimeSpan pKonecMS = myDataSource.VratCasElementuKonec(aTagVyberu);
-                aTagVyberu.tSender = VratSenderTextboxu(aTagVyberu);
-
-
-                waveform1.SelectionBegin = pPocatekMS;
-                waveform1.SelectionEnd = pKonecMS;
-
-                if (aTagVyberu.tOdstavec != MySetup.Setup.RichTag.tOdstavec || aTagVyberu.tSekce != MySetup.Setup.RichTag.tSekce || aTagVyberu.tKapitola != MySetup.Setup.RichTag.tKapitola)
-                {
-
-
-                    pPokracovatVprehravaniPoVyberu = aNezastavovatPrehravani;
-                    this.pNeskakatNaZacatekElementu = aNezastavovatPrehravani;
-                    MySetup.Setup.SetupSkocitZastavit = !aNezastavovatPrehravani;
-                    if (aTagVyberu.tSender == null) return false;
-                    bool pFonFocus = tbFonetickyPrepis.IsFocused;
-                    bool pRet = (aTagVyberu.tSender as TextBox).Focus();
-                    if (pFonFocus) tbFonetickyPrepis.Focus();
-                    return pRet;
-                }
-                return false;
-            }
-            catch
-            {
-                return false;
-            }
-            finally
-            {
-                pPokracovatVprehravaniPoVyberu = false;
-                MySetup.Setup.SetupSkocitZastavit = pStav;
-            }
-
-        }
-
+        delegate bool DelegatVyberElementu(TranscriptionElement aTag, bool aNezastavovatPrehravani);
 
         private void button6_Click(object sender, RoutedEventArgs e)
         {
@@ -3776,29 +1689,6 @@ namespace NanoTrans
                     MWP = null;
                 }
                 MWP = new MyWavePlayer(MySetup.Setup.audio.VystupniZarizeniIndex, 4800, WOP_ChciData);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-
-        }
-
-        /// <summary>
-        /// inicializuje MWR - recorder audia, pokud neni null, zavola dispose a opet ho vytvori
-        /// </summary>
-        /// <returns></returns>
-        private bool InicializaceAudioRecorderu()
-        {
-            try
-            {
-                if (MWR != null)
-                {
-                    MWR.Dispose();
-                    MWR = null;
-                }
-                MWR = new MyWaveRecorder(MySetup.Setup.audio.VstupniZarizeniIndex, new WaveFormat(16000, 16, 1), (int)((4800 / MySetup.Setup.ZpomalenePrehravaniRychlost) * 1.1), 3, new BufferDoneEventHandler(MWR_MamData));
                 return true;
             }
             catch
@@ -3859,20 +1749,7 @@ namespace NanoTrans
         #region menu Nastroje
         private void MNastroje_Nastav_Mluvciho_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                if (MySetup.Setup.RichFocus)
-                {
-                    new WinSpeakers(MySetup.Setup.RichTag, MySetup.Setup, this.myDatabazeMluvcich, myDataSource, null).ShowDialog();
-
-                    UpdateXMLData(false, true, true, false, true);
-                }
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-            }
-
+            new WinSpeakers((MyParagraph)VirtualizingListBox.ActiveTransctiption, MySetup.Setup, this.myDatabazeMluvcich, myDataSource, null).ShowDialog();
         }
 
         private void MNastroje_Nastaveni_Click(object sender, RoutedEventArgs e)
@@ -3882,9 +1759,6 @@ namespace NanoTrans
             MySetup.Setup.Serializovat(MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.KONFIGURACNI_SOUBOR, MySetup.Setup);
             waveform1.SmallJump = TimeSpan.FromSeconds(MySetup.Setup.VlnaMalySkok);
             InicializaceAudioPrehravace();  //nove nastaveni prehravaciho zarizeni 
-
-            UpdateXMLData();    //zobrazeni xml dat v pripade zmeny velikosti pisma
-            UpdateXMLData();
         }
 
         private void MNapoveda_Popis_Programu_Click(object sender, RoutedEventArgs e)
@@ -3929,148 +1803,130 @@ namespace NanoTrans
         //osetreni ulozeni pri ukonceni aplikace
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-
-            try
+            if (myDataSource != null && !myDataSource.Ulozeno)
             {
-
-                if (myDataSource != null && !myDataSource.Ulozeno)
+                MessageBoxResult mbr = MessageBox.Show("Přepis není uložený. Chcete ho nyní uložit? ", "Varování", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+                if (mbr == MessageBoxResult.Yes || mbr == MessageBoxResult.No)
                 {
-                    MessageBoxResult mbr = MessageBox.Show("Přepis není uložený. Chcete ho nyní uložit? ", "Varování", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
-                    if (mbr == MessageBoxResult.Yes || mbr == MessageBoxResult.No)
+                    if (mbr == MessageBoxResult.Yes)
                     {
-                        if (mbr == MessageBoxResult.Yes)
+                        if (myDataSource.JmenoSouboru != null)
                         {
-                            if (myDataSource.JmenoSouboru != null)
-                            {
-                                if (!UlozitTitulky(false, myDataSource.JmenoSouboru)) e.Cancel = true;
-                            }
-                            else
-                            {
-                                if (!UlozitTitulky(true, myDataSource.JmenoSouboru)) e.Cancel = true;
-                            }
-                        }
-
-                        if (oknoNapovedy != null && !oknoNapovedy.IsLoaded)
-                        {
-                            oknoNapovedy.Close();
-                        }
-
-
-                    }
-                    else if (mbr == MessageBoxResult.Cancel)
-                    {
-                        e.Cancel = true;
-
-                    }
-
-
-                }
-                else if (oknoNapovedy != null && oknoNapovedy.IsLoaded)
-                {
-                    oknoNapovedy.Close();
-                }
-
-
-                if (!e.Cancel)
-                {
-                    if (m_findDialog != null && m_findDialog.IsLoaded)
-                        m_findDialog.Close();
-
-
-                    if (MWP != null)
-                    {
-                        MWP.Dispose();
-                        MWP = null;
-                    }
-                    if (MWR != null)
-                    {
-                        MWR.Dispose();
-                        MWR = null;
-                    }
-
-                    if (oPrepisovac != null)
-                    {
-                        oPrepisovac.Dispose();
-                        oPrepisovac = null;
-                    }
-                    if (oHlasoveOvladani != null)
-                    {
-                        oHlasoveOvladani.Dispose();
-                        oHlasoveOvladani = null;
-                    }
-                    if (oWav != null)
-                    {
-                        oWav.Dispose();
-                    }
-
-                    if (mWL != null) mWL.Close();
-
-                    //ulozeni databaze mluvcich - i externi databaze
-                    if (myDatabazeMluvcich != null)
-                    {
-                        if (myDatabazeMluvcich.JmenoSouboru != null && myDatabazeMluvcich.JmenoSouboru != MySetup.Setup.CestaDatabazeMluvcich)
-                        {
-                            myDatabazeMluvcich.Serializovat(myDatabazeMluvcich.JmenoSouboru, myDatabazeMluvcich);
+                            if (!UlozitTitulky(false, myDataSource.JmenoSouboru)) e.Cancel = true;
                         }
                         else
                         {
-                            if (new FileInfo(MySetup.Setup.CestaDatabazeMluvcich).Exists)
-                            {
-                                myDatabazeMluvcich.Serializovat(MySetup.Setup.CestaDatabazeMluvcich, myDatabazeMluvcich);
-                            }
-                            else
-                            {
-                                myDatabazeMluvcich.Serializovat(MySetup.Setup.absolutniCestaEXEprogramu + "\\data\\databazemluvcich.xml", myDatabazeMluvcich);
-                            }
+                            if (!UlozitTitulky(true, myDataSource.JmenoSouboru)) e.Cancel = true;
                         }
-
                     }
-                    //ulozeni fonetickeho uzivatelskeho slovniku
-                    if (bSlovnikFonetickehoDoplneni != null)
+
+                    if (oknoNapovedy != null && !oknoNapovedy.IsLoaded)
                     {
-                        bSlovnikFonetickehoDoplneni.UlozitSlovnik(MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.CESTA_SLOVNIK_FONETIKA_UZIVATELSKY);
+                        oknoNapovedy.Close();
                     }
-
-                    //pokus o ulozeni nastaveni
-                    if (MySetup.Setup != null)
-                    {
-                        if (this.WindowState == WindowState.Normal)
-                        {
-                            //nastaveni posledni zname souradnice okna a velikosti okna
-                            MySetup.Setup.OknoPozice = new Point(this.Left, this.Top);
-                            MySetup.Setup.OknoVelikost = new Size(this.Width, this.Height);
-                        }
-                        if (this.WindowState != WindowState.Minimized)
-                        {
-                            MySetup.Setup.OknoStav = this.WindowState;
-                        }
-
-                        MySetup.Setup.Serializovat(MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.KONFIGURACNI_SOUBOR, MySetup.Setup);
-                    }
-
 
 
                 }
-
-
-                //smazani souboru...
-
-                foreach (string f in Directory.GetFiles(MyKONST.CESTA_DOCASNYCH_SOUBORU_ZVUKU))
+                else if (mbr == MessageBoxResult.Cancel)
                 {
-                    File.Delete(f);
+                    e.Cancel = true;
+
                 }
 
-                Directory.Delete(MyKONST.CESTA_DOCASNYCH_SOUBORU_ZVUKU);
-                TempCheckMutex.Close();
-
-                Environment.Exit(0); // Vynuti ukonceni vsech vlaken a uvolneni prostredku
 
             }
-            catch (Exception ex)
+            else if (oknoNapovedy != null && oknoNapovedy.IsLoaded)
             {
-                MyLog.LogujChybu(ex);
+                oknoNapovedy.Close();
+            }
+
+
+            if (!e.Cancel)
+            {
+                if (m_findDialog != null && m_findDialog.IsLoaded)
+                    m_findDialog.Close();
+
+
+                if (MWP != null)
+                {
+                    MWP.Dispose();
+                    MWP = null;
+                }
+
+                if (oPrepisovac != null)
+                {
+                    oPrepisovac.Dispose();
+                    oPrepisovac = null;
+                }
+
+                if (oWav != null)
+                {
+                    oWav.Dispose();
+                }
+
+                if (mWL != null) mWL.Close();
+
+                //ulozeni databaze mluvcich - i externi databaze
+                if (myDatabazeMluvcich != null)
+                {
+                    if (myDatabazeMluvcich.JmenoSouboru != null && myDatabazeMluvcich.JmenoSouboru != MySetup.Setup.CestaDatabazeMluvcich)
+                    {
+                        myDatabazeMluvcich.Serializovat(myDatabazeMluvcich.JmenoSouboru, myDatabazeMluvcich);
+                    }
+                    else
+                    {
+                        if (new FileInfo(MySetup.Setup.CestaDatabazeMluvcich).Exists)
+                        {
+                            myDatabazeMluvcich.Serializovat(MySetup.Setup.CestaDatabazeMluvcich, myDatabazeMluvcich);
+                        }
+                        else
+                        {
+                            myDatabazeMluvcich.Serializovat(MySetup.Setup.absolutniCestaEXEprogramu + "\\data\\databazemluvcich.xml", myDatabazeMluvcich);
+                        }
+                    }
+
+                }
+                //ulozeni fonetickeho uzivatelskeho slovniku
+                if (bSlovnikFonetickehoDoplneni != null)
+                {
+                    bSlovnikFonetickehoDoplneni.UlozitSlovnik(MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.CESTA_SLOVNIK_FONETIKA_UZIVATELSKY);
+                }
+
+                //pokus o ulozeni nastaveni
+                if (MySetup.Setup != null)
+                {
+                    if (this.WindowState == WindowState.Normal)
+                    {
+                        //nastaveni posledni zname souradnice okna a velikosti okna
+                        MySetup.Setup.OknoPozice = new Point(this.Left, this.Top);
+                        MySetup.Setup.OknoVelikost = new Size(this.Width, this.Height);
+                    }
+                    if (this.WindowState != WindowState.Minimized)
+                    {
+                        MySetup.Setup.OknoStav = this.WindowState;
+                    }
+
+                    MySetup.Setup.Serializovat(MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.KONFIGURACNI_SOUBOR, MySetup.Setup);
+                }
+
+
 
             }
+
+
+            //smazani souboru...
+
+            foreach (string f in Directory.GetFiles(MyKONST.CESTA_DOCASNYCH_SOUBORU_ZVUKU))
+            {
+                File.Delete(f);
+            }
+
+            Directory.Delete(MyKONST.CESTA_DOCASNYCH_SOUBORU_ZVUKU);
+            TempCheckMutex.Close();
+
+            Environment.Exit(0); // Vynuti ukonceni vsech vlaken a uvolneni prostredku
+
+
         }
 
 
@@ -4094,9 +1950,9 @@ namespace NanoTrans
 
         private void button11_Click_1(object sender, RoutedEventArgs e)
         {
-            if (MySetup.Setup.BylFocus || MySetup.Setup.RichFocus)
+            if (VirtualizingListBox.ActiveElement != null)
             {
-                OdstranSekci(MySetup.Setup.RichTag.tKapitola, MySetup.Setup.RichTag.tSekce);
+                //TODO odstran sekci
 
 
             }
@@ -4105,55 +1961,17 @@ namespace NanoTrans
         #region menu uprava
         private void MUpravy_Nova_Kapitola_Click(object sender, RoutedEventArgs e)
         {
-            MyTag mT = MySetup.Setup.RichTag;
-            int pIndex = -1;
-            if (mT != null) pIndex = mT.tKapitola;
-            PridejKapitolu(pIndex + 1, "");
+            //TODO: nova kapitola
         }
 
         private void MUpravy_Nova_Sekce_Click(object sender, RoutedEventArgs e)
         {
-            if (MySetup.Setup.RichFocus)
-            {
-                PridejSekci(MySetup.Setup.RichTag.tKapitola, "", MySetup.Setup.RichTag.tSekce, -1, new TimeSpan(-1), new TimeSpan(-1));
-            }
+            //TODO nova sekce
         }
 
         private void MUpravy_Smazat_Polozku_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                if (MySetup.Setup.RichFocus)
-                {
-
-                    MyTag mT = MySetup.Setup.RichTag;
-                    int index = spSeznam.Children.IndexOf((Grid)((TextBox)(mT.tSender)).Parent);
-                    if (mT.tOdstavec > -1)
-                    {
-                        if (OdstranOdstavec(mT.tKapitola, mT.tSekce, mT.tOdstavec))
-                        {
-                            if (index >= spSeznam.Children.Count) index--;
-                            ((Grid)spSeznam.Children[index]).Children[0].Focus();
-                        }
-                    }
-                    else if (mT.tSekce > -1)
-                    {
-                        if (OdstranSekci(mT.tKapitola, mT.tSekce))
-                        {
-                            if (index >= spSeznam.Children.Count) index--;
-                            ((Grid)spSeznam.Children[index]).Children[0].Focus();
-                        }
-                    }
-                    else
-                    {
-                        //OdstranKapitolu(mT.tKapitola);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-            }
+            //TODO: smazat
         }
 
         #endregion
@@ -4178,25 +1996,13 @@ namespace NanoTrans
                         this.Dispatcher.Invoke(new Action(
                     delegate()
                     {
-                        foreach (UIElement element in spSeznam.Children)
-                        {
-                            if (element is Grid)
-                            {
-                                foreach (UIElement subelement in ((Grid)element).Children)
-                                {
-                                    if (subelement is MyTextBox)
-                                    {
-                                        ((MyTextBox)subelement).RefreshTextMarking();
-                                    }
-                                }
-                            }
-                        }
+                        VirtualizingListBox.RefreshTextMarkings();
 
                     }
                     ));
                     }
                 }
-                ) { Name = "Spellchecking_Load"};
+                ) { Name = "Spellchecking_Load" };
             t.Start();
 
             // foneticky prepis musi dostat oznaceni jinak pak nejsou videt zmeny kdyz neam focus (pri prehravani)
@@ -4208,16 +2014,6 @@ namespace NanoTrans
             tbFonetickyPrepis.SelectionLength = 1;
             //refresh uz vykreslenych textboxu
             HidInit();
-            try
-            {
-                UpdateXMLData();
-                ///((RichTextBox)((Grid)spSeznam.Children[2]).Children[0]).Focus();
-                ((TextBox)((Grid)spSeznam.Children[2]).Children[0]).Focus();
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-            }
 
             string foldername = System.IO.Path.GetRandomFileName();
             string temppath = System.IO.Path.GetTempPath() + "NanoTrans\\";
@@ -4232,15 +2028,15 @@ namespace NanoTrans
 
         void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            
-            ExceptionCatchWindow w = new ExceptionCatchWindow(this,e.ExceptionObject as Exception);
+
+            ExceptionCatchWindow w = new ExceptionCatchWindow(this, e.ExceptionObject as Exception);
             w.ShowDialog();
-            
+
         }
 
         void tbFonetickyPrepis_LostFocus(object sender, RoutedEventArgs e)
         {
-           e.Handled = true;
+            e.Handled = true;
         }
         private static Mutex TempCheckMutex;
 
@@ -4281,416 +2077,9 @@ namespace NanoTrans
 
         private void btDiktat_Click(object sender, RoutedEventArgs e)
         {
-            CommandStartStopDictate.Execute(null,this);
+            CommandStartStopDictate.Execute(null, this);
         }
 
-        /// <summary>
-        /// prectena data z asynchronniho read vyvolaji udalost a toto je jeji osetreni
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void oPrepisovac_HaveDataPrectena(object sender, EventArgs e)
-        {
-            try
-            {
-                MyEventArgsPrectenaData e2 = (MyEventArgsPrectenaData)e;
-                this.Dispatcher.Invoke(DispatcherPriority.Normal, new Action<MyEventArgsPrectenaData>(ZobrazZpravuRozpoznavace), e2);
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-            }
-        }
-
-
-        /// <summary>
-        /// zpracuje FIX_TEXTBLOCK a prevede ho na text a casove znacky jednotlivych slov
-        /// </summary>
-        /// <param name="aText"></param>
-        /// <param name="aCasoveZnacky"></param>
-        /// <returns></returns>
-        public bool ZpracujRozpoznanyText(long aAbsolutniCasPocatku, int aPredchoziDelkaTextu, ref string aText, ref List<MyCasovaZnacka> aCasoveZnacky)
-        {
-            try
-            {
-                string pText = aText;
-                aText = "";
-                pText = pText.Replace("FIX_TEXTBLOCK", ""); //odstraneni fixblocku
-                string[] pFormat = { "[", "]" };
-                string[] pPole = pText.Split(pFormat, StringSplitOptions.None);
-                long pPocatekMS = -1;
-                long pKonecMS = -1;
-                aCasoveZnacky = new List<MyCasovaZnacka>();
-                if (pPole != null)
-                {
-                    for (int i = 1; i < pPole.Length - 1; i++)
-                    {
-                        string[] pPoleRozdeleneHvezdickou = pPole[i].Split('*');
-                        if (pPoleRozdeleneHvezdickou != null && pPoleRozdeleneHvezdickou.Length == 2) //jedna se o casove znacky mezer
-                        {
-                            if (pPocatekMS == -1 && pKonecMS == -1)
-                            {
-                                pPocatekMS = long.Parse(pPoleRozdeleneHvezdickou[1]) * 10;
-                                aCasoveZnacky.Add(new MyCasovaZnacka(TimeSpan.FromMilliseconds(aAbsolutniCasPocatku + pPocatekMS), aPredchoziDelkaTextu + aText.Length - 1, aPredchoziDelkaTextu + aText.Length));
-                            }
-                            else if (pPocatekMS >= 0 && pKonecMS == -1)
-                            {
-
-                                pKonecMS = long.Parse(pPoleRozdeleneHvezdickou[0]) * 10;
-                                aCasoveZnacky.Add(new MyCasovaZnacka(TimeSpan.FromMilliseconds(aAbsolutniCasPocatku + pKonecMS), aPredchoziDelkaTextu + aText.Length - 2, aPredchoziDelkaTextu + aText.Length - 1));
-
-                                pPocatekMS = long.Parse(pPoleRozdeleneHvezdickou[1]) * 10;
-                                aCasoveZnacky.Add(new MyCasovaZnacka(TimeSpan.FromMilliseconds(aAbsolutniCasPocatku + pPocatekMS), aPredchoziDelkaTextu + aText.Length - 1, aPredchoziDelkaTextu + aText.Length));
-
-
-                                pKonecMS = -1;
-                            }
-                        }
-                        else if (pPoleRozdeleneHvezdickou.Length == 1) //jedna se o text
-                        {
-                            aText += pPoleRozdeleneHvezdickou[0] + " ";
-                        }
-                    }
-                    if (aCasoveZnacky.Count > 0)
-                    {
-                        aCasoveZnacky.RemoveAt(aCasoveZnacky.Count - 1);
-                    }
-
-                }
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-                return false;
-            }
-        }
-
-
-        /// <summary>
-        /// zpracuje show nebo fixtextblock a dekoduje makro
-        /// </summary>
-        /// <param name="s"></param>
-        /// <returns></returns>
-
-        private void ZobrazZpravuRozpoznavace(MyEventArgsPrectenaData e)
-        {
-            try
-            {
-
-                //label3.Content = e.zprava;
-                //tbVideoSoubor.Text = e.zprava;
-                //listBox1.Items.Add(e.zprava);
-                string[] input = { "\r\n" };
-                string[] pStringy = e.zprava.Split(input, StringSplitOptions.RemoveEmptyEntries);
-
-                //prepocitani tagu rozpoznavace,pokud doslo ke zmene struktury dat mazanim nebo pridanim neceho jineho
-                if (e.sender != null && e.sender.PrepisovanyElementTag != null)
-                {
-                    MyTag pT = null;
-                    try
-                    {
-                        pT = (MyTag)((TextBox)e.sender.PrepisovanyElementTag.tSender).Tag;
-                    }
-                    catch
-                    {
-                        pT = null;
-                    }
-
-                }
-
-                if (pStringy != null && e.sender != null)
-                {
-                    foreach (string s in pStringy)
-                    {
-                        if (mWL != null && !s.Contains("DELAY:")) mWL.listBox1.Items.Add(s);
-                        if (s.Contains("FIX_TEXTBLOCK"))
-                        {
-                            List<MyCasovaZnacka> pZnacky = new List<MyCasovaZnacka>();
-                            string pText = s;
-                            if (e.sender.RozpoznavaniHlasu)
-                            {
-                                ZpracujRozpoznanyText(0, e.sender.PrepsanyText.Length, ref pText, ref pZnacky);
-                            }
-                            else
-                            {
-                                ZpracujRozpoznanyText(e.sender.bufferProPrepsani.PocatekMS, e.sender.PrepsanyText.Length, ref pText, ref pZnacky);
-                            }
-                            e.sender.PrepsanyText += pText;
-                            e.sender.PrepsanyTextCasoveZnacky.AddRange(pZnacky);
-
-
-
-                            MyParagraph pP = myDataSource[e.sender.PrepisovanyElementTag];
-                            if (pP != null)
-                            {
-                                pP.UlozTextOdstavce(e.sender.PrepsanyText, e.sender.PrepsanyTextCasoveZnacky);
-                                ///((RichTextBox)oPrepisovac.PrepisovanyElementTag.tSender).Document = VytvorFlowDocumentOdstavce(pP);
-                                ((TextBox)e.sender.PrepisovanyElementTag.tSender).Text = pP.Text;
-
-                                UpdateXMLData();
-                                pP.UlozTextOdstavce(e.sender.PrepsanyText, e.sender.PrepsanyTextCasoveZnacky);
-
-                                //pridano kvuli upravam rozpoznaneho textu
-                                MySetup.Setup.CasoveZnacky = pP.VratCasoveZnackyTextu;
-                                MySetup.Setup.CasoveZnackyText = pP.Text;
-                            }
-                            else
-                            {
-                                //chyba zapisu do textboxu
-                            }
-                            if (e.sender.TypRozpoznavani == MyKONST.ROZPOZNAVAC_2_HLASOVE_OVLADANI)
-                            {
-                                ZpracujPovelHlasovehoRozpoznavace(s);
-
-                            }
-
-                        }
-                        else if (s.Contains("SHOW_TEXTBLOCK"))
-                        {
-                            string[] pFormat = { "#" };
-                            string[] pPole = s.Split(pFormat, StringSplitOptions.RemoveEmptyEntries);
-                            string pText = "";
-                            if (pPole != null && pPole.Length > 1) pText = pPole[1];
-                            MyParagraph pP = myDataSource[e.sender.PrepisovanyElementTag];
-                            if (pP != null)
-                            {
-                                pP.UlozTextOdstavce(e.sender.PrepsanyText + pText, e.sender.PrepsanyTextCasoveZnacky);
-                                //nastaveniAplikace.CasoveZnacky = oPrepisovac.PrepsanyTextCasoveZnacky;
-                                //nastaveniAplikace.CasoveZnackyText = oPrepisovac.PrepsanyText + pText;
-                                ///((RichTextBox)oPrepisovac.PrepisovanyElementTag.tSender).Document = VytvorFlowDocumentOdstavce(pP);
-                                ((TextBox)e.sender.PrepisovanyElementTag.tSender).Text = pP.Text;
-                                UpdateXMLData();
-                                pP.UlozTextOdstavce(e.sender.PrepsanyText + pText, e.sender.PrepsanyTextCasoveZnacky);
-
-                            }
-                            else
-                            {
-                                //chyba zapisu do textboxu
-                            }
-
-                            if (e.sender.TypRozpoznavani == MyKONST.ROZPOZNAVAC_2_HLASOVE_OVLADANI)
-                            {
-                                ZpracujPovelHlasovehoRozpoznavace(s);
-
-                            }
-
-                        }
-                        else if (s.Contains("DELAY:"))
-                        {
-                            long pZpozdeniMS = 0;
-                            string pText = s.Replace("DELAY:", "");
-                            try
-                            {
-                                pZpozdeniMS = long.Parse(pText) * 10;
-                            }
-                            catch
-                            {
-
-                            }
-                            bool pZapisovano = false; //info aby nedoslo k ukonceni session
-                            if (pZpozdeniMS < 1000)
-                            {
-
-                                if (e.sender.RozpoznavaniHlasu)
-                                {
-
-                                }
-                                else
-                                {
-                                    if (e.sender.bufferProPrepsani.PocatekMS < e.sender.pomocnaCasPrepsaniMS)
-                                    {
-                                        long pDelta = e.sender.bufferProPrepsani.KonecMS - e.sender.pomocnaCasPrepsaniMS;
-                                        if (pDelta > MyKONST.DELKA_POSILANYCH_DAT_PRI_OFFLINE_ROZPOZNAVANI_MS) pDelta = MyKONST.DELKA_POSILANYCH_DAT_PRI_OFFLINE_ROZPOZNAVANI_MS;
-
-                                        if (e.sender.AsynchronniZapsaniDat(e.sender.bufferProPrepsani.VratDataBufferuByte(e.sender.pomocnaCasPrepsaniMS, pDelta, -1)))
-                                        {
-                                            e.sender.pomocnaCasPrepsaniMS += pDelta;
-                                        }
-                                    }
-                                }
-
-                            }
-                            if (pZpozdeniMS == 0)
-                            {
-                                if (e.sender.RozpoznavaniHlasu)
-                                {
-                                    if (!pZapisovano && e.sender.bufferProHlasoveOvladani.DelkaMS == 0 && !recording)
-                                    {
-                                        e.sender.AsynchronniStop();
-                                    }
-
-                                }
-                                else
-                                {
-                                    if (e.sender.bufferProPrepsani.KonecMS <= e.sender.pomocnaCasPrepsaniMS)
-                                    {
-
-                                        {
-                                            e.sender.AsynchronniStop();
-                                        }
-                                    }
-                                }
-                            }
-
-                            if (e.sender.RozpoznavaniHlasu)
-                            {
-                                if (e.sender.TypRozpoznavani == MyKONST.ROZPOZNAVAC_1_DIKTAT && e.sender.Rozpoznavani)
-                                {
-                                    pbZpozdeniPrepisu.Value = pZpozdeniMS;
-                                }
-                            }
-                            else
-                            {
-                                pbZpozdeniPrepisu.Value = (pZpozdeniMS + e.sender.bufferProPrepsani.KonecMS - e.sender.pomocnaCasPrepsaniMS);
-                                if (pZpozdeniMS < 1000 && e.sender.pomocnaCasPrepsaniMS < e.sender.bufferProPrepsani.KonecMS)
-                                {
-                                    pbZpozdeniPrepisu.Value += MyKONST.DELKA_POSILANYCH_DAT_PRI_OFFLINE_ROZPOZNAVANI_MS;
-                                }
-                            }
-                        }
-                        else if (s.Contains("END_SESSION"))//konec rozpoznavani
-                        {
-                            ///timerRozpoznavace.IsEnabled = false;
-
-                            //zpristupneni textboxu pro upravy
-                            try
-                            {
-                                ((TextBox)e.sender.PrepisovanyElementTag.tSender).IsReadOnly = false;
-                            }
-                            catch
-                            {
-
-                            }
-                            //if (oPrepisovac != null) oPrepisovac.Rozpoznavani = false;
-
-                            //nastaveni tlacitek pro pristup k diktovani a prepisu
-                            if (e.sender.TypRozpoznavani == MyKONST.ROZPOZNAVAC_2_HLASOVE_OVLADANI)
-                            {
-                                ZmenStavTlacitekRozpoznavace(false, false, true, false);
-                            }
-                            else
-                            {
-                                ZmenStavTlacitekRozpoznavace(true, true, false, false);
-                            }
-
-                            //MessageBox.Show("Přepis dokončen!");
-                            ZobrazStavProgramu("Konec automatického rozpoznávání");
-
-                            if (pSeznamOdstavcuKRozpoznani != null && pSeznamOdstavcuKRozpoznani.Count > 0)
-                            {
-                                MyTag pTag = pSeznamOdstavcuKRozpoznani[0];
-                                pSeznamOdstavcuKRozpoznani.RemoveAt(0);
-                                SpustRozpoznavaniVybranehoElementu(pTag, new TimeSpan(-1),new TimeSpan(-1), true);
-                            }
-
-
-                            break;
-                        }
-                        else if (s.Contains("NEW_SESSION"))
-                        {
-                            string pText = s.Replace("NEW_SESSION", "");
-                            if (this.pPozadovanyStavRozpoznavace == 2)
-                            {
-
-                                ZobrazStavProgramu("Pokus o makro...");
-                            }
-                            //else
-                            {
-                                if (e.sender.RozpoznavaniHlasu)
-                                {
-                                    recording = true;
-                                    if (MWR == null) InicializaceAudioRecorderu();
-                                    pbZpozdeniPrepisu.Maximum = 60000;
-                                    ZobrazStavProgramu("Můžete začít diktovat/ovládat, probíhá nahrávání z mikrofonu...");
-                                }
-                                else
-                                {
-
-                                    pbZpozdeniPrepisu.Maximum = e.sender.bufferProPrepsani.DelkaMS;
-                                    if (e.sender.AsynchronniZapsaniDat(e.sender.bufferProPrepsani.VratDataBufferuByte(e.sender.bufferProPrepsani.PocatekMS, MyKONST.DELKA_POSILANYCH_DAT_PRI_OFFLINE_ROZPOZNAVANI_MS, -1)))
-                                    {
-                                        e.sender.pomocnaCasPrepsaniMS = e.sender.bufferProPrepsani.PocatekMS + MyKONST.DELKA_POSILANYCH_DAT_PRI_OFFLINE_ROZPOZNAVANI_MS;
-                                        //oPrepisovac.bufferProPrepsani.SmazDataZBufferuZeZacatku(5000);
-                                    }
-                                    ZobrazStavProgramu("Probíhá automatické rozpoznávání vybrané části audio souboru...");
-                                }
-                            }
-
-                        }
-                        else if (s.Contains("END_PROCESS"))
-                        {
-                            MessageBox.Show("Chyba inicializace rozpoznávače - Ověřte nastavení a licenci", "Varování!", MessageBoxButton.OK, MessageBoxImage.Error);
-                            if (recording)
-                            {
-                                recording = false;
-                                if (MWR != null) MWR.Dispose();
-                                MWR = null;
-                            }
-                            ZmenStavTlacitekRozpoznavace(true, true, true, false);
-                            ZobrazStavProgramu("Inicializace rozpoznávače se nezdařila");
-                        }
-                        else if (s.Contains("INITIALIZING"))
-                        {
-
-
-                        }
-                        else if (s.Contains("INITIALIZED")) //zatim pouze pro hlasove ovladani
-                        {
-                            if (pPozadovanyStavRozpoznavace == MyKONST.ROZPOZNAVAC_2_HLASOVE_OVLADANI)   //zapise makro
-                            {
-                                pSeznamNahranychMaker = MyMakro.DeserializovatSeznamMaker(MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.CESTA_MAKRA_SOUBOR);
-                                e.sender.ZapisMakra(pSeznamNahranychMaker);
-                            }
-
-
-
-                            if (e.sender.Start(pPozadovanyStavRozpoznavace) == 0)
-                            {
-                                if (timerRozpoznavace.IsEnabled == false) timerRozpoznavace.IsEnabled = true;
-                                if (recording && pPozadovanyStavRozpoznavace > 0)
-                                {
-                                    recording = false;
-                                    if (MWR != null) MWR.Dispose();
-                                    MWR = null;
-                                }
-
-                                if (e.sender.bufferProHlasoveOvladani == null) e.sender.bufferProHlasoveOvladani = new MyBuffer16(60000);
-                                e.sender.bufferProHlasoveOvladani.SmazBuffer();
-
-                                e.sender.PrepsanyText = "";
-                                e.sender.PrepsanyTextCasoveZnacky = new List<MyCasovaZnacka>();
-                                //oPrepisovac.PrepisovanyElementTag = nastaveniAplikace.RichTag;
-
-                                //nastaveni indexu dat na 0
-                                this.pVyrovnavaciPametIndexVrcholu = 0;
-
-                                //pozadavek na spusteni nahravani audio souboru
-                                if (pPozadovanyStavRozpoznavace > 0)
-                                {
-                                    recording = true;
-                                }
-
-
-
-                            }
-
-
-                        }
-
-                    }
-
-                }
-
-                CommandManager.InvalidateRequerySuggested();
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-            }
-
-        }
 
         /// <summary>
         /// zobrazi zpravu o stavu programu ve spodni liste programu, je thread SAFE
@@ -4707,74 +2096,10 @@ namespace NanoTrans
             tbStavProgramu.Text = aZprava;
         }
 
-        /// <summary>
-        /// zobrazi rozpoznany prikaz hlasoveho povelu
-        /// </summary>
-        /// <param name="aZprava"></param>
-        private void ZobrazRozpoznanyPrikaz(string aZprava)
-        {
-            tbRozpoznanyPrikaz.Text = aZprava;
-            pDelkaZobrazeniHlasovehoPovelu = 0;
-        }
 
         private void button10_Click(object sender, RoutedEventArgs e)
         {
             CommandGeneratePhoneticTranscription.Execute(null, this);
-        }
-
-
-        /// <summary>
-        /// spusti rozpoznavani hlasovych povelu-respektive prepis hlasu-Diktat
-        /// </summary>
-        /// <returns></returns>
-        private bool SpustRozpoznavaniHlasu()
-        {
-            try
-            {
-                if (oPrepisovac != null && (oPrepisovac.Rozpoznavani || oPrepisovac.Ukoncovani))
-                {
-                    //ukonceni predchoziho prepisu
-                    if (MessageBox.Show("Dochází k automatickému rozpoznávání jiného úkolu. Nejprve musíte zastavit předchozí rozpoznávání.\nChcete ho nyní přerušit?", "", MessageBoxButton.YesNoCancel, MessageBoxImage.Question) == MessageBoxResult.Yes)
-                    {
-                        if (oPrepisovac.StopHned() == 0)
-                        {
-
-                        }
-                    }
-                    return false;
-                }
-
-                pPozadovanyStavRozpoznavace = MyKONST.ROZPOZNAVAC_1_DIKTAT;
-
-                //vytvoreni instance prepisovace, pokud neexistuje
-                if (oPrepisovac == null)
-                {
-                    oPrepisovac = new MyPrepisovac(MySetup.Setup.AbsolutniAdresarRozpoznavace, MySetup.Setup.rozpoznavac.Mluvci, MySetup.Setup.rozpoznavac.JazykovyModel, MySetup.Setup.rozpoznavac.PrepisovaciPravidla, MySetup.Setup.rozpoznavac.LicencniServer, MySetup.Setup.rozpoznavac.LicencniSoubor, MySetup.Setup.rozpoznavac.DelkaInternihoBufferuPrepisovace, MySetup.Setup.rozpoznavac.KvalitaRozpoznavaniDiktat, new EventHandler(oPrepisovac_HaveDataPrectena));
-                }
-                string pMluvci = MySetup.Setup.rozpoznavac.Mluvci;
-                string pJazykovyModel = MySetup.Setup.rozpoznavac.JazykovyModel;
-                if (MySetup.Setup.diktatMluvci != null)
-                {
-                    if (MySetup.Setup.diktatMluvci.RozpoznavacMluvci != null) pMluvci = MySetup.Setup.rozpoznavac.MluvciRelativniAdresar + "/" + MySetup.Setup.diktatMluvci.RozpoznavacMluvci;
-                    if (MySetup.Setup.diktatMluvci.RozpoznavacJazykovyModel != null) pJazykovyModel = MySetup.Setup.rozpoznavac.JazykovyModelRelativniAdresar + "/" + MySetup.Setup.diktatMluvci.RozpoznavacJazykovyModel;
-                }
-                oPrepisovac.InicializaceRozpoznavace(MySetup.Setup.AbsolutniAdresarRozpoznavace, MySetup.Setup.rozpoznavac.LicencniSoubor, pMluvci, pJazykovyModel, MySetup.Setup.rozpoznavac.PrepisovaciPravidla, MySetup.Setup.rozpoznavac.DelkaInternihoBufferuPrepisovace.ToString(), MySetup.Setup.rozpoznavac.KvalitaRozpoznavaniDiktat.ToString());
-                if (timerRozpoznavace != null && timerRozpoznavace.IsEnabled == false)
-                {
-                    InitializeTimerRozpoznavace(MyKONST.PERIODA_TIMERU_ROZPOZNAVACE_MS);
-                }
-                oPrepisovac.PrepisovanyElementTag = MySetup.Setup.RichTag;
-                //inicializace prepisovace a hlidaciho timeru
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-                return false;
-            }
-
-
         }
 
         /// <summary>
@@ -4784,8 +2109,11 @@ namespace NanoTrans
         /// <param name="aPocatekMS"></param>
         /// <param name="aKonecMS"></param>
         /// <returns></returns>
-        private bool SpustRozpoznavaniVybranehoElementu(MyTag aTag, TimeSpan aPocatekMS, TimeSpan aKonecMS, bool aIgnorovatTextOdstavce)
+        private bool SpustRozpoznavaniVybranehoElementu(TranscriptionElement aTag, TimeSpan aPocatekMS, TimeSpan aKonecMS, bool aIgnorovatTextOdstavce)
         {
+            //TODO: foneticke rozpoznani
+            #region zabaleno
+            /*
             if (oPrepisovac != null && (oPrepisovac.Rozpoznavani || oPrepisovac.Ukoncovani))
             {
                 if (MessageBox.Show("Dochází k automatickému rozpoznávání jiného úkolu. Nejprve musíte zastavit předchozí rozpoznávání.\nChcete ho nyní přerušit?", "", MessageBoxButton.YesNoCancel, MessageBoxImage.Question) == MessageBoxResult.Yes)
@@ -4816,10 +2144,6 @@ namespace NanoTrans
             {
                 pPocatekMS = aPocatekMS;
                 pKonceMS = aKonecMS;
-                if (!UpravCasZobraz(aTag, aPocatekMS, aKonecMS))
-                {
-                    return false;
-                }
             }
             else
             {
@@ -4894,19 +2218,7 @@ namespace NanoTrans
                     MessageBox.Show("Není vybrán ani nastaven žádný element k přepsání!", "Upozornění:", MessageBoxButton.OK, MessageBoxImage.Asterisk);
                     return false;
                 }
-                /*
-                if (pSection.hasParagraph)
-                {
-                    if (MessageBox.Show("Vybraná sekce již obsahuje odstavce. Chcete je všechny smazat a začít s přepisem?", "Upozornění:", MessageBoxButton.YesNoCancel, MessageBoxImage.Asterisk) == MessageBoxResult.Yes)
-                    {
-                        //odstrani predesle odstavce
-                        for (int i = 0; i < pSection.paragraphs.Count; i++)
-                        {
-                            OdstranOdstavec(aTag.tKapitola, aTag.tSekce, i);
-                        }
-                    }
-                    else return false;
-                }*/
+
                 if (pSection.hasParagraph)
                 {
                     if (MessageBox.Show("Vybraná sekce již obsahuje odstavce. Chcete je všechny automaticky přepsat? Text uvnitř bude smazán.", "Upozornění:", MessageBoxButton.YesNoCancel, MessageBoxImage.Asterisk) == MessageBoxResult.Yes)
@@ -5022,144 +2334,15 @@ namespace NanoTrans
             ZmenStavTlacitekRozpoznavace(true, false, false, true);
             //NASLEDNE SE ceka na INITIALIZED a pak je spusteno rozpoznavani
             return true;
-        }
+             */
+            #endregion
 
-        /// <summary>
-        /// enabled/disabled ovladaci tlacitka rozpoznavace - pozdeji snad i menu, hlasky v dolni liste
-        /// </summary>
-        /// <param name="aRozpoznavani"></param>
-        /// <param name="aDiktat"></param>
-        /// <param name="aHlasoveOvladani"></param>
-        /// <param name="aCelkovyStav"></param>
-        public void ZmenStavTlacitekRozpoznavace(bool aRozpoznavani, bool aDiktat, bool aHlasoveOvladani, bool aRozpoznavaniProbiha)
-        {
-            if (aRozpoznavani)
-            {
-                if (aRozpoznavaniProbiha)
-                {
-                    btAutomatickeRozpoznani.Content = "Zastavit přepisování";
-                    btDiktat.IsEnabled = false;
-                    //btHlasoveOvladani.IsEnabled = false;
-                    ZobrazStavProgramu("Inicializace automatického rozpoznávače...");
-                }
-                else
-                {
-                    btAutomatickeRozpoznani.Content = "Automatický přepis (F5)";
-                    btDiktat.IsEnabled = ((oHlasoveOvladani != null && oHlasoveOvladani.Rozpoznavani) || oHlasoveOvladani == null);
-                    //btHlasoveOvladani.IsEnabled = true;
-                    ZobrazStavProgramu("Rozpoznávání přerušeno");
-                }
-
-            }
-            if (aDiktat)
-            {
-                if (aRozpoznavaniProbiha)
-                {
-                    btAutomatickeRozpoznani.IsEnabled = false;
-                    btDiktat.Content = "Zastavit diktování"; ;
-                    btHlasoveOvladani.IsEnabled = false;
-                    ZobrazStavProgramu("Probíhá inicializace automatického rozpoznávače pro diktování...");
-                }
-                else
-                {
-                    btAutomatickeRozpoznani.IsEnabled = true;
-                    btDiktat.Content = "Diktát (F6)";
-                    btDiktat.IsEnabled = true;
-                    btHlasoveOvladani.IsEnabled = true;
-                    ZobrazStavProgramu(tbStavProgramu.Text = "Dokončování přepisu diktátu z vyrovnávací paměti...");
-                }
-
-            }
-            if (aHlasoveOvladani)
-            {
-                if (aRozpoznavaniProbiha)
-                {
-                    //btAutomatickeRozpoznani.IsEnabled = false;
-                    btDiktat.IsEnabled = false;
-                    btHlasoveOvladani.Content = "Konec hlas. ovládání"; ;
-                    ZobrazStavProgramu("Probíhá inicializace automatického rozpoznávače pro hlasové ovládání...");
-                }
-                else
-                {
-                    //btAutomatickeRozpoznani.IsEnabled = true;
-                    btDiktat.IsEnabled = true;
-                    btHlasoveOvladani.Content = "Hlasové ovládání (F7)";
-                    ZobrazStavProgramu(tbStavProgramu.Text = "Dokončování rozpoznání povelů z vyrovnávací paměti...");
-                }
-
-            }
-
-        }
-
-
-        private bool SpustHlasoveOvladani()
-        {
-            try
-            {
-                if ((oHlasoveOvladani != null && (oHlasoveOvladani.Rozpoznavani || oHlasoveOvladani.Ukoncovani)))
-                {
-                    //ukonceni predchoziho prepisu
-                    if (MessageBox.Show("Dochází k automatickému rozpoznávání jiného úkolu. Nejprve musíte zastavit předchozí rozpoznávání.\nChcete ho nyní přerušit?", "", MessageBoxButton.YesNoCancel, MessageBoxImage.Question) == MessageBoxResult.Yes)
-                    {
-                        if (oHlasoveOvladani.StopHned() == 0)
-                        {
-
-                        }
-                    }
-                    return false;
-                }
-                if (oPrepisovac != null && oPrepisovac.TypRozpoznavani == MyKONST.ROZPOZNAVAC_1_DIKTAT && (oPrepisovac.Rozpoznavani || oPrepisovac.Ukoncovani))
-                {
-                    if (MessageBox.Show("Dochází k automatickému rozpoznávání jiného úkolu. Nejprve musíte zastavit předchozí rozpoznávání.\nChcete ho nyní přerušit?", "", MessageBoxButton.YesNoCancel, MessageBoxImage.Question) == MessageBoxResult.Yes)
-                    {
-                        if (oPrepisovac.StopHned() == 0)
-                        {
-
-                        }
-                    }
-                    return false;
-                }
-
-                pPozadovanyStavRozpoznavace = MyKONST.ROZPOZNAVAC_2_HLASOVE_OVLADANI;
-
-                //vytvoreni instance prepisovace, pokud neexistuje
-                if (oHlasoveOvladani == null)
-                {
-                    oHlasoveOvladani = new MyPrepisovac(MySetup.Setup.AbsolutniAdresarRozpoznavace, MySetup.Setup.rozpoznavac.Mluvci, MySetup.Setup.rozpoznavac.JazykovyModel, MySetup.Setup.rozpoznavac.PrepisovaciPravidla, MySetup.Setup.rozpoznavac.LicencniServer, MySetup.Setup.rozpoznavac.LicencniSoubor, MySetup.Setup.rozpoznavac.DelkaInternihoBufferuPrepisovace, MySetup.Setup.rozpoznavac.KvalitaRozpoznavaniOvladani, new EventHandler(oPrepisovac_HaveDataPrectena));
-                }
-                string pMluvci = MySetup.Setup.rozpoznavac.Mluvci;
-                string pJazykovyModel = MySetup.Setup.rozpoznavac.JazykovyModel;
-                string pPrepisovaciPravidla = MySetup.Setup.rozpoznavac.PrepisovaciPravidla;
-                if (MySetup.Setup.diktatMluvci != null)
-                {
-                    if (MySetup.Setup.hlasoveOvladaniMluvci.RozpoznavacMluvci != null) pMluvci = MySetup.Setup.rozpoznavac.MluvciRelativniAdresar + "/" + MySetup.Setup.hlasoveOvladaniMluvci.RozpoznavacMluvci;
-                    if (MySetup.Setup.hlasoveOvladaniMluvci.RozpoznavacJazykovyModel != null) pJazykovyModel = MySetup.Setup.rozpoznavac.JazykovyModelRelativniAdresar + "/" + MySetup.Setup.hlasoveOvladaniMluvci.RozpoznavacJazykovyModel;
-                    if (MySetup.Setup.hlasoveOvladaniMluvci.RozpoznavacPrepisovaciPravidla != null) pPrepisovaciPravidla = MySetup.Setup.rozpoznavac.PrepisovaciPravidlaRelativniAdresar + "/" + MySetup.Setup.hlasoveOvladaniMluvci.RozpoznavacPrepisovaciPravidla;
-                }
-
-
-                oHlasoveOvladani.InicializaceRozpoznavace(MySetup.Setup.AbsolutniAdresarRozpoznavace, MySetup.Setup.rozpoznavac.LicencniSoubor, pMluvci, pJazykovyModel, pPrepisovaciPravidla, MySetup.Setup.rozpoznavac.DelkaInternihoBufferuPrepisovace.ToString(), MySetup.Setup.rozpoznavac.KvalitaRozpoznavaniOvladani.ToString());
-                if (timerRozpoznavace != null && timerRozpoznavace.IsEnabled == false)
-                {
-                    InitializeTimerRozpoznavace(MyKONST.PERIODA_TIMERU_ROZPOZNAVACE_MS);
-                }
-                //oHlasoveOvladani.PrepisovanyElementTag = nastaveniAplikace.RichTag;
-                oHlasoveOvladani.PrepisovanyElementTag = null;
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-                return false;
-            }
-
-
+            return false;
         }
 
         private void btHlasoveOvladani_Click(object sender, RoutedEventArgs e)
         {
-            CommandStartStopVoiceControl.Execute(null,this);
+            CommandStartStopVoiceControl.Execute(null, this);
 
         }
 
@@ -5186,7 +2369,7 @@ namespace NanoTrans
             try
             {
                 MyFonetic mf = new MyFonetic(MySetup.Setup.absolutniCestaEXEprogramu);
-                tbFonetickyPrepis.Text = mf.VratFonetickyPrepis(myDataSource[MySetup.Setup.RichTag].Text);
+                tbFonetickyPrepis.Text = mf.VratFonetickyPrepis(VirtualizingListBox.ActiveTransctiption.Text);
             }
             catch
             {
@@ -5199,58 +2382,8 @@ namespace NanoTrans
         /// delegat pro zobrazeni fonetickeho prepisu z jineho threadu
         /// </summary>
         /// <param name="aTag"></param>
-        private delegate void ZobrazeniFonetickehoPrepisu(MyTag aTag);
+        private delegate void ZobrazeniFonetickehoPrepisu(TranscriptionElement aTag);
 
-        /// <summary>
-        /// zobrazi foneticky prepis z datove struktury do prislusneho textboxu, Mozno volat z jineho threadu
-        /// </summary>
-        /// <param name="aTag"></param>
-        /// <returns></returns>
-        private void ZobrazitFonetickyPrepisOdstavce(MyTag aTag)
-        {
-            try
-            {
-                //return;
-                if (this.Dispatcher.Thread != System.Threading.Thread.CurrentThread)
-                {
-                    //do invoke stuff here
-                    this.Dispatcher.Invoke(new ZobrazeniFonetickehoPrepisu(ZobrazitFonetickyPrepisOdstavce), new object[] { aTag });
-                    return;
-                }
-
-                MyTag pTag = new MyTag(aTag.tKapitola, aTag.tSekce, aTag.tOdstavec, MyEnumTypElementu.foneticky, tbFonetickyPrepis);
-                MyParagraph pP = myDataSource[pTag];
-                pUpravitOdstavec = false;
-                if (pP == null)
-                {
-                    tbFonetickyPrepis.Text = "";
-                }
-                else
-                {
-                    tbFonetickyPrepis.Text = pP.Text;
-                }
-                pUpravitOdstavec = true;
-                if (pTag.JeOdstavec)
-                {
-                    if (!tbFonetickyPrepis.IsFocused)
-                    {
-                        tbFonetickyPrepis.Background = MySetup.Setup.BarvaTextBoxuFoneticky;
-                    }
-                }
-                else
-                {
-                    tbFonetickyPrepis.Background = MySetup.Setup.BarvaTextBoxuFonetickyZakazany;
-                }
-                tbFonetickyPrepis.Tag = pTag; //prirazeni tagu odstavce
-                //return true;
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-                //return false;
-            }
-
-        }
 
         /// <summary>
         /// zobrazi nebo skryje foneticky prepis - respektive okno pro upravu
@@ -5283,7 +2416,7 @@ namespace NanoTrans
 
         private void gridSplitter2_DragCompleted(object sender, System.Windows.Controls.Primitives.DragCompletedEventArgs e)
         {
-            if (gPrepis.RowDefinitions[1].Height.Value > 40) MySetup.Setup.ZobrazitFonetickyPrepis = (float)gPrepis.RowDefinitions[1].Height.Value;
+            //      if (gPrepis.RowDefinitions[1].Height.Value > 40) MySetup.Setup.ZobrazitFonetickyPrepis = (float)gPrepis.RowDefinitions[1].Height.Value;
         }
 
 
@@ -5301,15 +2434,15 @@ namespace NanoTrans
         /// <param name="aElement"></param>
         /// <param name="aIndexNormalizace">mensi nez 0, zavola okno pro vyber typu normalizace</param>
         /// <returns></returns>
-        public int Normalizovat(MySubtitlesData aDokument, MyTag aElement, int aIndexNormalizace)
+        public int Normalizovat(TranscriptionElement aElement, int aIndexNormalizace)
         {
             try
             {
                 if (aElement == null) return -1;
                 List<MyParagraph> pSeznamKNormalizaci = new List<MyParagraph>();
-                if (aElement.JeKapitola)
+                if (aElement.IsChapter)
                 {
-                    MyChapter pC = aDokument.VratKapitolu(aElement);
+                    MyChapter pC = aElement as MyChapter;
                     for (int i = 0; i < pC.Sections.Count; i++)
                     {
                         for (int j = 0; j < pC.Sections[i].Paragraphs.Count; j++)
@@ -5318,14 +2451,14 @@ namespace NanoTrans
                         }
                     }
                 }
-                else if (aElement.JeSekce)
+                else if (aElement.IsSection)
                 {
-                    MySection pS = aDokument.VratSekci(aElement);
+                    MySection pS = aElement as MySection;
                     pSeznamKNormalizaci.AddRange(pS.Paragraphs);
                 }
-                else if (aElement.JeOdstavec)
+                else if (aElement.IsParagraph)
                 {
-                    pSeznamKNormalizaci.Add(aDokument[aElement]);
+                    pSeznamKNormalizaci.Add((MyParagraph)aElement);
                 }
                 if (pSeznamKNormalizaci == null || pSeznamKNormalizaci.Count == 0) return -1;
                 if (aIndexNormalizace < 0) aIndexNormalizace = WinNormalizace.ZobrazitVyberNormalizace(-1, this);
@@ -5344,21 +2477,6 @@ namespace NanoTrans
                         pOdstavec.Phrases[i].Text = pTextNormalizovany;
                     }
                 }
-                if (aDokument == myDataSource)
-                {
-                    ZobrazXMLData();
-                    //vybrani puvodniho elementu
-                    try
-                    {
-                        aElement.tSender = VratSenderTextboxu(aElement);
-                        (aElement.tSender as TextBox).Focus();
-                    }
-                    catch
-                    {
-                    }
-                }
-
-
                 return 0;
             }
             catch
@@ -5373,321 +2491,11 @@ namespace NanoTrans
 
         }
 
-        private void FonetickyPrepisDokoncen(string aText, MyBuffer16 aBufferProPrepsani, int aStav)
-        {
-            if (this.Dispatcher.Thread != System.Threading.Thread.CurrentThread)
-            {
-                this.Dispatcher.Invoke(new DelegatePhoneticOut(FonetickyPrepisDokoncen), aText, aBufferProPrepsani, aStav);
-                return;
-            }
-
-            string pText = aText;
-            List<MyCasovaZnacka> pZnacky = new List<MyCasovaZnacka>();
-            ZpracujRozpoznanyText(aBufferProPrepsani.PocatekMS, 0, ref pText, ref pZnacky);
-            pText = pText.Replace(' ', '_');
-            if (pText != null && pText.Length > 0 && pText[pText.Length - 1] == '_')
-            {
-                pText = pText.Remove(pText.Length - 1);
-            }
-            MyTag pTagFoneticky = new MyTag(bFonetika.TagKPrepsani);
-            pTagFoneticky.tTypElementu = MyEnumTypElementu.foneticky;
-            pDokumentFonetickehoPrepisu.UpravElementOdstavce(pTagFoneticky, pText, pZnacky);
-            pDokumentFonetickehoPrepisu.OznacTrenovaciData(bFonetika.TagKPrepsani, true);
-
-            if (bFonetika.TagKPrepsani.tKapitola == MySetup.Setup.RichTag.tKapitola && bFonetika.TagKPrepsani.tSekce == MySetup.Setup.RichTag.tSekce && bFonetika.TagKPrepsani.tOdstavec == MySetup.Setup.RichTag.tOdstavec)
-            {
-                ZobrazitFonetickyPrepisOdstavce(bFonetika.TagKPrepsani);
-                if (MySetup.Setup.fonetickyPrepis.PrehratAutomatickyRozpoznanyOdstavec)
-                {
-                    tbFonetickyPrepis.Focus();
-                    prehratVyber = true;
-                }
-            }
-            AllignmentZpracovaniFonetickehoPrepisu(MySetup.Setup.RichTag, bFonetika.TagKPrepsani);
-
-            //zpracovani dalsich odstavcu na seznamu
-            if (this.pSeznamOdstavcuKRozpoznaniFonetika != null && this.pSeznamOdstavcuKRozpoznaniFonetika.Count > 0)
-            {
-                MyParagraph pOdstavec = null;
-
-                while (pSeznamOdstavcuKRozpoznaniFonetika.Count > 0)
-                {
-                    MyTag pTag = new MyTag(pSeznamOdstavcuKRozpoznaniFonetika[0]);
-                    pSeznamOdstavcuKRozpoznaniFonetika.RemoveAt(0);
-                    pTag.tTypElementu = MyEnumTypElementu.normalni;
-                    pOdstavec = pDokumentFonetickehoPrepisu[pTag];
-                    //ulozi tag vybraneho odstavce do promenne prepisovace a vymaze pripadna drivejsi data z pomocnych promennych
-                    bFonetika.TagKPrepsani = pTag;
-                    //pokus o uzamceni textboxu proti upravam psani
-                    try
-                    {
-                        //((TextBox)bFonetika.TagKPrepsani.tSender).IsReadOnly = true;
-                    }
-                    catch
-                    {
-
-                    }
-                    if (pOdstavec.Delka < TimeSpan.FromMilliseconds(20))
-                    {
-                        pOdstavec = null;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-                if (pOdstavec == null) return;
-                //spusti asynchronni nacteni bufferu
-                if (pOdstavec.Delka > TimeSpan.Zero)
-                {
-                    bFonetika.TextKPrepsani = pOdstavec.Text;
-                    oWav.AsynchronniNacteniRamce2((long)pOdstavec.Begin.TotalMilliseconds, (long)pOdstavec.Delka.TotalMilliseconds, MyKONST.ID_BUFFERU_PREPISOVANEHO_ELEMENTU_FONETICKY_PREPIS);
-                }
-            }
-            else
-            {
-                this.ZobrazStavProgramu("Fonetický přepis byl dokončen...");
-                this.UpdateXMLData(false, true, false, true, true);
-                //davkove zpracovani - pokracovani
-                if (pAutomaticky2)
-                {
-                    this.UlozitTitulky(false, this.myDataSource.JmenoSouboru);
-                    if (pAutomatickyIndex < lbDavkoveNacteni.Items.Count - 1) pAutomatickyIndex++; else pAutomaticky2 = false;
-                    if (pAutomaticky2)
-                    {
-                        NactiPolozkuDavkovehoZpracovani(pAutomatickyIndex);
-                    }
-                }
-            }
-
-
-        }
-
-
-        /// <summary>
-        /// Spusti foneticky prepis elementu, pokud je aPocatek a aKonec nastaven>=0 dojde k rozpoznani vyberu a ulozeni do vybraneho elementu
-        /// </summary>
-        /// <returns></returns>
-        private bool SpustFonetickyPrepis(MySubtitlesData aDokument, MyTag aTag, TimeSpan aPocatekMS, TimeSpan aKonecMS)
-        {
-            if (bFonetika != null && bFonetika.Prepisovani)
-            {
-                MessageBoxResult pResult = MessageBox.Show("Dochází k automatické tvorbě fonetického přepisu. Chcete ho přerušit?", "", MessageBoxButton.YesNo, MessageBoxImage.Asterisk);
-                if (pResult == MessageBoxResult.Yes)
-                {
-
-                }
-
-                return false;
-            }
-
-
-            if (aTag == null)
-            {
-                MessageBox.Show("Není vybrán ani nastaven žádný element k přepsání!", "Upozornění:", MessageBoxButton.OK, MessageBoxImage.Asterisk);
-                return false;
-            }
-            aTag = new MyTag(aTag);
-            aTag.tTypElementu = MyEnumTypElementu.foneticky;
-
-            TimeSpan pPocatekMS;
-            TimeSpan pKonceMS;
-            TimeSpan pDelkaMS;
-
-
-
-            if (aPocatekMS >= TimeSpan.Zero && aKonecMS >= TimeSpan.Zero)
-            {
-                pPocatekMS = aPocatekMS;
-                pKonceMS = aKonecMS;
-            }
-            else
-            {
-                //kontrola audio dat jestli jsou vybrana
-                pPocatekMS = aDokument.VratCasElementuPocatek(aTag);
-                pKonceMS = aDokument.VratCasElementuKonec(aTag);
-            }
-            pDelkaMS = pKonceMS - pPocatekMS;
-
-            if (!oWav.Nacteno)
-            {
-                MessageBox.Show("Není načten žádný audio soubor pro přepis! Automatický přepis nebude spuštěn.", "Upozornění:", MessageBoxButton.OK, MessageBoxImage.Asterisk);
-                return false;
-            }
-            if (pDelkaMS <= TimeSpan.Zero && aTag.JeOdstavec)
-            {
-                MessageBox.Show("Vybraný element nemá přiřazena žádná audio data k přepsání. Nejprve je vyberte.", "Upozornění:", MessageBoxButton.OK, MessageBoxImage.Asterisk);
-                return false;
-            }
-            if ((pPocatekMS < TimeSpan.Zero || pPocatekMS.TotalMilliseconds > oWav.DelkaSouboruMS) && aTag.JeOdstavec)
-            {
-                MessageBox.Show("Počátek audio dat elementu je mimo audio soubor! Automatický přepis nebude spuštěn.", "Upozornění:", MessageBoxButton.OK, MessageBoxImage.Asterisk);
-                return false;
-            }
-            if ((pKonceMS < TimeSpan.Zero || pKonceMS.TotalMilliseconds > oWav.DelkaSouboruMS) && aTag.JeOdstavec)
-            {
-                //MessageBox.Show("Konec audio dat elementu je mimo audio soubor! Automatický přepis nebude spuštěn.", "Upozornění:", MessageBoxButton.OK, MessageBoxImage.Asterisk);
-                //return false;
-            }
-
-            pSeznamOdstavcuKRozpoznaniFonetika = new List<MyTag>();
-            bool aIgnorovatTextOdstavce = false;
-            //testovani zda je element kapitola a dotazy na jeho plnost
-            if (aTag.JeKapitola)
-            {
-                MyChapter pChapter = aDokument.VratKapitolu(aTag);
-                if (pChapter == null)
-                {
-                    MessageBox.Show("Není vybrán ani nastaven žádný element k přepsání!", "Upozornění:", MessageBoxButton.OK, MessageBoxImage.Asterisk);
-                    return false;
-                }
-                if (pChapter.hasSection)
-                {
-                    if (MessageBox.Show("Vybraná kapitola již obsahuje fonetické sekce. Chcete je všechny foneticky přepsat?", "Upozornění:", MessageBoxButton.YesNoCancel, MessageBoxImage.Asterisk) == MessageBoxResult.Yes)
-                    {
-                        for (int j = 0; j < pChapter.Sections.Count; j++)
-                        {
-                            MySection pSection = aDokument.VratSekci(new MyTag(aTag.tKapitola, j, -1));
-                            if (pSection != null)
-                            {
-                                //odstavce k prepsani
-                                for (int i = 0; i < pSection.PhoneticParagraphs.Count; i++)
-                                {
-
-                                    //uprava tagu, aby obsahoval i sender na textbox, pokud byly vytvareny
-                                    MyTag ppTag = new MyTag(aTag.tKapitola, j, i, aTag.tTypElementu, null);
-                                    //ppTag.tSender = VratSenderTextboxu(ppTag);
-                                    //if (ppTag.tSender != null) ((TextBox)ppTag.tSender).Clear();
-                                    pSeznamOdstavcuKRozpoznaniFonetika.Add(ppTag);
-                                }
-                            }
-                        }
-                        if (pSeznamOdstavcuKRozpoznaniFonetika.Count > 0)
-                        {
-                            aTag = pSeznamOdstavcuKRozpoznaniFonetika[0];
-                            pSeznamOdstavcuKRozpoznaniFonetika.RemoveAt(0);
-                            aIgnorovatTextOdstavce = true;
-                        }
-                        else
-                        {
-                            MessageBox.Show("Kapitola nema odstavce k přepsání!", "Upozornění:", MessageBoxButton.OK, MessageBoxImage.Asterisk);
-                            return false;
-                        }
-
-                    }
-                    else return false;
-                }
-
-            }
-
-            //testovani sekce
-            if (aTag.JeSekce)
-            {
-
-
-                MySection pSection = aDokument.VratSekci(aTag);
-                if (pSection == null)
-                {
-                    MessageBox.Show("Není vybrán ani nastaven žádný element k přepsání!", "Upozornění:", MessageBoxButton.OK, MessageBoxImage.Asterisk);
-                    return false;
-                }
-
-                if (pSection.hasParagraph)
-                {
-
-                    if (!pSection.hasPhoneticParagraph || MessageBox.Show("Vybraná sekce již obsahuje fonetické odstavce. Chcete je všechny automaticky znovu přepsat? Text uvnitř bude smazán.", "Upozornění:", MessageBoxButton.YesNoCancel, MessageBoxImage.Asterisk) == MessageBoxResult.Yes)
-                    {
-
-                        //odstavce k prepsani
-                        //for (int i = 0; i < pSection.PhoneticParagraphs.Count; i++)
-                        for (int i = 0; i < pSection.Paragraphs.Count; i++)
-                        {
-
-                            //uprava tagu, aby obsahoval i sender na textbox, pokud byly vytvareny
-                            MyTag ppTag = new MyTag(aTag.tKapitola, aTag.tSekce, i, aTag.tTypElementu, null);
-                            //ppTag.tSender = VratSenderTextboxu(ppTag);
-                            //if (ppTag.tSender != null) ((TextBox)ppTag.tSender).Clear();
-                            pSeznamOdstavcuKRozpoznaniFonetika.Add(ppTag);
-                        }
-                        aTag = pSeznamOdstavcuKRozpoznaniFonetika[0];
-                        pSeznamOdstavcuKRozpoznaniFonetika.RemoveAt(0);
-                        aIgnorovatTextOdstavce = true;
-                    }
-                    else return false;
-                }
-                else
-                {
-                    MessageBox.Show("Sekce nema odstavce k přepsání!", "Upozornění:", MessageBoxButton.OK, MessageBoxImage.Asterisk);
-                    return false;
-                }
-            }
-
-            if (aTag.JeOdstavec)
-            {
-                aTag.tTypElementu = MyEnumTypElementu.normalni;
-                MyParagraph pParagraph = aDokument[aTag];
-                aTag.tTypElementu = MyEnumTypElementu.foneticky;
-                MyParagraph pPhoneticPar = aDokument[aTag];
-
-                if (pParagraph == null) return false;
-                if (pParagraph.Delka <= TimeSpan.Zero)
-                {
-                    MessageBox.Show("Vybraný element nemá přiřazena žádná audio data k přepsání. Nejprve je vyberte.", "Upozornění:", MessageBoxButton.OK, MessageBoxImage.Asterisk);
-                    return false;
-                }
-                if (pPhoneticPar != null && pPhoneticPar.Phrases.Count > 0 && pPhoneticPar.Text.Length > 0)
-                {
-                    if (aIgnorovatTextOdstavce)
-                    {
-                        pPhoneticPar.UlozTextOdstavce("", null);
-                    }
-                    else
-                    {
-                        if (MessageBox.Show("Vybraný odstavec obsahuje text. Chcete přesto začít s přepisem? Data budou přepsána", "Upozornění:", MessageBoxButton.YesNoCancel, MessageBoxImage.Question) == MessageBoxResult.Yes)
-                        {
-                            pPhoneticPar.UlozTextOdstavce("", null);
-                        }
-                        else return false;
-                    }
-                }
-
-            }
-            else
-            {
-                MessageBox.Show("Není vybrán ani nastaven žádný element k přepsání!", "Upozornění:", MessageBoxButton.OK, MessageBoxImage.Asterisk);
-                return false;
-            }
-
-            aTag.tSender = VratSenderTextboxu(aTag);
-
-
-            if (bFonetika == null) bFonetika = new MyFonetic(MySetup.Setup.absolutniCestaEXEprogramu);
-
-            aTag.tTypElementu = MyEnumTypElementu.normalni;
-            MyParagraph pOdstavec = aDokument[aTag];
-            //ulozi tag vybraneho odstavce do promenne prepisovace a vymaze pripadna drivejsi data z pomocnych promennych
-            bFonetika.TagKPrepsani = aTag;
-
-            //spusti asynchronni nacteni bufferu
-            if (pOdstavec.Delka > TimeSpan.Zero)
-            {
-                pDokumentFonetickehoPrepisu = aDokument;
-                bFonetika.TextKPrepsani = pOdstavec.Text;
-                oWav.AsynchronniNacteniRamce2((long)pOdstavec.Begin.TotalMilliseconds, (long)pOdstavec.Delka.TotalMilliseconds, MyKONST.ID_BUFFERU_PREPISOVANEHO_ELEMENTU_FONETICKY_PREPIS);
-                this.ZobrazStavProgramu("Spuštěno vytváření fonetického přepisu... (HTK)");
-
-            }
-
-            return true;
-        }
-
-
         private void MenuItemFonetickeVarianty_Click(object sender, RoutedEventArgs e)
         {
-            if (MySetup.Setup.RichFocus && MySetup.Setup.RichTag.tTypElementu == MyEnumTypElementu.foneticky)
+            if (VirtualizingListBox.ActiveElement!=null)
             {
-                MyParagraph pp = myDataSource[MySetup.Setup.RichTag];
-                MyTag pTag = new MyTag(MySetup.Setup.RichTag);
+                MyParagraph pp = VirtualizingListBox.ActiveTransctiption as MyParagraph;
                 if (pp == null) return;
                 int pIndexKurzoru = tbFonetickyPrepis.CaretIndex;
                 int pIndexPocatkuSlova = -1;
@@ -5736,7 +2544,7 @@ namespace NanoTrans
 
                             }
 
-                            WinFonetickySlovnik ws = new WinFonetickySlovnik(pp.Phrases[iii].TextPrepisovany, pSlovo, pIndex, bSlovnikFonetickehoDoplneni);
+                            WinFonetickySlovnik ws = new WinFonetickySlovnik(pp.Phrases[iii].Text, pSlovo, pIndex, bSlovnikFonetickehoDoplneni);
                             ws.Owner = this;
                             if ((bool)ws.ShowDialog())
                             {
@@ -5750,7 +2558,7 @@ namespace NanoTrans
                                     }
                                 }
                             }
-                            ZobrazitFonetickyPrepisOdstavce(pTag);
+                            //ZobrazitFonetickyPrepisOdstavce(pTag);
                             tbFonetickyPrepis.CaretIndex = pIndexPocatkuSlova;
                             return;
 
@@ -5775,222 +2583,15 @@ namespace NanoTrans
         /// <param name="e"></param>
         private void menuItemNastrojeFonetickyPrepis_Click(object sender, RoutedEventArgs e)
         {
-            if (this.Dispatcher.Thread != System.Threading.Thread.CurrentThread)
-            {
-                //do invoke stuff here
-
-                this.Dispatcher.Invoke(new RoutedEventHandler(menuItemNastrojeFonetickyPrepis_Click), new object[] { sender, e });
-                return;
-            }
-
-
-            MyTag pTag = new MyTag(MySetup.Setup.RichTag);
-            Normalizovat(myDataSource, pTag, 1);
-
-            SpustFonetickyPrepis(myDataSource, pTag, new TimeSpan(-1), new TimeSpan(-1));
-            try
-            {
-                spSeznam.UpdateLayout();
-                bool p = (VratSenderTextboxu(pTag) as TextBox).Focus();
-
-            }
-            catch
-            {
-
-            }
+            throw new NotImplementedException();
         }
 
         private void menuItemNastrojeAllignment_Click(object sender, RoutedEventArgs e)
         {
-            MyTag pTag = new MyTag(MySetup.Setup.RichTag);
-            Allignment(myDataSource, pTag);
+
 
         }
 
-        public int Allignment(MySubtitlesData aDokument, MyTag aTag)
-        {
-            try
-            {
-                aTag.tTypElementu = MyEnumTypElementu.normalni;
-                if (aDokument == null) return -2;
-                MySubtitlesData pKopieDokumentu = new MySubtitlesData(aDokument);
-                if (aTag.JeSekce)
-                {
-                    MySection pS = pKopieDokumentu.VratSekci(aTag);
-                    MySection novaSekce = new MySection(pS.name);
-                    MyParagraph pPomocnyOdstavec = new MyParagraph();
-                    for (int j = 0; j < pS.Paragraphs.Count; j++)
-                    {
-                        MyParagraph pP = new MyParagraph(pS.Paragraphs[j]);
-                        if (aTag.tKapitola == 0 && aTag.tSekce == 0 && j == 0 && pP.Begin < TimeSpan.Zero) 
-                            pP.Begin = TimeSpan.Zero; //nastaveni pocatku, pokud neni definovan a jsme u 1.elementu
-
-                        if (j > 0 && pPomocnyOdstavec.End < TimeSpan.Zero && pPomocnyOdstavec.Begin >= TimeSpan.Zero && pP.Begin >= TimeSpan.Zero)
-                        {
-                            pPomocnyOdstavec.End = pP.Begin;
-                            novaSekce.Paragraphs.Add(pPomocnyOdstavec);
-                            pPomocnyOdstavec = new MyParagraph();
-                        }
-
-                        pPomocnyOdstavec.UlozTextOdstavce(pPomocnyOdstavec.Text + pP.Text + " ", new List<MyCasovaZnacka>());
-                        if (pPomocnyOdstavec.Begin < TimeSpan.Zero && pP.Begin >= TimeSpan.Zero)
-                        {
-                            pPomocnyOdstavec.Begin = pP.Begin;
-                        }
-                        else if (pPomocnyOdstavec.Begin >= TimeSpan.Zero && pP.Begin >= TimeSpan.Zero)
-                        {
-                            pPomocnyOdstavec.End = pP.Begin;
-                            novaSekce.Paragraphs.Add(pPomocnyOdstavec);
-                            pPomocnyOdstavec = new MyParagraph();
-                            pPomocnyOdstavec.Begin = pP.Begin;
-                        }
-                        if (pP.End >= TimeSpan.Zero) pPomocnyOdstavec.End = pP.End;
-
-                        if (pPomocnyOdstavec.End >= TimeSpan.Zero)
-                        {
-                            novaSekce.Paragraphs.Add(pPomocnyOdstavec);
-                            pPomocnyOdstavec = new MyParagraph();
-                        }
-                    }
-                    if (pPomocnyOdstavec.Begin >= TimeSpan.Zero && pPomocnyOdstavec.End < TimeSpan.Zero && pKopieDokumentu.Chapters[aTag.tKapitola].Sections.Count - 1 == aTag.tSekce)
-                    {
-                        pPomocnyOdstavec.End = TimeSpan.FromMilliseconds (oWav.DelkaSouboruMS);
-                        novaSekce.Paragraphs.Add(pPomocnyOdstavec);
-                    }
-                    if (novaSekce.Paragraphs.Count != novaSekce.PhoneticParagraphs.Count)
-                    {
-                        novaSekce.PhoneticParagraphs.Clear();
-                        for (int i = 0; i < novaSekce.Paragraphs.Count; i++)
-                        {
-                            novaSekce.PhoneticParagraphs.Add(new MyParagraph("", new List<MyCasovaZnacka>(), novaSekce.Paragraphs[i].Begin, novaSekce.Paragraphs[i].End));
-                        }
-                    }
-
-                    pKopieDokumentu.Chapters[aTag.tKapitola].Sections[aTag.tSekce] = novaSekce;
-                    if (novaSekce.Paragraphs.Count == 0)
-                    {
-                        MessageBox.Show("Nejprve musíte přiřadit několik synchronizačních značek původnímu textu", "Chyba!", MessageBoxButton.OK, MessageBoxImage.Error);
-                        return -3;
-                    }
-                    if (Normalizovat(pKopieDokumentu, aTag, -1) < 0) return -2; //normalizace zrusena nebo skoncila chybou
-                    SpustFonetickyPrepis(pKopieDokumentu, aTag, new TimeSpan(-1), new TimeSpan(-1));
-                }
-                return 0;
-            }
-            catch (Exception)
-            {
-                return -1;
-            }
-
-        }
-
-
-        public int AllignmentZpracovaniFonetickehoPrepisu(MyTag aTagSekcePuvodniDokument, MyTag aTagOdstavecFonetickyDokument)
-        {
-            try
-            {
-                if (myDataSource == pDokumentFonetickehoPrepisu) return -2; //pro stejny dokument to nema smysl?????
-                if (!aTagSekcePuvodniDokument.JeSekce) return -3;
-                MySection pSekcePuvodni = myDataSource.VratSekci(aTagSekcePuvodniDokument);
-                aTagOdstavecFonetickyDokument = new MyTag(aTagOdstavecFonetickyDokument);
-                aTagOdstavecFonetickyDokument.tTypElementu = MyEnumTypElementu.foneticky;
-                MyParagraph pOdstavecFoneticky = pDokumentFonetickehoPrepisu[aTagOdstavecFonetickyDokument];
-                int pIndexPocatkuSlov = 0;
-                TimeSpan pBegin = new TimeSpan(-1);
-                TimeSpan pEnd = TimeSpan.Zero;
-                bool pStopDekodovani = false;
-                for (int i = 0; i < pSekcePuvodni.Paragraphs.Count; i++)
-                {
-                    if (pStopDekodovani) break;
-                    MyParagraph pP = pSekcePuvodni.Paragraphs[i];
-                    string pText = pP.Text;
-                    MyParagraph pNovyOdstavec = new MyParagraph();
-                    pNovyOdstavec.speakerID = pP.speakerID;
-                    if (!pP.trainingElement)
-                    {
-                        //if (pBegin < 0 && i == 0) pBegin = 0;
-                        if (pBegin < TimeSpan.Zero)
-                        {
-                            pBegin = pP.Begin;
-                        }
-
-                        bool behat = true;
-                        int pPosledniIndex = 0; //posledni index zapsany do noveho odstavce v puvodnim textu - info o preskoceni interpunkce atd...
-                        while (behat)
-                        {
-                            MyPhrase pFraze = pOdstavecFoneticky.Phrases[pIndexPocatkuSlov];
-                            if (pFraze.TextPrepisovany != null)
-                            {
-                                int pIndex = pText.ToLower().IndexOf(pFraze.TextPrepisovany, pPosledniIndex);
-                                MyPhrase pFraze2 = new MyPhrase(pFraze.Begin, pFraze.End, pFraze.TextPrepisovany, MyEnumTypElementu.normalni);
-                                if (pPosledniIndex != pIndex)
-                                {
-                                    //pBegin = 0;
-                                    pEnd = pFraze2.Begin;
-                                    int pDelka = pIndex - pPosledniIndex;
-                                    if (pDelka <= 0)
-                                    {
-                                        int pDelkaKonec = pText.Length - pPosledniIndex;
-                                        if (pDelkaKonec > 0)
-                                        {
-                                            string pTextKonec = pText.Substring(pPosledniIndex);
-                                            MyPhrase pPhraseKonec = new MyPhrase(pBegin, pEnd, pTextKonec);
-                                            pNovyOdstavec.Phrases.Add(pPhraseKonec);
-                                        }
-                                        if (pIndex >= 0)
-                                            pIndexPocatkuSlov++;
-                                        break;
-                                    }
-                                    string pText2 = pText.Substring(pPosledniIndex, pIndex - pPosledniIndex);
-                                    MyPhrase pPhrase15 = new MyPhrase(pBegin, pEnd, pText2);
-                                    pNovyOdstavec.Phrases.Add(pPhrase15);
-                                    pBegin = pEnd;
-                                }
-                                pBegin = pFraze2.End;
-                                pNovyOdstavec.Phrases.Add(pFraze2);
-                                pPosledniIndex = pIndex + pFraze2.Text.Length;
-
-                            }
-                            pIndexPocatkuSlov++;
-                            if (pIndexPocatkuSlov + 1 >= pOdstavecFoneticky.Phrases.Count)
-                            {
-                                behat = false;
-                                pStopDekodovani = true;
-                                //doplneni konce odstavce
-                                int pDelkaKonec = pText.Length - pPosledniIndex;
-                                if (pDelkaKonec > 0)
-                                {
-                                    string pTextKonec = pText.Substring(pPosledniIndex);
-                                    pEnd = pBegin;
-                                    MyPhrase pPhraseKonec = new MyPhrase(pBegin, pEnd, pTextKonec);
-                                    pNovyOdstavec.Phrases.Add(pPhraseKonec);
-                                }
-                            }
-                        }
-                        if (pNovyOdstavec.Phrases.Count > 0)
-                        {
-                            if (pNovyOdstavec.Begin < TimeSpan.Zero) pNovyOdstavec.Begin = pNovyOdstavec.Phrases[0].Begin;
-                            if (pNovyOdstavec.End < TimeSpan.Zero)
-                            {
-                                pNovyOdstavec.End = pNovyOdstavec.Phrases[pNovyOdstavec.Phrases.Count - 1].End;
-                                pBegin = pNovyOdstavec.End;
-                            }
-                            pNovyOdstavec.trainingElement = true;
-                        }
-                        pP = pNovyOdstavec;
-                        pSekcePuvodni.Paragraphs[i] = pP;
-
-                    }
-                }
-                //ZobrazXMLData(nastaveniAplikace.RichTag);
-                UpdateXMLData(true, true, true, true, true);
-                return 0;
-            }
-            catch (Exception)
-            {
-                return -1;
-            }
-        }
 
         private void MSoubor_Exportovat_Click(object sender, RoutedEventArgs e)
         {
@@ -6070,18 +2671,16 @@ namespace NanoTrans
 
         private void btOdstranitNefonemy_Click(object sender, RoutedEventArgs e)
         {
+
+            //TODO:
             if (bFonetika == null) bFonetika = new MyFonetic(MySetup.Setup.absolutniCestaEXEprogramu);
 
-            bool pStav = bFonetika.OdstraneniNefonetickychZnakuZPrepisu(myDataSource, MySetup.Setup.RichTag);
+            bool pStav = bFonetika.OdstraneniNefonetickychZnakuZPrepisu(myDataSource, VirtualizingListBox.ActiveTransctiption);
             if (pStav)
             {
-                MyTag pTag = new MyTag(MySetup.Setup.RichTag);
-                pTag.tTypElementu = MyEnumTypElementu.foneticky;
-                MyParagraph pP = myDataSource[pTag];
-                MySetup.Setup.CasoveZnackyText = pP.Text;
-                MySetup.Setup.CasoveZnacky = pP.VratCasoveZnackyTextu;
+                MyParagraph pP = VirtualizingListBox.ActiveTransctiption as MyParagraph;
             }
-            ZobrazitFonetickyPrepisOdstavce(MySetup.Setup.RichTag);
+            //ZobrazitFonetickyPrepisOdstavce(MySetup.Setup.RichTag);
 
         }
 
@@ -6188,16 +2787,16 @@ namespace NanoTrans
                         pExport = pExport.Deserializovat(pJmenoSouboruXML);
                         string prozsirit = "";
                         MyWav pWAV = new MyWav(MySetup.Setup.absolutniCestaEXEprogramu);
-                        if (pExport.Chapters[0].Sections[0].PhoneticParagraphs.Count > 1)
+                        if (pExport.Chapters[0].Sections[0].Paragraphs.Count > 1)
                         {
                             pWAV.ZacniPrevodSouboruNaDocasneWav(tbDavkovyAdresar.Text + "//" + pExport.audioFileName, "e://", 300000);
                         }
 
-                        for (int kk = 0; kk < pExport.Chapters[0].Sections[0].PhoneticParagraphs.Count; kk++)
+                        for (int kk = 0; kk < pExport.Chapters[0].Sections[0].Paragraphs.Count; kk++)
                         {
-                            if (pExport.Chapters[0].Sections[0].PhoneticParagraphs.Count > 1)
+                            if (pExport.Chapters[0].Sections[0].Paragraphs.Count > 1)
                                 prozsirit = kk.ToString();
-                            MyParagraph pp = pExport.Chapters[0].Sections[0].PhoneticParagraphs[kk];
+                            MyParagraph pp = pExport.Chapters[0].Sections[0].Paragraphs[kk];
                             if (pp.trainingElement)
                             {
                                 string pHTK = MyFonetic.PrevedFonetickyTextNaHTKFormat(pp.Text);
@@ -6292,12 +2891,13 @@ namespace NanoTrans
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            if (MySetup.Setup.RichFocus)
+            if (VirtualizingListBox.ActiveElement !=null)
             {
-                TextBox focused = MySetup.Setup.RichTag.tSender as TextBox;
-                if (focused != null)
+                Element focusedel = VirtualizingListBox.ActiveElement;
+                
+                if (focusedel != null)
                 {
-
+                    MyTextBox focused = focusedel.myTextBox1;
                     string insert = "[" + ((Button)sender).Content + "]";
 
                     string t = focused.Text; ;
@@ -6410,7 +3010,7 @@ namespace NanoTrans
             string value = "[" + listboxPopup.SelectedItem.ToString() + "]";
             if (value != null)
             {
-                MyTextBox box = MySetup.Setup.RichTag.tSender as MyTextBox;
+                MyTextBox box = VirtualizingListBox.ActiveElement.myTextBox1;
                 if (box != null)
                 {
                     string beg;
@@ -6523,7 +3123,6 @@ namespace NanoTrans
                 if (myDataSource != null)
                 {
                     this.Title = MyKONST.NAZEV_PROGRAMU + " [" + myDataSource.JmenoSouboru + "]";
-                    ZobrazXMLData();
                     //nacteni audio souboru pokud je k dispozici
                     if (myDataSource.audioFileName != null && myDataSource.JmenoSouboru != null)
                     {
@@ -6563,7 +3162,6 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                MyLog.LogujChybu(ex);
                 MessageBox.Show("Chyba pri obnoveni stavu: " + ex.Message, "Chyba");
             }
 
@@ -6588,53 +3186,30 @@ namespace NanoTrans
         {
         }
 
-        bool richX_manualfocus = false;
         private void waveform1_CarretPostionChangedByUser(object sender, Waveform.TimeSpanEventArgs e)
         {
-            richX_manualfocus = true;
             if (Playing)
             {
                 Playing = false;
             }
             pIndexBufferuVlnyProPrehrani = (int)waveform1.CaretPosition.TotalMilliseconds;
-
-            bool fixVisible = true;
-            List<MyTag> tags = myDataSource.VratElementDanehoCasu(TimeSpan.FromMilliseconds(pIndexBufferuVlnyProPrehrani),null);
-
-            for (int i = 0; i < spSeznam.Children.Count && fixVisible; i++)
+            List<MyParagraph> pl = myDataSource.VratElementDanehoCasu(waveform1.CaretPosition);
+            if (pl.Count != 0)
             {
-                MyTag tg = ((spSeznam.Children[i] as Grid).Children[0] as TextBox).Tag as MyTag;
-                MyParagraph p = myDataSource[tg];
-
-                foreach (MyTag mt in tags)
-                {
-                    MyParagraph mp = myDataSource[mt];
-                    if (p != null && p.Begin == mp.Begin && p.End == mp.End)
-                    {
-                        fixVisible = false;
-                        ((spSeznam.Children[i] as Grid).Children[0] as TextBox).Focus();
-                        break;
-                    }
-                }
+                
             }
 
-            if (fixVisible)
-                ZobrazXMLData();
-
-
-
         }
 
-        private void waveform1_ParagraphClick(object sender, Waveform.MyTagEventArgs e)
+        private void waveform1_ParagraphClick(object sender, Waveform.MyTranscriptionElementEventArgs e)
         {
-            bool pVybran = VyberElement(e.Value, false);
+            VirtualizingListBox.ActiveTransctiption = e.Value;
         }
 
-        private void waveform1_ParagraphDoubleClick(object sender, Waveform.MyTagEventArgs e)
+        private void waveform1_ParagraphDoubleClick(object sender, Waveform.MyTranscriptionElementEventArgs e)
         {
-            VyberElement(e.Value, false);
-            new WinSpeakers(e.Value, MySetup.Setup, this.myDatabazeMluvcich, myDataSource, null).ShowDialog();
-            UpdateXMLData(false, true, true, false, true);
+            VirtualizingListBox.ActiveTransctiption = e.Value;
+            new WinSpeakers((MyParagraph)e.Value, MySetup.Setup, this.myDatabazeMluvcich, myDataSource, null).ShowDialog();
         }
 
         private void waveform1_CarretPostionChanged(object sender, Waveform.TimeSpanEventArgs e)
@@ -6646,10 +3221,9 @@ namespace NanoTrans
             }
         }
 
-        private void waveform1_ElementChanged(object sender, Waveform.MyTagEventArgs e)
+        private void waveform1_ElementChanged(object sender, Waveform.MyTranscriptionElementEventArgs e)
         {
-            UpdateXMLData(false, true, false, false, true);
-            ZobrazInformaceElementu(MySetup.Setup.RichTag);
+
         }
 
         private void waveform1_SelectionChanged(object sender, EventArgs e)
@@ -6663,5 +3237,11 @@ namespace NanoTrans
         }
 
 
+
+        #region INotifyPropertyChanged Members
+
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+
+        #endregion
     }
 }

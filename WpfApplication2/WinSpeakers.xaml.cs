@@ -19,7 +19,7 @@ namespace NanoTrans
     /// </summary>
     public partial class WinSpeakers : Window
     {
-        private MyTag bTag;
+        private MyParagraph bTag;
         public  MySpeaker bSpeaker;
         private MySetup bNastaveni;
         private MySpeakers bDatabazeMluvcich;
@@ -33,7 +33,7 @@ namespace NanoTrans
         /// inicializace 
         /// </summary>
         /// <returns></returns>
-        private bool Inicializace(MyTag aTag, MySetup aNastaveniProgramu, MySpeakers aDatabazeMluvcich, MySubtitlesData aDataSource, MySpeaker aVychoziMluvci, string aPredavanaFotkaStringBase64)
+        private bool Inicializace(MyParagraph aTag, MySetup aNastaveniProgramu, MySpeakers aDatabazeMluvcich, MySubtitlesData aDataSource, MySpeaker aVychoziMluvci, string aPredavanaFotkaStringBase64)
         {
             this.bStringBase64FotoExterni = aPredavanaFotkaStringBase64;
             //this.bStringBase64FotoInterni = aPredavanaFotkaStringBase64;
@@ -89,11 +89,11 @@ namespace NanoTrans
             if (pSeznamPravidel != null) foreach (string s in pSeznamPravidel) cbPrepisovaciPravidla.Items.Add(s);
             cbPrepisovaciPravidla.SelectedIndex = 0;
 
-           
 
-            if (myDataSource.VratSpeakera(bTag).FullName != null)
+
+            if (myDataSource.VratSpeakera(bTag.speakerID).FullName != null)
             {
-                bSpeaker = myDataSource.VratSpeakera(bTag);
+                bSpeaker = myDataSource.VratSpeakera(bTag.speakerID);
                 lbSeznamMluvcich.SelectedItem = bSpeaker.FullName;
             }
             else if (aVychoziMluvci != null)
@@ -126,7 +126,7 @@ namespace NanoTrans
 
         }
         
-        public WinSpeakers(MyTag aTag, MySetup aNastaveniProgramu, MySpeakers aDatabazeMluvcich, MySubtitlesData aDataTitulky, string aFotkaBase64)
+        public WinSpeakers(MyParagraph aTag, MySetup aNastaveniProgramu, MySpeakers aDatabazeMluvcich, MySubtitlesData aDataTitulky, string aFotkaBase64)
         {
             InitializeComponent();
             Inicializace(aTag, aNastaveniProgramu, aDatabazeMluvcich, aDataTitulky, null, aFotkaBase64);
@@ -135,7 +135,7 @@ namespace NanoTrans
             //this.Show();
         }
 
-        public WinSpeakers(MyTag aTag, MySetup aNastaveniProgramu, MySpeakers aDatabazeMluvcich, MySubtitlesData aDataTitulky, MySpeaker aVychoziMluvci, string aFotkaBase64)
+        public WinSpeakers(MyParagraph aTag, MySetup aNastaveniProgramu, MySpeakers aDatabazeMluvcich, MySubtitlesData aDataTitulky, MySpeaker aVychoziMluvci, string aFotkaBase64)
         {
             InitializeComponent();
             Inicializace(aTag, aNastaveniProgramu, aDatabazeMluvcich, aDataTitulky, aVychoziMluvci, aFotkaBase64);
@@ -155,13 +155,13 @@ namespace NanoTrans
             if (i < 0) i = myDataSource.NovySpeaker(pSpeaker);
             if (i >= 0)
             {
-                myDataSource.ZadejSpeakera(bTag, i);
+                bTag.speakerID = i;
             }
             else
             {
                 if (bSpeaker == null) bSpeaker = new MySpeaker();
                 i = myDataSource.NajdiSpeakera(bSpeaker.FullName);
-                myDataSource.ZadejSpeakera(bTag, i);
+                bTag.speakerID = i;
             }
 
             this.DialogResult = true;
@@ -266,10 +266,9 @@ namespace NanoTrans
                                 lbSeznamMluvcich.Items.Add((myDataSource.SeznamMluvcich.Speakers[i]).FullName);
                             }
 
-                            if (myDataSource.VratSpeakera(bTag).FullName != null)
+                            if (myDataSource.VratSpeakera(bTag.speakerID).FullName != null)
                             {
-                                bSpeaker = myDataSource.VratSpeakera(bTag);
-                                //spSeznam.Children.Add(this.bSpeaker.speakerName);   //prida do seznamu aktualniho uzivatele
+                                bSpeaker = myDataSource.VratSpeakera(bTag.speakerID);
                                 lbSeznamMluvcich.SelectedItem = bSpeaker.FullName;
 
                             }
@@ -309,7 +308,7 @@ namespace NanoTrans
         {
             //spSeznam.Children.Clear();
             bSpeaker = null;
-            myDataSource.ZadejSpeakera(bTag, new MySpeaker().ID);
+            bTag.speakerID = new MySpeaker().ID;
             this.DialogResult = true;
             this.Close();
         }
@@ -505,8 +504,6 @@ namespace NanoTrans
 
         private void btExterniDatabaze_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
                 Microsoft.Win32.OpenFileDialog fileDialog = new Microsoft.Win32.OpenFileDialog();
                 fileDialog.Title = "Otevřít soubor s databází mluvčích...";
                 fileDialog.Filter = "Soubory mluvčích (*" + bNastaveni.PriponaDatabazeMluvcich + ")|*" + bNastaveni.PriponaDatabazeMluvcich + "|Všechny soubory (*.*)|*.*";
@@ -537,11 +534,6 @@ namespace NanoTrans
 
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-            }
         }
 
 
@@ -566,7 +558,7 @@ namespace NanoTrans
                 MySpeaker ret = aPuvodniMluvci;
                 MySubtitlesData ps = new MySubtitlesData();
                 ps.NovySpeaker(aPuvodniMluvci);
-                WinSpeakers ws = new WinSpeakers(new MyTag(), aNastaveniProgramu, aDatabazeMluvcich, ps, aPuvodniMluvci, aFotkaBase64);
+                WinSpeakers ws = new WinSpeakers(new MyParagraph(), aNastaveniProgramu, aDatabazeMluvcich, ps, aPuvodniMluvci, aFotkaBase64);
                 ws.ShowDialog(); 
                 if (ws.DialogResult == true)
                 {
@@ -610,8 +602,7 @@ namespace NanoTrans
 
         private void btExterniDatabazeUlozit_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
+
                 Microsoft.Win32.SaveFileDialog fileDialog = new Microsoft.Win32.SaveFileDialog();
                 fileDialog.Title = "Uložit databází mluvčích...";
                 fileDialog.Filter = "Soubory mluvčích (*" + bNastaveni.PriponaDatabazeMluvcich + ")|*" + bNastaveni.PriponaDatabazeMluvcich + "|Všechny soubory (*.*)|*.*";
@@ -635,11 +626,7 @@ namespace NanoTrans
 
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-            }
+
         }
 
         private void btSynchronizovat_Click(object sender, RoutedEventArgs e)

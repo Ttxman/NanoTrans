@@ -355,7 +355,6 @@ namespace NanoTrans
 
         private void tbFonetickyPrepis_TextChanged(object sender, TextChangedEventArgs e)
         {
-            MyKONST.OverZmenyTextBoxu(sender as TextBox, _puvodniText, ref e, MyEnumTypElementu.foneticky);
             _puvodniText = (sender as TextBox).Text;
         }
 

@@ -80,9 +80,8 @@ namespace NanoTrans
                 }
                 else return -1;
             }
-            catch (Exception ex)
+            catch// (Exception ex)
             {
-                MyLog.LogujChybu(ex);
                 return -1;
             }
         }
@@ -103,9 +102,8 @@ namespace NanoTrans
                 return new MySpeaker();
 
             }
-            catch (Exception ex)
+            catch// (Exception ex)
             {
-                MyLog.LogujChybu(ex);
                 return new MySpeaker();
             }
 
@@ -137,9 +135,8 @@ namespace NanoTrans
                 }
                 else return false;
             }
-            catch (Exception ex)
+            catch// (Exception ex)
             {
-                MyLog.LogujChybu(ex);
                 return false;
             }
         }
@@ -166,9 +163,8 @@ namespace NanoTrans
                 return aSpeaker.ID;
 
             }
-            catch (Exception ex)
+            catch// (Exception ex)
             {
-                MyLog.LogujChybu(ex);
                 return new MySpeaker().ID;
             }
         }
@@ -194,9 +190,8 @@ namespace NanoTrans
                 return aSpeaker;
 
             }
-            catch (Exception ex)
+            catch// (Exception ex)
             {
-                MyLog.LogujChybu(ex);
                 return new MySpeaker();
             }
 
@@ -238,9 +233,8 @@ namespace NanoTrans
                 }
                 return false;
             }
-            catch (Exception ex)
+            catch// (Exception ex)
             {
-                MyLog.LogujChybu(ex);
                 return false;
             }
 
@@ -270,7 +264,6 @@ namespace NanoTrans
             catch (Exception ex)
             {
                 MessageBox.Show("Chyba pri serializaci souboru s nastavením: " + ex.Message,"Varování!");
-                MyLog.LogujChybu(ex);
                 return false;
             }
 
@@ -302,7 +295,6 @@ namespace NanoTrans
             catch (Exception ex)
             {
                 MessageBox.Show("Chyba při načítání databáze mluvčích - nepodporovaný formát souboru: " + ex.Message);
-                MyLog.LogujChybu(ex);
                 return null;
             }
 
