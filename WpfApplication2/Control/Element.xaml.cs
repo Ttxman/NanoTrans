@@ -331,7 +331,7 @@ namespace NanoTrans
 
                 editor.TextArea.TextView.MouseLeftButtonDown += new MouseButtonEventHandler(TextView_MouseLeftButtonDown);
                 editor.TextArea.TextView.MouseDown += TextView_MouseDown;
-                
+
             }
         }
 
@@ -362,10 +362,10 @@ namespace NanoTrans
                 if (par != null)
                 {
                     string outval;
-                    if(par.Elements.TryGetValue(item[0],out outval))
+                    if (par.Elements.TryGetValue(item[0], out outval))
                         cb.SelectedItem = outval;
                     else
-                        par.Elements.Add(item[0],item[1]);
+                        par.Elements.Add(item[0], item[1]);
                 }
             }
         }
@@ -374,14 +374,14 @@ namespace NanoTrans
         private void UpdateCustomParamsFromSpeaker()
         {
             return;
-            if (customparams == null || customparams.Count == 0 || ValueElement==null)
+            if (customparams == null || customparams.Count == 0 || ValueElement == null)
                 return;
 
             CustomParams.Children.Clear();
             if (!ValueElement.IsParagraph)
                 return;
             AddCustomParams();
-            
+
         }
 
         void cb_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -803,7 +803,7 @@ namespace NanoTrans
 
             this.OnPreviewKeyDown(e);
 
-            if (ValueElement == null)
+            if (ValueElement == null || e.Handled)
                 return;
 
 
@@ -875,17 +875,20 @@ namespace NanoTrans
             if (e.Key == Key.Back && editor.SelectionLength == 0)
             {
                 if (editor.CaretOffset == 0 && MergeWithPreviousRequest != null)
+                {
                     MergeWithPreviousRequest(this, new EventArgs());
+                    e.Handled = true;
+                }
 
-                e.Handled = true;
 
             }
             else if (e.Key == Key.Delete && editor.SelectionLength == 0)
             {
                 if (editor.CaretOffset == editor.Document.TextLength && MergeWithnextRequest != null)
+                {
                     MergeWithnextRequest(this, new EventArgs());
-
-                e.Handled = true;
+                    e.Handled = true;
+                }
 
             }
             else if (e.Key == Key.Enter || e.Key == Key.Return)

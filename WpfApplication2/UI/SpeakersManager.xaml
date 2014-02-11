@@ -12,7 +12,7 @@
         lex:ResxLocalizationProvider.DefaultDictionary="Strings"
         
         Title="{lex:LocText SpeakersManagerTitle}" MinHeight="450" MinWidth="650" MaxWidth="1000"
-        Name="manager">
+        Name="manager" Loaded="manager_Loaded">
     <Window.Resources>
         <my:MultipleSelectionConverter x:Key="selConverter" />
         <Style x:Key="ContainerStyle" TargetType="{x:Type GroupItem}">
@@ -63,7 +63,7 @@
 
         <DockPanel Grid.Row="2" Grid.Column="0" LastChildFill="True">
             <Label DockPanel.Dock="Left" Content="{lex:LocText SpeakersManagerLabelSearch}"/>
-            <TextBox Text="{Binding ElementName=manager,Path=SpeakerProvider.FilterString,TargetNullValue='',UpdateSourceTrigger=PropertyChanged}"/>
+            <TextBox Name="FilterTBox" Text="{Binding ElementName=manager,Path=SpeakerProvider.FilterString,TargetNullValue='',UpdateSourceTrigger=PropertyChanged}"/>
         </DockPanel>
         <ListBox Name="SpeakersBox" Width="250" Grid.Column="0" Grid.Row="3" AlternationCount="2" ItemsSource="{Binding ElementName=manager,Path=SpeakerProvider.View}" SelectionMode="{Binding ElementName=manager,Converter={StaticResource selConverter}, Path=SelectMany}" ContextMenuOpening="SpeakersBox_ContextMenuOpening" SelectionChanged="SpeakersBox_SelectionChanged" MouseDoubleClick="SpeakersBox_MouseDoubleClick">
             <ListBox.GroupStyle>

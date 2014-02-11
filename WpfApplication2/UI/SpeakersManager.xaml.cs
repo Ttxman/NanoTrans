@@ -281,6 +281,11 @@ namespace NanoTrans
             this.Close();
         }
 
+        private void manager_Loaded(object sender, RoutedEventArgs e)
+        {
+            FilterTBox.Focus();
+        }
+
     }
 
     public class SpeakersViewModel : INotifyPropertyChanged
