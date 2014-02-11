@@ -18,6 +18,7 @@ using System.Text.RegularExpressions;
 using ICSharpCode.AvalonEdit.CodeCompletion;
 using ICSharpCode.AvalonEdit.Editing;
 using ICSharpCode.AvalonEdit.Indentation;
+using System.IO;
 
 namespace NanoTrans
 {
@@ -347,90 +348,10 @@ namespace NanoTrans
             }
         }
 
-        static Regex wordSplitter = new Regex(@"(?:\w+|\[.*?\])", RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        static Regex wordIgnoreChecker = new Regex(@"(?:\[.*?\]|\d+)", RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        static Regex ignoredGroup = new Regex(@"\[.*?\]", RegexOptions.Singleline | RegexOptions.Compiled);
+        public static readonly Regex wordSplitter = new Regex(@"(?:\w+|\[.*?\])", RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        public static readonly Regex wordIgnoreChecker = new Regex(@"(?:\[.*?\]|\d+)", RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        public static readonly Regex ignoredGroup = new Regex(@"\[.*?\]", RegexOptions.Singleline | RegexOptions.Compiled);
 
-        public class SpellChecker : DocumentColorizingTransformer
-        {
-            static TextDecorationCollection defaultdecoration;
-
-            //nacteni celeho slovniku z souboru do hash tabulky
-            static NHunspell.Hunspell spell= null;
-            public static bool LoadVocabulary()
-            {
-                spell = new NHunspell.Hunspell(MySetup.Setup.absolutniCestaEXEprogramu + @"\data\cs_CZ.aff", MySetup.Setup.absolutniCestaEXEprogramu + @"\data\cs_CZ.dic");
-
-                return true;
-            }
-
-            public static HashSet<string> Vocabulary = new HashSet<string>();
-
-            static SpellChecker()
-            {
-                TextDecorationCollection tdc = new TextDecorationCollection();
-
-                StreamGeometry g = new StreamGeometry();
-                using (var context = g.Open())
-                {
-                    context.BeginFigure(new Point(0, 1), false, false);
-                    context.BezierTo(new Point(1, 0), new Point(2, 2), new Point(3, 1), true, true);
-                }
-
-                System.Windows.Shapes.Path p = new System.Windows.Shapes.Path() { Data = g, Stroke = Brushes.Red, StrokeThickness = 0.25, StrokeEndLineCap = PenLineCap.Square, StrokeStartLineCap = PenLineCap.Square };
-
-                VisualBrush vb = new VisualBrush(p)
-                {
-                    Viewbox = new Rect(0, 0, 3, 2),
-                    ViewboxUnits = BrushMappingMode.Absolute,
-                    Viewport = new Rect(0, 0.8, 6, 4),
-                    ViewportUnits = BrushMappingMode.Absolute,
-                    TileMode = TileMode.Tile
-
-                };
-
-
-
-                TextDecoration td = new TextDecoration()
-                {
-                    Location = TextDecorationLocation.Underline,
-                    Pen = new Pen(vb, 4),
-                    PenThicknessUnit = TextDecorationUnit.Pixel,
-                    PenOffsetUnit = TextDecorationUnit.Pixel
-
-                };
-                tdc.Add(td);
-
-                defaultdecoration = tdc;
-            }
-
-
-            protected override void ColorizeLine(DocumentLine line)
-            {
-                if (spell == null)
-                    return;
-                int lineStartOffset = line.Offset;
-                string text = CurrentContext.Document.GetText(line);
-                MatchCollection matches = wordSplitter.Matches(text, 0);
-                foreach (Match m in matches)
-                {
-                    string s = text.Substring(m.Index, m.Length).ToLower();
-
-                    if (!wordIgnoreChecker.IsMatch(s) && !spell.Spell(s))
-                    {
-                        base.ChangeLinePart(
-                            lineStartOffset + m.Index,
-                            lineStartOffset + m.Index + m.Length,
-                            (VisualLineElement element) =>
-                            {
-                                element.TextRunProperties.SetTextDecorations(defaultdecoration);
-
-                            });
-                    }
-                }
-
-            }
-        }
 
         public class PositionHighlighter : IBackgroundRenderer
         {
@@ -1049,6 +970,133 @@ namespace NanoTrans
         public override string ToString()
         {
             return base.ToString()+":"+this.Text;
+        }
+    }
+    public class SpellChecker : DocumentColorizingTransformer
+    {
+        static TextDecorationCollection defaultdecoration;
+
+        //nacteni celeho slovniku z souboru do hash tabulky
+        static NHunspell.Hunspell spell = null;
+
+
+        public static NHunspell.Hunspell SpellEngine
+        {
+            get
+            {
+                return spell;
+            }
+            set
+            {
+                spell = null;
+            }
+        }
+        public static bool LoadVocabulary()
+        {
+            MySetup.Setup = new MySetup(new FileInfo(Application.ResourceAssembly.Location).DirectoryName);
+            if (MySetup.Setup != null)
+            {
+                if (Window1.CheckWritePermissions(System.IO.Path.GetFullPath(MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.KONFIGURACNI_SOUBOR)))
+                {
+                    string faff = MySetup.Setup.absolutniCestaEXEprogramu + @"\data\cs_CZ.aff";
+                    string fdic = MySetup.Setup.absolutniCestaEXEprogramu + @"\data\cs_CZ.dic";
+                    if (File.Exists(faff) && File.Exists(fdic))
+                    {
+                        spell = new NHunspell.Hunspell(faff, fdic);
+                        return true;
+                    }
+                }
+                else
+                {
+                    string faff = System.IO.Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\NanoTrans\data\cs_CZ.aff");
+                    string fdic = System.IO.Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\NanoTrans\data\cs_CZ.dic");
+
+                    if (File.Exists(faff) && File.Exists(fdic)) // nova verze :)
+                    {
+                        spell = new NHunspell.Hunspell(faff, fdic);
+                        return true;
+                    }
+                    else
+                    {
+                        faff = MySetup.Setup.absolutniCestaEXEprogramu + @"\data\cs_CZ.aff";
+                        fdic = MySetup.Setup.absolutniCestaEXEprogramu + @"\data\cs_CZ.dic";
+                        if (File.Exists(faff) && File.Exists(fdic))
+                        {
+                            spell = new NHunspell.Hunspell(faff, fdic);
+                            return true;
+                        }
+                    }
+                }
+
+            }
+            return false;
+        }
+
+        public static HashSet<string> Vocabulary = new HashSet<string>();
+
+        static SpellChecker()
+        {
+            TextDecorationCollection tdc = new TextDecorationCollection();
+
+            StreamGeometry g = new StreamGeometry();
+            using (var context = g.Open())
+            {
+                context.BeginFigure(new Point(0, 1), false, false);
+                context.BezierTo(new Point(1, 0), new Point(2, 2), new Point(3, 1), true, true);
+            }
+
+            System.Windows.Shapes.Path p = new System.Windows.Shapes.Path() { Data = g, Stroke = Brushes.Red, StrokeThickness = 0.25, StrokeEndLineCap = PenLineCap.Square, StrokeStartLineCap = PenLineCap.Square };
+
+            VisualBrush vb = new VisualBrush(p)
+            {
+                Viewbox = new Rect(0, 0, 3, 2),
+                ViewboxUnits = BrushMappingMode.Absolute,
+                Viewport = new Rect(0, 0.8, 6, 4),
+                ViewportUnits = BrushMappingMode.Absolute,
+                TileMode = TileMode.Tile
+
+            };
+
+
+
+            TextDecoration td = new TextDecoration()
+            {
+                Location = TextDecorationLocation.Underline,
+                Pen = new Pen(vb, 4),
+                PenThicknessUnit = TextDecorationUnit.Pixel,
+                PenOffsetUnit = TextDecorationUnit.Pixel
+
+            };
+            tdc.Add(td);
+
+            defaultdecoration = tdc;
+        }
+
+
+        protected override void ColorizeLine(DocumentLine line)
+        {
+            if (spell == null)
+                return;
+            int lineStartOffset = line.Offset;
+            string text = CurrentContext.Document.GetText(line);
+            MatchCollection matches = Element.wordSplitter.Matches(text, 0);
+            foreach (Match m in matches)
+            {
+                string s = text.Substring(m.Index, m.Length).ToLower();
+
+                if (!Element.wordIgnoreChecker.IsMatch(s) && !spell.Spell(s))
+                {
+                    base.ChangeLinePart(
+                        lineStartOffset + m.Index,
+                        lineStartOffset + m.Index + m.Length,
+                        (VisualLineElement element) =>
+                        {
+                            element.TextRunProperties.SetTextDecorations(defaultdecoration);
+
+                        });
+                }
+            }
+
         }
     }
 

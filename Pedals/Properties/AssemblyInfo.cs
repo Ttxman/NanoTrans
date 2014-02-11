@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Pedals")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("USB HID pedals controller")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("HP")]
+[assembly: AssemblyCompany("TUL::Speechlab")]
 [assembly: AssemblyProduct("Pedals")]
-[assembly: AssemblyCopyright("Copyright © HP 2012")]
+[assembly: AssemblyCopyright("Copyright © TUL::Speechlab 2012")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

@@ -8,11 +8,11 @@ using System.Windows;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("NanoTrans")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Tool for creation and editing of speech signal annotations")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("TUL::Speechlab")]
 [assembly: AssemblyProduct("NanoTrans")]
-[assembly: AssemblyCopyright("Copyright ©  2011")]
+[assembly: AssemblyCopyright("Copyright © TUL::Speechlab  2012")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -51,5 +51,5 @@ using System.Windows;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.5.0.135")]
-[assembly: AssemblyFileVersion("0.5.0.135")]
+[assembly: AssemblyVersion("0.5.0.137")]
+[assembly: AssemblyFileVersion("0.5.0.137")]

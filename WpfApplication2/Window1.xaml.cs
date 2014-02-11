@@ -1651,7 +1651,7 @@ namespace NanoTrans
 
         }
 
-        private bool CheckWritePermissions(string path)
+        public static bool CheckWritePermissions(string path)
         {
             /*
             var set = new PermissionSet(PermissionState.None);
@@ -1718,7 +1718,7 @@ namespace NanoTrans
             Thread t = new Thread(
                 delegate()
                 {
-                    if (Element.SpellChecker.LoadVocabulary())
+                    if (SpellChecker.LoadVocabulary())
                     {
                         this.Dispatcher.Invoke(new Action(
                     delegate()

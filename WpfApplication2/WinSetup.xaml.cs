@@ -10,8 +10,10 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.IO;
-using Microsoft.Windows.Controls;
-
+using Microsoft.Win32;
+using Ionic.Zip;
+using System.Linq;
+using System.Configuration;
 
 namespace NanoTrans
 {
@@ -360,5 +362,137 @@ namespace NanoTrans
             VyplnTextHlasovehoOvladani(tbMluvciHlasovehoOvladani, bPomocnyMluvciHlasovehoOvladaniPredUlozenim);
         }
 
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+            string URL = ConfigurationManager.AppSettings["OODictionarySource"];
+            Stream s= DownloadOneFileWindow.DownloadFile(URL);
+            if (s == null)
+            {
+                MessageBox.Show(this, "Soubor nebyl stažen, uživatel zastavil stahování, cílová adresa už neexistuje, nebo není dostupné připojení k internetu", "Problém se stahováním z internetu", MessageBoxButton.OK, MessageBoxImage.Warning); 
+            }else
+                GetDictionaryFromZip(s);
+        }
+
+        private void Button_Click_2(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog of = new OpenFileDialog();
+            of.Filter = "Rozšíření OpenOffice 3 {*.zip,*.oxt} |*.zip;*.oxt";
+
+            if (of.ShowDialog(this)==true)
+            {
+                try
+                {
+                    GetDictionaryFromZip(of.OpenFile());
+                }
+                catch
+                {
+                    MessageBox.Show(this, "Soubor nelze otevřít, je poškozený, nebo to není rozšíření Open Office 3", "Problém s otevřením souboru",MessageBoxButton.OK,MessageBoxImage.Warning);   
+                }
+            }
+        }
+
+        private void GetDictionaryFromZip(Stream s)
+        {
+            ZipFile zf = ZipFile.Read(s);
+            var entry = zf.Entries.Where(en => en.FileName.EndsWith(".aff")).ToArray();
+
+            if (entry.Length > 0)
+            {
+                var aff = entry[0];
+                var dic = zf.Entries.Where(en => en.FileName == System.IO.Path.GetFileNameWithoutExtension(aff.FileName) + ".dic").FirstOrDefault();
+
+                if (dic != null)
+                {
+                    if (MessageBox.Show(this, "Načíst slovník " + System.IO.Path.GetFileNameWithoutExtension(aff.FileName) + "?", "Načtení slovníku", MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK)
+                    {
+                        var readme = zf.Entries.Where(en => en.FileName.ToLower().Contains("readme")).FirstOrDefault();
+                        if (readme != null)
+                        {
+                            string ss = new StreamReader(readme.OpenReader()).ReadToEnd();
+                            
+                            if (TextWallWindow.ShowWall(true, "Pro instalaci slovníků si musíte být vědomi tohoto:", ss))
+                            {
+                                
+                                if (SpellChecker.SpellEngine != null)
+                                {
+                                    SpellChecker.SpellEngine.Dispose();
+                                    SpellChecker.SpellEngine = null;
+                                }
+                                if (Window1.CheckWritePermissions(MySetup.Setup.absolutniCestaEXEprogramu + "\\" + MyKONST.KONFIGURACNI_SOUBOR))
+                                {
+                                    File.WriteAllText(MySetup.Setup.absolutniCestaEXEprogramu + "\\data\\readme_slovniky.txt", ss);
+                                    string p = MySetup.Setup.absolutniCestaEXEprogramu + "\\data\\cs_CZ.aff";
+                                    if (File.Exists(p))
+                                        File.Delete(p);
+                                    using (Stream fs = File.OpenWrite(p))
+                                        aff.Extract(fs);
+                                    p = MySetup.Setup.absolutniCestaEXEprogramu + "\\data\\cs_CZ.dic";
+                                    if (File.Exists(p))
+                                        File.Delete(p);
+                                    using (Stream fs = File.OpenWrite(p))
+                                        dic.Extract(fs);
+                                }
+                                else
+                                {
+                                    File.WriteAllText(System.IO.Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData))+ "\\NanoTrans\\data\\readme_slovniky.txt", ss);
+
+                                    string p = System.IO.Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\NanoTrans\\data\\cs_CZ.aff");
+                                    if (File.Exists(p))
+                                        File.Delete(p);
+                                    using (Stream fs = File.OpenWrite(p))
+                                        aff.Extract(fs);
+                                    p = System.IO.Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\NanoTrans\\data\\cs_CZ.dic");
+                                    if (File.Exists(p))
+                                        File.Delete(p);
+                                    using (Stream fs = File.OpenWrite(p))
+                                        dic.Extract(fs);
+                                }
+                                SpellChecker.LoadVocabulary();
+                                MessageBox.Show(this, "Slovníky pro kontrolu pravopisu byly nainstalovány", "Informace", MessageBoxButton.OK, MessageBoxImage.Information);
+                            }
+                        }
+
+                    }
+                }
+
+            }
+        }
+
     }
+
+    public class CollapseOnNullConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter,
+               System.Globalization.CultureInfo culture)
+        {
+            if (value == null)
+                return System.Windows.Visibility.Collapsed;
+            else
+                return System.Windows.Visibility.Visible;
+        }
+        public object ConvertBack(object value, Type targetType, object parameter,
+               System.Globalization.CultureInfo culture)
+        {
+            throw new NotSupportedException("unexpected Convertback");
+        }
+    }
+
+    public class CollapseOnNotNullConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter,
+               System.Globalization.CultureInfo culture)
+        {
+            if (value != null)
+                return System.Windows.Visibility.Collapsed;
+            else
+                return System.Windows.Visibility.Visible;
+        }
+        public object ConvertBack(object value, Type targetType, object parameter,
+               System.Globalization.CultureInfo culture)
+        {
+            throw new NotSupportedException("unexpected Convertback");
+        }
+    }
+
+
 }

@@ -7,12 +7,12 @@ using System.Windows;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Updater")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("NanoTrans Updater")]
+[assembly: AssemblyDescription("NanoTrans Updater")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("HP")]
-[assembly: AssemblyProduct("Updater")]
-[assembly: AssemblyCopyright("Copyright © HP 2012")]
+[assembly: AssemblyCompany("TUL::Speechlab")]
+[assembly: AssemblyProduct("NanoTrans Updater")]
+[assembly: AssemblyCopyright("Copyright © TUL::Speechlab 2012")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
