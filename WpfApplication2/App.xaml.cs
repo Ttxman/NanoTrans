@@ -21,8 +21,8 @@ namespace NanoTrans
 
             AppDomain.CurrentDomain.FirstChanceException += CurrentDomain_FirstChanceException;
 
-          //  LocalizeDictionary.Instance.SetCurrentThreadCulture = true;
-          //  LocalizeDictionary.Instance.Culture = new CultureInfo("en");
+           LocalizeDictionary.Instance.SetCurrentThreadCulture = true;
+           LocalizeDictionary.Instance.Culture = new CultureInfo("en");
 
         }
 

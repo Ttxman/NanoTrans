@@ -80,7 +80,7 @@ namespace NanoTrans.Core
                 }
 
                 if (string.IsNullOrEmpty(pJmeno))
-                    pJmeno = "Mluvčí";
+                    pJmeno = "---";
                 return pJmeno;
             }
         }

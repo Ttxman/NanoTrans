@@ -304,6 +304,15 @@ namespace NanoTrans.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to kasel,ehm,smich,ticho,nadech,hluk,hudba,mlask.
+        /// </summary>
+        public static string GlobalNonSpeechEvents {
+            get {
+                return ResourceManager.GetString("GlobalNonSpeechEvents", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Zavřít.
         /// </summary>
         public static string HelpWindowCloseButtonText {

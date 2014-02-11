@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-//using System.Linq;
+using System.Linq;
 using System.Text;
 using System.Windows.Media;
 using System.IO;
@@ -22,13 +22,13 @@ namespace NanoTrans
 
     public class SingletonRefresher : System.ComponentModel.INotifyPropertyChanged
     {
-        private MySetup m_setup;
+        private MySetup _setup;
         public MySetup Setup
         {
-            get { return m_setup; }
+            get { return _setup; }
             set
             {
-                m_setup = value;
+                _setup = value;
                 if (PropertyChanged != null)
                     PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs("Setup"));
             }
@@ -59,46 +59,46 @@ namespace NanoTrans
 
         static MySetup()
         {
-            m_setup = new MySetup();
-            m_refresher = new SingletonRefresher() { Setup = m_setup };
+            _setup = new MySetup();
+            _refresher = new SingletonRefresher() { Setup = _setup };
         }
-        private static MySetup m_setup;
+        private static MySetup _setup;
         public static MySetup Setup
         {
             set
             {
-                m_setup = value;
-                m_refresher.Setup = value;
+                _setup = value;
+                _refresher.Setup = value;
             }
             get 
             {
-                if (m_setup == null)
-                    m_setup = new MySetup();
-                return m_setup; 
+                if (_setup == null)
+                    _setup = new MySetup();
+                return _setup; 
             }
         }
 
 
-        static SingletonRefresher m_refresher = null;
+        static SingletonRefresher _refresher = null;
         //tohle je hack protoze tahle trida nebyla vytvarena jako singleton a objekt v Setup se muze menit
         public static SingletonRefresher Refresher
         {
             get
             {
-                return m_refresher;
+                return _refresher;
             }
         }
 
 
 
-        Brush m_BarvaTextBoxuOdstavce;
+        Brush _BarvaTextBoxuOdstavce;
         [XmlIgnore]
         public Brush BarvaTextBoxuOdstavce //udava barvu textboxu
         {
-            get { return m_BarvaTextBoxuOdstavce; }
+            get { return _BarvaTextBoxuOdstavce; }
             set
             {
-                m_BarvaTextBoxuOdstavce = value;
+                _BarvaTextBoxuOdstavce = value;
                 if (PropertyChanged != null)
                     PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs("BarvaTextBoxuOdstavce"));
             }
@@ -129,15 +129,16 @@ namespace NanoTrans
 
         public double ZpomalenePrehravaniRychlost { get; set; } //rychlost zpomaleneho prehravani
         public double VlnaMalySkok { get; set; } //delka maleho skoku na vlne
+        [XmlIgnore]
         public string[] NerecoveUdalosti { get; set; }
 
-        double m_SetupTextFontSize;
+        double _SetupTextFontSize;
         public double SetupTextFontSize //udava velikost pisma v textboxech   
         {
-            get { return m_SetupTextFontSize; }
+            get { return _SetupTextFontSize; }
             set
             {
-                m_SetupTextFontSize = value;
+                _SetupTextFontSize = value;
                 if (PropertyChanged != null)
                 {
                     PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs("SetupTextFontSize"));
@@ -148,23 +149,23 @@ namespace NanoTrans
 
         public double SetupOthersFontSize
         {
-            get { return m_SetupTextFontSize * 0.87; }
+            get { return _SetupTextFontSize * 0.87; }
         }
 
 
-        private string m_CestaDatabazeMluvcich;
+        private string _CestaDatabazeMluvcich;
         public string CestaDatabazeMluvcich
         {
             get
             {
-                if (!Path.IsPathRooted(m_CestaDatabazeMluvcich))
-                    return Path.Combine(FilePaths.ProgramDirectory,m_CestaDatabazeMluvcich);
+                if (!Path.IsPathRooted(_CestaDatabazeMluvcich))
+                    return Path.Combine(FilePaths.ProgramDirectory,_CestaDatabazeMluvcich);
                 else
-                    return m_CestaDatabazeMluvcich;
+                    return _CestaDatabazeMluvcich;
             }
             set
             {
-                m_CestaDatabazeMluvcich = value;
+                _CestaDatabazeMluvcich = value;
             }
         }
 
@@ -222,7 +223,7 @@ namespace NanoTrans
             audio.OutputDeviceIndex = 0;
             audio.InputDeviceIndex = 0;
 
-            CestaDatabazeMluvcich = "Data\\DatabazeMluvcich.xml";
+            CestaDatabazeMluvcich = "Data\\SpeakersDatabase.xml";
 
             SetupTextFontSize = 13;
 
@@ -236,6 +237,11 @@ namespace NanoTrans
             ZpomalenePrehravaniRychlost = 0.8;
             VlnaMalySkok  = 5;
             NerecoveUdalosti = new[] { "kasel", "ehm", "smich", "ticho", "nadech", "hluk", "hudba", "mlask" };
+
+            try
+            {
+                NerecoveUdalosti = NanoTrans.Properties.Strings.GlobalNonSpeechEvents.Split(',',';').Select(s=>s.Trim()).ToArray();
+            }catch{}
             
         }
 

@@ -118,505 +118,501 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="FileDialogLoadOODictionaryFilter" xml:space="preserve">
-    <value>OpenOffice 3 plugins {*.zip,*.oxt} |*.zip;*.oxt</value>
+    <value>@FileDialogLoadOODictionaryFilter</value>
   </data>
   <data name="FileDialogLoadSpeakersDatabaseFilter" xml:space="preserve">
-    <value>Speaker database file (*{0})|*{1}|All Files (*.*)|*.*</value>
+    <value>@FileDialogLoadSpeakersDatabaseFilter</value>
   </data>
   <data name="FileDialogLoadSpeakersDatabaseTitle" xml:space="preserve">
-    <value>Open speakers database</value>
+    <value>@FileDialogLoadSpeakersDatabaseTitle</value>
   </data>
   <data name="FileDialogSaveSpeakersDatabaseTitle" xml:space="preserve">
-    <value>Save Speakers database ..</value>
+    <value>@FileDialogSaveSpeakersDatabaseTitle</value>
   </data>
   <data name="infoPanelsVideoHeader" xml:space="preserve">
-    <value>Video</value>
+    <value>@infoPanelsVideoHeader</value>
   </data>
   <data name="mainWindowAudioPanelHeader" xml:space="preserve">
-    <value>Audio:</value>
+    <value>@mainWindowAudioPanelHeader</value>
   </data>
   <data name="mainWindowLoadAudioButtonText" xml:space="preserve">
-    <value>Audio...</value>
+    <value>@mainWindowLoadAudioButtonText</value>
   </data>
   <data name="mainWindowStatusbarAudioConversionHeader" xml:space="preserve">
-    <value>Audio conversion:</value>
+    <value>@mainWindowStatusbarAudioConversionHeader</value>
   </data>
   <data name="mainWindowStatusbarStatusTextConversionDone" xml:space="preserve">
-    <value>Conversion done!</value>
+    <value>@mainWindowStatusbarStatusTextConversionDone</value>
   </data>
   <data name="mainWindowStatusbarStatusTextConversionRunning" xml:space="preserve">
-    <value>Converting audio...</value>
+    <value>@mainWindowStatusbarStatusTextConversionRunning</value>
   </data>
   <data name="mainWindowStatusbarStatusTextReady" xml:space="preserve">
-    <value>Ready</value>
+    <value>@mainWindowStatusbarStatusTextReady</value>
   </data>
   <data name="menuEdit" xml:space="preserve">
-    <value>Edit</value>
+    <value>@menuEdit</value>
   </data>
   <data name="menuEditDeleteElement" xml:space="preserve">
-    <value>Delete element</value>
+    <value>@menuEditDeleteElement</value>
   </data>
   <data name="menuEditDeleteNonSpeechEvents" xml:space="preserve">
-    <value>Remove non-speech events</value>
+    <value>@menuEditDeleteNonSpeechEvents</value>
   </data>
   <data name="menuEditNewChapter" xml:space="preserve">
-    <value>New chapter</value>
+    <value>@menuEditNewChapter</value>
   </data>
   <data name="menuEditNewSection" xml:space="preserve">
-    <value>New section at selected position</value>
+    <value>@menuEditNewSection</value>
   </data>
   <data name="menuFile" xml:space="preserve">
-    <value>File</value>
+    <value>@menuFile</value>
   </data>
   <data name="menuFileExit" xml:space="preserve">
-    <value>Exit</value>
+    <value>@menuFileExit</value>
   </data>
   <data name="menufileExport" xml:space="preserve">
-    <value>Export (Ctrl+Shift+E)</value>
+    <value>@menufileExport</value>
   </data>
   <data name="menuFileImport" xml:space="preserve">
-    <value>Import (Ctrl+Shift+I)</value>
+    <value>@menuFileImport</value>
   </data>
   <data name="menuFileNewTranscription" xml:space="preserve">
-    <value>New transcription</value>
+    <value>@menuFileNewTranscription</value>
   </data>
   <data name="menufileOpenAudio" xml:space="preserve">
-    <value>Open audio</value>
+    <value>@menufileOpenAudio</value>
   </data>
   <data name="menuFileOpenTranscription" xml:space="preserve">
-    <value>Open transcription</value>
+    <value>@menuFileOpenTranscription</value>
   </data>
   <data name="menuFileOpenVideo" xml:space="preserve">
-    <value>Open video</value>
+    <value>@menuFileOpenVideo</value>
   </data>
   <data name="menuFileSave" xml:space="preserve">
-    <value>Save transcription</value>
+    <value>@menuFileSave</value>
   </data>
   <data name="menuFileSaveAs" xml:space="preserve">
-    <value>Save transcription as</value>
+    <value>@menuFileSaveAs</value>
   </data>
   <data name="menuHelp" xml:space="preserve">
-    <value>Help</value>
+    <value>@menuHelp</value>
   </data>
   <data name="menuHelpAbout" xml:space="preserve">
-    <value>About</value>
+    <value>@menuHelpAbout</value>
   </data>
   <data name="menuHelpHelp" xml:space="preserve">
-    <value>About</value>
+    <value>@menuHelpHelp</value>
   </data>
   <data name="menuTools" xml:space="preserve">
-    <value>_Tools</value>
+    <value>@menuTools</value>
   </data>
   <data name="menuToolsFonetics" xml:space="preserve">
-    <value>Fonetic Transcription</value>
+    <value>@menuToolsFonetics</value>
   </data>
   <data name="menuToolsFoneticsShow" xml:space="preserve">
-    <value>Show fonetic transcription</value>
+    <value>@menuToolsFoneticsShow</value>
   </data>
   <data name="menuToolsSetSpeaker" xml:space="preserve">
-    <value>Set speaker</value>
+    <value>@menuToolsSetSpeaker</value>
   </data>
   <data name="menuToolsSettings" xml:space="preserve">
-    <value>Settings</value>
+    <value>@menuToolsSettings</value>
   </data>
   <data name="menuToolsVideo" xml:space="preserve">
-    <value>Video</value>
+    <value>@menuToolsVideo</value>
   </data>
   <data name="menuToolsVideoShow" xml:space="preserve">
-    <value>
-Show Video</value>
+    <value>@menuToolsVideoShow</value>
   </data>
   <data name="MessageBoxAudioFormatError" xml:space="preserve">
-    <value>Audio file format cannot be opened. The file is corrupted or  in an invalid format.</value>
+    <value>@MessageBoxAudioFormatError</value>
   </data>
   <data name="MessageBoxCannotTakeSnapshotVideoNotLoaded" xml:space="preserve">
-    <value>Cannot capture a speaker miniature, video is not loaded-</value>
+    <value>@MessageBoxCannotTakeSnapshotVideoNotLoaded</value>
   </data>
   <data name="MessageBoxConfigFileDeserializationError" xml:space="preserve">
-    <value>Error occured when loading program settings</value>
+    <value>@MessageBoxConfigFileDeserializationError</value>
   </data>
   <data name="MessageBoxConfirmSpeakerDeletion" xml:space="preserve">
-    <value>Do you realy want to delete selected speaker from database?</value>
+    <value>@MessageBoxConfirmSpeakerDeletion</value>
   </data>
   <data name="MessageBoxConfirmUsedSpeakerDeletion" xml:space="preserve">
-    <value>Do you realy want to delete selected speaker from database? (speaker is used in current transcription and will be replaced by the empty speaker)</value>
+    <value>@MessageBoxConfirmUsedSpeakerDeletion</value>
   </data>
   <data name="MessageBoxDictinaryInstalled" xml:space="preserve">
-    <value>Spellchecking dictionary was installed</value>
+    <value>@MessageBoxDictinaryInstalled</value>
   </data>
   <data name="MessageBoxDictionaryConfirmLoad" xml:space="preserve">
-    <value>Load spellcheking dictionary {0}?</value>
+    <value>@MessageBoxDictionaryConfirmLoad</value>
   </data>
   <data name="MessageBoxDictionaryDownloadError" xml:space="preserve">
-    <value>Cannot download file, download was canceled by the user, file was removed from server or the internet connection is not active.</value>
+    <value>@MessageBoxDictionaryDownloadError</value>
   </data>
   <data name="MessageBoxDictionaryDownloadErrorCaption" xml:space="preserve">
-    <value>Downloading error</value>
+    <value>@MessageBoxDictionaryDownloadErrorCaption</value>
   </data>
   <data name="MessageBoxDictionaryFormatError" xml:space="preserve">
-    <value>Cannot open the file. file is corrupted or not in the Open Office 3 format</value>
+    <value>@MessageBoxDictionaryFormatError</value>
   </data>
   <data name="MessageBoxErrorCaption" xml:space="preserve">
-    <value>Error</value>
+    <value>@MessageBoxErrorCaption</value>
   </data>
   <data name="MessageBoxExportError" xml:space="preserve">
-    <value>Error occured during export...</value>
+    <value>@MessageBoxExportError</value>
   </data>
   <data name="MessageBoxImportError" xml:space="preserve">
-    <value>Error occured during import...</value>
+    <value>@MessageBoxImportError</value>
   </data>
   <data name="MessageBoxInfoCaption" xml:space="preserve">
-    <value>Information</value>
+    <value>@MessageBoxInfoCaption</value>
   </data>
   <data name="MessageBoxLocalSpeakersDatabaseUnreachableLoad" xml:space="preserve">
-    <value>The Speakers Database file is unreachable, please set valid location in settings.</value>
+    <value>@MessageBoxLocalSpeakersDatabaseUnreachableLoad</value>
   </data>
   <data name="MessageBoxLocalSpeakersDatabaseUnreachableSave" xml:space="preserve">
-    <value>The Speakers Database file is unreachablecannot save speakers.</value>
+    <value>@MessageBoxLocalSpeakersDatabaseUnreachableSave</value>
   </data>
   <data name="MessageBoxOpenTranscriptionError" xml:space="preserve">
-    <value>Error occured in the transcription: </value>
+    <value>@MessageBoxOpenTranscriptionError</value>
   </data>
   <data name="MessageBoxQuestionCaption" xml:space="preserve">
-    <value>Question:</value>
+    <value>@MessageBoxQuestionCaption</value>
   </data>
   <data name="MessageBoxSaveBeforeClosing" xml:space="preserve">
-    <value>Current transcription is not saved. Save now?</value>
+    <value>@MessageBoxSaveBeforeClosing</value>
   </data>
   <data name="MessageBoxSaveTranscriptionError" xml:space="preserve">
-    <value>Cannot save transcription (exception occured)</value>
+    <value>@MessageBoxSaveTranscriptionError</value>
   </data>
   <data name="MessageBoxSearchCaption" xml:space="preserve">
-    <value>Find</value>
+    <value>@MessageBoxSearchCaption</value>
   </data>
   <data name="MessageBoxSearchTryFromBegining" xml:space="preserve">
-    <value>The specified text was not found, start again from the start?</value>
+    <value>@MessageBoxSearchTryFromBegining</value>
   </data>
   <data name="MessageBoxSpeakerCannotReplace" xml:space="preserve">
-    <value>Cannot convert</value>
+    <value>@MessageBoxSpeakerCannotReplace</value>
   </data>
   <data name="MessageBoxSpeakerReplaceDone" xml:space="preserve">
-    <value>converted</value>
+    <value>@MessageBoxSpeakerReplaceDone</value>
   </data>
   <data name="MessageBoxSpeakerReplaceTargetNotSelected" xml:space="preserve">
-    <value>Target speaker is not selected.</value>
+    <value>@MessageBoxSpeakerReplaceTargetNotSelected</value>
   </data>
   <data name="MessageBoxTooShortParagraph" xml:space="preserve">
-    <value>Any paragraph cannot be shorter than 100ms</value>
+    <value>@MessageBoxTooShortParagraph</value>
   </data>
   <data name="MessageBoxUseVideoFileAsAudioSource" xml:space="preserve">
-    <value>Use the video file as  an audio source?</value>
+    <value>@MessageBoxUseVideoFileAsAudioSource</value>
   </data>
   <data name="MessageBoxWarningCaption" xml:space="preserve">
-    <value>Warning</value>
+    <value>@MessageBoxWarningCaption</value>
   </data>
   <data name="OODictionaryLicenceTitle" xml:space="preserve">
-    <value>You have to accept the licence agreement of spellchecking dictionary</value>
+    <value>@OODictionaryLicenceTitle</value>
   </data>
   <data name="WaveformContextMenuSetEnd" xml:space="preserve">
-    <value>Set the time to the end of the element</value>
+    <value>@WaveformContextMenuSetEnd</value>
   </data>
   <data name="WaveformContextMenuSetSelection" xml:space="preserve">
-    <value>Set the slecetion time to the element</value>
+    <value>@WaveformContextMenuSetSelection</value>
   </data>
   <data name="WaveformContextMenuSetStart" xml:space="preserve">
-    <value>Set the time to the begining of the element</value>
+    <value>@WaveformContextMenuSetStart</value>
   </data>
   <data name="WaveformContextMenuSetStartToCursor" xml:space="preserve">
-    <value>Move transcription - Start to the cursor</value>
+    <value>@WaveformContextMenuSetStartToCursor</value>
   </data>
   <data name="WinSetupAudioPlayback" xml:space="preserve">
-    <value>Audio Playback</value>
+    <value>@WinSetupAudioPlayback</value>
   </data>
   <data name="WinSetupAudioRecording" xml:space="preserve">
-    <value>Audio Recording</value>
+    <value>@WinSetupAudioRecording</value>
   </data>
   <data name="WinSetupAudioTab" xml:space="preserve">
-    <value> Audio</value>
+    <value>@WinSetupAudioTab</value>
   </data>
   <data name="WinSetupInputDevices" xml:space="preserve">
-    <value>Input devices:</value>
+    <value>@WinSetupInputDevices</value>
   </data>
   <data name="WinSetupJumpLength" xml:space="preserve">
-    <value>Jump length:</value>
+    <value>@WinSetupJumpLength</value>
   </data>
   <data name="WinSetupOKButton" xml:space="preserve">
-    <value>OK</value>
+    <value>@WinSetupOKButton</value>
   </data>
   <data name="WinSetupOthersTab" xml:space="preserve">
-    <value>Other settings</value>
+    <value>@WinSetupOthersTab</value>
   </data>
   <data name="WinSetupOutputDevices" xml:space="preserve">
-    <value>Output devices:</value>
+    <value>@WinSetupOutputDevices</value>
   </data>
   <data name="WinSetupPlaybackSettings" xml:space="preserve">
-    <value>Playback settings</value>
+    <value>@WinSetupPlaybackSettings</value>
   </data>
   <data name="WinSetupPlaybackTab" xml:space="preserve">
-    <value>Playback</value>
+    <value>@WinSetupPlaybackTab</value>
   </data>
   <data name="WinSetupSlowPlaybackSpeed" xml:space="preserve">
-    <value>Slowed plaback - speed:</value>
+    <value>@WinSetupSlowPlaybackSpeed</value>
   </data>
   <data name="WinSetupSpeakersDatabaseButtonTitle" xml:space="preserve">
-    <value>Load...</value>
+    <value>@WinSetupSpeakersDatabaseButtonTitle</value>
   </data>
   <data name="WinSetupSpeakersDatabaseLabelTitle" xml:space="preserve">
-    <value>File:</value>
+    <value>@WinSetupSpeakersDatabaseLabelTitle</value>
   </data>
   <data name="WinSetupSpeakersDatabaseTitle" xml:space="preserve">
-    <value>Speakers database loacation</value>
+    <value>@WinSetupSpeakersDatabaseTitle</value>
   </data>
   <data name="WinSetupSpellchekingDownloadAutomatically" xml:space="preserve">
-    <value>Download dictionary automaticaly</value>
+    <value>@WinSetupSpellchekingDownloadAutomatically</value>
   </data>
   <data name="WinSetupSpellchekingSetManually" xml:space="preserve">
-    <value>Open file manually</value>
+    <value>@WinSetupSpellchekingSetManually</value>
   </data>
   <data name="WinSetupSpellchekingTitle" xml:space="preserve">
-    <value>Spellcheking dictionary</value>
+    <value>@WinSetupSpellchekingTitle</value>
   </data>
   <data name="WinSetupSpellchekingUpdateAutomatically" xml:space="preserve">
-    <value>Update dictionary automatically</value>
+    <value>@WinSetupSpellchekingUpdateAutomatically</value>
   </data>
   <data name="WinSetupStornoButton" xml:space="preserve">
-    <value>Storno</value>
+    <value>@WinSetupStornoButton</value>
   </data>
   <data name="WinSetupTextualTranscriptionFontSize" xml:space="preserve">
-    <value>Transcription font size:</value>
+    <value>@WinSetupTextualTranscriptionFontSize</value>
   </data>
   <data name="WinSetupTextualTranscriptionImageSize" xml:space="preserve">
-    <value>Size:</value>
+    <value>@WinSetupTextualTranscriptionImageSize</value>
   </data>
   <data name="WinSetupTextualTranscriptionShowImage" xml:space="preserve">
-    <value>Show speaker miniature</value>
+    <value>@WinSetupTextualTranscriptionShowImage</value>
   </data>
   <data name="WinSetupTextualTranscriptionTitle" xml:space="preserve">
-    <value>Ortographic transcription</value>
+    <value>@WinSetupTextualTranscriptionTitle</value>
   </data>
   <data name="WinSetupTitle" xml:space="preserve">
-    <value>Settings</value>
+    <value>@WinSetupTitle</value>
   </data>
   <data name="TranscriptionContextMenuAdd50ms" xml:space="preserve">
-    <value>Move remaining +50ms</value>
+    <value>@TranscriptionContextMenuAdd50ms</value>
   </data>
   <data name="TranscriptionContextMenuDeleteElement" xml:space="preserve">
-    <value>Delete...</value>
+    <value>@TranscriptionContextMenuDeleteElement</value>
   </data>
   <data name="TranscriptionContextMenuExport" xml:space="preserve">
-    <value>Export paragraph</value>
+    <value>@TranscriptionContextMenuExport</value>
   </data>
   <data name="TranscriptionContextMenuNewChapter" xml:space="preserve">
-    <value>New chapter</value>
+    <value>@TranscriptionContextMenuNewChapter</value>
   </data>
   <data name="TranscriptionContextMenuNewSection" xml:space="preserve">
-    <value>New section</value>
+    <value>@TranscriptionContextMenuNewSection</value>
   </data>
   <data name="TranscriptionContextMenuNewSectionAtPosition" xml:space="preserve">
-    <value>New section at position</value>
+    <value>@TranscriptionContextMenuNewSectionAtPosition</value>
   </data>
   <data name="TranscriptionContextMenuSetSpeaker" xml:space="preserve">
-    <value>Set speaker</value>
+    <value>@TranscriptionContextMenuSetSpeaker</value>
   </data>
   <data name="TranscriptionContextMenuSubstract50ms" xml:space="preserve">
-    <value>Move remaining -50ms</value>
+    <value>@TranscriptionContextMenuSubstract50ms</value>
   </data>
   <data name="VideoContextMenuTakeSnapshot" xml:space="preserve">
-    <value>Take image of the speaker</value>
+    <value>@VideoContextMenuTakeSnapshot</value>
   </data>
   <data name="AboutWindowTitle" xml:space="preserve">
-    <value>About</value>
+    <value>@AboutWindowTitle</value>
   </data>
   <data name="DefaultChapterText" xml:space="preserve">
-    <value>Chapter 0</value>
+    <value>@DefaultChapterText</value>
   </data>
   <data name="DefaultSectionText" xml:space="preserve">
-    <value>Section 0</value>
+    <value>@DefaultSectionText</value>
   </data>
   <data name="DownloadFileWindowTitle" xml:space="preserve">
-    <value>Downloading...</value>
+    <value>@DownloadFileWindowTitle</value>
   </data>
   <data name="ExceptionWindowBigMessage" xml:space="preserve">
-    <value>An unhandled exception occured. To prevent the corruption, please save transcription to new file  and restart the NanoTrans.</value>
+    <value>@ExceptionWindowBigMessage</value>
   </data>
   <data name="ExceptionWindowExceptionTitle" xml:space="preserve">
-    <value>Exception detail:</value>
+    <value>@ExceptionWindowExceptionTitle</value>
   </data>
   <data name="ExceptionWindowSaveAndRestartButton" xml:space="preserve">
-    <value>Save and restart</value>
+    <value>@ExceptionWindowSaveAndRestartButton</value>
   </data>
   <data name="ExceptionWindowTitle" xml:space="preserve">
-    <value>Unhandled exception occured</value>
+    <value>@ExceptionWindowTitle</value>
   </data>
   <data name="FileDialogLoadImageFilter" xml:space="preserve">
-    <value>Image Files|*.jpg;*.jpeg;*.png;*.gif;*.bmp|All files (*.*)|*.*</value>
+    <value>@FileDialogLoadImageFilter</value>
   </data>
   <data name="FileDialogLoadImageTitle" xml:space="preserve">
-    <value>Open file with a speaker miniature</value>
+    <value>@FileDialogLoadImageTitle</value>
   </data>
   <data name="FileDialogLoadImportFilter" xml:space="preserve">
-    <value>All importable files({0})|{0}</value>
+    <value>@FileDialogLoadImportFilter</value>
   </data>
   <data name="FileDialogLoadImportTitle" xml:space="preserve">
-    <value>Import file</value>
+    <value>@FileDialogLoadImportTitle</value>
   </data>
   <data name="FileDialogLoadTranscriptionFilter" xml:space="preserve">
-    <value>Transcription Files (*.trsx)|*.trsx|All Files (*.*)|*.*</value>
+    <value>@FileDialogLoadTranscriptionFilter</value>
   </data>
   <data name="FileDialogLoadTranscriptionTitle" xml:space="preserve">
-    <value>Open transcription file ...</value>
+    <value>@FileDialogLoadTranscriptionTitle</value>
   </data>
   <data name="FileDialogSaveTranscriptionFilter" xml:space="preserve">
-    <value>Transcription Files (*.trsx)|*.trsx|All files (*.*)|*.*</value>
+    <value>@FileDialogSaveTranscriptionFilter</value>
   </data>
   <data name="FileDialogSaveTranscriptionTitle" xml:space="preserve">
-    <value>Save transcription file...</value>
+    <value>@FileDialogSaveTranscriptionTitle</value>
   </data>
   <data name="FindDialogCaseSensitiveCheckbox" xml:space="preserve">
-    <value>Case senitive search</value>
+    <value>@FindDialogCaseSensitiveCheckbox</value>
   </data>
   <data name="FindDialogNextButton" xml:space="preserve">
-    <value>Find next</value>
+    <value>@FindDialogNextButton</value>
   </data>
   <data name="FindDialogSearchInSpeakersCheckbox" xml:space="preserve">
-    <value>Search in Speakers</value>
+    <value>@FindDialogSearchInSpeakersCheckbox</value>
   </data>
   <data name="FindDialogSearchLable" xml:space="preserve">
-    <value>Find:</value>
+    <value>@FindDialogSearchLable</value>
   </data>
   <data name="FindDialogTitle" xml:space="preserve">
-    <value>Find</value>
+    <value>@FindDialogTitle</value>
   </data>
   <data name="FindDialogUseRegexCheckbox" xml:space="preserve">
-    <value>Use regular expressions</value>
+    <value>@FindDialogUseRegexCheckbox</value>
   </data>
   <data name="HelpWindowCloseButtonText" xml:space="preserve">
-    <value>Close</value>
+    <value>@HelpWindowCloseButtonText</value>
   </data>
   <data name="HelpWindowTitle" xml:space="preserve">
-    <value>Help</value>
+    <value>@HelpWindowTitle</value>
   </data>
   <data name="ImportSelectImportPlugin" xml:space="preserve">
-    <value>File can be imported by two or more plugins, please select one. </value>
+    <value>@ImportSelectImportPlugin</value>
   </data>
   <data name="LoadAudioFilter" xml:space="preserve">
-    <value>Multimedia files (*.wav, *.mp3, *.wma, *.avi, *.mpg, *.wmv)|*.wav;*.mp3;*.wma;*.avi;*.mpg;*.mpeg;*.wmv|Audio files(*.wav, *.mp3, *.wma)|*.wav;*.mp3;*.wma|All files (*.*)|*.*</value>
+    <value>@LoadAudioFilter</value>
   </data>
   <data name="LoadAudioTitle" xml:space="preserve">
-    <value>Open audio file...</value>
+    <value>@LoadAudioTitle</value>
   </data>
   <data name="LoadVideoFilter" xml:space="preserve">
-    <value>Video file (*.avi, *.mpg, *.wmv)|*.avi;*.mpg;*.mpeg;*.wmv|Všechny soubory (*.*)|*.*</value>
+    <value>@LoadVideoFilter</value>
   </data>
   <data name="LoadVideoTitle" xml:space="preserve">
-    <value>Open video file...</value>
+    <value>@LoadVideoTitle</value>
   </data>
   <data name="PickOneDialogFilterLabel" xml:space="preserve">
-    <value>Filter</value>
+    <value>@PickOneDialogFilterLabel</value>
   </data>
   <data name="PickOneDialogOKButton" xml:space="preserve">
-    <value>OK</value>
+    <value>@PickOneDialogOKButton</value>
   </data>
   <data name="SexConversionFemale" xml:space="preserve">
-    <value>Male</value>
+    <value>@SexConversionFemale</value>
   </data>
   <data name="SexConversionMale" xml:space="preserve">
-    <value>Female</value>
+    <value>@SexConversionMale</value>
   </data>
   <data name="TextWallWindowCancelButton" xml:space="preserve">
-    <value>Cancel</value>
+    <value>@TextWallWindowCancelButton</value>
   </data>
   <data name="TextWallWindowOKButton" xml:space="preserve">
-    <value>OK</value>
+    <value>@TextWallWindowOKButton</value>
   </data>
   <data name="TextWallWindowTitle" xml:space="preserve">
-    <value>TextWallWindow</value>
+    <value>@TextWallWindowTitle</value>
   </data>
   <data name="ContextMenuLanguageHeader" xml:space="preserve">
-    <value>Paragraph language</value>
+    <value>@ContextMenuLanguageHeader</value>
   </data>
   <data name="SpeakerDetailsButtonAddAttribute" xml:space="preserve">
-    <value>Add Attribute</value>
+    <value>@SpeakerDetailsButtonAddAttribute</value>
   </data>
   <data name="SpeakerDetailsButtonDeleteAttribute" xml:space="preserve">
-    <value>Delete Attribure</value>
+    <value>@SpeakerDetailsButtonDeleteAttribute</value>
   </data>
   <data name="SpeakerDetailsButtonEditAttribute" xml:space="preserve">
-    <value>Edit attribute</value>
+    <value>@SpeakerDetailsButtonEditAttribute</value>
   </data>
   <data name="SpeakerDetailsDegreeAfter" xml:space="preserve">
-    <value>Degree after  za:</value>
+    <value>@SpeakerDetailsDegreeAfter</value>
   </data>
   <data name="SpeakerDetailsDegreeBefore" xml:space="preserve">
-    <value>Degreee before:</value>
+    <value>@SpeakerDetailsDegreeBefore</value>
   </data>
   <data name="SpeakerDetailsFirstName" xml:space="preserve">
-    <value>Name:</value>
+    <value>@SpeakerDetailsFirstName</value>
   </data>
   <data name="SpeakerDetailsLabelAttributes" xml:space="preserve">
-    <value>Speaker Attributes</value>
+    <value>@SpeakerDetailsLabelAttributes</value>
   </data>
   <data name="SpeakerDetailsMiddleName" xml:space="preserve">
-    <value>Middle name:</value>
+    <value>@SpeakerDetailsMiddleName</value>
   </data>
   <data name="SpeakerDetailsOnlineReload" xml:space="preserve">
-    <value>Reload</value>
+    <value>@SpeakerDetailsOnlineReload</value>
   </data>
   <data name="SpeakerDetailsOnlineSave" xml:space="preserve">
-    <value>Save</value>
+    <value>@SpeakerDetailsOnlineSave</value>
   </data>
   <data name="SpeakerDetailsSurName" xml:space="preserve">
-    <value>Surname:</value>
+    <value>@SpeakerDetailsSurName</value>
   </data>
   <data name="SpeakersManagerButtonNewSpeaker" xml:space="preserve">
-    <value>New speaker</value>
+    <value>@SpeakersManagerButtonNewSpeaker</value>
   </data>
   <data name="SpeakersManagerButtonOK" xml:space="preserve">
-    <value>OK</value>
+    <value>@SpeakersManagerButtonOK</value>
   </data>
   <data name="SpeakersManagerCheckboxDocumentSpeakers" xml:space="preserve">
-    <value>Speakers from document</value>
+    <value>@SpeakersManagerCheckboxDocumentSpeakers</value>
   </data>
   <data name="SpeakersManagerCheckboxLocalSpeakers" xml:space="preserve">
-    <value>Speakers from local database</value>
+    <value>@SpeakersManagerCheckboxLocalSpeakers</value>
   </data>
   <data name="SpeakersManagerCheckboxOnlineSpeakers" xml:space="preserve">
-    <value>Speakers online</value>
+    <value>@SpeakersManagerCheckboxOnlineSpeakers</value>
   </data>
   <data name="SpeakersManagerCheckboxShowMiniatures" xml:space="preserve">
-    <value>Show speaker meniatures</value>
+    <value>@SpeakersManagerCheckboxShowMiniatures</value>
   </data>
   <data name="SpeakersManagerContextMenuDelete" xml:space="preserve">
-    <value>Delete</value>
+    <value>@SpeakersManagerContextMenuDelete</value>
   </data>
   <data name="SpeakersManagerContextMenuMerge" xml:space="preserve">
-    <value>Merge with the other speakers</value>
+    <value>@SpeakersManagerContextMenuMerge</value>
   </data>
   <data name="SpeakersManagerContextMenuNew" xml:space="preserve">
-    <value>New Sepaker</value>
+    <value>@SpeakersManagerContextMenuNew</value>
   </data>
   <data name="SpeakersManagerContextMenuReplace" xml:space="preserve">
-    <value>Replace int transcription with</value>
+    <value>@SpeakersManagerContextMenuReplace</value>
   </data>
   <data name="SpeakersManagerLabelSearch" xml:space="preserve">
-    <value>Find:</value>
+    <value>@SpeakersManagerLabelSearch</value>
   </data>
   <data name="SpeakersManagerTitle" xml:space="preserve">
-    <value>Speakers manager</value>
+    <value>@SpeakersManagerTitle</value>
   </data>
   <data name="SpeakersSynchronizerButtonOK" xml:space="preserve">
-    <value>OK</value>
+    <value>@SpeakersSynchronizerButtonOK</value>
   </data>
   <data name="SpeakersSynchronizerLabelDocumentList" xml:space="preserve">
-    <value>Speakers from document:</value>
+    <value>@SpeakersSynchronizerLabelDocumentList</value>
   </data>
   <data name="SpeakersSynchronizerLabelLocalList" xml:space="preserve">
-    <value>Speakers from local database:</value>
+    <value>@SpeakersSynchronizerLabelLocalList</value>
   </data>
   <data name="SpeakersSynchronizerTitle" xml:space="preserve">
-    <value>Synchronization of the speakers</value>
-  </data>
-  <data name="GlobalNonSpeechEvents" xml:space="preserve">
-    <value>cough,ehm,laugh,silence,breath,noise,music,smack</value>
+    <value>@SpeakersSynchronizerTitle</value>
   </data>
 </root>
