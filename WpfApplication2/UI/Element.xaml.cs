@@ -19,6 +19,7 @@ using ICSharpCode.AvalonEdit.CodeCompletion;
 using ICSharpCode.AvalonEdit.Editing;
 using ICSharpCode.AvalonEdit.Indentation;
 using System.IO;
+using NanoTrans.Core;
 
 namespace NanoTrans
 {

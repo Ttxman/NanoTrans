@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Windows;
 using System.IO;
 using Microsoft.Win32;
+using NanoTrans.Core;
 
 namespace NanoTrans
 {
@@ -175,7 +176,7 @@ namespace NanoTrans
                     string inputfile = System.IO.Path.Combine(tempFolder, System.IO.Path.GetRandomFileName()) + ".trsx";
                     string tempFile = destfile;
 
-                    data.Serialize(inputfile, true);
+                    data.Serialize(inputfile, true, !MySetup.Setup.SaveInShortFormat);
 
                     ProcessStartInfo psi = new ProcessStartInfo();
 

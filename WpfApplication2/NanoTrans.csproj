@@ -229,6 +229,7 @@
       <DependentUpon>LoadingAnimation.xaml</DependentUpon>
     </Compile>
     <Compile Include="Source\CorrectionsGenerator.cs" />
+    <Compile Include="Source\Transcription.cs" />
     <Compile Include="Source\WaitCursor.cs" />
     <Compile Include="UI\DownloadOneFileWindow.xaml.cs">
       <DependentUpon>DownloadOneFileWindow.xaml</DependentUpon>
@@ -248,7 +249,6 @@
       <DependentUpon>FindDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Source\ImportExportInterfaces.cs" />
-    <Compile Include="Source\MyEnumParagraphAttributes.cs" />
     <Compile Include="Source\Plugin.cs" />
     <Compile Include="UI\ReplaceSpeakerWindow.xaml.cs">
       <DependentUpon>ReplaceSpeakerWindow.xaml</DependentUpon>
@@ -262,6 +262,7 @@
     <Compile Include="UI\TextWallWindow.xaml.cs">
       <DependentUpon>TextWallWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UI\TranscriptionElement.cs" />
     <Compile Include="UI\Waveform.xaml.cs">
       <DependentUpon>Waveform.xaml</DependentUpon>
     </Compile>
@@ -276,11 +277,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Source\MyBuffer16.cs" />
-    <Compile Include="Source\MyEnumTypElementu.cs" />
     <Compile Include="Source\MyKONST.cs" />
     <Compile Include="Source\MySetup.cs" />
-    <Compile Include="Source\MySpeakers.cs" />
-    <Compile Include="Source\MySubtitlesData.cs" />
     <Compile Include="Source\MyVlna.cs" />
     <Compile Include="Source\MyWav.cs" />
     <Compile Include="Source\MyWavePlayer.cs" />
@@ -456,7 +454,12 @@
     <Resource Include="TACR\050_Alfa_logotyp.jpg" />
     <Resource Include="TACR\100_newton.jpg" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Transcription\NanoTrans.Core.csproj">
+      <Project>{80737ca6-01da-4e8c-a2c2-ec9d066d24d6}</Project>
+      <Name>NanoTrans.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

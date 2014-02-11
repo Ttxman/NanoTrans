@@ -51,14 +51,14 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\WpfApplication2\NanoTrans.csproj">
-      <Project>{d7836b04-9ab2-44b6-b976-73c2e4420a0b}</Project>
-      <Name>NanoTrans</Name>
-      <Private>False</Private>
-    </ProjectReference>
+    <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
+    <ProjectReference Include="..\Transcription\NanoTrans.Core.csproj">
+      <Project>{80737ca6-01da-4e8c-a2c2-ec9d066d24d6}</Project>
+      <Name>NanoTrans.Core</Name>
+      <Private>False</Private>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

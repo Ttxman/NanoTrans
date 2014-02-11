@@ -27,6 +27,7 @@ using System.Xml.Linq;
 using System.Reflection;
 using Microsoft.Win32;
 using NanoTrans.Audio;
+using NanoTrans.Core;
 
 namespace NanoTrans
 {
@@ -1085,7 +1086,7 @@ namespace NanoTrans
                         return false;
                 }
 
-                if (myDataSource.Serialize(savePath, MySetup.Setup.UkladatKompletnihoMluvciho))
+                if (myDataSource.Serialize(savePath, MySetup.Setup.UkladatKompletnihoMluvciho, !MySetup.Setup.SaveInShortFormat))
                 {
                     this.Title = MyKONST.NAZEV_PROGRAMU + " [" + myDataSource.JmenoSouboru + "]";
                     return true;
@@ -2332,7 +2333,7 @@ namespace NanoTrans
             if (myDataSource != null)
             {
                 MemoryStream ms = new MemoryStream();
-                myDataSource.Serialize(ms, true);
+                myDataSource.Serialize(ms, true, !MySetup.Setup.SaveInShortFormat);
                 ms.Close();
                 Back_data.Add(ms.ToArray());
             }

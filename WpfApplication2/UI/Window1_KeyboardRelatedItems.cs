@@ -22,6 +22,7 @@ using System.Windows.Threading;
 using System.Text.RegularExpressions;
 using dbg = System.Diagnostics.Debug;
 using Microsoft.Win32;
+using NanoTrans.Core;
 
 
 namespace NanoTrans

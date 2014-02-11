@@ -6,7 +6,7 @@ using NanoTrans;
 using System.IO;
 using System.Reflection;
 using System.Globalization;
-
+using NanoTrans.Core;
 
 namespace TrsxV1Plugin
 {

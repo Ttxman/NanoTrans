@@ -14,6 +14,7 @@ using Microsoft.Win32;
 using Ionic.Zip;
 using System.Linq;
 using System.Configuration;
+using NanoTrans.Core;
 
 namespace NanoTrans
 {

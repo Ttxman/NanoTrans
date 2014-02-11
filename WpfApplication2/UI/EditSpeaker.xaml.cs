@@ -11,6 +11,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.ComponentModel;
+using NanoTrans.Core;
 
 namespace NanoTrans
 {
@@ -50,7 +51,7 @@ namespace NanoTrans
             if (cbJazykovyModel.SelectedIndex > 0) pJazykovyModel = cbJazykovyModel.SelectedItem.ToString();
             if (cbPrepisovaciPravidla.SelectedIndex > 0) pPrepisovaciPravidla = cbPrepisovaciPravidla.SelectedItem.ToString();
 
-            Speaker.Sexes pPohlavi = (Speaker.Sexes)cbPohlavi.SelectedItem;
+            Speaker.Sexes pPohlavi = (Speaker.Sexes)cbPohlavi.SelectedIndex;
             if (cbPohlavi.SelectedIndex <= 0) pPohlavi = Speaker.Sexes.X;
 
             bSpeaker = new Speaker(tbJmeno.Text, tbPrijmeni.Text, pPohlavi, pMluvci, pJazykovyModel, pPrepisovaciPravidla, this.bStringBase64FotoInterni, tbVek.Text);

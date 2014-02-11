@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using NanoTrans;
 using System.IO;
+using NanoTrans.Core;
 namespace TrsxV1Plugin
 {
     public class TrsxV1

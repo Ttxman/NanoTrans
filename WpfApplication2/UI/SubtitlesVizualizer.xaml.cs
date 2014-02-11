@@ -19,6 +19,7 @@ using System.Windows.Media.TextFormatting;
 using System.Collections;
 using System.Windows.Threading;
 using System.Diagnostics;
+using NanoTrans.Core;
 
 namespace NanoTrans
 {

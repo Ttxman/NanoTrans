@@ -5,6 +5,7 @@ using System.Text;
 using NanoTrans;
 using System.IO;
 using System.Reflection;
+using NanoTrans.Core;
 
 namespace ExePlugin
 {
