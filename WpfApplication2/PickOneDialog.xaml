@@ -1,0 +1,18 @@
+﻿<Window x:Class="NanoTrans.PickOneDialog"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
+        <ListBox Name="box" Grid.Row="0" MouseDoubleClick="box_MouseDoubleClick" KeyDown="box_KeyDown" />
+        <StackPanel Grid.Row="1">
+            <Button Click="Button_Click">OK</Button>
+        </StackPanel>
+    </Grid>
+</Window>

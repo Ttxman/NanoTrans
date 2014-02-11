@@ -182,6 +182,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="PickOneDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="SubtitlesVizualizer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -265,8 +269,12 @@
     <Compile Include="ImportExportInterfaces.cs" />
     <Compile Include="MyEnumParagraphAttributes.cs" />
     <Compile Include="MyPrepisovac.cs" />
+    <Compile Include="Plugin.cs" />
     <Compile Include="ReplaceSpeakerWindow.xaml.cs">
       <DependentUpon>ReplaceSpeakerWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PickOneDialog.xaml.cs">
+      <DependentUpon>PickOneDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="SubtitlesVizualizer.xaml.cs">
       <DependentUpon>SubtitlesVizualizer.xaml</DependentUpon>

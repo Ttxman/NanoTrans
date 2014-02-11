@@ -455,7 +455,7 @@ namespace NanoTrans
         }
 
         private bool m_Updating = false;
-        private bool m_updated = false;
+        protected bool m_updated = false;
         public void BeginUpdate()
         {
             m_Updating = true;
@@ -797,7 +797,7 @@ namespace NanoTrans
 
                 return ret;
             }
-            set { }
+            set { throw new NotImplementedException("pokus o vlození textu primo do odstavce"); }
         }
 
 
@@ -873,6 +873,13 @@ namespace NanoTrans
                 }
                 this.DataAttributes = attrs;
             }
+        }
+
+
+        public void SilentEndUpdate()
+        {
+            m_updated = false;
+            EndUpdate();
         }
 
         public int speakerID = MySpeaker.DefaultID;
@@ -1050,7 +1057,7 @@ namespace NanoTrans
             }
         }
 
-        public String name;
+        public string name = string.Empty;
 
         public VirtualTypeList<MyParagraph> Paragraphs;
 
@@ -1162,7 +1169,7 @@ namespace NanoTrans
             }
         }
 
-        public String name;
+        public string name = string.Empty;
 
         public VirtualTypeList<MySection> Sections;
 

@@ -667,7 +667,7 @@ namespace NanoTrans
 
             if (!(ValueElement is MyParagraph) && ValueElement !=null)
             {
-
+                throw new Exception("zapis textu primo do paragrafu");
                 ValueElement.Text = editor.Text;
                 return;
             }
@@ -854,18 +854,28 @@ namespace NanoTrans
             if (addedl > 0)
             {
                 int pos = 0;
-                foreach (MyPhrase p in par.Phrases)
+                if (par.Phrases.Count > 0)
                 {
-                    if (offset <= pos + (EditPhonetics ? p.Phonetics.Length : p.Text.Length)) //vlozeni
+                    foreach (MyPhrase p in par.Phrases)
                     {
-                        string s = (EditPhonetics ? p.Phonetics : p.Text).Insert(offset - pos, text.Substring(offset, addedl));
-                        if (EditPhonetics)
-                            p.Phonetics = s;
-                        else
-                            p.Text = s;
-                        break;
+                        if (offset <= pos + (EditPhonetics ? p.Phonetics.Length : p.Text.Length)) //vlozeni
+                        {
+                            string s = (EditPhonetics ? p.Phonetics : p.Text).Insert(offset - pos, text.Substring(offset, addedl));
+                            if (EditPhonetics)
+                                p.Phonetics = s;
+                            else
+                                p.Text = s;
+                            break;
+                        }
+                        pos += (EditPhonetics ? p.Phonetics.Length : p.Text.Length);
                     }
-                    pos += (EditPhonetics ? p.Phonetics.Length : p.Text.Length);
+                }
+                else
+                {
+                    var phr = new MyPhrase() {Text = text };
+                    par.BeginUpdate();
+                    par.Phrases.Add(phr);
+                    par.SilentEndUpdate();
                 }
             }
 

@@ -21,6 +21,7 @@ using System.Diagnostics;
 using System.Windows.Threading;
 using System.Text.RegularExpressions;
 using dbg = System.Diagnostics.Debug;
+using Microsoft.Win32;
 
 
 namespace NanoTrans
@@ -70,6 +71,10 @@ namespace NanoTrans
         public static RoutedCommand CommandJumpToBegin = new RoutedCommand();
         public static RoutedCommand CommandJumpToEnd = new RoutedCommand();
 
+        public static RoutedCommand CommandImportFile = new RoutedCommand();
+        public static RoutedCommand CommandExportFile = new RoutedCommand();
+
+
         public void InitCommands()
         {
             this.CommandBindings.Add(new CommandBinding(CommandFindDialog, CFindDialogExecute));
@@ -109,9 +114,15 @@ namespace NanoTrans
             this.CommandBindings.Add(new CommandBinding(CommandJumpToBegin,CJumpToBegin));
             this.CommandBindings.Add(new CommandBinding(CommandJumpToEnd, CJumpToEnd));
 
+            this.CommandBindings.Add(new CommandBinding(CommandImportFile, CImportFile));
+            this.CommandBindings.Add(new CommandBinding(CommandExportFile, CExportFile));
 
             CommandJumpToBegin.InputGestures.Add(new KeyGesture(Key.Home, ModifierKeys.Control));
             CommandJumpToEnd.InputGestures.Add(new KeyGesture(Key.End, ModifierKeys.Control));
+
+            CommandImportFile.InputGestures.Add(new KeyGesture(Key.I, ModifierKeys.Control | ModifierKeys.Shift));
+            CommandExportFile.InputGestures.Add(new KeyGesture(Key.E, ModifierKeys.Control | ModifierKeys.Shift));
+
 
             CommandAssignElementStart.InputGestures.Add(new KeyGesture(Key.Home,ModifierKeys.Alt));
             CommandAssignElementEnd.InputGestures.Add(new KeyGesture(Key.End, ModifierKeys.Alt));
@@ -149,6 +160,62 @@ namespace NanoTrans
             CommandHelp.InputGestures.Add(new KeyGesture(Key.F1));
 
         }
+
+        private void CImportFile(object sender, ExecutedRoutedEventArgs e)
+        {
+            string[] masks = m_ImportPlugins.Select(p => p.Mask).ToArray();
+            string[] filetypes = masks.SelectMany(m=>m.Split('|').Where((p,i)=>i%2==1).SelectMany(ex=>ex.Split(';'))).Distinct().ToArray();
+
+            string allfilesMask = string.Format("Soubory všech importovatelných typů({0})|{0}",string.Join(";",filetypes));
+            OpenFileDialog opf = new OpenFileDialog();
+            opf.CheckFileExists = true;
+            opf.CheckPathExists = true;
+            opf.Filter = string.Join("|", new[] { allfilesMask }.Concat(masks));
+
+            if (opf.ShowDialog() == true)
+            {
+                if (opf.FilterIndex == 1) //vsechny soubory
+                {
+                    var plugins = m_ImportPlugins.Where(p => p.Mask.Split('|').Where((s, i) => i % 2 == 1).Any(s => s.Contains(System.IO.Path.GetExtension(opf.FileName)))).ToArray();
+
+
+                    
+                    if (plugins.Length != 1)
+                    {
+                        PickOneDialog pd = new PickOneDialog(plugins.Select(p=>p.Name).ToList(),"Soubor s danou příponou je možné importovat více pluginy, vyberte ten správný");
+                        if (pd.ShowDialog() == true)
+                        {
+                             LoadSubtitlesData(plugins[pd.SelectedIndex].ExecuteImport(opf.FileName));
+                        }
+                    }
+                    else
+                    {
+                        LoadSubtitlesData(plugins[0].ExecuteImport(opf.FileName));
+                    }
+                    
+                }
+                else
+                {
+                    LoadSubtitlesData( m_ImportPlugins[opf.FilterIndex - 2].ExecuteImport(opf.FileName));
+                }
+            }
+        }
+
+        private void CExportFile(object sender, ExecutedRoutedEventArgs e)
+        {
+            string[] masks = m_ExportPlugins.Select(p => p.Mask).ToArray();
+
+            SaveFileDialog sf = new SaveFileDialog();
+
+            sf.CheckPathExists = true;
+            sf.Filter = string.Join("|",masks);
+
+            if (sf.ShowDialog() == true)
+            {
+                m_ExportPlugins[sf.FilterIndex - 1].ExecuteExport(myDataSource,sf.FileName);
+            }
+        }
+
 
         private void CJumpToBegin(object sender, ExecutedRoutedEventArgs e)
         {

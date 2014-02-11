@@ -18,10 +18,5 @@ namespace TrsxV1Plugin
             return data.SerializeV1(output, data, false);
         }
 
-
-        public static void Main(string[] arguments)
-        { 
-            
-        }
     }
 }

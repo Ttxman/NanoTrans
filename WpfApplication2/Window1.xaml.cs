@@ -1659,21 +1659,6 @@ namespace NanoTrans
 
 
             LoadPlugins();
-
-            foreach(var p in m_ExportPlugins)
-            {
-                var mi = new MenuItem() { Header = p.ToString(), Tag = p};
-                mi.Click += menuSouborExportovatClick;
-                menuSouborExportovat.Items.Add(mi);
-            }
-
-            foreach (var p in m_ImportPlugins)
-            {
-                var mi = new MenuItem() { Header = p.ToString(), Tag = p };
-                mi.Click += menuSouborImportovatClick;
-                menuSouborImportovat.Items.Add(mi);
-            }
-
         }
 
 
@@ -1683,14 +1668,55 @@ namespace NanoTrans
             p.ExecuteExport(myDataSource);
         }
 
+        private void LoadSubtitlesData(MySubtitlesData data)
+        {
+            if (data == null)
+                return;
+            myDataSource = data;
+            //nacteni audio souboru pokud je k dispozici
+            if (!string.IsNullOrEmpty(myDataSource.mediaURI))
+            {
+                FileInfo fiA = new FileInfo(myDataSource.mediaURI);
+                string pAudioFile = null;
+                if (fiA.Exists)
+                {
+                    pAudioFile = fiA.FullName;
+                }
+                else if (System.IO.Path.IsPathRooted(myDataSource.mediaURI))
+                {
+                    tbAudioSoubor.Text = myDataSource.mediaURI;
+                }
+                else
+                {
+                    FileInfo fi = new FileInfo(myDataSource.JmenoSouboru);
+                    pAudioFile = fi.Directory.FullName + "\\" + myDataSource.mediaURI;
+                }
+
+                if (pAudioFile != null && pAudioFile.Split(new string[] { ":\\" }, StringSplitOptions.None).Length == 2)
+                {
+                    FileInfo fi2 = new FileInfo(pAudioFile);
+                    if (fi2.Exists)
+                    {
+                        NactiAudio(pAudioFile);
+                    }
+                    else
+                    {
+                        tbAudioSoubor.Text = myDataSource.mediaURI;
+                    }
+                }
+            }
+
+            this.Title = MyKONST.NAZEV_PROGRAMU + " [" + data.JmenoSouboru + "]";
+            
+        
+        }
+
         private void menuSouborImportovatClick(object sender, RoutedEventArgs e)
         {
+
             Plugin p = (Plugin)((MenuItem)sender).Tag;
             MySubtitlesData data = p.ExecuteImport();
-            if(data!=null)
-                myDataSource = data;
-            
-
+            LoadSubtitlesData(data);
         }
 
         Thread Pedalthread = null;
@@ -2168,115 +2194,6 @@ namespace NanoTrans
 
         }
 
-
-        private void MSoubor_Exportovat_Click(object sender, RoutedEventArgs e)
-        {
-            ExportovatDokument(myDataSource, null, ExportType.TxtTimes);
-        }
-
-        private void menuSouborExportovatText_Click(object sender, RoutedEventArgs e)
-        {
-            ExportovatDokument(myDataSource, null, ExportType.Txt);
-        }
-
-        private enum ExportType
-        {
-            Txt,
-            TxtTimes,
-        }
-
-        /// <summary>
-        /// exportuje dokument do vybraneho formatu - pokud je cesta null, zavola savedialog
-        /// </summary>
-        /// <param name="aDokument"></param>
-        /// <param name="aCesta"></param>
-        /// <param name="aFormat"></param>
-        /// <returns></returns>
-        private int ExportovatDokument(MySubtitlesData aDokument, string aCesta, ExportType aFormat)
-        {
-            try
-            {
-                if (aCesta == null)
-                {
-                    Microsoft.Win32.SaveFileDialog fileDialog = new Microsoft.Win32.SaveFileDialog();
-
-                    fileDialog.Title = "Exportovat dokument...";
-                    //fileDialog.Filter = "Soubory titulků (*" + nastaveniAplikace.PriponaTitulku + ")|*" + nastaveniAplikace.PriponaTitulku + "|Všechny soubory (*.*)|*.*";
-                    fileDialog.Filter = "Dokument korpusu (*" + ".txt" + ")|*" + ".txt" + "|Všechny soubory (*.*)|*.*";
-                    fileDialog.FilterIndex = 1;
-                    fileDialog.OverwritePrompt = true;
-                    fileDialog.RestoreDirectory = true;
-                    if (fileDialog.ShowDialog() == true)
-                    {
-                        aCesta = fileDialog.FileName;
-
-                        if (aFormat == ExportType.TxtTimes)
-                        {
-                            FileStream fs = new FileStream(aCesta, FileMode.Create);
-                            StreamWriter sw = new StreamWriter(fs, Encoding.GetEncoding("windows-1250"));
-                            FileInfo fi = new FileInfo(aCesta);
-                            string pNazev = fi.Name.ToUpper().Remove(fi.Name.Length - fi.Extension.Length);
-                            string pHlavicka = "<" + pNazev + ";";
-                            for (int i = 0; i < aDokument.Speakers.Speakers.Count; i++)
-                            {
-                                if (i > 0) pHlavicka += ",";
-                                pHlavicka += " " + aDokument.Speakers.Speakers[i].FirstName;
-                            }
-                            pHlavicka += ">";
-                            sw.WriteLine(pHlavicka);
-                            sw.WriteLine();
-                            for (int i = 0; i < aDokument.Chapters.Count; i++)
-                            {
-                                for (int j = 0; j < aDokument.Chapters[i].Sections.Count; j++)
-                                {
-                                    for (int k = 0; k < aDokument.Chapters[i].Sections[j].Paragraphs.Count; k++)
-                                    {
-                                        MyParagraph pP = aDokument.Chapters[i].Sections[j].Paragraphs[k];
-                                        //zapsani jednotlivych odstavcu
-                                        string pRadek = "<" + (pP.speakerID - 1).ToString() + "> ";
-                                        for (int l = 0; l < pP.Phrases.Count; l++)
-                                        {
-                                            MyPhrase pFraze = pP.Phrases[l];
-                                            pRadek += "[" + (pFraze.Begin).ToString() + "]" + pFraze.Text;
-                                        }
-                                        sw.WriteLine(pRadek);
-                                    }
-                                }
-                            }
-
-                            sw.Close();
-                        }
-                        else if (aFormat == ExportType.Txt)
-                        {
-                            StringBuilder sb = new StringBuilder();
-                            if (myDataSource.Count > 0)
-                            {
-                                TranscriptionElement e = myDataSource[0];
-                                while (e != null)
-                                {
-                                    if (e.IsParagraph)
-                                    {
-                                        sb.AppendLine(e.Text);
-                                    }
-                                    e = e.Next();
-                                }
-                            }
-
-                            File.WriteAllText(aCesta, sb.ToString());
-
-                        }
-                    }
-                    else return -3;
-                }
-                return -2;
-            }
-            catch
-            {
-                return -1;
-            }
-
-        }
-
         private void btOdstranitNefonemy_Click(object sender, RoutedEventArgs e)
         {
             throw new NotImplementedException();
@@ -2552,163 +2469,19 @@ namespace NanoTrans
             if (e.ChangedButton == MouseButton.XButton1 || e.ChangedButton == MouseButton.XButton2 || e.ChangedButton == MouseButton.Middle)
                 CommandPlayPause.Execute(null, null);
         }
-        #region IO plugins
 
 
-        private class Plugin
+        private void menuSouborImportovat_Click(object sender, RoutedEventArgs e)
         {
-
-            private string m_fileName;
-
-            public string FileName
-            {
-                get { return m_fileName; }
-                set { m_fileName = value; }
-            } 
-            bool m_input;
-
-            public bool Input
-            {
-                get { return m_input; }
-                set { m_input = value; }
-            }
-            bool m_isassembly;
-
-            public bool Isassembly
-            {
-                get { return m_isassembly; }
-                set { m_isassembly = value; }
-            }
-            string m_mask;
-
-            public string Mask
-            {
-                get { return m_mask; }
-                set { m_mask = value; }
-            }
-            string m_parameters;
-
-            public string Parameters
-            {
-                get { return m_parameters; }
-                set { m_parameters = value; }
-            }
-
-            Func<Stream, MySubtitlesData> m_importDelegate;
-
-            public Func<Stream, MySubtitlesData> ImportDelegate
-            {
-                get { return m_importDelegate; }
-                set { m_importDelegate = value; }
-            }
-            Func<MySubtitlesData, Stream, bool> m_exportDelegate;
-
-            public Func<MySubtitlesData, Stream, bool> ExportDelegate
-            {
-                get { return m_exportDelegate; }
-                set { m_exportDelegate = value; }
-            }
-
-
-            string m_name;
-
-            public string Name
-            {
-                get { return m_name; }
-                set { m_name = value; }
-            }
-
-            public Plugin(bool input, bool isassembly, string mask, string parameters, string name, Func<Stream, MySubtitlesData> importDelegate, Func<MySubtitlesData, Stream, bool> exportDelegate, string filename)
-            {
-                m_input = input;
-                m_isassembly = isassembly;
-                m_mask = mask;
-                m_parameters = parameters;
-                m_importDelegate = importDelegate;
-                m_exportDelegate = exportDelegate;
-                m_fileName = filename;
-                m_name = name;
-            }
-
-
-            public MySubtitlesData ExecuteImport()
-            {
-                OpenFileDialog opf = new OpenFileDialog();
-                opf.CheckFileExists = true;
-                opf.CheckPathExists = true;
-                opf.Filter = m_mask;
-
-                if (opf.ShowDialog() == true)
-                {
-                    if (Isassembly)
-                    {
-                        return m_importDelegate.Invoke(File.OpenRead(opf.FileName));
-                    }
-                    else
-                    { 
-                        string inputfile = opf.FileName;
-                        string tempFolder = FilePaths.TempDirectory;
-                        string tempFile = System.IO.Path.Combine(tempFolder, System.IO.Path.GetRandomFileName())+".trsx";
-
-
-                        ProcessStartInfo psi = new ProcessStartInfo();
-                        psi.FileName = m_fileName;
-                        psi.Arguments = string.Format(inputfile,tempFolder,tempFile);
-
-                        Process p = new Process();
-                        p.StartInfo = psi;
-
-                        p.Start();
-                        p.WaitForExit();
-
-                        return MySubtitlesData.Deserialize(tempFile);
-                        
-                    }
-                
-                }
-                return null;
-            }
-            public override string ToString()
-            {
-                return m_name;
-            }
-
-            public void ExecuteExport(MySubtitlesData data)
-            {
-                SaveFileDialog sf = new SaveFileDialog();
-
-                sf.CheckPathExists = true;
-                sf.Filter = m_mask;
-
-                if (sf.ShowDialog() == true)
-                {
-                    if (Isassembly)
-                    {
-                        m_exportDelegate.Invoke(data, File.Create(sf.FileName));
-                    }
-                    else
-                    {
-                        string tempFolder = FilePaths.TempDirectory;
-                        string inputfile = System.IO.Path.Combine(tempFolder, System.IO.Path.GetRandomFileName()) + ".trsx";
-                        string tempFile = sf.FileName;
-
-                        data.Serialize(inputfile, true);
-
-                        ProcessStartInfo psi = new ProcessStartInfo();
-                        psi.FileName = m_fileName;
-                        psi.Arguments = string.Format(inputfile, tempFolder, tempFile);
-
-                        Process p = new Process();
-                        p.StartInfo = psi;
-
-                        p.Start();
-                        p.WaitForExit();
-                    }
-                }
-            }
-        
+            CommandImportFile.Execute(null, null);
         }
 
+        private void menuSouborExportovat_Click(object sender, RoutedEventArgs e)
+        {
+            CommandExportFile.Execute(null, null);
+        }
+
+        #region plugins
 
         List<Plugin> m_ImportPlugins = new List<Plugin>();
         List<Plugin> m_ExportPlugins = new List<Plugin>();
@@ -2717,7 +2490,7 @@ namespace NanoTrans
             string file = FilePaths.GetReadPath(FilePaths.PluginsFile);
             string path = System.IO.Path.GetDirectoryName(file);
 
-            using(var f = File.OpenRead(file))
+            using (var f = File.OpenRead(file))
             {
                 var doc = XDocument.Load(f).Element("Plugins");
                 var imports = doc.Element("Import").Elements("Plugin");
@@ -2725,9 +2498,9 @@ namespace NanoTrans
 
                 foreach (var imp in imports.Where(i => i.Attribute("IsAssembly") != null))
                 {
-                    Assembly a = Assembly.LoadFrom(System.IO.Path.Combine(path,imp.Attribute("File").Value));
+                    Assembly a = Assembly.LoadFrom(System.IO.Path.Combine(path, imp.Attribute("File").Value));
                     Type ptype = a.GetType(imp.Attribute("Class").Value);
-                    MethodInfo mi = ptype.GetMethod("Import",BindingFlags.Static | BindingFlags.Public);
+                    MethodInfo mi = ptype.GetMethod("Import", BindingFlags.Static | BindingFlags.Public);
                     Func<Stream, MySubtitlesData> act = (Func<Stream, MySubtitlesData>)Delegate.CreateDelegate(typeof(Func<Stream, MySubtitlesData>), mi);
 
                     m_ImportPlugins.Add(new Plugin(true, true, imp.Attribute("Mask").Value, null, imp.Attribute("Name").Value, act, null, null));
@@ -2749,15 +2522,17 @@ namespace NanoTrans
                     m_ExportPlugins.Add(new Plugin(true, true, exp.Attribute("Mask").Value, null, exp.Attribute("Name").Value, null, act, null));
                 }
 
-                foreach (var exp in exports.Where(i => i.Attribute("IsAssembly") == null))
+                foreach (var exp in exports.Where(i => i.Attribute("IsAssembly") == null || i.Attribute("IsAssembly").Value == "false"))
                 {
                     m_ExportPlugins.Add(new Plugin(true, false, exp.Attribute("Mask").Value, exp.Attribute("Parameters").Value, exp.Attribute("Name").Value, null, null, exp.Attribute("File").Value));
                 }
 
             }
-        
+
         }
+
         #endregion
+
 
     }
 }

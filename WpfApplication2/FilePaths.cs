@@ -24,7 +24,7 @@ namespace NanoTrans
         }
 
         private static readonly string m_PluginsFile = "Plugins\\Plugins.xml";
-
+        private static readonly string m_PluginsPath= "Plugins\\";
 
 
         private static readonly string ConfigFile = "Data\\config.xml";
@@ -165,6 +165,11 @@ namespace NanoTrans
         public static string PluginsFile
         {
             get { return FilePaths.m_PluginsFile; }
+        }
+
+        public static string PluginsPath
+        {
+            get { return FilePaths.m_PluginsPath; }
         } 
 
 
