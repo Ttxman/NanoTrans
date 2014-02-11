@@ -459,7 +459,8 @@ namespace NanoTrans.Core
                     writer.WriteElementString("Firstname", sp.FirstName);
                     writer.WriteElementString("Surname", sp.Surname);
                     writer.WriteElementString("Sex", (sp.Sex == Speaker.Sexes.Female) ? "female" : (sp.Sex == Speaker.Sexes.Male) ? "male" : "-");
-                    writer.WriteElementString("Comment", sp.Comment);
+                    if(sp.Attributes.Any(a=>a.ID == "comment"))
+                        writer.WriteElementString("Comment", sp.Attributes.First(a => a.ID == "comment").Value);
 
                     writer.WriteEndElement();//speaker
                 }
@@ -585,7 +586,7 @@ namespace NanoTrans.Core
             chapters.Select(c => (TranscriptionElement)new TranscriptionChapter(c, isStrict)).ToList().ForEach(c => data.Add(c));
 
             var speakers = transcription.Element(isStrict ? "speakers" : "sp");
-            data.Speakers.Speakers = new List<Speaker>(speakers.Elements(isStrict ? "speaker" : "s").Select(s => new Speaker(s, isStrict)));
+            data.Speakers.Speakers = new List<Speaker>(speakers.Elements(isStrict ? "speaker" : "s").Select(s => Speaker.DeserializeV2(s, isStrict)));
             storage.AssingSpeakersByID();
             data.EndUpdate();
         }
@@ -1010,7 +1011,7 @@ namespace NanoTrans.Core
                                 }
                                 break;
                             case "Comment":
-                                sp.Comment = reader.ReadElementString("Comment");
+                                sp.Attributes.Add(new SpeakerAttribute("comment","comment",reader.ReadElementString("Comment")));
                                 break;
                             case "Speaker":
                                 if (reader.NodeType == XmlNodeType.EndElement)

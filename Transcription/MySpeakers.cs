@@ -26,10 +26,10 @@ namespace NanoTrans.Core
         }
 
         private Dictionary<string, string> elements = new Dictionary<string, string>();
-        public MySpeakers(XElement e, bool isStrict)
+        public MySpeakers(XElement e)
         {
             elements = e.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
-            m_Speakers = e.Elements(isStrict ? "speaker" : "s").Select(s => new Speaker(s, isStrict)).ToList();
+            m_Speakers = e.Elements("s").Select(s => new Speaker(s)).ToList();
         }
 
         public MySpeakers(IEnumerable<Speaker> speakers)
@@ -219,7 +219,8 @@ namespace NanoTrans.Core
                             break;
                     }
 
-                    speaker.Comment = fname.Value ?? "";
+                    if(fname.Value !=null)
+                        speaker.Attributes.Add(new SpeakerAttribute("comment","comment",fname.Value));
 
                     int langid = XmlConvert.ToInt32(lang.Value??"-1");
                     if (langid >= 0 && langid < Speaker.Langs.Count)

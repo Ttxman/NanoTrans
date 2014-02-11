@@ -40,6 +40,12 @@ namespace NanoTrans.Core
         #region serializace nova
         private Dictionary<string, string> elements = new Dictionary<string, string>();
         private static readonly XAttribute EmptyAttribute = new XAttribute("empty", "");
+
+        /// <summary>
+        /// V2 serialization
+        /// </summary>
+        /// <param name="e"></param>
+        /// <param name="isStrict"></param>
         public TranscriptionPhrase(XElement e, bool isStrict)
         {
             elements = e.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
@@ -74,6 +80,15 @@ namespace NanoTrans.Core
                 else
                     End = XmlConvert.ToTimeSpan(val);
             }
+
+        }
+
+        /// <summary>
+        /// v3 serialization
+        /// </summary>
+        /// <param name="e"></param>
+        public TranscriptionPhrase(XElement e)
+        { 
 
         }
 

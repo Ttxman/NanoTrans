@@ -21,14 +21,14 @@ namespace NanoTrans.Core
 
 
         public bool Equals(Speaker s)
-        { 
-           if (s == null)
+        {
+            if (s == null)
                 return false;
 
-           if (s.m_ID == this.m_ID && s.FullName == this.FullName)
-               return true;
+            if (s.m_ID == this.m_ID && s.FullName == this.FullName)
+                return true;
 
-           return false;
+            return false;
         }
 
         public override bool Equals(object obj)
@@ -66,15 +66,15 @@ namespace NanoTrans.Core
         public bool IDFixed
         {
             get { return m_IDFixed; }
-            set 
+            set
             {
                 if (value)
-                { 
+                {
                     m_IDFixed = true;
                 }
                 else if (m_IDFixed)
                 {
-                    
+
                 }
             }
         }
@@ -100,7 +100,7 @@ namespace NanoTrans.Core
                 m_ID = value;
             }
         }
-        
+
         [XmlIgnore]
         public string FullName
         {
@@ -135,12 +135,12 @@ namespace NanoTrans.Core
         public Sexes Sex;
 
         public string ImgBase64;
-        public string Comment;
+        //public string Comment;
         public int DefaultLang = 0;
 
 
         public string DegreeBefore;
-        public string SecondName;
+        public string MiddleName;
         public string DegreeAfter;
 
 
@@ -152,28 +152,76 @@ namespace NanoTrans.Core
             Surname = null;
             Sex = Sexes.X;
             ImgBase64 = null;
-            Comment = null;
             DefaultLang = 0;
         }
         #region serializace nova
 
 
-        public static readonly List<string> Langs = new List<string>{"CZ","SK","RU","HR","PL","EN","DE","ES","--"};
+        public static readonly List<string> Langs = new List<string> { "CZ", "SK", "RU", "HR", "PL", "EN", "DE", "ES", "--" };
         [XmlIgnore]
         public Dictionary<string, string> Elements = new Dictionary<string, string>();
         private static readonly XAttribute EmptyAttribute = new XAttribute("empty", "");
-        public Speaker(XElement s, bool isStrict)
+
+        public static Speaker DeserializeV2(XElement s, bool isStrict)
         {
+            Speaker sp = new Speaker();
+            sp.m_ID = int.Parse(s.Attribute("id").Value);
+            sp.Surname = s.Attribute("surname").Value;
+            sp.FirstName = (s.Attribute("firstname") ?? EmptyAttribute).Value;
+
+            switch ((s.Attribute("sex") ?? EmptyAttribute).Value)
+            {
+                case "M":
+                    sp.Sex = Sexes.Male;
+                    break;
+                case "F":
+                    sp.Sex = Sexes.Female;
+                    break;
+                default:
+                    sp.Sex = Sexes.X;
+                    break;
+            }
+
+            sp.Elements = s.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
+
+            string rem;
+            if (sp.Elements.TryGetValue("comment", out rem))
+            {
+                SpeakerAttribute sa = new SpeakerAttribute("comment", "comment", rem);
+                sp.Attributes.Add(sa);
+            }
+
+            if (sp.Elements.TryGetValue("lang", out rem))
+            {
+                int idx = Langs.IndexOf(rem);
+                sp.DefaultLang = (idx < 0) ? 0 : idx;
+            }
+
+            sp.Elements.Remove("id");
+            sp.Elements.Remove("firstname");
+            sp.Elements.Remove("surname");
+            sp.Elements.Remove("sex");
+            sp.Elements.Remove("comment");
+            sp.Elements.Remove("lang");
+
+            return sp;
+        }
+
+        public Speaker(XElement s)//V3 format
+        {
+            if (!s.CheckRequiredAtributes("id", "surname", "firstname", "sex", "lang"))
+                throw new ArgumentException("required attribute missing on speaker (id, surname, firstname, sex, lang)");
+
             m_ID = int.Parse(s.Attribute("id").Value);
             Surname = s.Attribute("surname").Value;
             FirstName = (s.Attribute("firstname") ?? EmptyAttribute).Value;
 
             switch ((s.Attribute("sex") ?? EmptyAttribute).Value)
             {
-                case "M":
+                case "m":
                     Sex = Sexes.Male;
                     break;
-                case "F":
+                case "f":
                     Sex = Sexes.Female;
                     break;
                 default:
@@ -181,30 +229,69 @@ namespace NanoTrans.Core
                     break;
             }
 
+            int idx = Langs.IndexOf(s.Attribute("lang").Value);
+            DefaultLang = (idx < 0) ? 0 : idx;
+            Attributes.AddRange(s.Elements("a").Select(e=>new SpeakerAttribute(e)));
+            
             Elements = s.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
 
+
             string rem;
-            if (Elements.TryGetValue("comment", out rem))
+            if (Elements.TryGetValue("dbid", out rem))
             {
-                this.Comment = rem;
+                DBID = rem;
+                if (Elements.TryGetValue("dbtype", out rem))
+                {
+                    switch (rem)
+                    { 
+                        case "user":
+                            this.DataBase = DBType.User;
+                            break;
+
+                        case "api":
+                            this.DataBase = DBType.Api;
+                            break;
+                        case "file":
+                            this.DataBase = DBType.File;
+                            break;
+
+                        default:
+                            break;
+                    }
+                }
+
             }
 
-            if (Elements.TryGetValue("lang", out rem))
-            {
-                int idx = Langs.IndexOf(rem);
-                DefaultLang = (idx < 0) ? 0 : idx;
-            }
+            if (Elements.TryGetValue("middlename", out rem))
+                this.MiddleName = rem;
+
+            if (Elements.TryGetValue("degreebefore", out rem))
+                this.DegreeBefore = rem;
+
+            if (Elements.TryGetValue("degreeafter", out rem))
+                this.DegreeAfter = rem;
+
+            if (Elements.TryGetValue("synchronized", out rem))
+                this.Synchronized = DateTime.Parse(rem);
+
 
             Elements.Remove("id");
-            Elements.Remove("firstname");
             Elements.Remove("surname");
+            Elements.Remove("firstname");
             Elements.Remove("sex");
-            Elements.Remove("comment");
             Elements.Remove("lang");
+
+            Elements.Remove("dbid");
+            Elements.Remove("dbtype");
+            Elements.Remove("middlename");
+            Elements.Remove("degreebefore");
+            Elements.Remove("degreeafter");
+            Elements.Remove("synchronized");
+
 
         }
 
-        public XElement Serialize()
+        public XElement Serialize() //v3
         {
             XElement elm = new XElement("s",
                 Elements.Select(e =>
@@ -217,13 +304,34 @@ namespace NanoTrans.Core
                     })
             );
 
+            
 
-            if (!string.IsNullOrWhiteSpace(Comment))
-            { 
-                elm.Add( new XAttribute("comment",Comment));
+            string val = "file";
+            if (DataBase != DBType.File)
+            {
+                elm.Add(new XAttribute("dbid", this.DBID));
+                if (this.DataBase == DBType.Api)
+                    val = "api";
+                else if (DataBase == DBType.User)
+                    val = "user";
+                elm.Add(new XAttribute("dbtype", val));
             }
 
-            elm.Add(new XAttribute("lang", Langs[DefaultLang]));
+            if (!string.IsNullOrWhiteSpace(MiddleName))
+                elm.Add(new XAttribute("middlename",MiddleName));
+
+            if (!string.IsNullOrWhiteSpace(DegreeBefore))
+                elm.Add(new XAttribute("degreebefore",DegreeBefore));
+
+            if (!string.IsNullOrWhiteSpace(DegreeAfter))
+                elm.Add(new XAttribute("degreeafter",DegreeAfter));
+
+            if(DataBase!=DBType.File)
+                elm.Add(new XAttribute("synchronized",DateTime.UtcNow.ToString()));
+
+
+            foreach (var a in Attributes)
+                elm.Add(a.Serialize());
 
             return elm;
         }
@@ -242,31 +350,37 @@ namespace NanoTrans.Core
             Surname = aSpeaker.Surname;
             Sex = aSpeaker.Sex;
             ImgBase64 = aSpeaker.ImgBase64;
-            Comment = aSpeaker.Comment;
             DefaultLang = aSpeaker.DefaultLang;
         }
 
-        public Speaker(string aSpeakerFirstname, string aSpeakerSurname, Sexes aPohlavi, string aSpeakerFotoBase64, string aPoznamka) //constructor ktery vytvori speakera
+        public Speaker(string aSpeakerFirstname, string aSpeakerSurname, Sexes aPohlavi, string aSpeakerFotoBase64) //constructor ktery vytvori speakera
         {
             m_ID = speakersIndexCounter++;
             FirstName = aSpeakerFirstname;
             Surname = aSpeakerSurname;
             Sex = aPohlavi;
             ImgBase64 = aSpeakerFotoBase64;
-            Comment = aPoznamka;
         }
 
         public override string ToString()
         {
-            return FullName + " (" +Langs[DefaultLang]+ ")";
+            return FullName + " (" + Langs[DefaultLang] + ")";
         }
 
         public static readonly int DefaultID = int.MinValue;
-        public static readonly Speaker DefaultSpeaker = new Speaker() { m_ID = DefaultID};
+        public static readonly Speaker DefaultSpeaker = new Speaker() { m_ID = DefaultID };
 
         public Speaker Copy()
         {
             return new Speaker(this);
         }
+
+        public string Language { get; set; }
+
+        public string DBID { get; set; }
+
+        public DBType DataBase { get; set; }
+
+        public DateTime Synchronized { get; set; }
     }
 }

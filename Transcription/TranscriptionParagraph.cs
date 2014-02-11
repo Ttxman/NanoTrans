@@ -241,7 +241,7 @@ namespace NanoTrans.Core
         {
             XElement elm = new XElement(strict ? "paragraph" : "pa",
                 elements.Select(e => new XAttribute(e.Key, e.Value)).Union(new[] { new XAttribute(strict ? "begin" : "b", Begin), new XAttribute(strict ? "end" : "e", End), new XAttribute(strict ? "attributes" : "a", Attributes), new XAttribute(strict ? "speakerid" : "s", m_speakerID), }),
-                Phrases.Select(p => p.Serialize(strict))
+                Phrases.Select(p => p.Serialize())
             );
 
             return elm;
