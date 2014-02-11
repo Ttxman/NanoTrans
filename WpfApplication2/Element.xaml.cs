@@ -662,7 +662,7 @@ namespace NanoTrans
 
         private void editor_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.PageUp || e.Key == Key.PageDown || e.Key == Key.Tab || (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control) && (e.Key == Key.Home || e.Key == Key.End))) // klavesy, ktere textbox krade, posleme rucne parentu...
+            if (e.Key == Key.PageUp || e.Key == Key.PageDown || e.Key == Key.Tab || (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control) && (e.Key == Key.Home || e.Key == Key.End)) || (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Shift) &&e.Key == Key.Delete)) // klavesy, ktere textbox krade, posleme rucne parentu...
             {
                 KeyEventArgs kea = new KeyEventArgs((KeyboardDevice)e.Device, PresentationSource.FromVisual(this), e.Timestamp, e.Key) { RoutedEvent = Element.PreviewKeyDownEvent };
                 RaiseEvent(kea);
