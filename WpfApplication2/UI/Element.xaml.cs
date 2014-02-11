@@ -1104,7 +1104,7 @@ namespace NanoTrans
     public class SpellChecker : DocumentColorizingTransformer
     {
         static TextDecorationCollection defaultdecoration;
-        static TextDecorationCollection defaultdecorationGreen;
+        static TextDecorationCollection defaultdecorationSuggestion;
 
         //nacteni celeho slovniku z souboru do hash tabulky
         static NHunspell.Hunspell spell = null;
@@ -1144,17 +1144,17 @@ namespace NanoTrans
             StreamGeometry g = new StreamGeometry();
             using (var context = g.Open())
             {
-                context.BeginFigure(new Point(0, 1), false, false);
-                context.BezierTo(new Point(1, 0), new Point(2, 2), new Point(3, 1), true, true);
+                context.BeginFigure(new Point(0, 2), false, false);
+                context.BezierTo(new Point(2, 0), new Point(4, 4), new Point(6, 2), true, true);
             }
 
-            System.Windows.Shapes.Path p = new System.Windows.Shapes.Path() { Data = g, Stroke = Brushes.Red, StrokeThickness = 0.25, StrokeEndLineCap = PenLineCap.Square, StrokeStartLineCap = PenLineCap.Square };
+            System.Windows.Shapes.Path p = new System.Windows.Shapes.Path() { Data = g, Stroke = Brushes.Red, StrokeThickness = 0.5, StrokeEndLineCap = PenLineCap.Square, StrokeStartLineCap = PenLineCap.Square };
 
             VisualBrush vb = new VisualBrush(p)
             {
-                Viewbox = new Rect(0, 0, 3, 2),
+                Viewbox = new Rect(0, 0, 6, 4),
                 ViewboxUnits = BrushMappingMode.Absolute,
-                Viewport = new Rect(0, 0.8, 6, 4),
+                Viewport = new Rect(0, 0, 6, 4),
                 ViewportUnits = BrushMappingMode.Absolute,
                 TileMode = TileMode.Tile
 
@@ -1165,7 +1165,7 @@ namespace NanoTrans
             TextDecoration td = new TextDecoration()
             {
                 Location = TextDecorationLocation.Underline,
-                Pen = new Pen(vb, 4),
+                Pen = new Pen(vb, 3),
                 PenThicknessUnit = TextDecorationUnit.Pixel,
                 PenOffsetUnit = TextDecorationUnit.Pixel
 
@@ -1181,17 +1181,18 @@ namespace NanoTrans
             g = new StreamGeometry();
             using (var context = g.Open())
             {
-                context.BeginFigure(new Point(0, 1), false, false);
-                context.BezierTo(new Point(1, 0), new Point(2, 2), new Point(3, 1), true, true);
+                context.BeginFigure(new Point(0, 2), false, false);
+                context.BezierTo(new Point(2, 0), new Point(4, 4), new Point(6, 2), true, true);
+                context.Close();
             }
 
-             p = new System.Windows.Shapes.Path() { Data = g, Stroke = Brushes.Green, StrokeThickness = 0.25, StrokeEndLineCap = PenLineCap.Square, StrokeStartLineCap = PenLineCap.Square };
+             p = new System.Windows.Shapes.Path() { Data = g, Stroke = Brushes.Green, StrokeThickness = 0.5, StrokeEndLineCap = PenLineCap.Square, StrokeStartLineCap = PenLineCap.Square };
 
              vb = new VisualBrush(p)
             {
-                Viewbox = new Rect(0, 0, 3, 2),
+                Viewbox = new Rect(0, 0, 6, 4),
                 ViewboxUnits = BrushMappingMode.Absolute,
-                Viewport = new Rect(0, 0.8, 6, 4),
+                Viewport = new Rect(0, 0, 6, 4),
                 ViewportUnits = BrushMappingMode.Absolute,
                 TileMode = TileMode.Tile
 
@@ -1202,14 +1203,14 @@ namespace NanoTrans
              td = new TextDecoration()
             {
                 Location = TextDecorationLocation.Underline,
-                Pen = new Pen(vb, 4),
+                Pen = new Pen(vb, 3),
                 PenThicknessUnit = TextDecorationUnit.Pixel,
                 PenOffsetUnit = TextDecorationUnit.Pixel
 
             };
             tdc.Add(td);
 
-            defaultdecorationGreen = tdc;
+            defaultdecorationSuggestion = tdc;
         }
 
 
@@ -1244,7 +1245,7 @@ namespace NanoTrans
                             lineStartOffset + m.Index + m.Length,
                             (VisualLineElement element) =>
                             {
-                                element.TextRunProperties.SetTextDecorations(defaultdecorationGreen);
+                                element.TextRunProperties.SetTextDecorations(defaultdecorationSuggestion);
 
                             });
                 }
