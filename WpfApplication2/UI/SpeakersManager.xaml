@@ -3,7 +3,15 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:my="clr-namespace:NanoTrans"
         xmlns:core="clr-namespace:NanoTrans.Core;assembly=NanoTransCore"
-        Title="SpeakersManager" MinHeight="450" MinWidth="650" MaxWidth="1000"
+        
+        
+        xmlns:lex="http://wpflocalizeextension.codeplex.com"
+        lex:LocalizeDictionary.DesignCulture="cs"
+        lex:LocalizeDictionary.IncludeInvariantCulture="False"
+        lex:ResxLocalizationProvider.DefaultAssembly="NanoTrans"
+        lex:ResxLocalizationProvider.DefaultDictionary="Strings"
+        
+        Title="{lex:LocText SpeakersManagerTitle}" MinHeight="450" MinWidth="650" MaxWidth="1000"
         Name="manager">
     <Window.Resources>
         <my:MultipleSelectionConverter x:Key="selConverter" />
@@ -47,14 +55,14 @@
                     <Setter Property="Margin" Value="10,0,0,0"/>
                 </Style>
             </StackPanel.Resources>
-            <CheckBox IsChecked="{Binding ElementName=manager,Path=SpeakerProvider.ShowLocal}">Mluvčí uživatele</CheckBox>
-            <CheckBox IsChecked="{Binding ElementName=manager,Path=SpeakerProvider.ShowDocument}">Mluvčí z přepisu</CheckBox>
-            <CheckBox IsChecked="{Binding ElementName=manager,Path=SpeakerProvider.ShowOnline}" IsEnabled="{Binding ElementName=manager,Path=SpeakerProvider.OnlineAccesible }">Mluvčí online</CheckBox>
-            <CheckBox Name="showMiniatures" IsChecked="{Binding ElementName=manager,Path=ShowMiniatures}">Zobrazit Miniatury</CheckBox>
+            <CheckBox IsChecked="{Binding ElementName=manager,Path=SpeakerProvider.ShowLocal}" Content="{lex:LocText SpeakersManagerCheckboxLocalSpeakers}"/>
+            <CheckBox IsChecked="{Binding ElementName=manager,Path=SpeakerProvider.ShowDocument}" Content="{lex:LocText SpeakersManagerCheckboxDocumentSpeakers}"/>
+            <CheckBox IsChecked="{Binding ElementName=manager,Path=SpeakerProvider.ShowOnline}" IsEnabled="{Binding ElementName=manager,Path=SpeakerProvider.OnlineAccesible }" Content="{lex:LocText SpeakersManagerCheckboxOnlineSpeakers}"/>
+            <CheckBox Name="showMiniatures" IsChecked="{Binding ElementName=manager,Path=ShowMiniatures}" Content="{lex:LocText SpeakersManagerCheckboxShowMiniatures}"/>
         </StackPanel>
 
         <DockPanel Grid.Row="2" Grid.Column="0" LastChildFill="True">
-            <Label DockPanel.Dock="Left">Search:</Label>
+            <Label DockPanel.Dock="Left" Content="{lex:LocText SpeakersManagerLabelSearch}"/>
             <TextBox Text="{Binding ElementName=manager,Path=SpeakerProvider.FilterString,TargetNullValue='',UpdateSourceTrigger=PropertyChanged}"/>
         </DockPanel>
         <ListBox Name="SpeakersBox" MinWidth="200" Grid.Column="0" Grid.Row="3" AlternationCount="2" ItemsSource="{Binding ElementName=manager,Path=SpeakerProvider.View}" SelectionMode="{Binding ElementName=manager,Converter={StaticResource selConverter}, Path=SelectMany}" ContextMenuOpening="SpeakersBox_ContextMenuOpening" SelectionChanged="SpeakersBox_SelectionChanged" MouseDoubleClick="SpeakersBox_MouseDoubleClick">
@@ -63,10 +71,10 @@
             </ListBox.GroupStyle>
             <ListBox.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Sloučit s dalšími mluvčími" Click="MenuItem_MergeSpeakers"/>
-                    <MenuItem Header="Odstranit" Click="MenuItem_DeleteSpeaker"/>
-                    <MenuItem Header="Nový mluvčí" Click="MenuItem_NewSpeaker"/>
-                    <MenuItem Header="Nahradit v prepisu za" Click="MenuItemReplaceSpeaker_Click"/>
+                    <MenuItem Header="{lex:BLoc Key=NanoTrans:Strings:SpeakersManagerContextMenuMerge}" Click="MenuItem_MergeSpeakers"/>
+                    <MenuItem Header="{lex:BLoc Key=NanoTrans:Strings:SpeakersManagerContextMenuDelete}" Click="MenuItem_DeleteSpeaker"/>
+                    <MenuItem Header="{lex:BLoc Key=NanoTrans:Strings:SpeakersManagerContextMenuNew}" Click="MenuItem_NewSpeaker"/>
+                    <MenuItem Header="{lex:BLoc Key=NanoTrans:Strings:SpeakersManagerContextMenuReplace}" Click="MenuItemReplaceSpeaker_Click"/>
                 </ContextMenu>
             </ListBox.ContextMenu>
             <ListBox.ItemContainerStyle>
@@ -93,8 +101,8 @@
             </ListBox.Resources>
         </ListBox>
         <StackPanel Grid.Column="0" Grid.Row="4">
-            <Button Click="ButtonNewSpeaker_Click">Nový mluvčí</Button>
-            <Button Height="30" Margin="0,4,0,0" Click="ButtonOK_Click">OK</Button>
+            <Button Click="ButtonNewSpeaker_Click" Content="{lex:LocText SpeakersManagerButtonNewSpeaker}"/>
+            <Button Height="30" Margin="0,4,0,0" Click="ButtonOK_Click" Content="{lex:LocText SpeakersManagerButtonOK}"/>
         </StackPanel>
         <my:SpeakerControl x:Name="SpeakerDetails" Grid.Row="2" Grid.Column="1" SpeakerContainer="{Binding ElementName=SpeakersBox,Path=SelectedItem}" IsEnabled="{Binding ElementName=manager,Path=Editable}" Grid.RowSpan="3"  />
     </Grid>

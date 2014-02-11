@@ -6,6 +6,13 @@
              xmlns:my ="clr-namespace:NanoTrans"
              xmlns:core ="clr-namespace:NanoTrans.Core;assembly=NanoTransCore"
              xmlns:clr="clr-namespace:System;assembly=mscorlib"
+             
+             xmlns:lex="http://wpflocalizeextension.codeplex.com"
+             lex:LocalizeDictionary.DesignCulture="cs"
+             lex:LocalizeDictionary.IncludeInvariantCulture="False"
+             lex:ResxLocalizationProvider.DefaultAssembly="NanoTrans"
+             lex:ResxLocalizationProvider.DefaultDictionary="Strings"
+             
              mc:Ignorable="d"
              Name="Control">
     <UserControl.Resources>
@@ -25,15 +32,15 @@
             <ColumnDefinition Width="auto" />
         </Grid.ColumnDefinitions>
         <StackPanel>
-            <Label FontWeight="Bold">Titul před:</Label>
+            <Label FontWeight="Bold" Content="{lex:LocText SpeakerDetailsDegreeBefore}"/>
             <TextBox Text="{Binding ElementName=Control,Path=SpeakerContainer.DegreeBefore,TargetNullValue='',UpdateSourceTrigger=PropertyChanged}"/>
-            <Label FontWeight="Bold">Jméno:</Label>
+            <Label FontWeight="Bold" Content="{lex:LocText SpeakerDetailsFirstName}"/>
             <TextBox Text="{Binding ElementName=Control,Path=SpeakerContainer.FirstName,TargetNullValue='',UpdateSourceTrigger=PropertyChanged}"/>
-            <Label FontWeight="Bold">Druhé jméno:</Label>
+            <Label FontWeight="Bold" Content="{lex:LocText SpeakerDetailsMiddleName}"/>
             <TextBox Text="{Binding ElementName=Control,Path=SpeakerContainer.SecondName,TargetNullValue='',UpdateSourceTrigger=PropertyChanged}"/>
-            <Label FontWeight="Bold">Přijmení:</Label>
+            <Label FontWeight="Bold" Content="{lex:LocText SpeakerDetailsSurName}"/>
             <TextBox Text="{Binding ElementName=Control,Path=SpeakerContainer.SurName,TargetNullValue='',UpdateSourceTrigger=PropertyChanged}"/>
-            <Label FontWeight="Bold">Titul za:</Label>
+            <Label FontWeight="Bold" Content="{lex:LocText SpeakerDetailsDegreeAfter}"/>
             <TextBox Text="{Binding ElementName=Control,Path=SpeakerContainer.DegreeAfter,TargetNullValue='',UpdateSourceTrigger=PropertyChanged}"/>
         </StackPanel>
         <StackPanel Grid.Column="1" HorizontalAlignment="Center">
@@ -51,18 +58,18 @@
                 <Button Name="buttonUpdate" HorizontalAlignment="Left" Margin="5,5,5,5" IsEnabled="{Binding ElementName=Control,Path=SpeakerContainer.Changed,UpdateSourceTrigger=PropertyChanged,TargetNullValue=false}" Click="buttonUpdate_Click">
                     <StackPanel>
                         <Image Width="50" Height="50" Source="/NanoTrans;component/icons/save_small.png" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        <TextBlock FontWeight="Bold" Text="Uložit" HorizontalAlignment="Center" />
+                        <TextBlock FontWeight="Bold" Text="{lex:LocText SpeakerDetailsOnlineSave}" HorizontalAlignment="Center" />
                     </StackPanel>
                 </Button>
                 <Button HorizontalAlignment="Left" Name="buttonRefresh" Margin="5,5,5,5" Click="buttonRefresh_Click">
                     <StackPanel >
                         <Image Width="50" Height="50" Source="/NanoTrans;component/icons/download_small2.png" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        <TextBlock FontWeight="Bold" Text="Obnovit" HorizontalAlignment="Center" />
+                        <TextBlock FontWeight="Bold" Text="{lex:LocText SpeakerDetailsOnlineReload}" HorizontalAlignment="Center" />
                     </StackPanel>
                 </Button>
             </StackPanel>
         </StackPanel>
-        <Label Grid.Row="1" FontWeight="Bold">Popisky</Label>
+        <Label Grid.Row="1" FontWeight="Bold" Content="{lex:LocText SpeakerDetailsLabelAttributes}"/>
         <ListBox ScrollViewer.CanContentScroll="False" Grid.ColumnSpan="2" Grid.Row="2" ItemsSource="{Binding ElementName=Control,Path=SpeakerContainer.Attributes,UpdateSourceTrigger=PropertyChanged}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
             <ListBox.Resources>
                 <DataTemplate DataType="{x:Type core:SpeakerAttribute}">
@@ -72,9 +79,9 @@
         </ListBox>
 
         <StackPanel Grid.ColumnSpan="2" Grid.Row="3" HorizontalAlignment="Left" Orientation="Horizontal" Visibility="{Binding IsEnabled, ElementName=Control, Converter={StaticResource boolvisconverter}}">
-            <Button Width="100">Přidat popisek</Button>
-            <Button Width="100" Margin="20,0,0,0">Editovat popisek</Button>
-            <Button Width="100" Margin="20,0,0,0">Smazat popisek</Button>
+            <Button Width="100" Content="{lex:LocText SpeakerDetailsButtonAddAttribute}"/>
+            <Button Width="100" Content="{lex:LocText SpeakerDetailsButtonEditAttribute}"/>
+            <Button Width="100" Content="{lex:LocText SpeakerDetailsButtonDeleteAttribute}"/>
         </StackPanel>
     </Grid>
 </UserControl>

@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Runtime.ExceptionServices;
 //using System.Linq;
 using System.Windows;
+using WPFLocalizeExtension.Engine;
 
 namespace NanoTrans
 {
@@ -19,6 +21,8 @@ namespace NanoTrans
 
             AppDomain.CurrentDomain.FirstChanceException += CurrentDomain_FirstChanceException;
 
+          //  LocalizeDictionary.Instance.SetCurrentThreadCulture = true;
+          //  LocalizeDictionary.Instance.Culture = new CultureInfo("en");
 
         }
 

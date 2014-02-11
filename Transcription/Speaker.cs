@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 
@@ -33,7 +35,7 @@ namespace NanoTrans.Core
         {
             _IDFixed = true;
         }
-        
+
         /// <summary>
         /// Serialization ID, Changed when Transcription is serialized. For user ID use DBID property
         /// </summary>
@@ -68,7 +70,7 @@ namespace NanoTrans.Core
                 }
                 if (MiddleName != null && MiddleName.Length > 0)
                 {
-                    pJmeno += " "+MiddleName;
+                    pJmeno += " " + MiddleName;
                 }
 
                 if (Surname != null && Surname.Length > 0)
@@ -124,12 +126,12 @@ namespace NanoTrans.Core
         string _defaultLang = null;
         public string DefaultLang
         {
-            get 
+            get
             {
                 return _defaultLang ?? Langs[0];
             }
 
-            set 
+            set
             {
                 _defaultLang = value;
             }
@@ -231,8 +233,8 @@ namespace NanoTrans.Core
             }
 
             DefaultLang = s.Attribute("lang").Value;
-            Attributes.AddRange(s.Elements("a").Select(e=>new SpeakerAttribute(e)));
-            
+            Attributes.AddRange(s.Elements("a").Select(e => new SpeakerAttribute(e)));
+
             Elements = s.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
 
 
@@ -243,7 +245,7 @@ namespace NanoTrans.Core
                 if (Elements.TryGetValue("dbtype", out rem))
                 {
                     switch (rem)
-                    { 
+                    {
                         case "user":
                             this.DataBase = DBType.User;
                             break;
@@ -263,9 +265,25 @@ namespace NanoTrans.Core
             }
 
             if (Elements.TryGetValue("synchronized", out rem))
-                this.Synchronized = TimeZoneInfo.ConvertTimeFromUtc(DateTime.Parse(rem), TimeZoneInfo.Local);
+            {
+                DateTime date;
 
-            
+                //problem with saving datetimes in local format
+                try
+                {
+                    date = XmlConvert.ToDateTime(rem, XmlDateTimeSerializationMode.Local); //stored in UTC convert to local
+                }
+                catch
+                {
+                    if (DateTime.TryParse(rem, CultureInfo.CreateSpecificCulture("cs"), DateTimeStyles.None, out date))
+                        date = TimeZoneInfo.ConvertTimeFromUtc(date, TimeZoneInfo.Local);
+                    else
+                        date = DateTime.Now;
+                }
+                this.Synchronized = date;
+            }
+
+
             if (Elements.TryGetValue("middlename", out rem))
                 this.MiddleName = rem;
 
@@ -322,16 +340,16 @@ namespace NanoTrans.Core
             }
 
             if (!string.IsNullOrWhiteSpace(MiddleName))
-                elm.Add(new XAttribute("middlename",MiddleName));
+                elm.Add(new XAttribute("middlename", MiddleName));
 
             if (!string.IsNullOrWhiteSpace(DegreeBefore))
-                elm.Add(new XAttribute("degreebefore",DegreeBefore));
+                elm.Add(new XAttribute("degreebefore", DegreeBefore));
 
             if (!string.IsNullOrWhiteSpace(DegreeAfter))
-                elm.Add(new XAttribute("degreeafter",DegreeAfter));
+                elm.Add(new XAttribute("degreeafter", DegreeAfter));
 
-            if(DataBase!=DBType.File)
-                elm.Add(new XAttribute("synchronized",DateTime.UtcNow.ToString()));
+            if (DataBase != DBType.File)
+                elm.Add(new XAttribute("synchronized", XmlConvert.ToString(DateTime.UtcNow, XmlDateTimeSerializationMode.Utc)));//stored in UTC convert from local
 
 
             foreach (var a in Attributes)
@@ -358,11 +376,11 @@ namespace NanoTrans.Core
             Sex = aSpeaker.Sex;
             ImgBase64 = aSpeaker.ImgBase64;
 
-            foreach(var a in aSpeaker.Attributes)
+            foreach (var a in aSpeaker.Attributes)
             {
                 Attributes.Add(new SpeakerAttribute(a));
             }
-            
+
         }
 
         public Speaker(string aSpeakerFirstname, string aSpeakerSurname, Sexes aPohlavi, string aSpeakerFotoBase64) //constructor ktery vytvori speakera
@@ -374,7 +392,7 @@ namespace NanoTrans.Core
             ImgBase64 = aSpeakerFotoBase64;
         }
 
-       
+
         public override string ToString()
         {
             return FullName + " (" + DefaultLang + ")";
@@ -393,14 +411,14 @@ namespace NanoTrans.Core
         }
 
         string _dbid = null;
-        
+
         /// <summary>
         /// if not set, GUID is automatically generated on first access (when database is not API based)
         /// if Database is Type and not set - returns null
         /// </summary>
-        public string DBID 
+        public string DBID
         {
-            get 
+            get
             {
                 if (_dbid == null)
                 {
@@ -420,7 +438,7 @@ namespace NanoTrans.Core
                     throw new ArgumentException("cannot change DBID when Dabase is User");
                 else
                     _dbid = value;
-                
+
             }
         }
 

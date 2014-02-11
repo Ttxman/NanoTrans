@@ -4,10 +4,17 @@
         xmlns:my="clr-namespace:NanoTrans"
         xmlns:core="clr-namespace:NanoTrans.Core;assembly=NanoTransCore"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-    mc:Ignorable="d" 
-    x:Class="NanoTrans.SpeakerSynchronizer"
-        Title="Synchronizace mluvčích" Height="569" Width="859">
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    
+        xmlns:lex="http://wpflocalizeextension.codeplex.com"
+        lex:LocalizeDictionary.DesignCulture="cs"
+        lex:LocalizeDictionary.IncludeInvariantCulture="False"
+        lex:ResxLocalizationProvider.DefaultAssembly="NanoTrans"
+        lex:ResxLocalizationProvider.DefaultDictionary="Strings"
+    
+        mc:Ignorable="d" 
+        x:Class="NanoTrans.SpeakerSynchronizer"
+        Title="{lex:LocText SpeakersSynchronizerTitle}" Height="569" Width="859">
     <Window.Resources>
         <my:SpeakerWrapperConverter x:Key="speakerWrapper" />
         <my:NullToVisibiltyConverter x:Key="nullvisconverter" />
@@ -25,8 +32,8 @@
 
         <my:SpeakerControl x:Name="speakerControl" IsEnabled="False" Grid.Column="2"/>
         <DockPanel Grid.Column="0" LastChildFill="True">
-            <TextBlock Text="Mluvčí v dokumentu:" DockPanel.Dock="Top"/>
-            <Button DockPanel.Dock="Bottom" Click="Button_Click">OK</Button>
+            <TextBlock Text="{lex:LocText SpeakersSynchronizerLabelDocumentList}" DockPanel.Dock="Top"/>
+            <Button DockPanel.Dock="Bottom" Click="Button_Click" Content="{lex:LocText SpeakersSynchronizerButtonOK}"/>
             <ListBox x:Name="listdocument" Grid.Column="0" Grid.RowSpan="2" DockPanel.Dock="Bottom" PreviewKeyDown="listdocument_PreviewKeyDown" HorizontalContentAlignment="Stretch">
                 <ListBox.ContextMenu>
                     <ContextMenu>
@@ -54,7 +61,7 @@
             </ListBox>
         </DockPanel>
         <DockPanel Grid.Column="1" LastChildFill="True">
-            <TextBlock Text="Mluvčí uživatele" DockPanel.Dock="Top"/>
+            <TextBlock Text="{lex:LocText SpeakersSynchronizerLabelLocalList}" DockPanel.Dock="Top"/>
             <ListBox x:Name="listlocal" Grid.Column="0" Grid.RowSpan="2" DockPanel.Dock="Bottom" HorizontalContentAlignment="Stretch">
                 <ListBox.Resources>
                     <DataTemplate DataType="{x:Type core:Speaker}">
