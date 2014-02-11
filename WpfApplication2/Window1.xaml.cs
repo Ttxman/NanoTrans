@@ -2645,6 +2645,13 @@ namespace NanoTrans
             if (Playing)
             {
                 Playing = false;
+
+                if (!(waveform1.SelectionBegin <= e.Value && waveform1.SelectionEnd >= e.Value))
+                {
+                    waveform1.SelectionBegin = new TimeSpan(-1);
+                    waveform1.SelectionEnd = new TimeSpan(-1);
+                }
+
             }
             pIndexBufferuVlnyProPrehrani = (int)waveform1.CaretPosition.TotalMilliseconds;
             List<MyParagraph> pl = myDataSource.VratElementDanehoCasu(waveform1.CaretPosition);

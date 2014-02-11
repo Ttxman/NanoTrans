@@ -601,15 +601,23 @@ namespace NanoTrans
             if (ValueElement != null)
             {
                 TimeSpan val = ValueElement.Begin;
-                
-                    this.textbegin.Text = string.Format("{0}:{1:00}:{2:00},{3}", val.Hours, val.Minutes, val.Seconds, val.Milliseconds.ToString("00").Substring(0, 2));
+                this.textbegin.Text = string.Format("{0}:{1:00}:{2:00},{3}", val.Hours, val.Minutes, val.Seconds, val.Milliseconds.ToString("00").Substring(0, 2));
+                EndChanged(this,null);//zmena zacatku muze ovlivnit konec...
             }
+
         }
 
         private void EndChanged(object sendet, EventArgs value)
         {
             if (ValueElement != null)
             {
+                if (!ValueElement.IsParagraph)
+                    textend.Visibility = System.Windows.Visibility.Collapsed;
+                else if (ValueElement.End <= ValueElement.Begin)
+                    textend.Visibility = System.Windows.Visibility.Hidden;
+                else
+                    textend.Visibility = System.Windows.Visibility.Visible;
+
                 TimeSpan val = ValueElement.End;
                 this.textend.Text = string.Format("{0}:{1:00}:{2:00},{3}", val.Hours, val.Minutes, val.Seconds, val.Milliseconds.ToString("00").Substring(0, 2));
             }
@@ -1137,6 +1145,30 @@ namespace NanoTrans
                                 return Visibility.Collapsed;
                         }
                     }
+                }
+            }
+            return Visibility.Visible;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            return null;
+        }
+    }
+
+
+    [ValueConversion(typeof(TranscriptionElement), typeof(Visibility))]
+    public class EndingVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            if (value != null)
+            {
+                MyParagraph ph = value as MyParagraph;
+                if (ph != null)
+                {
+                    if (ph.Begin > ph.End)
+                        return Visibility.Hidden;
                 }
             }
             return Visibility.Visible;
