@@ -146,7 +146,7 @@ namespace NanoTrans.Core
         {
             get
             {
-                return _speaker;
+                return _speaker??Speaker.DefaultSpeaker;
             }
             set
             {
@@ -291,8 +291,7 @@ namespace NanoTrans.Core
             
             if (elements.TryGetValue("l", out bfr))
             {
-                int idx = Speaker.Langs.IndexOf(bfr);
-                Language = (idx < 0) ? 0 : idx;
+                Language = bfr;
             }
 
             elements.Remove("b");
@@ -311,7 +310,7 @@ namespace NanoTrans.Core
                     new XAttribute("e", End), 
                     new XAttribute("a", Attributes), 
                     new XAttribute("s", _speakerID),
-                    new XAttribute("l", Speaker.Langs[Language]),
+                    new XAttribute("l", Language),
                 }),
                 Phrases.Select(p => p.Serialize())
             );
@@ -397,11 +396,18 @@ namespace NanoTrans.Core
             }
         }
 
-        int? _lang = null;
-        public int Language 
+        string _lang = null;
+        public string Language 
         { 
-            get; 
-            set; 
+            get
+            {
+               
+                return _lang ?? Speaker.DefaultLang;
+            }
+            set
+            {
+                _lang = value;
+            }
         }
     }
 

@@ -1,0 +1,80 @@
+﻿<UserControl x:Class="NanoTrans.SpeakerControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:my ="clr-namespace:NanoTrans"
+             xmlns:core ="clr-namespace:NanoTrans.Core;assembly=NanoTransCore"
+             xmlns:clr="clr-namespace:System;assembly=mscorlib"
+             mc:Ignorable="d" 
+             d:DesignHeight="360" d:DesignWidth="350" MinWidth="350" MinHeight="360"
+             Name="Control">
+    <UserControl.Resources>
+        <my:SexConverter x:Key="sexConverter" />
+        <my:JPGB64Converter x:Key="jpgConverter" />
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="auto" />
+        </Grid.ColumnDefinitions>
+        <StackPanel>
+            <Label FontWeight="Bold">Titul před:</Label>
+            <TextBox Text="{Binding ElementName=Control,Path=SpeakerContainer.DegreeBefore,TargetNullValue='',UpdateSourceTrigger=PropertyChanged}"/>
+            <Label FontWeight="Bold">Jméno:</Label>
+            <TextBox Text="{Binding ElementName=Control,Path=SpeakerContainer.FirstName,TargetNullValue='',UpdateSourceTrigger=PropertyChanged}"/>
+            <Label FontWeight="Bold">Druhé jméno:</Label>
+            <TextBox Text="{Binding ElementName=Control,Path=SpeakerContainer.SecondName,TargetNullValue='',UpdateSourceTrigger=PropertyChanged}"/>
+            <Label FontWeight="Bold">Přijmení:</Label>
+            <TextBox Text="{Binding ElementName=Control,Path=SpeakerContainer.SurName,TargetNullValue='',UpdateSourceTrigger=PropertyChanged}"/>
+            <Label FontWeight="Bold">Titul za:</Label>
+            <TextBox Text="{Binding ElementName=Control,Path=SpeakerContainer.DegreeAfter,TargetNullValue='',UpdateSourceTrigger=PropertyChanged}"/>
+        </StackPanel>
+        <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+            <Grid>
+                <Rectangle Width="128" Height="128" Margin="5" Fill="Gray" Grid.Column="1" VerticalAlignment="Top" />
+                <Image Source="{Binding ElementName=Control,Path=SpeakerContainer.ImgBase64, Converter={StaticResource jpgConverter}}" Width="128" Height="128" Margin="5" Grid.RowSpan="2" Grid.Column="1" VerticalAlignment="Top"/>
+            </Grid>
+            <ComboBox SelectedItem="{Binding ElementName=Control,Path=SpeakerContainer.Sex,Converter={StaticResource sexConverter},UpdateSourceTrigger=PropertyChanged}" Margin="5,5,5,5" Grid.Column="1" >
+                <clr:String>--</clr:String>
+                <clr:String>Muž</clr:String>
+                <clr:String>Žena</clr:String>
+            </ComboBox>
+            <ComboBox ItemsSource="{x:Static core:Speaker.Langs}" SelectedItem="{Binding ElementName=Control,Path=SpeakerContainer.Language}" Margin="5,0,5,5" Grid.Column="1" />
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button Name="buttonUpdate" HorizontalAlignment="Left" Margin="5,5,5,5" IsEnabled="{Binding ElementName=Control,Path=SpeakerContainer.Changed,UpdateSourceTrigger=PropertyChanged,TargetNullValue=false}" Click="buttonUpdate_Click">
+                    <StackPanel>
+                        <Image Width="50" Height="50" Source="/NanoTrans;component/icons/save_small.png" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        <TextBlock FontWeight="Bold" Text="Uložit" HorizontalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+                <Button HorizontalAlignment="Left" Name="buttonRefresh" Margin="5,5,5,5" Click="buttonRefresh_Click">
+                    <StackPanel >
+                        <Image Width="50" Height="50" Source="/NanoTrans;component/icons/download_small2.png" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        <TextBlock FontWeight="Bold" Text="Obnovit" HorizontalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </StackPanel>
+        <Label Grid.Row="1" FontWeight="Bold">Popisky</Label>
+        <ListBox ScrollViewer.CanContentScroll="False" Grid.ColumnSpan="2" Grid.Row="2" ItemsSource="{Binding ElementName=Control,Path=SpeakerContainer.Attributes,UpdateSourceTrigger=PropertyChanged}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+            <ListBox.Resources>
+                <DataTemplate DataType="{x:Type core:SpeakerAttribute}">
+                    <TextBlock TextWrapping="Wrap"><Bold><Run Text="{Binding Name}"/>: </Bold><Run Text="{Binding Value}"/></TextBlock>
+                </DataTemplate>
+            </ListBox.Resources>
+        </ListBox>
+
+        <StackPanel Grid.ColumnSpan="2" Grid.Row="3" HorizontalAlignment="Left" Orientation="Horizontal">
+            <Button Width="100">Přidat popisek</Button>
+            <Button Width="100" Margin="20,0,0,0">Editovat popisek</Button>
+            <Button Width="100" Margin="20,0,0,0">Smazat popisek</Button>
+        </StackPanel>
+    </Grid>
+</UserControl>

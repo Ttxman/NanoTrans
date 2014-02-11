@@ -70,6 +70,15 @@ namespace NanoTrans.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Jazyk Odstavce.
+        /// </summary>
+        public static string ContextMenuLanguageHeader {
+            get {
+                return ResourceManager.GetString("ContextMenuLanguageHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Kapitola 0.
         /// </summary>
         public static string DefaultChapterText {
@@ -196,7 +205,7 @@ namespace NanoTrans.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Soubory titulků (*.trsx)|*.trsx)|Všechny soubory (*.*)|*.*.
+        ///   Looks up a localized string similar to Soubory titulků (*.trsx)|*.trsx|Všechny soubory (*.*)|*.*.
         /// </summary>
         public static string FileDialogLoadTranscriptionFilter {
             get {

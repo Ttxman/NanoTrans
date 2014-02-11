@@ -70,7 +70,7 @@ namespace NanoTrans.Core
         /// <param name="overwrite">ovewrite speaker with same fullname (if exists)</param>
         /// <returns>false if, speaker with same fullname exists and ovewrite is false</returns>
         /// <exception cref="ArgumentException">when speaker have null or empty fullname</exception>
-        public bool AddSpeaker(Speaker speaker, bool overwrite=true)
+        public bool AddSpeaker(Speaker speaker, bool overwrite = true)
         {
             if (speaker.FullName != null && speaker.FullName != "")
             {
@@ -208,7 +208,7 @@ namespace NanoTrans.Core
                         case "male":
                             speaker.Sex = Speaker.Sexes.Male;
                             break;
-                          
+
                         case "f":
                         case "žena":
                         case "female":
@@ -219,14 +219,10 @@ namespace NanoTrans.Core
                             break;
                     }
 
-                    if(fname.Value !=null)
-                        speaker.Attributes.Add(new SpeakerAttribute("comment","comment",fname.Value));
+                    if (fname.Value != null)
+                        speaker.Attributes.Add(new SpeakerAttribute("comment", "comment", fname.Value));
 
-                    int langid = XmlConvert.ToInt32(lang.Value??"-1");
-                    if (langid >= 0 && langid < Speaker.Langs.Count)
-                        speaker.DefaultLang = langid;
-                    else
-                        speaker.DefaultLang = 0;
+                    speaker.DefaultLang = lang.Value ?? Speaker.Langs[0];
 
                     mysp.AddSpeaker(speaker);
                 }
@@ -235,8 +231,8 @@ namespace NanoTrans.Core
 
             }
             else
-            { 
-            
+            {
+
             }
             return null;
         }

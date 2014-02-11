@@ -52,7 +52,7 @@
     <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
     <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
     <CodeAnalysisFailOnMissingRules>false</CodeAnalysisFailOnMissingRules>
-    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
@@ -116,9 +116,15 @@
     <Reference Include="WindowsFormsIntegration">
       <RequiredTargetFramework>3.0</RequiredTargetFramework>
     </Reference>
+    <Reference Include="WPFLocalizeExtension">
+      <HintPath>..\packages\WpfLocalizeExtension.2.1.3\lib\net35\WPFLocalizeExtension.dll</HintPath>
+    </Reference>
     <Reference Include="WPFToolkit.Extended, Version=1.8.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Extended.Wpf.Toolkit.1.8.0\lib\net40\WPFToolkit.Extended.dll</HintPath>
+    </Reference>
+    <Reference Include="XAMLMarkupExtensions">
+      <HintPath>..\packages\XAMLMarkupExtensions.1.1.6.1\lib\net40\XAMLMarkupExtensions.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -146,11 +152,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\EditSpeaker.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="UI\Element.xaml">
+    <Page Include="Control\Element.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -159,10 +161,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UI\FindDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="UI\ReplaceSpeakerWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -186,7 +184,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="UI\Waveform.xaml">
+    <Page Include="Control\Waveform.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -202,15 +200,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\WinNormalizace.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="UI\WinSetup.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="UI\WinSpeakers.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -235,13 +225,15 @@
     <Compile Include="Source\CorrectionsGenerator.cs" />
     <Compile Include="Source\WaitCursor.cs" />
     <Compile Include="Source\WPFTranscription.cs" />
+    <Compile Include="Properties\Strings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Strings.resx</DependentUpon>
+    </Compile>
     <Compile Include="UI\DownloadOneFileWindow.xaml.cs">
       <DependentUpon>DownloadOneFileWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\EditSpeaker.xaml.cs">
-      <DependentUpon>EditSpeaker.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UI\Element.xaml.cs">
+    <Compile Include="Control\Element.xaml.cs">
       <DependentUpon>Element.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\ExceptionCatchWindow.xaml.cs">
@@ -254,9 +246,6 @@
     </Compile>
     <Compile Include="Source\ImportExportInterfaces.cs" />
     <Compile Include="Source\Plugin.cs" />
-    <Compile Include="UI\ReplaceSpeakerWindow.xaml.cs">
-      <DependentUpon>ReplaceSpeakerWindow.xaml</DependentUpon>
-    </Compile>
     <Compile Include="UI\PickOneDialog.xaml.cs">
       <DependentUpon>PickOneDialog.xaml</DependentUpon>
     </Compile>
@@ -269,7 +258,7 @@
     <Compile Include="UI\TextWallWindow.xaml.cs">
       <DependentUpon>TextWallWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\Waveform.xaml.cs">
+    <Compile Include="Control\Waveform.xaml.cs">
       <DependentUpon>Waveform.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\Window1_KeyboardRelatedItems.cs">
@@ -311,19 +300,20 @@
     <Compile Include="UI\WinAbout.xaml.cs">
       <DependentUpon>WinAbout.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\WinNormalizace.xaml.cs">
-      <DependentUpon>WinNormalizace.xaml</DependentUpon>
-    </Compile>
     <Compile Include="UI\WinSetup.xaml.cs">
       <DependentUpon>WinSetup.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\WinSpeakers.xaml.cs">
-      <DependentUpon>WinSpeakers.xaml</DependentUpon>
-    </Compile>
+    <EmbeddedResource Include="Properties\Strings.de.resx" />
+    <EmbeddedResource Include="Properties\Strings.cs.resx" />
+    <EmbeddedResource Include="Properties\Strings.en.resx" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Strings.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="app.config" />
     <None Include="NanoTrans.exe.config">
@@ -455,6 +445,9 @@
     <Resource Include="icons\download_small2.png" />
     <Resource Include="icons\save.png" />
     <Resource Include="icons\save_small.png" />
+    <Resource Include="icons\Computer16.png" />
+    <Resource Include="icons\Document16.png" />
+    <Resource Include="icons\web16.png" />
     <Content Include="Plugins\Plugins.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

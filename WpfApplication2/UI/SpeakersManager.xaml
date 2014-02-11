@@ -1,0 +1,101 @@
+﻿<Window x:Class="NanoTrans.SpeakersManager"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:my="clr-namespace:NanoTrans"
+        xmlns:core="clr-namespace:NanoTrans.Core;assembly=NanoTransCore"
+        Title="SpeakersManager" MinHeight="450" MinWidth="650" MaxWidth="1000"
+        Name="manager">
+    <Window.Resources>
+        <my:MultipleSelectionConverter x:Key="selConverter" />
+        <Style x:Key="ContainerStyle" TargetType="{x:Type GroupItem}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Expander Header="{Binding }" IsExpanded="True">
+                            <ItemsPresenter />
+                        </Expander>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <DataTemplate x:Key="groupingHeaderTemplate">
+            <TextBlock Text="{Binding}"
+                       Foreground="Navy" FontWeight="Bold" FontSize="12"/>
+        </DataTemplate>
+
+    </Window.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="196*"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.ColumnSpan="2" VerticalAlignment="Center" Margin="0,4,0,5">
+            <TextBlock Margin="10,0,5,0" FontWeight="Bold" Foreground="#FF2B1B72" Text="{Binding ElementName=manager, Path=MessageLabel}"/>
+            <TextBlock Text="{Binding ElementName=manager, Path=Message}" TextTrimming="CharacterEllipsis" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Grid.Row="1" VerticalAlignment="Center" Grid.ColumnSpan="2" Margin="0,4,0,5">
+            <StackPanel.Resources>
+                <Style TargetType="{x:Type CheckBox}">
+                    <Setter Property="Margin" Value="10,0,0,0"/>
+                </Style>
+            </StackPanel.Resources>
+            <CheckBox IsChecked="{Binding ElementName=manager,Path=SpeakerProvider.ShowLocal}">Mluvčí uživatele</CheckBox>
+            <CheckBox IsChecked="{Binding ElementName=manager,Path=SpeakerProvider.ShowDocument}">Mluvčí z přepisu</CheckBox>
+            <CheckBox IsChecked="{Binding ElementName=manager,Path=SpeakerProvider.ShowOnline}" IsEnabled="{Binding ElementName=manager,Path=SpeakerProvider.OnlineAccesible }">Mluvčí online</CheckBox>
+            <CheckBox Name="showMiniatures" IsChecked="{Binding ElementName=manager,Path=ShowMiniatures}">Zobrazit Miniatury</CheckBox>
+        </StackPanel>
+
+        <DockPanel Grid.Row="2" Grid.Column="0" LastChildFill="True">
+            <Label DockPanel.Dock="Left">Search:</Label>
+            <TextBox Text="{Binding ElementName=manager,Path=SpeakerProvider.FilterString,TargetNullValue='',UpdateSourceTrigger=PropertyChanged}"/>
+        </DockPanel>
+        <ListBox Name="SpeakersBox" MinWidth="200" Grid.Column="0" Grid.Row="3" AlternationCount="2" ItemsSource="{Binding ElementName=manager,Path=SpeakerProvider.View}" SelectionMode="{Binding ElementName=manager,Converter={StaticResource selConverter}, Path=SelectMany}" ContextMenuOpening="SpeakersBox_ContextMenuOpening">
+            <ListBox.GroupStyle>
+                <GroupStyle HeaderTemplate="{StaticResource groupingHeaderTemplate}" ContainerStyle="{StaticResource ContainerStyle}"/>
+            </ListBox.GroupStyle>
+            <ListBox.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Sloučit s dalšími mluvčími" Click="MenuItem_MergeSpeakers"/>
+                    <MenuItem Header="Odstranit" Click="MenuItem_DeleteSpeaker"/>
+                    <MenuItem Header="Nový mluvčí" Click="MenuItem_NewSpeaker"/>
+                    <MenuItem Header="Nahradit v prepisu za" Click="MenuItemReplaceSpeaker_Click"/>
+                </ContextMenu>
+            </ListBox.ContextMenu>
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="ListBoxItem">
+
+                    <Setter Property="Padding" Value="0"/>
+
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                    <Style.Triggers>
+                        <Trigger Property="ItemsControl.AlternationIndex" Value="0">
+                            <Setter Property="Background" Value="{x:Null}"></Setter>
+                        </Trigger>
+                        <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                            <Setter Property="Background" Value="LightGray"></Setter>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </ListBox.ItemContainerStyle>
+            <ListBox.Resources>
+                <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="{x:Static SystemColors.HighlightColor}"/>
+                <DataTemplate DataType="{x:Type my:SpeakerContainer}">
+                    <my:SpeakerSmall SpeakerContainer="{Binding}" MiniatureVisible="{Binding IsChecked, ElementName=showMiniatures}"/>
+                </DataTemplate>
+            </ListBox.Resources>
+        </ListBox>
+        <StackPanel Grid.Column="0" Grid.Row="4">
+            <Button Click="ButtonNewSpeaker_Click">Nový mluvčí</Button>
+            <Button Height="30" Margin="0,4,0,0" Click="ButtonOK_Click">OK</Button>
+        </StackPanel>
+        <my:SpeakerControl x:Name="SpeakerDetails" Grid.Row="2" Grid.Column="1" SpeakerContainer="{Binding ElementName=SpeakersBox,Path=SelectedItem}" IsEnabled="{Binding ElementName=manager,Path=Editable}" Grid.RowSpan="3"  />
+    </Grid>
+</Window>

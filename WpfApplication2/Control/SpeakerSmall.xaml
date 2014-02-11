@@ -1,0 +1,44 @@
+﻿<UserControl x:Class="NanoTrans.SpeakerSmall"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:my="clr-namespace:NanoTrans"
+             mc:Ignorable="d" FontSize="15"
+             >
+    <UserControl.Resources>
+        <my:JPGB64Converter x:Key="jpgConverter" />
+        <BooleanToVisibilityConverter x:Key="visConverter" />
+    </UserControl.Resources>
+
+    <Grid Height="auto">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Border Grid.ColumnSpan="2" Margin="1" BorderBrush="Blue" BorderThickness="1" Visibility="{Binding Marked, Converter={StaticResource visConverter}}">
+        </Border>
+
+        <Grid Margin="5,5,0,5" Width="50" Height="50" Visibility="{Binding MiniatureVisible, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type my:SpeakerSmall}}, Converter={StaticResource visConverter}}">
+            <Rectangle Grid.Column="0" Margin="0" Fill="Gray"/>
+            <my:LoadingAnimation Grid.Column="0"  Margin="5" Visibility="{Binding Updating, Converter={StaticResource visConverter}}" />
+            <Image Source="{Binding ImgBase64, Converter={StaticResource jpgConverter}}" Grid.Column="0" Margin="5,5,5,5" Stretch="UniformToFill" />
+        </Grid>
+        
+        <StackPanel Orientation="Vertical" Grid.Column="1" Margin="5,0,0,0">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="{Binding DegreeBefore}"/>
+                <TextBlock Text=" "/>
+                <TextBlock FontWeight="Bold" Text="{Binding FullName}" />
+                <TextBlock Text=" "/>
+                <TextBlock Text="{Binding DegreeAfter}"/>
+            </StackPanel>
+            <TextBlock Grid.Column="1" Text="{Binding Language}" />
+        </StackPanel>
+        <StackPanel Grid.Column="1" Margin="2" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Right">
+            <Image Source="/NanoTrans;component/icons/web16.png" Width="12" Visibility="{Binding IsOnline, Converter={StaticResource visConverter}}" />
+            <Image Source="/NanoTrans;component/icons/computer16.png" Width="12" Visibility="{Binding IsLocal, Converter={StaticResource visConverter}}"/>
+            <Image Source="/NanoTrans;component/icons/Document16.png" Width="12" Visibility="{Binding IsDocument, Converter={StaticResource visConverter}}"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

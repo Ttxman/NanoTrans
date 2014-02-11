@@ -41,17 +41,17 @@ namespace NanoTrans
         private DispatcherTimer timer1 = new DispatcherTimer();
         private DispatcherTimer timerRozpoznavace = new DispatcherTimer();
 
-        private WPFTranscription m_mydatasource;
+        private WPFTranscription _mydatasource;
         public WPFTranscription Transcription
         {
-            get { return m_mydatasource; }
+            get { return _mydatasource; }
             set
             {
-                if (m_mydatasource != null)
-                    m_mydatasource.SubtitlesChanged -= m_mydatasource_SubtitlesChanged;
-                m_mydatasource = value;
-                if (m_mydatasource != null)
-                    m_mydatasource.SubtitlesChanged += m_mydatasource_SubtitlesChanged;
+                if (_mydatasource != null)
+                    _mydatasource.SubtitlesChanged -= _mydatasource_SubtitlesChanged;
+                _mydatasource = value;
+                if (_mydatasource != null)
+                    _mydatasource.SubtitlesChanged += _mydatasource_SubtitlesChanged;
 
                 if (PropertyChanged != null)
                     PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs("Transcription"));
@@ -59,7 +59,7 @@ namespace NanoTrans
             }
         }
 
-        void m_mydatasource_SubtitlesChanged()
+        void _mydatasource_SubtitlesChanged()
         {
             waveform1.InvalidateSpeakers();
         }
@@ -67,7 +67,7 @@ namespace NanoTrans
         /// <summary>
         /// databaze mluvcich konkretniho programu
         /// </summary>
-        public MySpeakers SpeakersDatabase;
+        public SpeakerCollection SpeakersDatabase;
         //public static MySetup MySetup = null;          //trida pro nastaveni vlastnosti aplikace
 
         //public static bool spustenoOknoNapovedy = false;        //informace o spustenem oknu napovedy
@@ -102,13 +102,13 @@ namespace NanoTrans
         /// </summary>
         private MyWavePlayer MWP = null;
 
-        private int m_pIndexBufferuVlnyProPrehrani = 0;
+        private int _pIndexBufferuVlnyProPrehrani = 0;
         private int pIndexBufferuVlnyProPrehrani
         {
-            get { return m_pIndexBufferuVlnyProPrehrani; }
+            get { return _pIndexBufferuVlnyProPrehrani; }
             set
             {
-                m_pIndexBufferuVlnyProPrehrani = value;
+                _pIndexBufferuVlnyProPrehrani = value;
 
             }
 
@@ -192,25 +192,25 @@ namespace NanoTrans
             ZobrazitOknoFonetickehoPrepisu(MySetup.Setup.ZobrazitFonetickyPrepis - 1 > 0);
 
             //databaze mluvcich
-            SpeakersDatabase = new MySpeakers();
+            SpeakersDatabase = new SpeakerCollection();
 
             string fname = System.IO.Path.GetFullPath(MySetup.Setup.CestaDatabazeMluvcich);
             if (fname.Contains(FilePaths.ProgramDirectory))
             {
                 if (!FilePaths.WriteToAppData)
                 {
-                    SpeakersDatabase = MySpeakers.Deserialize(MySetup.Setup.CestaDatabazeMluvcich);
+                    SpeakersDatabase = SpeakerCollection.Deserialize(MySetup.Setup.CestaDatabazeMluvcich);
                 }
                 else
                 {
                     string fname2 = System.IO.Path.Combine(FilePaths.AppDataDirectory, fname.Substring(FilePaths.ProgramDirectory.Length));
                     if (File.Exists(fname2))
                     {
-                        SpeakersDatabase = MySpeakers.Deserialize(fname2);
+                        SpeakersDatabase = SpeakerCollection.Deserialize(fname2);
                     }
                     else if (File.Exists(MySetup.Setup.CestaDatabazeMluvcich))
                     {
-                        SpeakersDatabase = MySpeakers.Deserialize(MySetup.Setup.CestaDatabazeMluvcich);
+                        SpeakersDatabase = SpeakerCollection.Deserialize(MySetup.Setup.CestaDatabazeMluvcich);
                     }
                 }
             }
@@ -218,7 +218,7 @@ namespace NanoTrans
             {
                 if (File.Exists(MySetup.Setup.CestaDatabazeMluvcich))
                 {
-                    SpeakersDatabase = MySpeakers.Deserialize(MySetup.Setup.CestaDatabazeMluvcich);
+                    SpeakersDatabase = SpeakerCollection.Deserialize(MySetup.Setup.CestaDatabazeMluvcich);
                 }
                 else
                 {
@@ -584,8 +584,8 @@ namespace NanoTrans
                     Microsoft.Win32.OpenFileDialog fileDialog = new Microsoft.Win32.OpenFileDialog();
 
                     fileDialog.Title = Properties.Strings.FileDialogLoadTranscriptionTitle;
-                    fileDialog.Filter = Properties.Strings.FileDialogLoadTranscriptionTitle;
-                    fileDialog.FilterIndex = 1;
+                    fileDialog.Filter = Properties.Strings.FileDialogLoadTranscriptionFilter;
+                    //fileDialog.FilterIndex = 1;
                     fileDialog.RestoreDirectory = true;
 
                     blockfocus = true;
@@ -1136,7 +1136,7 @@ namespace NanoTrans
         #region menu Nastroje
         private void MNastroje_Nastav_Mluvciho_Click(object sender, RoutedEventArgs e)
         {
-            new WinSpeakers((TranscriptionParagraph)VirtualizingListBox.ActiveTransctiption, MySetup.Setup, this.SpeakersDatabase, Transcription, null).ShowDialog();
+            CommandAssignSpeaker.Execute(null, null);
         }
 
         private void MNastroje_Nastaveni_Click(object sender, RoutedEventArgs e)
@@ -1232,8 +1232,8 @@ namespace NanoTrans
 
             if (!e.Cancel)
             {
-                if (m_findDialog != null && m_findDialog.IsLoaded)
-                    m_findDialog.Close();
+                if (_findDialog != null && _findDialog.IsLoaded)
+                    _findDialog.Close();
 
 
                 if (MWP != null)
@@ -1366,9 +1366,9 @@ namespace NanoTrans
             t.Start();
 
             phoneticTranscription.Text = "";
-            phoneticTranscription.button1.Visibility = Visibility.Collapsed;
+            phoneticTranscription.buttonSpeaker.Visibility = Visibility.Collapsed;
             phoneticTranscription.checkBox1.Visibility = Visibility.Collapsed;
-            phoneticTranscription.stackPanel1.Visibility = Visibility.Collapsed;
+            phoneticTranscription.stackPanelAttributes.Visibility = Visibility.Collapsed;
             phoneticTranscription.textbegin.Visibility = Visibility.Collapsed;
             phoneticTranscription.textend.Visibility = Visibility.Collapsed;
             phoneticTranscription.DisableAutomaticElementVisibilityChanges = true;
@@ -1800,7 +1800,7 @@ namespace NanoTrans
             }
 
 
-            var list = m_mydatasource.VratElementDanehoCasu(e.Value);
+            var list = _mydatasource.VratElementDanehoCasu(e.Value);
             if (list != null && list.Count > 0)
             {
                 if (VirtualizingListBox.ActiveTransctiption != list[0])
@@ -1830,7 +1830,7 @@ namespace NanoTrans
             List<TranscriptionParagraph> pl = Transcription.VratElementDanehoCasu(waveform1.CaretPosition);
 
             _pozicenastav = true;
-            var list = m_mydatasource.VratElementDanehoCasu(e.Value);
+            var list = _mydatasource.VratElementDanehoCasu(e.Value);
             if (list != null && list.Count > 0)
             {
                 if (VirtualizingListBox.ActiveTransctiption != list[0])
@@ -1851,7 +1851,7 @@ namespace NanoTrans
         private void waveform1_ParagraphDoubleClick(object sender, Waveform.MyTranscriptionElementEventArgs e)
         {
             VirtualizingListBox.ActiveTransctiption = e.Value;
-            new WinSpeakers((TranscriptionParagraph)e.Value, MySetup.Setup, this.SpeakersDatabase, Transcription, null).ShowDialog();
+            CommandAssignSpeaker.Execute((TranscriptionParagraph)e.Value, null);
             VirtualizingListBox.SpeakerChanged();
         }
 
@@ -1923,8 +1923,8 @@ namespace NanoTrans
 
         #region plugins
 
-        List<Plugin> m_ImportPlugins = new List<Plugin>();
-        List<Plugin> m_ExportPlugins = new List<Plugin>();
+        List<Plugin> _ImportPlugins = new List<Plugin>();
+        List<Plugin> _ExportPlugins = new List<Plugin>();
         private void LoadPlugins()
         {
             string file = FilePaths.GetReadPath(FilePaths.PluginsFile);
@@ -1943,12 +1943,12 @@ namespace NanoTrans
                     MethodInfo mi = ptype.GetMethod("Import", BindingFlags.Static | BindingFlags.Public);
                     Func<Stream, Transcription, bool> act = (Func<Stream, Transcription, bool>)Delegate.CreateDelegate(typeof(Func<Stream, Transcription, bool>), mi);
 
-                    m_ImportPlugins.Add(new Plugin(true, true, imp.Attribute("Mask").Value, null, imp.Attribute("Name").Value, act, null, null));
+                    _ImportPlugins.Add(new Plugin(true, true, imp.Attribute("Mask").Value, null, imp.Attribute("Name").Value, act, null, null));
                 }
 
                 foreach (var imp in imports.Where(i => i.Attribute("IsAssembly").Value.ToLower() == "false"))
                 {
-                    m_ImportPlugins.Add(new Plugin(true, false, imp.Attribute("Mask").Value, imp.Attribute("Parameters").Value, imp.Attribute("Name").Value, null, null, imp.Attribute("File").Value));
+                    _ImportPlugins.Add(new Plugin(true, false, imp.Attribute("Mask").Value, imp.Attribute("Parameters").Value, imp.Attribute("Name").Value, null, null, imp.Attribute("File").Value));
                 }
 
 
@@ -1959,12 +1959,12 @@ namespace NanoTrans
                     MethodInfo mi = ptype.GetMethod("Export", BindingFlags.Static | BindingFlags.Public);
                     Func<Transcription, Stream, bool> act = (Func<Transcription, Stream, bool>)Delegate.CreateDelegate(typeof(Func<Transcription, Stream, bool>), mi);
 
-                    m_ExportPlugins.Add(new Plugin(true, true, exp.Attribute("Mask").Value, null, exp.Attribute("Name").Value, null, act, null));
+                    _ExportPlugins.Add(new Plugin(true, true, exp.Attribute("Mask").Value, null, exp.Attribute("Name").Value, null, act, null));
                 }
 
                 foreach (var exp in exports.Where(i => i.Attribute("IsAssembly") == null || i.Attribute("IsAssembly").Value == "false"))
                 {
-                    m_ExportPlugins.Add(new Plugin(true, false, exp.Attribute("Mask").Value, exp.Attribute("Parameters").Value, exp.Attribute("Name").Value, null, null, exp.Attribute("File").Value));
+                    _ExportPlugins.Add(new Plugin(true, false, exp.Attribute("Mask").Value, exp.Attribute("Parameters").Value, exp.Attribute("Name").Value, null, null, exp.Attribute("File").Value));
                 }
 
             }
@@ -2025,12 +2025,27 @@ namespace NanoTrans
             }
         }
 
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        private void MenuItemLanguage_Click(object sender, RoutedEventArgs e)
         {
-            foreach (var item in Transcription)
+            if (VirtualizingListBox.ActiveTransctiption == null || !VirtualizingListBox.ActiveTransctiption.IsParagraph)
+                return;
+            var par = VirtualizingListBox.ActiveTransctiption as TranscriptionParagraph;
+            var l = (string)(sender as MenuItem).Header;
+
+            VirtualizingListBox.ActiveElement.ElementLanguage = l;
+            var prev = VirtualizingListBox.ActiveElement;
+            if (VirtualizingListBox.ActiveElement.RefreshSpeakerButton())
             {
-                Debug.WriteLine(item.Text);
+                prev = VirtualizingListBox.GetVisualForTransctiption(VirtualizingListBox.ActiveTransctiption.Previous());//refresh previous elements
+                while (prev != null && prev.RefreshSpeakerButton())
+                    prev = VirtualizingListBox.GetVisualForTransctiption(prev.ValueElement.Previous());
+
+                prev = VirtualizingListBox.GetVisualForTransctiption(VirtualizingListBox.ActiveTransctiption.Next());//refresh next elements
+                while (prev != null && prev.RefreshSpeakerButton())
+                    prev = VirtualizingListBox.GetVisualForTransctiption(prev.ValueElement.Next());
+
             }
+
         }
 
     }

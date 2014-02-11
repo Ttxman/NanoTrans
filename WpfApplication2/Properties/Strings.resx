@@ -460,7 +460,7 @@
     <value>Importovat soubor</value>
   </data>
   <data name="FileDialogLoadTranscriptionFilter" xml:space="preserve">
-    <value>Soubory titulků (*.trsx)|*.trsx)|Všechny soubory (*.*)|*.*</value>
+    <value>Soubory titulků (*.trsx)|*.trsx|Všechny soubory (*.*)|*.*</value>
   </data>
   <data name="FileDialogLoadTranscriptionTitle" xml:space="preserve">
     <value>Otevřít soubor s titulky...</value>
@@ -530,5 +530,8 @@
   </data>
   <data name="TextWallWindowTitle" xml:space="preserve">
     <value>TextWallWindow</value>
+  </data>
+  <data name="ContextMenuLanguageHeader" xml:space="preserve">
+    <value>Jazyk Odstavce</value>
   </data>
 </root>

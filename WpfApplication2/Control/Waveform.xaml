@@ -1,0 +1,39 @@
+﻿<UserControl x:Class="NanoTrans.Waveform"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             xmlns:my="clr-namespace:NanoTrans"
+             d:DesignHeight="164" d:DesignWidth="970" SizeChanged="UserControl_SizeChanged" Unloaded="UserControl_Unloaded">
+
+    <UserControl.Resources>
+        <ObjectDataProvider x:Key="provider" ObjectInstance="{x:Static my:MySetup.Refresher}"/>
+    </UserControl.Resources>
+    
+    <Grid SizeChanged="Grid_SizeChanged" Loaded="Grid_Loaded">
+        <Grid Margin="-1,29,1,0" Name="grid1" ShowGridLines="False" Background="AntiqueWhite" MouseDown="myImage_MouseLeftButtonDown" SizeChanged="grid1_SizeChanged" Unloaded="grid1_Unloaded">
+            <Grid Height="21" Margin="0,0,0,0" Name="gCasovaOsa" VerticalAlignment="Bottom" Background="LightGreen" Grid.ColumnSpan="2"></Grid>
+            <Image Margin="0,22,0,19" Name="myImage" MouseDown="myImage_MouseLeftButtonDown" MouseUp="myImage_MouseUp" MouseMove="myImage_MouseMove" Stretch="UniformToFill" />
+            <Rectangle Fill="DarkGreen" HorizontalAlignment="Left" Margin="0,0,0,0" Name="rectangle1" Stroke="Black" Width="2" Focusable="False" IsHitTestVisible="False" />
+            <Label Background="LightGray" HorizontalAlignment="Left" Margin="24.038,0,0,19" Name="rectangle2" Width="67" OpacityMask="Cyan" HorizontalContentAlignment="Center" Opacity="0.6" IsHitTestVisible="True" Visibility="Visible" MouseMove="rectangle2_MouseMove" MouseLeftButtonDown="rectangle2_MouseLeftButtonDown" MouseLeftButtonUp="rectangle2_MouseLeftButtonUp" ></Label>
+            <Button VerticalAlignment="Bottom" HorizontalAlignment="Left" Height="20" Margin="0,0,0,0" Click="btPosunLevo_Click" Name="btPosunLevo" Focusable="False" IsHitTestVisible="True" IsTabStop="False">
+                <Image Source="../icons/iPlay.png" IsHitTestVisible="False" FlowDirection="RightToLeft" />
+            </Button>
+            <Button VerticalAlignment="Bottom" HorizontalAlignment="Right" Height="20" Margin="0,0,0,0" Click="btPosunPravo_Click" Name="btPosunPravo" Focusable="False" IsHitTestVisible="True" IsTabStop="False">
+                <Image Source="../icons/iPlay.png" IsHitTestVisible="False" />
+            </Button>
+        </Grid>
+        <Grid Height="26" VerticalAlignment="Top" Margin="0,0
+              ,0,0">
+            <StackPanel Orientation="Horizontal" Height="25" Margin="0,0,0,0" VerticalAlignment="Bottom">
+                <Button Focusable="False" Name="btPrehratZastavit" Click="btPrehratZastavit_Click" HorizontalAlignment="Left" BorderThickness="2" BorderBrush="Black" Height="23" Width="23" Margin="0,0,0,0" VerticalAlignment="Bottom">
+                    <Image Name="iPlayPause" Source="../icons/iPlay.png" />
+                </Button>
+                <Label Name="lAudioPozice" Margin="0,0,0,0" Height="24" Width="84.436" FontSize="12" FontWeight="Bold">0:00:00,00</Label>
+            </StackPanel>
+            <Slider Name="slPoziceMedia" PreviewMouseLeftButtonUp="slPoziceMedia_PreviewMouseUp" PreviewMouseLeftButtonDown="slPoziceMedia_MouseDown" PreviewMouseDown="slPoziceMedia_MouseDown" ValueChanged="slPoziceMedia_ValueChanged" LostMouseCapture="slPoziceMedia_LostMouseCapture" IsMoveToPointEnabled="True" IsTabStop="False" Focusable="False" IsSelectionRangeEnabled="True" Foreground="Black" Background="Transparent" BorderBrush="Transparent" BorderThickness="0" Margin="110,4,52,0" Maximum="1000" />
+            <Label Name="lAudioDelka2" FontSize="11" FontWeight="Normal" HorizontalAlignment="Right" Margin="0,1" ToolTip="Celková délka audio souboru [h:mm:ss]">0:00:00</Label>
+        </Grid>
+    </Grid>
+</UserControl>

@@ -624,7 +624,7 @@ namespace NanoTrans.Core
             if (data.elements.TryGetValue("documentid", out did))
                 data.DocumentID = did;
             if (data.elements.TryGetValue("created", out did))
-                data.Created = XmlConvert.ToDateTime(did);
+                data.Created = XmlConvert.ToDateTime(did,XmlDateTimeSerializationMode.Unspecified);
 
             data.elements = transcription.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
             data.elements.Remove("style");
@@ -1350,6 +1350,12 @@ namespace NanoTrans.Core
         public override int AbsoluteIndex
         {
             get { throw new NotSupportedException(); }
+        }
+
+
+        public IEnumerable<TranscriptionParagraph> EnumerateParagraphs()
+        {
+            return this.Where(p => p.IsParagraph).Cast<TranscriptionParagraph>();
         }
     }
 }

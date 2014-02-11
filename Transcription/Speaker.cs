@@ -111,11 +111,17 @@ namespace NanoTrans.Core
                 {
                     pJmeno += FirstName;
                 }
+                if (MiddleName != null && MiddleName.Length > 0)
+                {
+                    pJmeno += " "+MiddleName;
+                }
+
                 if (Surname != null && Surname.Length > 0)
                 {
                     if (pJmeno.Length > 0) pJmeno += " ";
                     pJmeno += Surname;
                 }
+
                 if (string.IsNullOrEmpty(pJmeno))
                     pJmeno = "Mluvčí";
                 return pJmeno;
@@ -136,7 +142,7 @@ namespace NanoTrans.Core
 
         public string ImgBase64;
         //public string Comment;
-        public int DefaultLang = 0;
+        public string DefaultLang;
 
 
         public string DegreeBefore;
@@ -152,7 +158,7 @@ namespace NanoTrans.Core
             Surname = null;
             Sex = Sexes.X;
             ImgBase64 = null;
-            DefaultLang = 0;
+            DefaultLang = Langs[0];
         }
         #region serializace nova
 
@@ -194,7 +200,7 @@ namespace NanoTrans.Core
             if (sp.Elements.TryGetValue("lang", out rem))
             {
                 int idx = Langs.IndexOf(rem);
-                sp.DefaultLang = (idx < 0) ? 0 : idx;
+                sp.DefaultLang = rem;
             }
 
             sp.Elements.Remove("id");
@@ -229,8 +235,7 @@ namespace NanoTrans.Core
                     break;
             }
 
-            int idx = Langs.IndexOf(s.Attribute("lang").Value);
-            DefaultLang = (idx < 0) ? 0 : idx;
+            DefaultLang = s.Attribute("lang").Value;
             Attributes.AddRange(s.Elements("a").Select(e=>new SpeakerAttribute(e)));
             
             Elements = s.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
@@ -301,7 +306,7 @@ namespace NanoTrans.Core
                     new XAttribute("surname",Surname),
                     new XAttribute("firstname",FirstName),
                     new XAttribute("sex",(Sex==Sexes.Male)?"m":(Sex==Sexes.Female)?"f":"x"),
-                    new XAttribute("lang",Langs[DefaultLang])
+                    new XAttribute("lang",DefaultLang)
 
                     })
             );
@@ -364,7 +369,7 @@ namespace NanoTrans.Core
 
         public override string ToString()
         {
-            return FullName + " (" + Langs[DefaultLang] + ")";
+            return FullName + " (" + DefaultLang + ")";
         }
 
         public static readonly int DefaultID = int.MinValue;
@@ -375,7 +380,6 @@ namespace NanoTrans.Core
             return new Speaker(this);
         }
 
-        public string Language { get; set; }
 
         public string DBID { get; set; }
 
