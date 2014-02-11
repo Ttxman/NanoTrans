@@ -362,8 +362,6 @@ namespace NanoTrans
             get { return m_pausedAt; }
         }
 
-
-        System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
         private void RetrieveData()
         {
             int timems;

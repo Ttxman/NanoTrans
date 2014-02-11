@@ -3,7 +3,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Title="NanoTrans" Height="758" Width="867" Closing="Window_Closing"
     xmlns:local="clr-namespace:NanoTrans" ResizeMode="CanResizeWithGrip" SizeChanged="Window_SizeChanged" Loaded="Window_Loaded" WindowStartupLocation="CenterScreen" PreviewKeyDown="Window_PreviewKeyDown" PreviewKeyUp="Window_PreviewKeyUp" Icon="icons/pen.ico" IsEnabled="True" AllowDrop="True" Drop="Window_Drop" LocationChanged="Window_LocationChanged" LostFocus="Window_LostFocus">
-    
+
     <Window.Resources>
         <!--ObjectDataProvider x:Key="MyStringData" 
                         ObjectType="{x:Type local:MyStrings}" /-->
@@ -12,8 +12,8 @@
     <Grid Name="d" Height="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <Grid.RowDefinitions>
             <RowDefinition Height="260*" />
-            <RowDefinition Height="150"/>
-            <RowDefinition Height="220" />
+            <RowDefinition Height="134"/>
+            <RowDefinition Height="236" />
         </Grid.RowDefinitions>
         <GridSplitter Margin="0,0,0,0" Name="gridSplitter1" Height="5" VerticalAlignment="Bottom" Grid.Row="0" Focusable="False" IsTabStop="False" Grid.IsSharedSizeScope="False" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" ResizeBehavior="CurrentAndNext" ShowsPreview="True" />
         <!--ListBox Name="theListBox" ItemsSource="{Binding Source={StaticResource MyStringData}}" Margin="283.75,25.804,330,0"  Height="31" VerticalAlignment="Top" /-->
@@ -112,25 +112,8 @@
                 <MenuItem Header="O programu" InputGestureText="Ctrl+F1" Click="MNapoveda_O_Programu_Click" Name="menuNapovedaOProgramu" />
             </MenuItem>
         </Menu>
-        <Grid Margin="0,78,0,26" Name="grid1" ShowGridLines="False" Background="AntiqueWhite" MouseDown="myImage_MouseLeftButtonDown" MouseUp="myImage_MouseUp" MouseMove="myImage_MouseMove" SizeChanged="grid1_SizeChanged" Grid.Row="2">
-            
-            <Grid Height="21" Margin="0,0,0,0" Name="gCasovaOsa" VerticalAlignment="Bottom" Background="LightGreen" Grid.ColumnSpan="2">
-                
-            </Grid>
-            <Image Margin="0,22,0,19" Name="myImage" Stretch="None" StretchDirection="Both" MouseDown="myImage_MouseLeftButtonDown" MouseUp="myImage_MouseUp" MouseMove="myImage_MouseMove" />
-            <Rectangle Fill="DarkGreen" HorizontalAlignment="Left" Margin="0,0,0,0" Name="rectangle1" Stroke="Black" Width="2" Focusable="False" IsHitTestVisible="False" />
-            <Label Background="LightGray" HorizontalAlignment="Left" Margin="24.038,0,0,19" Name="rectangle2" Width="67" OpacityMask="Cyan" HorizontalContentAlignment="Center" Opacity="0.6" IsHitTestVisible="False" Visibility="Visible"></Label>
-            <Button VerticalAlignment="Bottom" HorizontalAlignment="Left" Height="20" Margin="0,0,0,0" Click="btPosunLevo_Click" Name="btPosunLevo" Focusable="False" IsHitTestVisible="True" IsTabStop="False">
-                <Image Source="icons/iPlay.png" IsHitTestVisible="False" FlowDirection="RightToLeft" />
-            </Button>
-            <Button VerticalAlignment="Bottom" HorizontalAlignment="Right" Height="20" Margin="0,0,0,0" Click="btPosunPravo_Click" Name="btPosunPravo" Focusable="False" IsHitTestVisible="True" IsTabStop="False">
-                <Image Source="icons/iPlay.png" IsHitTestVisible="False" />
-            </Button>
-        </Grid>
 
-        
-    
-    <Grid Margin="0,55,0,5" Name="gListVideo">
+        <Grid Margin="0,55,0,5" Name="gListVideo">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="500.77*" />
                 <ColumnDefinition Width="300" />
@@ -277,17 +260,6 @@
              
             </Grid>
         </GroupBox>
-        <Grid Height="26" VerticalAlignment="Top" Grid.Row="2" Margin="0,50">
-            <StackPanel Orientation="Horizontal" Height="25" Margin="0,0,0,0" VerticalAlignment="Bottom">
-                <Button Focusable="False" Name="btPrehratZastavit" Click="btPrehratZastavit_Click" HorizontalAlignment="Left" BorderThickness="2" BorderBrush="Black" Height="23" Margin="0,0,0,0" VerticalAlignment="Bottom">
-                    <Image Name="iPlayPause" Source="/icons/iPlay.png" />
-                </Button>
-                <Label Name="lAudioPozice" Margin="0,0,0,0" Height="24" Width="84.436" FontSize="12" FontWeight="Bold">0:00:00,00</Label>
-
-            </StackPanel>
-            <Slider  Name="slPoziceMedia" PreviewMouseLeftButtonUp="slPoziceMedia_PreviewMouseUp" PreviewMouseLeftButtonDown="slPoziceMedia_MouseDown" PreviewMouseDown="slPoziceMedia_MouseDown" ValueChanged="slPoziceMedia_ValueChanged" LostMouseCapture="slPoziceMedia_LostMouseCapture" IsMoveToPointEnabled="True" IsTabStop="False" Focusable="False" IsSelectionRangeEnabled="True" Foreground="Black" Background="Transparent" BorderBrush="Transparent" BorderThickness="0" Margin="110,4,52,0" />
-            <Label Name="lAudioDelka2"  FontSize="11"  FontWeight="Normal" HorizontalAlignment="Right" Margin="0,1" ToolTip="Celková délka audio souboru [h:mm:ss]">0:00:00</Label>
-        </Grid>
 
         <StatusBar  Name="statusBar1" VerticalAlignment="Bottom" Grid.Row="2" HorizontalAlignment="Stretch">
             <StatusBar.ItemsPanel>
@@ -368,6 +340,7 @@
                 </Grid>
             </Popup>
         </Canvas>
+        <local:Waveform Grid.Row="2" Margin="3,52,1,26" x:Name="waveform1" PlayPauseClick="waveform1_PlayPauseClick" SliderPositionChanged="waveform1_SliderPositionChanged" UpdateBegin="waveform1_UpdateBegin" UpdateEnd="waveform1_UpdateEnd" CarretPostionChanged="waveform1_CarretPostionChanged" />
     </Grid>
     
     

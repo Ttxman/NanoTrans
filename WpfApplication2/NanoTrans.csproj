@@ -140,6 +140,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Waveform.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Window1.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -202,6 +206,14 @@
     <Compile Include="MyWaveRecorder.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Waveform.xaml.cs">
+      <DependentUpon>Waveform.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="window1_docasne.cs" />
+    <Compile Include="Window1_KeyboardRelatedItems.cs">
+      <DependentUpon>Window1.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Window1.xaml.cs">
       <DependentUpon>Window1.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -234,6 +246,10 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <Compile Include="Window1_waveformRelated.cs">
+      <DependentUpon>Window1.xaml</DependentUpon>
+      <SubType>Code</SubType>
     </Compile>
     <Compile Include="WinFonetickySlovnik.xaml.cs">
       <DependentUpon>WinFonetickySlovnik.xaml</DependentUpon>

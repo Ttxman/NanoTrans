@@ -499,5 +499,32 @@ namespace NanoTrans
             }
         }
 
+
+        //nacteni celeho slovniku z souboru do hash tabulky
+        public static bool LoadVocabulary(string filename)
+        {
+            try
+            {
+                MyTextBox.Vocabulary = new HashSet<string>();
+                System.IO.StreamReader reader = new System.IO.StreamReader(filename);
+                while (reader.Peek() >= 0)
+                {
+                    foreach (string s in reader.ReadLine().Split(' '))
+                    {
+                        MyTextBox.Vocabulary.Add(s.ToLower());
+                    }
+                }
+
+                reader.Close();
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        
     }
 }
