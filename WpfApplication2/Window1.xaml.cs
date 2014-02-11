@@ -1653,8 +1653,9 @@ namespace NanoTrans
         /// </summary>
         /// <param name="data"></param>
         /// <param name="size"></param>
-        short[] WOP_ChciData()
+        short[] WOP_ChciData(out int zacatekbufferums)
         {
+            zacatekbufferums = -1;
             try
             {
                 if (MWP != null)
@@ -1668,10 +1669,9 @@ namespace NanoTrans
                         }
 
                         short[] bfr = oVlna.bufferPrehravaniZvuku.VratDataBufferuShort(pIndexBufferuVlnyProPrehrani, 150, pOmezeniMS);
-  
-                        pCasZacatkuPrehravani = DateTime.Now.AddMilliseconds(-150);
+                        zacatekbufferums = pIndexBufferuVlnyProPrehrani;
                         pIndexBufferuVlnyProPrehrani += 150;
-
+                        
                         if (pIndexBufferuVlnyProPrehrani > oWav.DelkaSouboruMS)
                         {
                             if (!prehratVyber)
@@ -1688,14 +1688,13 @@ namespace NanoTrans
                         if (!pZacloPrehravani)
                         {
                             pZacloPrehravani = true;
-                            pCasZacatkuPrehravani = DateTime.Now;
+
                         }
 
                         return bfr;
                     }
                     else //pause
                     {
-                        pCasZacatkuPrehravani = DateTime.Now.AddMilliseconds(-150);
                     }
                 }
 
@@ -1707,6 +1706,7 @@ namespace NanoTrans
                
             }
             return new short[0];
+
         }
 
 
@@ -4264,7 +4264,6 @@ namespace NanoTrans
         {
             try
             {
-                //return;
                 if (!mouseDown && !nahled)
                 {
                     slPoziceMedia.Value = pIndexBufferuVlnyProPrehrani;
@@ -4275,20 +4274,15 @@ namespace NanoTrans
                 long celkMilisekundy = (long)slPoziceMedia.Value;
                 if (_playing)
                 {
-                    celkMilisekundy = celkMilisekundy + (long)(DateTime.Now.Subtract(pCasZacatkuPrehravani).Duration().TotalMilliseconds) - 600;
-                    //int msplayed = MWP.MSplayedThisBufer;
-                    //celkMilisekundy = celkMilisekundy + msplayed;
-                    //System.Diagnostics.Debug.WriteLine("_" + (DateTime.Now.Subtract(pCasZacatkuPrehravani).Duration().TotalMilliseconds));
-                    //System.Diagnostics.Debug.WriteLine(msplayed);
 
+                    celkMilisekundy = (int)MWP.PlayPosition.TotalMilliseconds;
                     if (prehratVyber && celkMilisekundy < oVlna.KurzorVyberPocatekMS)
                     {
                         celkMilisekundy = oVlna.KurzorVyberPocatekMS;
                     }
                 }
 
-                oVlna.KurzorPoziceMS = celkMilisekundy;
-               // oVlna.KurzorPoziceMS = MWP.MilisecondsPlayedThisSession + 
+                //oVlna.KurzorPoziceMS = celkMilisekundy;
                 pocetTikuTimeru++;
                 if (pocetTikuTimeru > 0) //kazdy n ty tik dojde ke zmene pozice ctverce
                 {
@@ -4316,18 +4310,11 @@ namespace NanoTrans
                     {
                         NastavPoziciKurzoru(oVlna.KurzorVyberPocatekMS, true, true);
                         celkMilisekundy = oVlna.KurzorPoziceMS;
-                        /*
-                        NastavPoziciKurzoru(oVlna.KurzorVyberKonecMS, true);
-                        prehratVyber = false;
-                        if (jeVideo) meVideo.Pause();
-                        Playing = false;
-                        */
                     }
                     else
                     {
                         NastavPoziciKurzoru(celkMilisekundy, false, true);
                     }
-                    //NastavPoziciKurzoru(celkMilisekundy, false);
 
                     if (Playing) VyberTextMeziCasovymiZnackami(celkMilisekundy);
                 }
@@ -5516,7 +5503,7 @@ namespace NanoTrans
                 TimeSpan ts = new TimeSpan(0, 0, 0, 0, SliderValue);
                 oVlna.KurzorPoziceMS = (long)slPoziceMedia.Value;
                 pIndexBufferuVlnyProPrehrani = SliderValue;
-                pCasZacatkuPrehravani = DateTime.Now.AddMilliseconds(-pIndexBufferuVlnyProPrehrani);
+                //pCasZacatkuPrehravani = DateTime.Now.AddMilliseconds(-pIndexBufferuVlnyProPrehrani);
                 if (jeVideo) meVideo.Position = ts;
                 if (_playing)
                 {
@@ -5557,7 +5544,7 @@ namespace NanoTrans
                     TimeSpan ts = new TimeSpan(0, 0, 0, 0, SliderValue);
                     oVlna.KurzorPoziceMS = (long)slPoziceMedia.Value;
                     pIndexBufferuVlnyProPrehrani = SliderValue;
-                    pCasZacatkuPrehravani = DateTime.Now.AddMilliseconds(-pIndexBufferuVlnyProPrehrani);
+                    //pCasZacatkuPrehravani = DateTime.Now.AddMilliseconds(-pIndexBufferuVlnyProPrehrani);
                     if (jeVideo) meVideo.Position = ts;
                     if (_playing)
                     {

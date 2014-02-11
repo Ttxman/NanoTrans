@@ -82,15 +82,16 @@ namespace NanoTrans
             get
             {
                 int actual = 0;
-                int pos = m_soundBuffer.PlayPosition / m_buffersize;
+                int ppos = m_soundBuffer.PlayPosition;
 
-                if (m_soundBuffer.PlayPosition > pos)
-                    actual = m_soundBuffer.PlayPosition - pos;
+                int pos = (ppos / m_buffersize) * m_buffersize;//integery nasobeni zaokrouhleni na buffery
+
+                if (ppos >= pos)
+                    actual = ppos - pos;
                 else
-                    actual = m_soundBuffer.PlayPosition + (m_buffDescription.BufferBytes - pos);
+                    actual = ppos + (m_buffDescription.BufferBytes - pos);
 
                 actual /= 2;
-                System.Diagnostics.Debug.WriteLine("s_"+actual);
                 return actual;
 
             }
@@ -131,19 +132,44 @@ namespace NanoTrans
         }
 
 
+        public TimeSpan PlayPosition
+        {
+            get
+            {
+                int actual = 0;
+                int ppos = m_soundBuffer.PlayPosition;
+                int pos = (ppos / m_buffersize);//integery nasobeni zaokrouhleni na buffery
+
+                lock (timestamp)
+                {
+                    int key = 0;
+                    if (pos != timestamp.Peek().Key)
+                         timestamp.Dequeue();
+
+                    actual = timestamp.Peek().Value + MSplayedThisBufer;
+                }
+                
+               // System.Diagnostics.Debug.WriteLine("s_"+actual);
+                return TimeSpan.FromMilliseconds(actual);
+            }
+        }
+
         bool m_playing = false;
         DS.Device m_outputDevice;
         DS.SecondaryBuffer m_soundBuffer;
         AutoResetEvent m_synchronizer;
         Thread m_waitThread;
-        Func<short[]> m_requestproc;
+        DataRequestDelegate m_requestproc;
         BufferDescription m_buffDescription;
         DS.Notify m_notify;
         int m_buffersize;
+        int m_bfpos = 0;
 
-        private static readonly int InternalBufferSizeMultiplier = 5;
+        private static readonly int InternalBufferSizeMultiplier = 10;
 
-        public MyWavePlayer(int device, int BufferByteSize, Func<short[]> fillProc)
+        public delegate short[] DataRequestDelegate(out int bufferStartMS);
+
+        public MyWavePlayer(int device, int BufferByteSize, DataRequestDelegate fillProc)
         {
             
             if (BufferByteSize < 500)
@@ -173,14 +199,15 @@ namespace NanoTrans
 
 
             System.Windows.Interop.WindowInteropHelper wh = new System.Windows.Interop.WindowInteropHelper(Application.Current.MainWindow);
-            m_outputDevice.SetCooperativeLevel(wh.Handle, CooperativeLevel.Normal);
+            m_outputDevice.SetCooperativeLevel(wh.Handle, CooperativeLevel.Priority);
 
             m_buffDescription = new BufferDescription();
             m_buffDescription.ControlPositionNotify = true;
             m_buffDescription.BufferBytes = BufferByteSize * InternalBufferSizeMultiplier;
             m_buffDescription.ControlFrequency = true;
-            m_buffDescription.ControlEffects = false;
+            m_buffDescription.ControlEffects = true;
             m_buffDescription.GlobalFocus = true;
+            m_buffDescription.CanGetCurrentPosition = true;
             DS.WaveFormat format = new DS.WaveFormat();
             format.BitsPerSample = 16;
             format.BlockAlign = 2;
@@ -197,7 +224,7 @@ namespace NanoTrans
             BufferPositionNotify[] nots = new BufferPositionNotify[InternalBufferSizeMultiplier];
 
             BufferPositionNotify not;
-            int bytepos = BufferByteSize-400;
+            int bytepos = 80;
             for (int i = 0; i < InternalBufferSizeMultiplier; i++)
             {
                 not = new BufferPositionNotify();
@@ -239,24 +266,20 @@ namespace NanoTrans
             }
         }
 
-        int m_bfpos = 0;
-        object datalock = new object();
-        private void WriteNextData(short[] data)
+        Queue<KeyValuePair<int, int>> timestamp = new Queue<KeyValuePair<int, int>>();
+        private void WriteNextData(short[] data, int timems)
         {
-           // lock (datalock)
-           // {
-           //     try
-           //     {
-                    m_soundBuffer.Write(m_bfpos, data, LockFlag.None);
-                    m_samplesPlayed += data.Length;
-                    m_bfpos += 2 * data.Length;
-                    m_bfpos %= m_buffDescription.BufferBytes;
-            //    }
-            //    catch (Exception e)
-            //    {
-            //        System.Diagnostics.Debug.WriteLine("DXWriteExc:" + data.Length + "/" + m_bfpos);
-            //    }
-           // }
+            m_soundBuffer.Write(m_bfpos, data, LockFlag.FromWriteCursor);
+            lock (timestamp)
+            {
+                timestamp.Enqueue(new KeyValuePair<int, int>(m_bfpos / m_buffersize, timems));
+
+            }
+            m_samplesPlayed += data.Length;
+            m_bfpos += 2 * data.Length;
+            m_bfpos %= m_buffDescription.BufferBytes;
+
+            //System.Diagnostics.Debug.WriteLine(m_bfpos);
         }
 
 
@@ -264,6 +287,8 @@ namespace NanoTrans
         {
             try
             {
+                timestamp.Clear();
+
                 short[] one = new short[] { 0 };
                 for (int i = 0; i < m_buffDescription.BufferBytes-1; i+=2)
                 {
@@ -288,17 +313,19 @@ namespace NanoTrans
         {
             m_speedmod = spedmodification;
             ClearBuffer();
+            m_bfpos = 0;
+           
             if (m_requestproc != null)
             {
-                short[] data = m_requestproc.Invoke();
+                int timems;
+                short[] data = m_requestproc.Invoke(out timems);
                 if (data != null && data.Length > 0)
-                    WriteNextData(data);
+                    WriteNextData(data,timems);
             }
-            m_bfpos = 0;
-            m_samplesPlayed = -m_buffDescription.BufferBytes/4;
-
+            m_soundBuffer.SetCurrentPosition(0);
+            m_samplesPlayed = 0;
             m_soundBuffer.Frequency = (int)(spedmodification * m_buffDescription.Format.SamplesPerSecond);
-            m_soundBuffer.Play(m_bfpos, BufferPlayFlags.Looping);
+            m_soundBuffer.Play(0, BufferPlayFlags.Looping);
         }
 
 
@@ -317,14 +344,17 @@ namespace NanoTrans
         {
           //  sw.Reset();
           //  sw.Start();
-            short[] data = m_requestproc.Invoke();
+            int timems;
+            short[] data = m_requestproc.Invoke(out timems);
+
+            //System.Diagnostics.Debug.WriteLine(data.Length);
             if (data == null || data.Length == 0)
             {
                 Pause();
             }
             else
             {
-                WriteNextData(data);
+                WriteNextData(data, timems);
             }
           //  sw.Stop();
           //  System.Diagnostics.Debug.WriteLine("wav load time:"+sw.ElapsedMilliseconds);
