@@ -34,14 +34,6 @@ namespace TrsxV1Plugin
                 var filename = bucket.First().Substring(6).Trim();
                 var time = double.Parse(bucket.First(l => l.StartsWith("TRES:")).Substring(6).Trim(), CultureInfo.InvariantCulture);
                 var orto = bucket.First(l => l.StartsWith("ORTOT:")).Substring(7).Split('|').ToArray();
-                var ortotpl = bucket.FirstOrDefault(l => l.StartsWith("ORTOTP:"));
-
-                if (!string.IsNullOrWhiteSpace(ortotpl))
-                {
-                    var ortotp = ortotpl.Substring(8).Split('|').Select(w=>w.Trim()).ToArray();
-
-                    orto = ortotp.Select((w,i)=>(w=="")?orto[i]:w).ToArray();
-                }
                 var starts = bucket.First(l => l.StartsWith("START:")).Substring(7).Split('|').Select(t => TimeSpan.FromSeconds(double.Parse(t, CultureInfo.InvariantCulture) * time)).ToArray();
                 var ends = bucket.First(l => l.StartsWith("STOP:")).Substring(6).Split('|').Select(t => TimeSpan.FromSeconds(double.Parse(t, CultureInfo.InvariantCulture) * time)).ToArray();
                 var pron = bucket.First(l => l.StartsWith("PRON:")).Substring(6).Split('|').ToArray();
@@ -100,16 +92,10 @@ namespace TrsxV1Plugin
                                 pah  = new MyParagraph();
                             }
 
-                            if (sf.RemoveNonPhonemes)
-                            {
-                                   MyPhrase mp = new MyPhrase(silence.First().Begin,silence.Last().End,"");
-                                   pah.Phrases.Add(mp);
-                            }
-                            else
-                            { 
+
                                 foreach (var ss in silence)
                                     pah.Phrases.Add(ss);
-                            }
+                          
                             silence.Clear();
 
                             pah.Begin = pah.Phrases.First().Begin;
@@ -121,11 +107,9 @@ namespace TrsxV1Plugin
                             pah.Phrases.Add(phrazes[0]);
                         }else//mam ji malo -  prilepit nerecovy udalosti k odstavci
                         {
-                            if (!sf.RemoveNonPhonemes)
-                            {
+
                                 foreach (var ss in silence)
                                     pah.Phrases.Add(ss);
-                            }
 
                             silence.Clear();
                             pah.Phrases.Add(phrazes[0]);
@@ -139,20 +123,62 @@ namespace TrsxV1Plugin
                 }
 
                 //dosyp zbytek do prepisu
-                if (!sf.RemoveNonPhonemes)
-                {
+
                     while (silence.Count > 0)
                     {
                         pah.Phrases.Add(silence[0]);
                         silence.RemoveAt(0);
                     }
-                }
+
                 pah.Begin = pah.Phrases.First().Begin;
                 pah.End = pah.Phrases.Last().End;
                 sec.Paragraphs.Add(pah);
                 c.Sections.Add(sec);
                 data.Chapters.Add(c);
 
+                if (sf.RemoveNonPhonemes)
+                {
+                    var ortop = bucket.FirstOrDefault(l => l.StartsWith("ORTOTP:"));
+
+                    if (ortop != null)
+                    {
+                        phrazes.Clear();
+                        var ortotp = ortop.Substring(8).Split('|').ToArray();
+                        for (int i = 0; i < ortotp.Length; i++)
+                        {
+                            if (ortotp[i] == "")
+                                continue;
+                            MyPhrase ph = new MyPhrase();
+                            ph.Text = ortotp[i] + " ";
+                            ph.Phonetics = pron[i];
+                            ph.Begin = starts[i];
+                            ph.End = ends[i];
+                            phrazes.Add(ph);
+                        }
+
+                        foreach (var par in sec.Paragraphs)
+                        {
+                            par.Children.Clear();
+                            par.Children.AddRange(phrazes.Where(ph=>ph.Begin >=par.Begin && par.End > ph.Begin));
+                        }
+                    }
+                    else
+                    {
+                        MyPhrase ph = (MyPhrase)sec[0][0];
+                        while (ph!=null)
+                        {
+                            var parent = ph.Parent;
+                            
+                            var ph2 = (MyPhrase)ph.NextSibling();
+                         
+                            string t = ph.Text.Trim();
+                            if(t.StartsWith("[") && t.EndsWith("]"))
+                                ph.Parent.Remove(ph);
+
+                            ph = ph2;
+                        }
+                    }
+                }
                 data.mediaURI = filename;
                 return data;
             }
