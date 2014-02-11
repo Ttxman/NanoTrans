@@ -1601,11 +1601,12 @@ namespace NanoTrans
         //pokusi se zamerit textbox pri spousteni aplikace
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-
-            InitCommands();
+            
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
+            
+            InitCommands();
+            LoadPlugins();
             //inicializuje (asynchronni) nacitani slovniku
-
             Thread t = new Thread(
                 delegate()
                 {
@@ -1640,17 +1641,30 @@ namespace NanoTrans
 
 
             string pCesta = null;
+            bool import = false;
             if (App.Startup_ARGS != null && App.Startup_ARGS.Length > 0)
             {
-                pCesta = App.Startup_ARGS[0];
+                if (App.Startup_ARGS[0] == "-i")
+                {
+                    import = true;
+                    pCesta = App.Startup_ARGS[1];
+                }else
+                    pCesta = App.Startup_ARGS[0];
             }
+
             if (pCesta == null)
             {
                 NoveTitulky();
             }
             else
             {
-                OtevritTitulky(false, pCesta, false);
+                if (import)
+                {
+                    NoveTitulky();
+                    CommandImportFile.Execute(pCesta, this);
+                }
+                else
+                    OtevritTitulky(false, pCesta, false);
             }
 
             VirtualizingListBox.RequestTimePosition += delegate(out TimeSpan value) { value = waveform1.CaretPosition; };
@@ -1658,7 +1672,7 @@ namespace NanoTrans
             VirtualizingListBox.RequestPlayPause += delegate() { CommandPlayPause.Execute(null, null); };
 
 
-            LoadPlugins();
+            
         }
 
 

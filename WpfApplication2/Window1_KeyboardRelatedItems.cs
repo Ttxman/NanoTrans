@@ -163,6 +163,7 @@ namespace NanoTrans
 
         private void CImportFile(object sender, ExecutedRoutedEventArgs e)
         {
+            
             string[] masks = m_ImportPlugins.Select(p => p.Mask).ToArray();
             string[] filetypes = masks.SelectMany(m=>m.Split('|').Where((p,i)=>i%2==1).SelectMany(ex=>ex.Split(';'))).Distinct().ToArray();
 
@@ -172,7 +173,16 @@ namespace NanoTrans
             opf.CheckPathExists = true;
             opf.Filter = string.Join("|", new[] { allfilesMask }.Concat(masks));
 
-            if (opf.ShowDialog() == true)
+            bool filedialogopened = false;
+            if (e.Parameter is string)
+            {
+                filedialogopened = true;
+                opf.FilterIndex = 1;
+                opf.FileName = (string)e.Parameter;
+            }else
+                filedialogopened = opf.ShowDialog() == true;
+
+            if (filedialogopened)
             {
                 if (opf.FilterIndex == 1) //vsechny soubory
                 {
