@@ -66,12 +66,17 @@
                             <StackPanel Orientation="Horizontal">
                                 <Button Height="27.723" Margin="0,0,10,0" Visibility="{Binding Source={StaticResource SpellEngine}, Converter={StaticResource CollapseOnNotNullConverter}}" Click="Button_Click_1">Stáhnout slovník automaticky</Button>
                                 <Button Height="27.723" Margin="0,0,10,0" Visibility="{Binding Source={StaticResource SpellEngine}, Converter={StaticResource CollapseOnNullConverter}}" Click="Button_Click_1">Aktualizovat slovník automaticky</Button>
-                                <Button Height="27.723" Margin="0,0,10,0" Click="Button_Click_2">Načíst slovníky ručně</Button>
+                                <Button Height="27.723" Margin="0,0,10,0" Click="ButtonLoadOpenOfficeSpellchekingDictionaries">Načíst slovníky ručně</Button>
                             </StackPanel>
                         </GroupBox>
                         <GroupBox FontWeight="Bold" Header="Rychlé zobrazování" IsEnabled="False" >
                             <StackPanel Orientation="Horizontal" >
                                 <CheckBox Content="Načíst a vytvořit celý přepis v paměti (velká spotřeba RAM - stovky MB)" Height="16" Name="checkboxQuickScroll" />
+                            </StackPanel>
+                        </GroupBox>
+                        <GroupBox FontWeight="Bold" Header="Ukládání dat">
+                            <StackPanel Orientation="Horizontal">
+                                <CheckBox Content="Ukládat přepisy ve zkácené formě" Height="16" Name="checkBoxSaveShortened" />
                             </StackPanel>
                         </GroupBox>
                     </StackPanel>

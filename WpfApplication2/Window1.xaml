@@ -41,7 +41,8 @@
                     <MenuItem Header="Exportovat text"  Name="menuSouborExportovatText" Click="menuSouborExportovatText_Click" />
                     <MenuItem Header="Exportovat s časy" Click="MSoubor_Exportovat_Click" Name="menuSouborExportovatCasy" />
                 </MenuItem>
-                <Separator></Separator>
+
+                <MenuItem Header="Importovat" Name="menuSouborImportovat" />
                 <MenuItem Header="Otevřít audio..." Click="MSoubor_Otevrit_Zvukovy_Soubor_Click" Name="menuSouborOtevritAudio">
                     <MenuItem.Icon>
                         <Image Source="/icons/iAudio.png"/>

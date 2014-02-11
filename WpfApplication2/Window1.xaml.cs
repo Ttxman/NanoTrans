@@ -23,6 +23,9 @@ using System.Text.RegularExpressions;
 using dbg = System.Diagnostics.Debug;
 using System.Security.Permissions;
 using System.Security;
+using System.Xml.Linq;
+using System.Reflection;
+using Microsoft.Win32;
 
 
 namespace NanoTrans
@@ -423,10 +426,6 @@ namespace NanoTrans
             {
                 MessageBox.Show("chyba2" + ex.Message);
             }
-
-
-
-
         }
 
         /// <summary>
@@ -816,9 +815,9 @@ namespace NanoTrans
                             myDataSource.Ulozeno = true;
 
                             //nacteni audio souboru pokud je k dispozici
-                            if (!string.IsNullOrEmpty(myDataSource.audioFileName) && myDataSource.JmenoSouboru != null)
+                            if (!string.IsNullOrEmpty(myDataSource.mediaURI) && myDataSource.JmenoSouboru != null)
                             {
-                                FileInfo fiA = new FileInfo(myDataSource.audioFileName);
+                                FileInfo fiA = new FileInfo(myDataSource.mediaURI);
                                 string pAudioFile = null;
                                 if (fiA.Exists)
                                 {
@@ -827,7 +826,7 @@ namespace NanoTrans
                                 else
                                 {
                                     FileInfo fi = new FileInfo(myDataSource.JmenoSouboru);
-                                    pAudioFile = fi.Directory.FullName + "\\" + myDataSource.audioFileName;
+                                    pAudioFile = fi.Directory.FullName + "\\" + myDataSource.mediaURI;
                                 }
                                 if (pAudioFile.Split(new string[] { ":\\" }, StringSplitOptions.None).Length == 2)
                                 {
@@ -936,9 +935,9 @@ namespace NanoTrans
                     {
                         this.Title = MyKONST.NAZEV_PROGRAMU + " [" + myDataSource.JmenoSouboru + "]";
                         //nacteni audio souboru pokud je k dispozici
-                        if (myDataSource.audioFileName != null && myDataSource.JmenoSouboru != null)
+                        if (myDataSource.mediaURI != null && myDataSource.JmenoSouboru != null)
                         {
-                            FileInfo fiA = new FileInfo(myDataSource.audioFileName);
+                            FileInfo fiA = new FileInfo(myDataSource.mediaURI);
                             string pAudioFile = null;
                             if (fiA.Exists)
                             {
@@ -947,7 +946,7 @@ namespace NanoTrans
                             else
                             {
                                 FileInfo fi = new FileInfo(myDataSource.JmenoSouboru);
-                                pAudioFile = fi.Directory.FullName + "\\" + myDataSource.audioFileName;
+                                pAudioFile = fi.Directory.FullName + "\\" + myDataSource.mediaURI;
                             }
                             if (pAudioFile.Split(new string[] { ":\\" }, StringSplitOptions.None).Length == 2)
                             {
@@ -1009,7 +1008,7 @@ namespace NanoTrans
                         return false;
                 }
 
-                if (myDataSource.Serializovat(savePath, myDataSource, MySetup.Setup.UkladatKompletnihoMluvciho))
+                if (myDataSource.Serialize(savePath, MySetup.Setup.UkladatKompletnihoMluvciho))
                 {
                     this.Title = MyKONST.NAZEV_PROGRAMU + " [" + myDataSource.JmenoSouboru + "]";
                     return true;
@@ -1190,7 +1189,7 @@ namespace NanoTrans
                     FileInfo fi = new FileInfo(aFileName);
                     if (fi != null)
                     {
-                        myDataSource.audioFileName = fi.Name;
+                        myDataSource.mediaURI = fi.Name;
                     }
 
                     ////////////
@@ -1530,13 +1529,13 @@ namespace NanoTrans
                     if (fname.StartsWith(FilePaths.ProgramDirectory))//kdyz je to v adresari (program files..)
                     {
                         if (!FilePaths.WriteToAppData) //checkni jestli muzes zapisovat
-                            myDatabazeMluvcich.Serializovat(fname, myDatabazeMluvcich);
+                            myDatabazeMluvcich.Serialize_V1(fname, myDatabazeMluvcich);
                         else
-                            myDatabazeMluvcich.Serializovat(FilePaths.AppDataDirectory + fname.Substring(FilePaths.ProgramDirectory.Length), myDatabazeMluvcich);
+                            myDatabazeMluvcich.Serialize_V1(FilePaths.AppDataDirectory + fname.Substring(FilePaths.ProgramDirectory.Length), myDatabazeMluvcich);
                     }
                     else //neni to u me neresit prava
                     {
-                        myDatabazeMluvcich.Serializovat(MySetup.Setup.CestaDatabazeMluvcich, myDatabazeMluvcich);
+                        myDatabazeMluvcich.Serialize_V1(MySetup.Setup.CestaDatabazeMluvcich, myDatabazeMluvcich);
                     }
                 }
 
@@ -1657,8 +1656,42 @@ namespace NanoTrans
             VirtualizingListBox.RequestTimePosition += delegate(out TimeSpan value) { value = waveform1.CaretPosition; };
             VirtualizingListBox.RequestPlaying += delegate(out bool value) { value = Playing; };
             VirtualizingListBox.RequestPlayPause += delegate() { CommandPlayPause.Execute(null, null); };
+
+
+            LoadPlugins();
+
+            foreach(var p in m_ExportPlugins)
+            {
+                var mi = new MenuItem() { Header = p.ToString(), Tag = p};
+                mi.Click += menuSouborExportovatClick;
+                menuSouborExportovat.Items.Add(mi);
+            }
+
+            foreach (var p in m_ImportPlugins)
+            {
+                var mi = new MenuItem() { Header = p.ToString(), Tag = p };
+                mi.Click += menuSouborImportovatClick;
+                menuSouborImportovat.Items.Add(mi);
+            }
+
         }
 
+
+        private void menuSouborExportovatClick(object sender, RoutedEventArgs e)
+        {
+            Plugin p = (Plugin)((MenuItem)sender).Tag;
+            p.ExecuteExport(myDataSource);
+        }
+
+        private void menuSouborImportovatClick(object sender, RoutedEventArgs e)
+        {
+            Plugin p = (Plugin)((MenuItem)sender).Tag;
+            MySubtitlesData data = p.ExecuteImport();
+            if(data!=null)
+                myDataSource = data;
+            
+
+        }
 
         Thread Pedalthread = null;
         Process PedalProcess = null;
@@ -2312,7 +2345,7 @@ namespace NanoTrans
             if (myDataSource != null)
             {
                 MemoryStream ms = new MemoryStream();
-                myDataSource.Serializovat(ms, myDataSource, true);
+                myDataSource.Serialize(ms, true);
                 ms.Close();
                 Back_data.Add(ms.ToArray());
             }
@@ -2336,9 +2369,9 @@ namespace NanoTrans
                 {
                     this.Title = MyKONST.NAZEV_PROGRAMU + " [" + myDataSource.JmenoSouboru + "]";
                     //nacteni audio souboru pokud je k dispozici
-                    if (myDataSource.audioFileName != null && myDataSource.JmenoSouboru != null)
+                    if (myDataSource.mediaURI != null && myDataSource.JmenoSouboru != null)
                     {
-                        FileInfo fiA = new FileInfo(myDataSource.audioFileName);
+                        FileInfo fiA = new FileInfo(myDataSource.mediaURI);
                         string pAudioFile = null;
                         if (fiA.Exists)
                         {
@@ -2347,7 +2380,7 @@ namespace NanoTrans
                         else
                         {
                             FileInfo fi = new FileInfo(myDataSource.JmenoSouboru);
-                            pAudioFile = fi.Directory.FullName + "\\" + myDataSource.audioFileName;
+                            pAudioFile = fi.Directory.FullName + "\\" + myDataSource.mediaURI;
                         }
                         FileInfo fi2 = new FileInfo(pAudioFile);
                         if (fi2.Exists && (!oWav.Nacteno || oWav.CestaSouboru.ToUpper() != pAudioFile.ToUpper()))
@@ -2519,7 +2552,212 @@ namespace NanoTrans
             if (e.ChangedButton == MouseButton.XButton1 || e.ChangedButton == MouseButton.XButton2 || e.ChangedButton == MouseButton.Middle)
                 CommandPlayPause.Execute(null, null);
         }
+        #region IO plugins
 
+
+        private class Plugin
+        {
+
+            private string m_fileName;
+
+            public string FileName
+            {
+                get { return m_fileName; }
+                set { m_fileName = value; }
+            } 
+            bool m_input;
+
+            public bool Input
+            {
+                get { return m_input; }
+                set { m_input = value; }
+            }
+            bool m_isassembly;
+
+            public bool Isassembly
+            {
+                get { return m_isassembly; }
+                set { m_isassembly = value; }
+            }
+            string m_mask;
+
+            public string Mask
+            {
+                get { return m_mask; }
+                set { m_mask = value; }
+            }
+            string m_parameters;
+
+            public string Parameters
+            {
+                get { return m_parameters; }
+                set { m_parameters = value; }
+            }
+
+            Func<Stream, MySubtitlesData> m_importDelegate;
+
+            public Func<Stream, MySubtitlesData> ImportDelegate
+            {
+                get { return m_importDelegate; }
+                set { m_importDelegate = value; }
+            }
+            Func<MySubtitlesData, Stream, bool> m_exportDelegate;
+
+            public Func<MySubtitlesData, Stream, bool> ExportDelegate
+            {
+                get { return m_exportDelegate; }
+                set { m_exportDelegate = value; }
+            }
+
+
+            string m_name;
+
+            public string Name
+            {
+                get { return m_name; }
+                set { m_name = value; }
+            }
+
+            public Plugin(bool input, bool isassembly, string mask, string parameters, string name, Func<Stream, MySubtitlesData> importDelegate, Func<MySubtitlesData, Stream, bool> exportDelegate, string filename)
+            {
+                m_input = input;
+                m_isassembly = isassembly;
+                m_mask = mask;
+                m_parameters = parameters;
+                m_importDelegate = importDelegate;
+                m_exportDelegate = exportDelegate;
+                m_fileName = filename;
+                m_name = name;
+            }
+
+
+            public MySubtitlesData ExecuteImport()
+            {
+                OpenFileDialog opf = new OpenFileDialog();
+                opf.CheckFileExists = true;
+                opf.CheckPathExists = true;
+                opf.Filter = m_mask;
+
+                if (opf.ShowDialog() == true)
+                {
+                    if (Isassembly)
+                    {
+                        return m_importDelegate.Invoke(File.OpenRead(opf.FileName));
+                    }
+                    else
+                    { 
+                        string inputfile = opf.FileName;
+                        string tempFolder = FilePaths.TempDirectory;
+                        string tempFile = System.IO.Path.Combine(tempFolder, System.IO.Path.GetRandomFileName())+".trsx";
+
+
+                        ProcessStartInfo psi = new ProcessStartInfo();
+                        psi.FileName = m_fileName;
+                        psi.Arguments = string.Format(inputfile,tempFolder,tempFile);
+
+                        Process p = new Process();
+                        p.StartInfo = psi;
+
+                        p.Start();
+                        p.WaitForExit();
+
+                        return MySubtitlesData.Deserialize(tempFile);
+                        
+                    }
+                
+                }
+                return null;
+            }
+            public override string ToString()
+            {
+                return m_name;
+            }
+
+            public void ExecuteExport(MySubtitlesData data)
+            {
+                SaveFileDialog sf = new SaveFileDialog();
+
+                sf.CheckPathExists = true;
+                sf.Filter = m_mask;
+
+                if (sf.ShowDialog() == true)
+                {
+                    if (Isassembly)
+                    {
+                        m_exportDelegate.Invoke(data, File.Create(sf.FileName));
+                    }
+                    else
+                    {
+                        string tempFolder = FilePaths.TempDirectory;
+                        string inputfile = System.IO.Path.Combine(tempFolder, System.IO.Path.GetRandomFileName()) + ".trsx";
+                        string tempFile = sf.FileName;
+
+                        data.Serialize(inputfile, true);
+
+                        ProcessStartInfo psi = new ProcessStartInfo();
+                        psi.FileName = m_fileName;
+                        psi.Arguments = string.Format(inputfile, tempFolder, tempFile);
+
+                        Process p = new Process();
+                        p.StartInfo = psi;
+
+                        p.Start();
+                        p.WaitForExit();
+                    }
+                }
+            }
+        
+        }
+
+
+        List<Plugin> m_ImportPlugins = new List<Plugin>();
+        List<Plugin> m_ExportPlugins = new List<Plugin>();
+        private void LoadPlugins()
+        {
+            string file = FilePaths.GetReadPath(FilePaths.PluginsFile);
+            string path = System.IO.Path.GetDirectoryName(file);
+
+            using(var f = File.OpenRead(file))
+            {
+                var doc = XDocument.Load(f).Element("Plugins");
+                var imports = doc.Element("Import").Elements("Plugin");
+                var exports = doc.Element("Export").Elements("Plugin");
+
+                foreach (var imp in imports.Where(i => i.Attribute("IsAssembly") != null))
+                {
+                    Assembly a = Assembly.LoadFrom(System.IO.Path.Combine(path,imp.Attribute("File").Value));
+                    Type ptype = a.GetType(imp.Attribute("Class").Value);
+                    MethodInfo mi = ptype.GetMethod("Import",BindingFlags.Static | BindingFlags.Public);
+                    Func<Stream, MySubtitlesData> act = (Func<Stream, MySubtitlesData>)Delegate.CreateDelegate(typeof(Func<Stream, MySubtitlesData>), mi);
+
+                    m_ImportPlugins.Add(new Plugin(true, true, imp.Attribute("Mask").Value, null, imp.Attribute("Name").Value, act, null, null));
+                }
+
+                foreach (var imp in imports.Where(i => i.Attribute("IsAssembly") == null))
+                {
+                    m_ImportPlugins.Add(new Plugin(true, false, imp.Attribute("Mask").Value, imp.Attribute("Parameters").Value, imp.Attribute("Name").Value, null, null, imp.Attribute("File").Value));
+                }
+
+
+                foreach (var exp in exports.Where(e => e.Attribute("IsAssembly") != null))
+                {
+                    Assembly a = Assembly.LoadFrom(System.IO.Path.Combine(path, exp.Attribute("File").Value));
+                    Type ptype = a.GetType(exp.Attribute("Class").Value);
+                    MethodInfo mi = ptype.GetMethod("Export", BindingFlags.Static | BindingFlags.Public);
+                    Func<MySubtitlesData, Stream, bool> act = (Func<MySubtitlesData, Stream, bool>)Delegate.CreateDelegate(typeof(Func<MySubtitlesData, Stream, bool>), mi);
+
+                    m_ExportPlugins.Add(new Plugin(true, true, exp.Attribute("Mask").Value, null, exp.Attribute("Name").Value, null, act, null));
+                }
+
+                foreach (var exp in exports.Where(i => i.Attribute("IsAssembly") == null))
+                {
+                    m_ExportPlugins.Add(new Plugin(true, false, exp.Attribute("Mask").Value, exp.Attribute("Parameters").Value, exp.Attribute("Name").Value, null, null, exp.Attribute("File").Value));
+                }
+
+            }
+        
+        }
+        #endregion
 
     }
 }

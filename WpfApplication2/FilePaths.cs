@@ -20,8 +20,11 @@ namespace NanoTrans
 
         public static Stream GetConfigFileWriteStream()
         {
-            return File.Open(GetWritePath(ConfigFile), FileMode.OpenOrCreate, FileAccess.ReadWrite);
+            return File.Create(GetWritePath(ConfigFile));
         }
+
+        private static readonly string m_PluginsFile = "Plugins\\Plugins.xml";
+
 
 
         private static readonly string ConfigFile = "Data\\config.xml";
@@ -159,6 +162,10 @@ namespace NanoTrans
             }
         }
 
+        public static string PluginsFile
+        {
+            get { return FilePaths.m_PluginsFile; }
+        } 
 
 
         #region tool functions

@@ -364,7 +364,7 @@ namespace NanoTrans
                 fileDialog.RestoreDirectory = true;
                 if (fileDialog.ShowDialog() == true)
                 {
-                    if (this.bDatabazeMluvcich.Serializovat(fileDialog.FileName, this.bDatabazeMluvcich))
+                    if (this.bDatabazeMluvcich.Serialize_V1(fileDialog.FileName, this.bDatabazeMluvcich))
                     {
 
                     }

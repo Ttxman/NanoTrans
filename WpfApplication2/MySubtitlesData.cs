@@ -70,7 +70,7 @@ namespace NanoTrans
         #region serializace nova
         private Dictionary<string, string> elements = new Dictionary<string, string>();
         private static readonly XAttribute EmptyAttribute = new XAttribute("empty", "");
-        public MySpeaker(XElement s)
+        public MySpeaker(XElement s, bool isStrict)
         {
             ID = int.Parse(s.Attribute("id").Value);
             Surname = s.Attribute("surname").Value;
@@ -146,12 +146,14 @@ namespace NanoTrans
             FotoJPGBase64 = aSpeakerFotoBase64;
             Comment = aPoznamka;
         }
+
         public override string ToString()
         {
             return FullName;
         }
 
         public static readonly int DefaultID = int.MinValue;
+
     }
 
     public abstract class TranscriptionElement
@@ -498,54 +500,54 @@ namespace NanoTrans
         #region serializace nova
         private Dictionary<string, string> elements = new Dictionary<string, string>();
         private static readonly XAttribute EmptyAttribute = new XAttribute("empty", "");
-        public MyPhrase(XElement e)
+        public MyPhrase(XElement e, bool isStrict)
         {
             elements = e.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
-            elements.Remove("begin");
-            elements.Remove("end");
-            elements.Remove("fon");
+            elements.Remove(isStrict?"begin":"b");
+            elements.Remove(isStrict?"end":"e");
+            elements.Remove(isStrict?"fon":"f");
 
 
-            this.m_phonetics = (e.Attribute("fon")??EmptyAttribute).Value;
-            this.m_text = e.Value;
-            if (e.Attribute("begin") != null)
+            this.m_phonetics = (e.Attribute(isStrict ? "fon" : "f") ?? EmptyAttribute).Value;
+            this.m_text = e.Value.Trim('\r','\n');
+            if (e.Attribute(isStrict ? "begin" : "b") != null)
             {
-                string val = e.Attribute("begin").Value;
+                string val = e.Attribute(isStrict ? "begin" : "b").Value;
                 int ms;
                 if (int.TryParse(val, out ms))
                 {
                     Begin = TimeSpan.FromMilliseconds(ms);
                 }
                 else
-                    Begin = TimeSpan.Parse(val);
+                    Begin = XmlConvert.ToTimeSpan(val);
                 
             }
 
-            if (e.Attribute("end") != null)
+            if (e.Attribute(isStrict ? "end" : "e") != null)
             {
-                string val = e.Attribute("end").Value;
+                string val = e.Attribute(isStrict ? "end" : "e").Value;
                 int ms;
                 if (int.TryParse(val, out ms))
                 {
-                    Begin = TimeSpan.FromMilliseconds(ms);
+                    End = TimeSpan.FromMilliseconds(ms);
                 }
                 else
-                    Begin = TimeSpan.Parse(val);
+                    End = XmlConvert.ToTimeSpan(val);
             }
 
         }
 
         public XElement Serialize(bool strict)
-        { 
-            XElement elm = new XElement(strict?"speaker":"s",
+        {
+            XElement elm = new XElement(strict?"phrase":"p",
                 elements.Select(e=>
                     new XAttribute(e.Key,e.Value))
                     .Union(new []{ 
-                    new XAttribute("begin", Begin),
-                    new XAttribute("end", End),
-                    new XAttribute("fon", m_phonetics),
+                    new XAttribute(strict?"begin":"b", Begin),
+                    new XAttribute(strict?"end":"e", End),
+                    new XAttribute(strict?"fon":"f", m_phonetics),
                     }),
-                    m_text
+                    m_text.Trim('\r','\n')
             );
 
             return elm;
@@ -899,32 +901,37 @@ namespace NanoTrans
         #region serializace nova
         private Dictionary<string, string> elements = new Dictionary<string, string>();
         private static readonly XAttribute EmptyAttribute = new XAttribute("empty", "");
-        public MyParagraph(XElement e)
+        public MyParagraph(XElement e,bool isStrict)
         {
-            
-            speakerID = int.Parse(e.Attribute("speakerid").Value);
-            Attributes = (e.Attribute("speakerid")??EmptyAttribute).Value;
+            Phrases = new VirtualTypeList<MyPhrase>(this);
+            speakerID = int.Parse(e.Attribute(isStrict?"speakerid":"s").Value);
+            Attributes = (e.Attribute(isStrict?"speakerid":"s") ?? EmptyAttribute).Value;
 
             elements = e.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
-            elements.Remove("begin");
-            elements.Remove("end");
-            elements.Remove("attributes");
-            elements.Remove("speakerid");
-
-            this.m_children = e.Elements("section").Select(p => (TranscriptionElement)new MyPhrase(p)).ToList();
+            elements.Remove(isStrict?"begin":"b");
+            elements.Remove(isStrict?"end":"e");
+            elements.Remove(isStrict?"attributes":"a");
+            elements.Remove(isStrict?"speakerid":"s");
 
 
+            e.Elements(isStrict ? "phrase" : "p").Select(p => (TranscriptionElement)new MyPhrase(p, isStrict)).ToList().ForEach(p => Add(p)); ;
 
-            if (e.Attribute("begin") != null)
+            if (e.Attribute(isStrict ? "attributes" : "a") != null)
             {
-                string val = e.Attribute("begin").Value;
+                this.Attributes = e.Attribute(isStrict ? "attributes" : "a").Value;
+            
+            }
+
+            if (e.Attribute(isStrict?"begin":"b") != null)
+            {
+                string val = e.Attribute(isStrict?"begin":"b").Value;
                 int ms;
                 if (int.TryParse(val, out ms))
                 {
                     Begin = TimeSpan.FromMilliseconds(ms);
                 }
                 else
-                    Begin = TimeSpan.Parse(val);
+                    Begin = XmlConvert.ToTimeSpan(val);
 
             }
             else
@@ -933,16 +940,16 @@ namespace NanoTrans
                 Begin = ch == null ? TimeSpan.Zero : ch.Begin;
             }
 
-            if (e.Attribute("end") != null)
+            if (e.Attribute(isStrict?"end":"e") != null)
             {
-                string val = e.Attribute("end").Value;
+                string val = e.Attribute(isStrict?"end":"e").Value;
                 int ms;
                 if (int.TryParse(val, out ms))
                 {
-                    Begin = TimeSpan.FromMilliseconds(ms);
+                    End = TimeSpan.FromMilliseconds(ms);
                 }
                 else
-                    Begin = TimeSpan.Parse(val);
+                    End = XmlConvert.ToTimeSpan(val);
             }
             else
             {
@@ -953,16 +960,10 @@ namespace NanoTrans
         }
 
         public XElement Serialize(bool strict)
-        { 
-            XElement elm = new XElement(strict?"speaker":"s",
-                elements.Select(e=>
-                    new XAttribute(e.Key,e.Value))
-                    .Union(new []{ 
-                    new XAttribute("begin", Begin),
-                    new XAttribute("end", End),
-                    new XAttribute("attributes", Attributes),
-                    new XAttribute("speakerid", speakerID),
-                    })
+        {
+            XElement elm = new XElement(strict?"paragraph":"pa",
+                elements.Select(e=>new XAttribute(e.Key,e.Value)).Union(new []{ new XAttribute(strict?"begin":"b", Begin),new XAttribute(strict?"end":"e", End),new XAttribute(strict?"attributes":"a", Attributes),new XAttribute(strict?"speakerid":"s", speakerID),}),
+                Phrases.Select(p=>p.Serialize(strict))
             );
 
             return elm;
@@ -1061,23 +1062,21 @@ namespace NanoTrans
         #region serializace nova
         private Dictionary<string, string> elements = new Dictionary<string, string>();
         private static readonly XAttribute EmptyAttribute = new XAttribute("empty", "");
-        public MySection(XElement e)
+        public MySection(XElement e, bool isStrict)
         {
+            this.Paragraphs = new VirtualTypeList<MyParagraph>(this);
             name = e.Attribute("name").Value;
             elements = e.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
             elements.Remove("name");
-            this.m_children = e.Elements("section").Select(p => (TranscriptionElement)new MyParagraph(p)).ToList();
+            e.Elements(isStrict ? "paragraph" : "pa").Select(p => (TranscriptionElement)new MyParagraph(p, isStrict)).ToList().ForEach(p => Add(p));
 
         }
 
         public XElement Serialize(bool strict)
-        { 
-            XElement elm = new XElement(strict?"speaker":"s",
-                elements.Select(e=>
-                    new XAttribute(e.Key,e.Value))
-                    .Union(new []{ 
-                    new XAttribute("name", name),
-                    })
+        {
+            
+            XElement elm = new XElement(strict?"section":"se",elements.Select(e=>new XAttribute(e.Key,e.Value)).Union(new []{ new XAttribute("name", name),}),
+                Paragraphs.Select(p=>p.Serialize(strict))
             );
 
             return elm;
@@ -1171,23 +1170,22 @@ namespace NanoTrans
         #region serializace nova
         private Dictionary<string, string> elements = new Dictionary<string, string>();
         private static readonly XAttribute EmptyAttribute = new XAttribute("empty", "");
-        public MyChapter(XElement c)
+        public MyChapter(XElement c, bool isStrict)
         {
+            Sections = new VirtualTypeList<MySection>(this);
             name = c.Attribute("name").Value;
             elements = c.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
             elements.Remove("name");
-            this.m_children = c.Elements("section").Select(s => (TranscriptionElement)new MySection(s)).ToList();
+            c.Elements(isStrict ? "section" : "se").Select(s => (TranscriptionElement)new MySection(s, isStrict)).ToList().ForEach(s => Add(s));
 
         }
 
         public XElement Serialize(bool strict)
-        { 
-            XElement elm = new XElement(strict?"speaker":"s",
-                elements.Select(e=>
-                    new XAttribute(e.Key,e.Value))
-                    .Union(new []{ 
-                    new XAttribute("name", name),
-                    })
+        {
+            
+            XElement elm = new XElement(strict?"chapter":"ch",
+                elements.Select(e=>new XAttribute(e.Key,e.Value)).Union(new []{ new XAttribute("name", name),}),
+                Sections.Select(s=>s.Serialize(strict))
             );
 
             return elm;
@@ -1220,7 +1218,6 @@ namespace NanoTrans
             Sections = new VirtualTypeList<MySection>(this);
             Begin = new TimeSpan(-1);
             End = new TimeSpan(-1);
-            Sections = new VirtualTypeList<MySection>(this);
         }
 
         public MyChapter(String aName)
@@ -1338,7 +1335,7 @@ namespace NanoTrans
         /// <summary>
         /// zdroj audio dat - muze byt stejny jako video a naopak
         /// </summary>
-        public string audioFileName { get; set; }
+        public string mediaURI { get; set; }
         /// <summary>
         /// zdroj video dat - muze byt stejny jako audio a naopak
         /// </summary>
@@ -1380,7 +1377,7 @@ namespace NanoTrans
         {
             this.dateTime = aKopie.dateTime;
             this.source = aKopie.source;
-            this.audioFileName = aKopie.audioFileName;
+            this.mediaURI = aKopie.mediaURI;
             this.videoFileName = aKopie.videoFileName;
             this.type = aKopie.type;
             if (aKopie.Chapters != null)
@@ -1540,32 +1537,29 @@ namespace NanoTrans
         /// <param name="jmenoSouboru"></param>
         /// <param name="co"></param>
         /// <returns></returns>
-        public bool Serializovat(string jmenoSouboru, MySubtitlesData co, bool aUkladatKompletMluvci)
+        public bool Serialize(string jmenoSouboru, bool aUkladatKompletMluvci)
         {
-            FileStream s = new FileStream(jmenoSouboru, FileMode.Create, FileAccess.Write, FileShare.None, 1024 * 1024);
-
-            bool output = Serializovat(s, co, aUkladatKompletMluvci);
-
-            if (output)
+            using (FileStream s = new FileStream(jmenoSouboru, FileMode.Create, FileAccess.Write, FileShare.None, 1024 * 1024))
             {
-                this.JmenoSouboru = jmenoSouboru;
-                this.Ulozeno = true;
 
-                return true;
-            }
-            else
-            {
-                return false;
+                bool output = Serialize(s, aUkladatKompletMluvci);
+
+                if (output)
+                {
+                    this.JmenoSouboru = jmenoSouboru;
+                    this.Ulozeno = true;
+
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
         }
 
-        /// <summary>
-        /// Serializuje tuto tridu a ulozi data do xml souboru - muze ulozit mluvci bez fotky
-        /// </summary>
-        /// <param name="jmenoSouboru"></param>
-        /// <param name="co"></param>
-        /// <returns></returns>
-        public bool Serializovat(Stream datastream, MySubtitlesData co, bool aUkladatKompletMluvci)
+
+        public bool SerializeV1(Stream datastream, MySubtitlesData co, bool aUkladatKompletMluvci)
         {
             try
             {
@@ -1590,7 +1584,7 @@ namespace NanoTrans
 
                 writer.WriteStartElement("Transcription");
                 writer.WriteAttributeString("dateTime", XmlConvert.ToString(pCopy.dateTime, XmlDateTimeSerializationMode.Local));
-                writer.WriteAttributeString("audioFileName", pCopy.audioFileName);
+                writer.WriteAttributeString("audioFileName", pCopy.mediaURI);
 
                 writer.WriteStartElement("Chapters");
 
@@ -1724,7 +1718,26 @@ namespace NanoTrans
                 MessageBox.Show("Chyba pri serializaci souboru: " + ex.Message);
                 return false;
             }
+        }
+        /// <summary>
+        /// Serializuje tuto tridu a ulozi data do xml souboru - muze ulozit mluvci bez fotky
+        /// </summary>
+        /// <param name="jmenoSouboru"></param>
+        /// <param name="co"></param>
+        /// <returns></returns>
+        public bool Serialize(Stream datastream, bool aUkladatKompletMluvci)
+        {
+            XDocument xdoc = 
+                new XDocument(new XDeclaration("1.0","utf-8","yes"),
+                    new XElement("transcription",elements.Select(e=>new XAttribute(e.Key,e.Value)).Union(new []{ new XAttribute("version","2.0"),new XAttribute("style",MySetup.Setup.SaveInShortFormat?"short":"strict"),new XAttribute("mediaURI",mediaURI??"")}),
+                        this.Meta,
+                        Chapters.Select(c => c.Serialize(!MySetup.Setup.SaveInShortFormat)),
+                        Speakers.Serialize(!MySetup.Setup.SaveInShortFormat)
+                    )
+                );
 
+            xdoc.Save(datastream);
+            return true;
         }
 
         //Deserializuje soubor             
@@ -1758,13 +1771,15 @@ namespace NanoTrans
                 reader.Read();
                 reader.Read();
                 string version = reader.GetAttribute("version");
+                
                 if (version == "2.0")
                 {
                     return DeserializeV2_0(reader);
                 }
                 else
                 {
-                    return DeserializeV1(reader);
+                    datastream.Position = 0;
+                    return DeserializeV1(new XmlTextReader(datastream));
                 }
             }
 
@@ -1773,10 +1788,12 @@ namespace NanoTrans
 
         private XElement Meta = EmptyMeta;
         private static readonly XElement EmptyMeta = new XElement("Meta");
+        private Dictionary<string, string> elements = new Dictionary<string, string>();
         private static MySubtitlesData DeserializeV2_0(XmlTextReader reader)
         {
 
             MySubtitlesData data = new MySubtitlesData();
+            data.BeginUpdate();
             var document = XDocument.Load(reader);
             var transcription = document.Elements().First();
 
@@ -1785,39 +1802,44 @@ namespace NanoTrans
             bool isStrict = style == "strict";
             string version = transcription.Attribute("version").Value;
             string mediaURI = transcription.Attribute("mediaURI").Value;
-
+            data.mediaURI = mediaURI;
             data.Meta = transcription.Element("meta") ?? EmptyMeta;
-            var chapters = transcription.Elements("chapter");
+            var chapters = transcription.Elements(isStrict?"chapter":"ch");
 
-            data.m_children=chapters.Select(c => (TranscriptionElement)new MyChapter(c)).ToList();
+            data.elements = transcription.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
+            data.elements.Remove("style");
+            data.elements.Remove("mediaURI");
+            data.elements.Remove("version");
 
-            var speakers = transcription.Element("speakers");
-            data.Speakers.Speakers = new List<MySpeaker>(speakers.Elements("speaker").Select(s => new MySpeaker(s)));
+            chapters.Select(c => (TranscriptionElement)new MyChapter(c,isStrict)).ToList().ForEach(c=>data.Add(c));
 
+            var speakers = transcription.Element(isStrict?"speakers":"sp");
+            data.Speakers.Speakers = new List<MySpeaker>(speakers.Elements("speaker").Select(s => new MySpeaker(s,isStrict)));
+            data.EndUpdate();
 
-            return null;
+            return data;
         }
 
 
-        private static MySubtitlesData DeserializeV1(XmlTextReader reader)
+        public static MySubtitlesData DeserializeV1(XmlTextReader reader)
         {
             try
             {
                 MySubtitlesData data = new MySubtitlesData();
                 reader.WhitespaceHandling = WhitespaceHandling.Significant;
 
-                //reader.Read(); //<?xml version ...
-                //reader.Read();
+                reader.Read(); //<?xml version ...
+                reader.Read();
 
-                // reader.ReadStartElement("Transcription");
+                reader.ReadStartElement("Transcription");
                 string val = reader.GetAttribute("dateTime");
                 if (val != null)
                     data.dateTime = XmlConvert.ToDateTime(val, XmlDateTimeSerializationMode.Local);
-                data.audioFileName = reader.GetAttribute("audioFileName");
+                data.mediaURI = reader.GetAttribute("audioFileName");
 
                 int result;
 
-                reader.Read();
+                //reader.Read();
                 reader.ReadStartElement("Chapters");
                 //reader.ReadStartElement("Chapter");
                 while (reader.Name == "Chapter")
@@ -1940,7 +1962,7 @@ namespace NanoTrans
                                         reader.Read();
                                         while (reader.NodeType != XmlNodeType.EndElement && reader.NodeType != XmlNodeType.Element)
                                         {
-                                            ph.Text = reader.Value;
+                                            ph.Text = reader.Value.Trim('\r', '\n');
                                             reader.Read();
                                         }
                                     }
@@ -2030,7 +2052,7 @@ namespace NanoTrans
 
                                 reader.Read();//Text;
                                 reader.ReadStartElement("Text");//posun na content
-                                ph.Text = reader.Value;
+                                ph.Text = reader.Value.Trim('\r', '\n');
 
                                 if (reader.Name != "Phrase") //text nebyl prazdny
                                 {

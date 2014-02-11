@@ -262,6 +262,7 @@
     <Compile Include="FindDialog.xaml.cs">
       <DependentUpon>FindDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ImportExportInterfaces.cs" />
     <Compile Include="MyEnumParagraphAttributes.cs" />
     <Compile Include="MyPrepisovac.cs" />
     <Compile Include="ReplaceSpeakerWindow.xaml.cs">

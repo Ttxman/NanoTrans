@@ -24,15 +24,11 @@ namespace NanoTrans
     {
         public MySetup bNastaveni;
         private MySpeakers bDatabazeMluvcich;
-        private MySpeaker bPomocnyMluvciDiktatPredUlozenim;
-        private MySpeaker bPomocnyMluvciHlasovehoOvladaniPredUlozenim;
 
         public WinSetup(MySetup aNastaveni, MySpeakers aDatabazeMluvcich)
         {
             bNastaveni = aNastaveni;
             bDatabazeMluvcich = aDatabazeMluvcich;
-            bPomocnyMluvciDiktatPredUlozenim = bNastaveni.diktatMluvci;
-            bPomocnyMluvciHlasovehoOvladaniPredUlozenim = bNastaveni.hlasoveOvladaniMluvci;
             InitializeComponent();
             if (MyKONST.VERZE == MyEnumVerze.Externi)
             {
@@ -87,14 +83,14 @@ namespace NanoTrans
                 chbZobrazitFotku.IsChecked = aNastaveni.ZobrazitFotografieMluvcich;
                 slVelikostFotografie.Value = aNastaveni.Fotografie_VyskaMax;
 
-                //casove indexy
-                chbZobrazitIndexyPocatku.IsChecked = aNastaveni.zobrazitCasBegin;
-                chbZobrazitIndexyKonce.IsChecked = aNastaveni.zobrazitCasEnd;
+
 
                 //prehravani
 
                 UpDownSpeed.Value =  (decimal)aNastaveni.ZpomalenePrehravaniRychlost;
                 UpDownJump.Value = (int)(aNastaveni.VlnaMalySkok);
+
+                checkBoxSaveShortened.IsChecked = aNastaveni.SaveInShortFormat;
             }
         }
 
@@ -181,12 +177,11 @@ namespace NanoTrans
             bNastaveni.ZobrazitFotografieMluvcich = (bool)chbZobrazitFotku.IsChecked;
             bNastaveni.Fotografie_VyskaMax = slVelikostFotografie.Value;
 
-            bNastaveni.zobrazitCasBegin = (bool)(chbZobrazitIndexyPocatku.IsChecked);
-            bNastaveni.zobrazitCasEnd = (bool)(chbZobrazitIndexyKonce.IsChecked);
-
             bNastaveni.ZpomalenePrehravaniRychlost =(double)UpDownSpeed.Value;
             bNastaveni.VlnaMalySkok = (double)UpDownJump.Value;
 
+
+            bNastaveni.SaveInShortFormat = checkBoxSaveShortened.IsChecked == true;
             this.Close();
         }
 
@@ -230,7 +225,7 @@ namespace NanoTrans
                 GetDictionaryFromZip(s);
         }
 
-        private void Button_Click_2(object sender, RoutedEventArgs e)
+        private void ButtonLoadOpenOfficeSpellchekingDictionaries(object sender, RoutedEventArgs e)
         {
             OpenFileDialog of = new OpenFileDialog();
             of.Filter = "Rozšíření OpenOffice 3 {*.zip,*.oxt} |*.zip;*.oxt";

@@ -6,6 +6,7 @@ using System.Xml;
 using System.IO;
 using System.Windows;
 using System.Linq;
+using System.Xml.Linq;
 
 namespace NanoTrans
 {
@@ -31,10 +32,11 @@ namespace NanoTrans
         }
         public int speakersIndexCounter = 0;                  //ohlidani vzdy vetsiho ID vsech mluvcich
 
-
-        public MySpeakers()
+        private Dictionary<string, string> elements = new Dictionary<string, string>();
+        public MySpeakers(XElement e, bool isStrict)
         {
-
+            elements = e.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
+            m_Speakers = e.Elements(isStrict ? "speaker" : "s").Select(s => new MySpeaker(s, isStrict)).ToList();
         }
 
         //copy constructor
@@ -54,6 +56,11 @@ namespace NanoTrans
                     }
                 }
             }
+        }
+
+        public MySpeakers()
+        {
+            
         }
 
 
@@ -247,13 +254,24 @@ namespace NanoTrans
         }
 
 
+
+        public XElement Serialize(bool strict)
+        {
+            XElement elm = new XElement(strict ? "speakers" : "sp",
+                elements.Select(e =>new XAttribute(e.Key, e.Value)),
+                m_Speakers.Select(s=>s.Serialize(strict))
+            );
+
+            return elm;
+        }
+
         /// <summary>
         /// Serializuje tuto tridu a ulozi data do xml souboru
         /// </summary>
         /// <param name="jmenoSouboru"></param>
         /// <param name="co"></param>
         /// <returns></returns>
-        public bool Serializovat(String jmenoSouboru, MySpeakers co)
+        public bool Serialize_V1(String jmenoSouboru, MySpeakers co)
         {
             try
             {
