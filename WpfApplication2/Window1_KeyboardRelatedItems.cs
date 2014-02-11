@@ -240,7 +240,7 @@ namespace NanoTrans
             if (!m_findDialog.IsLoaded || !m_findDialog.IsVisible)
             {
                 m_findDialog = new FindDialog(this);
-
+                searchtextoffset = 0;
                 m_findDialog.Show();
             }
             else
@@ -479,7 +479,7 @@ namespace NanoTrans
                 tag = myDataSource.Chapters[0];
 
             int len;
-            if (myDataSource.FindNext(ref tag, ref searchtextoffset,out len, pattern, isregex, CaseSensitive, searchinspeakers))
+            if (myDataSource.FindNext(ref tag, ref searchtextoffset, out len, pattern, isregex, CaseSensitive, searchinspeakers))
             {
                 TranscriptionElement p = tag;
                 waveform1.CaretPosition = p.Begin;
@@ -487,9 +487,13 @@ namespace NanoTrans
 
                 if (VirtualizingListBox.ActiveElement != null)
                 {
-                    VirtualizingListBox.ActiveElement.editor.Select(searchtextoffset, len);
+                    VirtualizingListBox.ActiveElement.SetSelection(searchtextoffset,len);
                     searchtextoffset += len;
                 }
+            }
+            else
+            {
+                MessageBox.Show("Vyhledávaný výraz nebyl nalezen", "Vyhledávání", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
 

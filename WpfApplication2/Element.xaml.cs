@@ -938,17 +938,25 @@ namespace NanoTrans
             if (m_forceCarretpositionOnLoad >= 0)
             {
                 editor.Focus();
-                internal_setCarretOffset(m_forceCarretpositionOnLoad);
+                internal_setCarretOffset(m_forceCarretpositionOnLoad, m_forcesellength);
             }
         }
 
-        private void internal_setCarretOffset(int offset)
+        private void internal_setCarretOffset(int offset, int length)
         {
             editor.CaretOffset = offset;
+            if (length > 0 && length+offset < editor.Text.Length)
+            { 
+                editor.Select(offset,length);
+            }
+        
         }
-        public void SetCaretOffset(int offset)
+
+        int m_forcesellength = 0;
+        public void SetSelection(int offset, int length)
         {
             m_forceCarretpositionOnLoad = -1;
+            m_forcesellength = 0;
             if (offset < 0)
                 return;
             if (IsLoaded)
@@ -957,12 +965,20 @@ namespace NanoTrans
                     editor.Focus();
 
                 if (offset <= editor.Document.TextLength)
-                    internal_setCarretOffset(offset);
+                    internal_setCarretOffset(offset, length);
                 else
-                    internal_setCarretOffset(editor.Document.TextLength);
+                    internal_setCarretOffset(editor.Document.TextLength, m_forcesellength);
             }
             else
+            {
                 m_forceCarretpositionOnLoad = offset;
+                m_forcesellength = length;
+            }
+        }
+
+        public void SetCaretOffset(int offset)
+        {
+            SetSelection(offset, 0);
         }
 
         public int TextLength

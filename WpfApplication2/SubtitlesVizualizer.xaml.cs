@@ -407,7 +407,11 @@ namespace NanoTrans
 
             set 
             {
-                SetActiveTranscription(value);
+                var elm = SetActiveTranscription(value);
+                if(elm!=null && !elm.editor.IsFocused)
+                    elm.editor.Focus();
+
+
             }
         }
 

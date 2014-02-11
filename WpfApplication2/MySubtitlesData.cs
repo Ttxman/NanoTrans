@@ -984,7 +984,7 @@ namespace NanoTrans
             }
             else
             {
-                r = new Regex(pattern);
+                r = new Regex(Regex.Escape(pattern));
             }
 
             TranscriptionElement tag = paragraph;
@@ -993,7 +993,8 @@ namespace NanoTrans
                 string s = par.Text;
                 if (!CaseSensitive && !isregex)
                     s = s.ToLower();
-
+                if (TextOffset >= s.Length)
+                    TextOffset = 0;
                 Match m = r.Match(s, TextOffset);
 
                 if (m.Success)
