@@ -6376,12 +6376,16 @@ namespace NanoTrans
                 }
 
 
+                //smazani souboru...
+
                 foreach (string f in Directory.GetFiles(MyKONST.CESTA_DOCASNYCH_SOUBORU_ZVUKU))
                 {
                     File.Delete(f);
                 }
 
                 Directory.Delete(MyKONST.CESTA_DOCASNYCH_SOUBORU_ZVUKU);
+                TempCheckMutex.Close();
+
             }
             catch (Exception ex)
             {
@@ -6543,11 +6547,52 @@ namespace NanoTrans
                 MyLog.LogujChybu(ex);
             }
 
+            string foldername = System.IO.Path.GetRandomFileName();
+            string temppath = System.IO.Path.GetTempPath()+"NanoTrans\\";
 
-            string temppath = System.IO.Path.GetTempPath()+System.IO.Path.GetRandomFileName();
             Directory.CreateDirectory(temppath);
+            DeleteUnusedTempFolders(temppath);
+            temppath = temppath + foldername;
+            Directory.CreateDirectory(temppath);
+            TempCheckMutex = new Mutex(true, "NanoTransMutex_" + foldername);
             MyKONST.CESTA_DOCASNYCH_SOUBORU_ZVUKU = temppath+"\\";
         }
+        private static Mutex TempCheckMutex;
+
+
+        private void DeleteUnusedTempFolders(string foldername)
+        {
+            DirectoryInfo di = new DirectoryInfo(foldername);
+            DirectoryInfo[] dirs = di.GetDirectories();
+
+            foreach (DirectoryInfo dir in dirs)
+            {
+                try
+                {
+                    //ziskal sem nezaregistrovany pristup ke slozce.. smazat
+                    bool isnew;
+                    using (Mutex m = new Mutex(true, "NanoTransMutex_" + dir.Name,out isnew))
+                    {
+                        if (isnew)
+                        {
+                            foreach (var f in dir.GetFiles())
+                            {
+                                f.Delete();
+                            }
+
+                            dir.Delete();
+                        }
+                    
+                    }
+                }
+                catch
+                { }
+            
+            }
+
+            
+        }
+
 
         private void btDiktat_Click(object sender, RoutedEventArgs e)
         {
