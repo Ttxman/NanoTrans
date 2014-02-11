@@ -30,7 +30,7 @@ namespace NanoTrans
 
         private void buttonSaveAndRestart_Click(object sender, RoutedEventArgs e)
         {
-            m_parent.UlozitTitulky(true, m_parent.myDataSource.JmenoSouboru);
+            m_parent.UlozitTitulky(true, m_parent.myDataSource.FileName);
             System.Diagnostics.Process.Start(Application.ResourceAssembly.Location);
             Application.Current.Shutdown();
         }

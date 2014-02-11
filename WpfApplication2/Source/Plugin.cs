@@ -108,7 +108,7 @@ namespace NanoTrans
                         using (var f = File.OpenRead(sourcefile))
                         {
                             Transcription imp = m_importDelegate.Invoke(f);
-                            imp.JmenoSouboru = sourcefile;
+                            imp.FileName = sourcefile;
                             return imp;
                         }
                     }

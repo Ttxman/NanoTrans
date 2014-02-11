@@ -678,7 +678,7 @@ namespace NanoTrans
 
         private void l_Element_ContentChanged(object sender, EventArgs e)
         {
-            Subtitles.Ulozeno = false;
+            Subtitles.Saved = false;
         }
 
     }

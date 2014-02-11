@@ -50,8 +50,14 @@
     <Compile Include="ElementType.cs" />
     <Compile Include="ParagraphAttributes.cs" />
     <Compile Include="MySpeakers.cs" />
-    <Compile Include="MySubtitlesData.cs" />
+    <Compile Include="Transcription.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TranscriptionChapter.cs" />
+    <Compile Include="TranscriptionElement.cs" />
+    <Compile Include="TranscriptionParagraph.cs" />
+    <Compile Include="TranscriptionPhrase.cs" />
+    <Compile Include="TranscriptionSection.cs" />
+    <Compile Include="VirtualTypeList.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

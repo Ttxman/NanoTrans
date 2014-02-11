@@ -212,7 +212,7 @@ namespace NanoTrans
 
                 if (myDataSource != null)
                 {
-                    myDataSource.JmenoSouboru += ".trsx";
+                    myDataSource.FileName += ".trsx";
                 }
             }
         }
@@ -628,13 +628,13 @@ namespace NanoTrans
         {
             if (myDataSource != null)
             {
-                if (myDataSource.JmenoSouboru != null)
+                if (myDataSource.FileName != null)
                 {
-                    UlozitTitulky(false, myDataSource.JmenoSouboru);
+                    UlozitTitulky(false, myDataSource.FileName);
                 }
                 else
                 {
-                    UlozitTitulky(true, myDataSource.JmenoSouboru);
+                    UlozitTitulky(true, myDataSource.FileName);
                 }
             }
         }
