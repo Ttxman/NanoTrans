@@ -237,9 +237,10 @@ namespace NanoTrans
 
         private void CFindDialogExecute(object sender, ExecutedRoutedEventArgs e)
         {
-            if (!m_findDialog.IsLoaded || !m_findDialog.IsVisible)
+            if (m_findDialog == null || !m_findDialog.IsLoaded || !m_findDialog.IsVisible)
             {
                 m_findDialog = new FindDialog(this);
+                m_findDialog.Owner = this;
                 searchtextoffset = 0;
                 m_findDialog.Show();
             }

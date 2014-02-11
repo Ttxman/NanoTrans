@@ -1758,7 +1758,6 @@ namespace NanoTrans
         {
 
             InitCommands();
-            m_findDialog = new FindDialog(this);
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
             //inicializuje (asynchronni) nacitani slovniku
 

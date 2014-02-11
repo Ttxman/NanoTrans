@@ -1,1 +1,3 @@
-call %1\SVNVersioning.exe %1 %1\SVNBinaries\SVNVersion.exe %2\Properties\AssemblyInfo.cs
+echo on
+%1SVNVersioning.exe %1 %1SVNBinaries\SVNVersion.exe %2Properties\AssemblyInfo.cs
+echo mlask
