@@ -151,9 +151,17 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="SubtitlesVizualizer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Themes\Generic.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Transcription.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Waveform.xaml">
       <SubType>Designer</SubType>
@@ -229,6 +237,12 @@
     </Compile>
     <Compile Include="MyWaveRecorder.cs">
       <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SubtitlesVizualizer.xaml.cs">
+      <DependentUpon>SubtitlesVizualizer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Transcription.xaml.cs">
+      <DependentUpon>Transcription.xaml</DependentUpon>
     </Compile>
     <Compile Include="Waveform.xaml.cs">
       <DependentUpon>Waveform.xaml</DependentUpon>

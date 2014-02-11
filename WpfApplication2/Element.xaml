@@ -3,38 +3,42 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             mc:Ignorable="d" xmlns:my="clr-namespace:NanoTrans" d:DesignWidth="400">
-
+             Name="element"
+             mc:Ignorable="d" xmlns:my="clr-namespace:NanoTrans" d:DesignWidth="400" SizeChanged="UserControl_SizeChanged" GotFocus="UserControl_GotFocus" 
+             LostFocus="UserControl_LostFocus">
+             
     <UserControl.Resources>
         <ObjectDataProvider x:Key="provider" ObjectInstance="{x:Static my:MySetup.Refresher}"/>
     </UserControl.Resources>
 
-    
-    <UserControl.Background>
-        <Binding Source="{StaticResource provider}" Path="Setup.BarvaTextBoxuOdstavce"/>
-    </UserControl.Background>
-
     <Grid VerticalAlignment="Top" HorizontalAlignment="Stretch">
             <Grid.RowDefinitions>
-                <RowDefinition Height="26" MaxHeight="26" MinHeight="26" />
-                <RowDefinition Height="26" MaxHeight="26" MinHeight="26" />
-                <RowDefinition Height="Auto" MinHeight="26" />
+                <RowDefinition Height="Auto" MaxHeight="26" />
+                <RowDefinition Height="Auto" MaxHeight="26" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="88" />
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="16" />
                 <ColumnDefinition Width="413*" />
                 <ColumnDefinition Width="22" />
             </Grid.ColumnDefinitions>
-            <Button Grid.Column="0" Grid.Row="0" Content="Speaker" Name="button1" />
-            <Canvas Grid.Column="2" Grid.RowSpan="3" Name="canvas1" />
-            <my:MyTextBox Grid.Column="2" x:Name="myTextBox1" Panel.ZIndex="100" Text="" TextWrapping="Wrap" Grid.RowSpan="3" MinWidth="78" />
+        <Button Content="Speaker" Name="button1" MinWidth="80" HorizontalAlignment="Left" MinHeight="26" MaxHeight="26" FontSize="{Binding Source={StaticResource provider}, Path=Setup.SetupOthersFontSize}" />
+        <Canvas Grid.Column="2" Grid.RowSpan="3" Name="textboxcanvas" />
+        <my:MyTextBox Grid.Column="2" x:Name="myTextBox1" BorderThickness="0" Panel.ZIndex="100" TextWrapping="Wrap" Grid.RowSpan="3" 
+                      ClipToBounds="True" FontSize="{Binding Source={StaticResource provider}, Path=Setup.SetupTextFontSize}" BGcanvas="{Binding ElementName=textboxcanvas, Path=.}"
+                      ContextMenu="{Binding ElementName=element, Path=ContextMenu}" TextChanged="myTextBox1_TextChanged" PreviewKeyDown="myTextBox1_PreviewKeyDown" />
 
             <StackPanel Grid.Column="1" Grid.RowSpan="3" Name="stackPanel1" Background="LightBlue" />
-            <Label Content="Label" Grid.Row="1" Name="label1" Height="26" VerticalAlignment="Top" />
-            <Label Content="Label" Grid.Row="2" Height="30" Name="label2" VerticalAlignment="Top" Width="132" Grid.RowSpan="2" />
+        <TextBlock Grid.Row="1" Name="textbegin" VerticalAlignment="Top" HorizontalAlignment="Left" Visibility="Collapsed"  MaxHeight="26" Foreground="Green" 
+               FontSize="{Binding Source={StaticResource provider}, Path=Setup.SetupOthersFontSize}" Margin="0,0,10,0">
+        </TextBlock>
+        <TextBlock Grid.Row="2" Name="textend" VerticalAlignment="Top" HorizontalAlignment="Left" Foreground="Red" 
+               FontSize="{Binding Source={StaticResource provider}, Path=Setup.SetupOthersFontSize}" Margin="0,0,10,0">
+
+        </TextBlock>
             <Grid Grid.Column="3" Grid.RowSpan="3" Name="grid2">
-                <CheckBox Height="16" HorizontalAlignment="Center" Name="checkBox1" VerticalAlignment="Center" />
+                <CheckBox Height="16" HorizontalAlignment="Center" Name="checkBox1" VerticalAlignment="Center" Checked="checkBox1_Checked" Unchecked="checkBox1_Unchecked" />
             </Grid>
     </Grid>
 </UserControl>

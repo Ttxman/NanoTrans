@@ -181,6 +181,7 @@ namespace NanoTrans
 
 
         //vraci index od kterym se novy string lisi od stareho
+        [Obsolete]
         public static int VratIndexZmenyStringu(string aOriginal, string aUpraveny, int aAktualniIndexKurzoru)
         {
             if (aOriginal == null || aUpraveny == null) return -1;
@@ -249,6 +250,7 @@ namespace NanoTrans
         /// <param name="aPuvodniText"></param>
         /// <param name="e"></param>
         /// <param name="aTypElementu"></param>
+        [Obsolete]
         public static void OverZmenyTextBoxu(System.Windows.Controls.TextBox aTb, string aPuvodniText, ref System.Windows.Controls.TextChangedEventArgs e, MyEnumTypElementu aTypElementu)
         {
             try

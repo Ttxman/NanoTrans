@@ -47,14 +47,26 @@ namespace NanoTrans
             }
         }
 
-        public Canvas m_BGcanvas = null;
 
+        public static readonly DependencyProperty BGcanvasProperty =
+      DependencyProperty.Register("BGcanvas", typeof(Canvas), typeof(MyTextBox), new FrameworkPropertyMetadata(OnBGcanvasChanged));
+
+        public static void OnBGcanvasChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((MyTextBox)d).BGcanvas = (Canvas)e.NewValue;
+        }
+
+
+
+        public Canvas m_BGcanvas = null;
         public Canvas BGcanvas
         {
             get{return m_BGcanvas;}
             set
             {
                 m_BGcanvas = value;
+                SetValue(BGcanvasProperty, value);
+                RefreshTextMarking();
             }
         }
         public static HashSet<string> Vocabulary = new HashSet<string>();
@@ -126,36 +138,41 @@ namespace NanoTrans
                 BGcanvas.Children.Clear();
 
 
-                foreach (Match m in wordSplitter.Matches(this.Text))
-                {
-                    string subst = this.Text.Substring(m.Index, m.Length).ToLower();
-                    if (!wordIgnoreChecker.IsMatch(subst))
+                    foreach (Match m in wordSplitter.Matches(this.Text))
                     {
-                        if (!Vocabulary.Contains(subst))
+                        string subst = this.Text.Substring(m.Index, m.Length).ToLower();
+                        if (!wordIgnoreChecker.IsMatch(subst))
                         {
-                            int i = m.Index + m.Length;
-                            int beg = m.Index;
-                            Line l = new Line();
-                            l.Stroke = Brushes.Red;
-                            l.StrokeThickness = -1;
-                            l.StrokeDashArray = new DoubleCollection(new double[] { 2, 2 });
+                            if (!Vocabulary.Contains(subst))
+                            {
+                                int i = m.Index + m.Length;
+                                int beg = m.Index;
+                                Line l = new Line();
+                                l.Stroke = Brushes.Red;
+                                l.StrokeThickness = -1;
+                                l.StrokeDashArray = new DoubleCollection(new double[] { 2, 2 });
 
-                            Rect r1 = this.GetRectFromCharacterIndex(beg);
-                            Rect r2 = this.GetRectFromCharacterIndex(i);
+                                
+                                Rect r1 = this.GetRectFromCharacterIndex(beg);
+                                Rect r2 = this.GetRectFromCharacterIndex(i);
 
-                            Point bl = r1.BottomLeft;
-                            Point br = r2.BottomRight;
+                                if (r1 != Rect.Empty && r2 != Rect.Empty)
+                                {
+                                    Point bl = r1.BottomLeft;
+                                    Point br = r2.BottomRight;
 
-                            l.X1 = bl.X;
-                            l.X2 = br.X;
-                            l.Y1 = l.Y2 = bl.Y;
+                                    l.X1 = bl.X;
+                                    l.X2 = br.X;
+                                    l.Y1 = l.Y2 = bl.Y;
 
-                            BGcanvas.Children.Add(l);
+                                    BGcanvas.Children.Add(l);
+                                }
+                            }
                         }
                     }
-                }
 
-                BGcanvas.InvalidateVisual();
+                    BGcanvas.InvalidateVisual();
+                
             }
         } 
         protected override void OnMouseDown(MouseButtonEventArgs e)

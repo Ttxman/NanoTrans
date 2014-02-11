@@ -29,6 +29,7 @@ namespace NanoTrans
             {
                 oVlna.mSekundyVlnyZac = (long)value.TotalMilliseconds;
                 InvalidateWaveform();
+                InvalidateTimeLine();
             }
         }
 
@@ -39,6 +40,7 @@ namespace NanoTrans
             {
                 oVlna.mSekundyVlnyKon = (long)value.TotalMilliseconds;
                 InvalidateWaveform();
+                InvalidateTimeLine();
             }
         }
 
@@ -49,6 +51,7 @@ namespace NanoTrans
             {
                 oVlna.NastavDelkuVlny((long)value.TotalMilliseconds);
                 InvalidateWaveform();
+                InvalidateTimeLine();
             }
         }
 
@@ -59,18 +62,11 @@ namespace NanoTrans
 
         public TimeSpan SelectionBegin
         {
-            get { return TimeSpan.FromMilliseconds(oVlna.KurzorVyberPocatekMS); }
+            get { return oVlna.KurzorVyberPocatek; }
             set
             {
-                oVlna.KurzorVyberPocatekMS = (long)value.TotalMilliseconds;
+                oVlna.KurzorVyberPocatek = value;
 
-                StackTrace st = new StackTrace(true);
-                string trace = "";
-                foreach (var frame in st.GetFrames())
-                {
-                    trace += frame.GetMethod().Name + frame.GetFileLineNumber() + ">";
-                }
-                System.Diagnostics.Debug.WriteLine(trace);
 
                 InvalidateSelection();
             }
@@ -78,10 +74,10 @@ namespace NanoTrans
 
         public TimeSpan SelectionEnd
         {
-            get { return TimeSpan.FromMilliseconds(oVlna.KurzorVyberKonecMS); }
+            get { return oVlna.KurzorVyberKonec; }
             set
             {
-                oVlna.KurzorVyberKonecMS = (long)value.TotalMilliseconds;
+                oVlna.KurzorVyberKonec = value;
                 InvalidateSelection();
             }
         }
@@ -92,9 +88,22 @@ namespace NanoTrans
             set
             {
 
+
+                StackTrace st = new StackTrace(true);
+                string trace = "";
+                foreach (var frame in st.GetFrames())
+                {
+                    trace += frame.GetMethod().Name + frame.GetFileLineNumber() + ">";
+                }
+
+                if(!trace.Contains("OnTimer3444"))
+                    System.Diagnostics.Debug.WriteLine(trace);
+
+
                 long pos = (long)value.TotalMilliseconds;
                 if (pos == oVlna.KurzorPoziceMS)
                     return;
+
 
 
                 oVlna.KurzorPoziceMS = pos;
@@ -271,7 +280,6 @@ namespace NanoTrans
         }
 
 
-        private bool slPoziceMedia_mouseDown = false;
 
         /// <summary>
         /// informace o vyberu a pozici kurzoru ve "vlne", obsahuje buffery pro zobrazeni a prehrani vlny
@@ -607,8 +615,8 @@ namespace NanoTrans
         //nakresli vyber 
         private void iInvalidateSelection()//long zacatek, long konec, long kurzor)
         {
-            long zacatek = oVlna.KurzorVyberPocatekMS;
-            long konec = oVlna.KurzorVyberKonecMS;
+            long zacatek = (long)oVlna.KurzorVyberPocatek.TotalMilliseconds;
+            long konec = (long)oVlna.KurzorVyberKonec.TotalMilliseconds;
             if (konec < zacatek)
             {
                 long bf = konec;
@@ -829,8 +837,8 @@ namespace NanoTrans
                         for (int k = 0; k < pSection.Paragraphs.Count; k++)
                         {
                             MyParagraph pParagraph = pSection.Paragraphs[k];
-                            long pBegin = pParagraph.begin;
-                            long pEnd = pParagraph.end;
+                            long pBegin = (long)pParagraph.Begin.TotalMilliseconds;
+                            long pEnd = (long)pParagraph.End.TotalMilliseconds;
                             if (pBegin >= 0 && pEnd != pBegin && pEnd >= 0)
                             {
                                 if ((pBegin < aZobrazenaVlna.mSekundyVlnyZac && pEnd < aZobrazenaVlna.mSekundyVlnyZac) || (pBegin > aZobrazenaVlna.mSekundyVlnyKon))
@@ -935,7 +943,7 @@ namespace NanoTrans
                     {
                         pNasledujici = aDokument[(this.bObelnikyMluvcich[i + 1].Tag as MyTag)];
                     }
-                    if (pPredchozi != null && pPredchozi.end > pPar.begin && bObelnikyMluvcich[i - 1].Margin.Top < 5)
+                    if (pPredchozi != null && pPredchozi.End > pPar.Begin && bObelnikyMluvcich[i - 1].Margin.Top < 5)
                     {
                         grid1.Children.Add(pMluvci);
                         grid1.UpdateLayout();
@@ -1125,14 +1133,14 @@ namespace NanoTrans
 
 
                 //otoceni vyberu
-                if (oVlna.KurzorVyberKonecMS < oVlna.KurzorVyberPocatekMS)
+                if (oVlna.KurzorVyberKonec < oVlna.KurzorVyberPocatek)
                 {
-                    long pom = oVlna.KurzorVyberKonecMS;
-                    oVlna.KurzorVyberKonecMS = oVlna.KurzorVyberPocatekMS;
-                    oVlna.KurzorVyberPocatekMS = pom;
+                    TimeSpan pom = oVlna.KurzorVyberKonec;
+                    oVlna.KurzorVyberKonec = oVlna.KurzorVyberPocatek;
+                    oVlna.KurzorVyberPocatek = pom;
                 }
 
-                MyTag atag = m_subtitlesData.VratElementDanehoCasu((long)((SelectionEnd.TotalMilliseconds + SelectionBegin.TotalMilliseconds) / 2), null)[0];
+                MyTag atag = m_subtitlesData.VratElementDanehoCasu(new TimeSpan((SelectionEnd + SelectionBegin).Ticks / 2), null)[0];
                 MyTag pPredchoziTag = m_subtitlesData.VratOdstavecPredchoziTag(atag);
                 MyParagraph pPredchozi = m_subtitlesData[pPredchoziTag];
                 MyParagraph pAktualni = m_subtitlesData[atag];
@@ -1155,9 +1163,9 @@ namespace NanoTrans
                             leftshift = false;
                         }
                         //upraveni predchoziho elementu
-                        if ((pPredchozi.end == pAktualni.begin && !rozhrani) || pPredchozi.end > oVlna.KurzorVyberPocatekMS)
+                        if ((pPredchozi.End == pAktualni.Begin && !rozhrani) || pPredchozi.End > oVlna.KurzorVyberPocatek)
                         {
-                            m_subtitlesData.UpravCasZobraz(pPredchoziTag, -2, oVlna.KurzorVyberPocatekMS, !leftshift);
+                            m_subtitlesData.UpravCasZobraz(pPredchoziTag, new TimeSpan(-2) , oVlna.KurzorVyberPocatek, !leftshift);
                             if (ElementChanged != null)
                                 ElementChanged(this, new MyTagEventArgs(pPredchoziTag));
 
@@ -1173,24 +1181,24 @@ namespace NanoTrans
                         }
 
                         //upraveni nasl. elementu
-                        if ((pNasledujici.begin == pAktualni.end && !rozhrani) || pNasledujici.begin < oVlna.KurzorVyberKonecMS)
+                        if ((pNasledujici.Begin == pAktualni.End && !rozhrani) || pNasledujici.Begin < oVlna.KurzorVyberKonec)
                         {
 
-                            m_subtitlesData.UpravCasZobraz(pNasledujiciTag, oVlna.KurzorVyberKonecMS, -2, !leftshift);
+                            m_subtitlesData.UpravCasZobraz(pNasledujiciTag, oVlna.KurzorVyberKonec, new TimeSpan(-2), !leftshift);
                             if (ElementChanged != null)
                                 ElementChanged(this, new MyTagEventArgs(pNasledujiciTag));
                         }
                     }
                     //upraveni aktualniho elementu
 
-                    long pNovyPocatek = oVlna.KurzorVyberPocatekMS;
-                    long pNovyKonec = oVlna.KurzorVyberKonecMS;
+                    TimeSpan pNovyPocatek = oVlna.KurzorVyberPocatek;
+                    TimeSpan pNovyKonec = oVlna.KurzorVyberKonec;
                     if (Keyboard.Modifiers == ModifierKeys.Shift)
                     {
                         if (!r2dragLeft)
-                            pNovyPocatek = -2;
+                            pNovyPocatek = new TimeSpan(-2);
                         else
-                            pNovyKonec = -2;
+                            pNovyKonec = new TimeSpan(-2);
                     }
 
                     bool aStav = m_subtitlesData.UpravCasZobraz(atag, pNovyPocatek, pNovyKonec, !leftshift) != null;
@@ -1242,7 +1250,7 @@ namespace NanoTrans
         }
 
 
-        private void slPoziceMedia_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        public void slPoziceMedia_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             // if (!slPoziceMedia_mouseDown)
             {
@@ -1291,20 +1299,17 @@ namespace NanoTrans
 
         private void slPoziceMedia_LostMouseCapture(object sender, MouseEventArgs e)
         {
-            slPoziceMedia_mouseDown = false;
         }
 
         private void slPoziceMedia_MouseDown(object sender, MouseButtonEventArgs e)
         {
             BeginUpdate();
-            slPoziceMedia_mouseDown = true;
         }
 
         private void slPoziceMedia_PreviewMouseUp(object sender, MouseButtonEventArgs e)
         {
             if (m_updating)
                 EndUpdate();
-            slPoziceMedia_mouseDown = false;
             slPoziceMedia_ValueChanged(slPoziceMedia, new RoutedPropertyChangedEventArgs<double>(slPoziceMedia.Value, slPoziceMedia.Value));
         }
 
@@ -1317,7 +1322,7 @@ namespace NanoTrans
         {
 
             int val = oVlna.bufferPrehravaniZvuku.UlozDataDoBufferu(data, (long)begin.TotalMilliseconds, (long)end.TotalMilliseconds);
-            InvalidateWaveform();
+            Invalidate();
             return val;
         }
 
@@ -1367,7 +1372,7 @@ namespace NanoTrans
                     SelectionBegin = x;
                     if (r2dragelement != null)
                     {
-                        // m_subtitlesData.UpravCasZobraz(r2dragelement, (long)x.TotalMilliseconds, m_subtitlesData.VratCasElementuKonec(r2dragelement));
+                        // m_subtitlesData.UpravCasZobraz(r2dragelement, x, m_subtitlesData.VratCasElementuKonec(r2dragelement));
                         InvalidateSpeakers();
                     }
                 }
@@ -1376,7 +1381,7 @@ namespace NanoTrans
                     SelectionEnd = x;
                     if (r2dragelement != null)
                     {
-                        // m_subtitlesData.UpravCasZobraz(r2dragelement, m_subtitlesData.VratCasElementuPocatek(r2dragelement), (long)x.TotalMilliseconds);
+                        // m_subtitlesData.UpravCasZobraz(r2dragelement, m_subtitlesData.VratCasElementuPocatek(r2dragelement), x);
                         InvalidateSpeakers();
                     }
                 }
@@ -1406,14 +1411,14 @@ namespace NanoTrans
             }
 
 
-            List<MyTag> beg = m_subtitlesData.VratElementDanehoCasu((long)selbeg.TotalMilliseconds, null);
+            List<MyTag> beg = m_subtitlesData.VratElementDanehoCasu(selbeg, null);
 
             if (beg != null && beg.Count > 0)
             {
                 foreach (MyTag t in beg)
                 {
-                    long konec = m_subtitlesData.VratCasElementuKonec(t);
-                    if (konec == (long)selend.TotalMilliseconds)
+                    TimeSpan konec = m_subtitlesData.VratCasElementuKonec(t);
+                    if (konec == selend)
                     {
                         r2dragelement = t;
                         break;
@@ -1450,25 +1455,27 @@ namespace NanoTrans
 
                 if (pAktualni != null)
                 {
-                    long actualb = m_subtitlesData.VratCasElementuPocatek(r2dragelement);
-                    long actuale = m_subtitlesData.VratCasElementuKonec(r2dragelement);
-                    long pNovyPocatek = oVlna.KurzorVyberPocatekMS;
-                    long pNovyKonec = oVlna.KurzorVyberKonecMS;
+                    TimeSpan actualb = m_subtitlesData.VratCasElementuPocatek(r2dragelement);
+                    TimeSpan actuale = m_subtitlesData.VratCasElementuKonec(r2dragelement);
+                    TimeSpan pNovyPocatek = oVlna.KurzorVyberPocatek;
+                    TimeSpan pNovyKonec = oVlna.KurzorVyberKonec;
                     if (Keyboard.Modifiers == ModifierKeys.Shift)
                     {
                         if (!r2dragLeft)
-                            pNovyPocatek = -2;
+                            pNovyPocatek = new TimeSpan(-2);
                         else
-                            pNovyKonec = -2;
+                            pNovyKonec = new TimeSpan(-2);
                     }
 
                     m_subtitlesData.UpravCasZobraz(r2dragelement, pNovyPocatek, pNovyKonec, Keyboard.Modifiers == ModifierKeys.Shift);
 
+                    if(ElementChanged!=null)
+                        ElementChanged.Invoke(this,new MyTagEventArgs(r2dragelement));
                     //musi to tu byt dvakrat ta funkce si vnitne meni hodnoty...
-                    oVlna.KurzorVyberPocatekMS = m_subtitlesData.VratCasElementuPocatek(r2dragelement);
-                    oVlna.KurzorVyberKonecMS = m_subtitlesData.VratCasElementuKonec(r2dragelement);
-                    pNovyPocatek = oVlna.KurzorVyberPocatekMS;
-                    pNovyKonec = oVlna.KurzorVyberKonecMS;
+                    oVlna.KurzorVyberPocatek = m_subtitlesData.VratCasElementuPocatek(r2dragelement);
+                    oVlna.KurzorVyberKonec = m_subtitlesData.VratCasElementuKonec(r2dragelement);
+                    pNovyPocatek = oVlna.KurzorVyberPocatek;
+                    pNovyKonec = oVlna.KurzorVyberKonec;
 
 
                     pPredchozi = m_subtitlesData[pPredchoziTag];
@@ -1479,21 +1486,21 @@ namespace NanoTrans
                     //pokud se z messageboxu povolil prekryv, musime ho povolit i tady... :/
                     if (r2dragLeft && pPredchozi != null)
                     {
-                        if (pPredchozi.end > pAktualni.begin)
+                        if (pPredchozi.End > pAktualni.Begin)
                             shift = true;
                     }
                     else if (!r2dragLeft && pNasledujici != null)
                     {
-                        if (pAktualni.end > pNasledujici.begin)
+                        if (pAktualni.End > pNasledujici.Begin)
                             shift = true;
                     }
 
                     if (Keyboard.Modifiers == ModifierKeys.Shift)
                     {
                         if (!r2dragLeft)
-                            pNovyPocatek = -2;
+                            pNovyPocatek = new TimeSpan(-2);
                         else
-                            pNovyKonec = -2;
+                            pNovyKonec = new TimeSpan(-2);
                     }
 
                     if (r2dragLeft && pPredchozi != null && (!shift || sekcepred != sekce))
@@ -1505,9 +1512,11 @@ namespace NanoTrans
                             rozhrani = true;
                         }
 
-                        if ((pPredchozi.end == actualb && !rozhrani) || pNasledujici.begin < oVlna.KurzorVyberKonecMS)
+                        if ((pPredchozi.End == actualb && !rozhrani) || pNasledujici.Begin < oVlna.KurzorVyberKonec)
                         {
-                            m_subtitlesData.UpravCasZobraz(pPredchoziTag, -2, pNovyPocatek, Keyboard.Modifiers == ModifierKeys.Shift);
+                            m_subtitlesData.UpravCasZobraz(pPredchoziTag, new TimeSpan(-2), pNovyPocatek, Keyboard.Modifiers == ModifierKeys.Shift);
+                            if (ElementChanged != null)
+                                ElementChanged.Invoke(this, new MyTagEventArgs(pPredchoziTag));
                         }
 
                     }
@@ -1521,9 +1530,11 @@ namespace NanoTrans
                         }
 
                         //upraveni nasl. elementu
-                        if ((pNasledujici.begin == actuale && !rozhrani) || pNasledujici.begin < oVlna.KurzorVyberKonecMS)
+                        if ((pNasledujici.Begin == actuale && !rozhrani) || pNasledujici.Begin < oVlna.KurzorVyberKonec)
                         {
-                            m_subtitlesData.UpravCasZobraz(pNasledujiciTag, pNovyKonec, -2, Keyboard.Modifiers == ModifierKeys.Shift);
+                            m_subtitlesData.UpravCasZobraz(pNasledujiciTag, pNovyKonec,new TimeSpan(-2), Keyboard.Modifiers == ModifierKeys.Shift);
+                            if (ElementChanged != null)
+                                ElementChanged.Invoke(this, new MyTagEventArgs(pNasledujiciTag));
                         }
                     }
 
@@ -1539,6 +1550,16 @@ namespace NanoTrans
             }
 
             r2dragelement = null;
+        }
+
+        private void Grid_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            InvalidateWaveform();
+    }
+
+        private void Grid_Loaded(object sender, RoutedEventArgs e)
+        {
+            InvalidateWaveform();
         }
     }
 }

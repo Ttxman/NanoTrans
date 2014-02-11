@@ -474,19 +474,19 @@ namespace NanoTrans
 
                         double pDown = 0;
 
-                        long pBegin = myDataSource.VratCasElementuPocatek(aTag);
-                        long pEnd = myDataSource.VratCasElementuKonec(aTag);
+                        TimeSpan pBegin = myDataSource.VratCasElementuPocatek(aTag);
+                        TimeSpan pEnd = myDataSource.VratCasElementuKonec(aTag);
 
                         if (aUpdateCasy)
                         {
-                            if (pBegin > -1 && MySetup.Setup.zobrazitCasBegin)
+                            if (pBegin > new TimeSpan( -1) && MySetup.Setup.zobrazitCasBegin)
                             {
                                 //pLbBegin.Background = Brushes.Red;
                                 //pTop = pLbBegin.FontSize;
                                 pDown += pLbBegin.FontSize;
                                 pEl.Visibility = Visibility.Visible;
                                 pLbBegin.Visibility = Visibility.Visible;
-                                TimeSpan ts = new TimeSpan(pBegin * 10000);
+                                TimeSpan ts = pBegin;
                                 pLbBegin.Content = ts.Hours.ToString() + ":" + ts.Minutes.ToString("D2") + ":" + ts.Seconds.ToString("D2") + "," + ((int)ts.Milliseconds / 10).ToString("D2");
                             }
                             else
@@ -495,24 +495,18 @@ namespace NanoTrans
                                 pLbBegin.Visibility = Visibility.Hidden;
                             }
 
-                            if (pEnd > -1 && MySetup.Setup.zobrazitCasEnd)
+                            if (pEnd > new TimeSpan(-1) && MySetup.Setup.zobrazitCasEnd)
                             {
                                 pDown += pLbEnd.FontSize;
                                 pLbEnd.Visibility = Visibility.Visible;
-                                TimeSpan ts = new TimeSpan(pEnd * 10000);
+                                TimeSpan ts = pEnd;
                                 pLbEnd.Content = ts.Hours.ToString() + ":" + ts.Minutes.ToString("D2") + ":" + ts.Seconds.ToString("D2") + "," + ((int)ts.Milliseconds / 10).ToString("D2");
-                                //((Ellipse)((Grid)spSeznam.Children[i]).Children[2]).Visibility = Visibility.Visible;
                             }
                             else
-                            {//((Ellipse)((Grid)spSeznam.Children[i]).Children[2]).Visibility = Visibility.Hidden;
+                            {
                                 pLbEnd.Visibility = Visibility.Hidden;
                             }
                         }
-
-                        //pBt.Margin = new Thickness(0, pTop, 0, pDown);
-                        //if (pDown - 0.1 > 0 && pDown < pLbBegin.FontSize+0.1) pDown = 0;
-                        //pLbBegin.Margin = new Thickness(0, 0, 0, pDown - pLbBegin.FontSize);
-
 
                         if (aTag.JeOdstavec)
                         {
@@ -701,26 +695,24 @@ namespace NanoTrans
         {
             try
             {
-                if (myDataSource.VratCasElementuPocatek(aTag) > -1)
+                if (myDataSource.VratCasElementuPocatek(aTag) > new TimeSpan(-1))
                 {
-                    TimeSpan ts = new TimeSpan(myDataSource.VratCasElementuPocatek(aTag) * 10000);
+                    TimeSpan ts = myDataSource.VratCasElementuPocatek(aTag);
                     lAudioIndex1.Content = ts.Hours.ToString() + ":" + ts.Minutes.ToString("D2") + ":" + ts.Seconds.ToString("D2") + "," + ((int)ts.Milliseconds / 10).ToString("D2"); ;
 
                 }
                 else
                 {
-                    //lAudioIndex1.Content = "-1";
                     lAudioIndex1.Content = "N/A";
                 }
-                if (myDataSource.VratCasElementuKonec(aTag) > -1)
+                if (myDataSource.VratCasElementuKonec(aTag) > new TimeSpan(-1))
                 {
-                    TimeSpan ts = new TimeSpan(myDataSource.VratCasElementuKonec(aTag) * 10000);
+                    TimeSpan ts = myDataSource.VratCasElementuKonec(aTag);
                     lAudioIndex2.Content = ts.Hours.ToString() + ":" + ts.Minutes.ToString("D2") + ":" + ts.Seconds.ToString("D2") + "," + ((int)ts.Milliseconds / 10).ToString("D2"); ;
 
                 }
                 else
                 {
-                    //lAudioIndex2.Content = "-1";
                     lAudioIndex2.Content = "N/A";
                 }
 
@@ -811,11 +803,11 @@ namespace NanoTrans
         /// <param name="aIndex"></param>
         /// <param name="aIndexOdstavce"></param>
         /// <returns></returns>
-        public MyTag PridejSekci(int aKapitola, string nazev_Sekce, int aIndex, int aIndexOdstavce, long aBeginMS, long aEndMS)
+        public MyTag PridejSekci(int aKapitola, string nazev_Sekce, int aIndex, int aIndexOdstavce, TimeSpan aBegin, TimeSpan aEnd)
         {
             try
             {
-                int index_Sekce = myDataSource.NovaSekce(aKapitola, nazev_Sekce, aIndex, aBeginMS, aEndMS);
+                int index_Sekce = myDataSource.NovaSekce(aKapitola, nazev_Sekce, aIndex, aBegin, aEnd);
                 if (aIndexOdstavce > -1)
                 {
                     int pom0 = ((MySection)((MyChapter)myDataSource.Chapters[aKapitola]).Sections[aIndex]).Paragraphs.Count;
@@ -823,7 +815,7 @@ namespace NanoTrans
                     for (int i = aIndexOdstavce; i < pom0; i++)
                     {
                         MyParagraph mp = (MyParagraph)((MySection)((MyChapter)myDataSource.Chapters[aKapitola]).Sections[aIndex]).Paragraphs[i];
-                        int pomIndex = myDataSource.NovyOdstavec(aKapitola, index_Sekce, mp.Text, null, mp.begin, mp.end, -1);
+                        int pomIndex = myDataSource.NovyOdstavec(aKapitola, index_Sekce, mp.Text, null, mp.Begin, mp.End, -1);
                         myDataSource.ZadejSpeakera(new MyTag(aKapitola, index_Sekce, pomIndex), mp.speakerID);
 
                     }
@@ -837,8 +829,6 @@ namespace NanoTrans
                 for (int i = 0; i <= aKapitola; i++)
                 {
                     index = index + 1; //zvyseni indexu o 1 kvuli radku s nazvem kapitoly
-                    //index = index + ((MyChapter)myDataSource.chapters[i]).sections.Count;
-                    //for (int j = 0; j <= index_Sekce; j++)
                     int pom1;
                     if (aKapitola == i) pom1 = aIndex; else pom1 = ((MyChapter)myDataSource.Chapters[i]).Sections.Count - 1;
 
@@ -907,7 +897,7 @@ namespace NanoTrans
         /// <param name="aEnd"></param>
         /// <param name="aSpeaker"></param>
         /// <returns></returns>
-        public MyTag PridejOdstavec(int aKapitola, int aSekce, string text_Odstavce, List<MyCasovaZnacka> aCasoveZnacky, int aIndex, long aBegin, long aEnd, MySpeaker aSpeaker)
+        public MyTag PridejOdstavec(int aKapitola, int aSekce, string text_Odstavce, List<MyCasovaZnacka> aCasoveZnacky, int aIndex, TimeSpan aBegin, TimeSpan aEnd, MySpeaker aSpeaker)
         {
             try
             {
@@ -1321,6 +1311,8 @@ namespace NanoTrans
                 ContextMenuVideo.Items.Add(menuItemVideoPoriditFotku);
                 gVideoPouze.ContextMenu = ContextMenuVideo;
 
+
+                VirtualizingListBox.ContextMenu = ContextMenuGridX;
             }
             catch (Exception ex)
             {
@@ -1374,13 +1366,13 @@ namespace NanoTrans
                 {
                     if (_playing && oWav != null && oWav.Nacteno)
                     {
-                        long pOmezeniMS = -1;
+                        TimeSpan pOmezeniMS = new TimeSpan(-1);
                         if (prehratVyber)
                         {
-                            pOmezeniMS = (long)waveform1.SelectionEnd.TotalMilliseconds;
+                            pOmezeniMS = waveform1.SelectionEnd;
                         }
 
-                        short[] bfr = waveform1.GetAudioData(TimeSpan.FromMilliseconds(pIndexBufferuVlnyProPrehrani), TimeSpan.FromMilliseconds(150), TimeSpan.FromMilliseconds(pOmezeniMS));
+                        short[] bfr = waveform1.GetAudioData(TimeSpan.FromMilliseconds(pIndexBufferuVlnyProPrehrani), TimeSpan.FromMilliseconds(150), pOmezeniMS);
                         zacatekbufferums = pIndexBufferuVlnyProPrehrani;
                         pIndexBufferuVlnyProPrehrani += 150;
                         
@@ -1573,8 +1565,8 @@ namespace NanoTrans
                         if (pNacitaniAudiaDavka && oWav.Nacteno)
                         {
                             MyTag pTag0 = new MyTag(0, 0, 0);
-                            if (myDataSource.VratCasElementuKonec(pTag0) < 0)
-                                myDataSource.UpravCasElementu(pTag0, -2, oWav.DelkaSouboruMS);
+                            if (myDataSource.VratCasElementuKonec(pTag0) < TimeSpan.Zero)
+                                myDataSource.UpravCasElementu(pTag0, new TimeSpan(-2), TimeSpan.FromMilliseconds(oWav.DelkaSouboruMS));
                             UpdateXMLData();
                             //spSeznam.UpdateLayout();
                             VyberElement(pTag0, true);
@@ -1683,7 +1675,6 @@ namespace NanoTrans
             richX.GotFocus += new RoutedEventHandler(richX_GotFocus);
 
             richX.PreviewMouseUp += new MouseButtonEventHandler(richX_PreviewMouseUp);
-            richX.PreviewMouseDown += new MouseButtonEventHandler(richX_PreviewMouseDown);
 
             richX.SelectionChanged += new RoutedEventHandler(richX_SelectionChanged);
             richX.MouseDown += new MouseButtonEventHandler(richX_MouseDown);
@@ -1722,17 +1713,6 @@ namespace NanoTrans
             buttonX.VerticalAlignment = VerticalAlignment.Stretch;
             buttonX.Content = stackX;
             buttonX.Focusable = false;
-
-            /*double pTop = 0;
-            double pDown = 0;
-            if (nastaveniAplikace.zobrazitCasBegin) pTop = nastaveniAplikace.SetupTextFontSize;
-            if (nastaveniAplikace.zobrazitCasEnd) pDown = nastaveniAplikace.SetupTextFontSize;
-            
-            buttonX.Margin = new Thickness(0, pTop, 0, pDown);
-            
-            buttonX.Focusable = false;*/
-
-            //buttonX.Width = 70;
 
             //labely casu startu a konce
             Label labelStartX = new Label();
@@ -1786,28 +1766,7 @@ namespace NanoTrans
             attrs.HorizontalAlignment = HorizontalAlignment.Left;
 
             attrs.Margin = new Thickness(0, 0, 0, 0);
-            //Ellipse circleStartX = new Ellipse();
 
-            //circleStartX.Width = 10;
-            //circleStartX.Height = 10;
-            //circleStartX.Fill = nastaveniAplikace.BarvaStartTime;
-
-            //circleStartX.HorizontalAlignment = HorizontalAlignment.Left;
-            //   if (myDataSource.VratCasElementuPocatek(aTag) > 0)
-            //   {
-            //circleStartX.Visibility = Visibility.Visible;
-            //attrs.Visibility = Visibility.Visible;
-            //   }
-            //   else if (myDataSource.VratCasElementuKonec(aTag) > 0)
-            //   {
-            //circleStartX.Visibility = Visibility.Visible;
-            //attrs.Visibility = Visibility.Visible;
-            //  }
-            //  else
-            //  {
-            //circleStartX.Visibility = Visibility.Hidden;
-            //attrs.Visibility = Visibility.Hidden;
-            //  }
 
             richX.Padding = new Thickness(3, 0, 18, 0);
 
@@ -1919,10 +1878,6 @@ namespace NanoTrans
 
         }
 
-        void richX_PreviewMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            
-        }
 
         bool blockfocus = false;
         void richX_PreviewMouseUp(object sender, MouseButtonEventArgs e)
@@ -2075,7 +2030,7 @@ namespace NanoTrans
                 Grid ss = ((Grid)((ContextMenu)((MenuItem)sender).Parent).Tag);
                 MyTag mT = ((MyTag)((RichTextBox)ss.Children[0]).Tag);
                 mT = MySetup.Setup.RichTag;
-                PridejSekci(mT.tKapitola, "", mT.tSekce, -1, -1, -1);
+                PridejSekci(mT.tKapitola, "", mT.tSekce, -1, new TimeSpan(-1), new TimeSpan(-1));
             }
             catch (Exception ex)
             {
@@ -2090,7 +2045,7 @@ namespace NanoTrans
                 Grid ss = ((Grid)((ContextMenu)((MenuItem)sender).Parent).Tag);
                 MyTag mT = ((MyTag)((RichTextBox)ss.Children[0]).Tag);
                 mT = MySetup.Setup.RichTag;
-                PridejSekci(mT.tKapitola, "", mT.tSekce, mT.tOdstavec, -1, -1);
+                PridejSekci(mT.tKapitola, "", mT.tSekce, mT.tOdstavec, new TimeSpan(-1), new TimeSpan(-1));
             }
             catch (Exception ex)
             {
@@ -2137,9 +2092,9 @@ namespace NanoTrans
         {
             try
             {
-                MyTag mT;// = ((MyTag)((RichTextBox)ss.Children[0]).Tag);
+                MyTag mT;
                 mT = MySetup.Setup.RichTag;
-                UpravCasZobraz(mT, -1, -2);
+                UpravCasZobraz(mT, new TimeSpan(-1), new TimeSpan(-2));
             }
             catch (Exception ex)
             {
@@ -2153,7 +2108,7 @@ namespace NanoTrans
             {
                 MyTag mT;// = ((MyTag)((RichTextBox)ss.Children[0]).Tag);
                 mT = MySetup.Setup.RichTag;
-                UpravCasZobraz(mT, -2, -1);
+                UpravCasZobraz(mT, new TimeSpan(-2), new TimeSpan(-1));
             }
             catch (Exception ex)
             {
@@ -2170,7 +2125,7 @@ namespace NanoTrans
             tag.tTypElementu = MyEnumTypElementu.foneticky;
             MyParagraph parf = myDataSource[tag];
             oWav.RamecSynchronne = true;
-            bool nacteno = oWav.NactiRamecBufferu(par.begin, par.DelkaMS, MyKONST.ID_BUFFERU_PREPISOVANEHO_ELEMENTU_FONETICKY_PREPIS);//)this.bPozadovanyPocatekRamce, this.bPozadovanaDelkaRamceMS, this.bIDBufferu);        
+            bool nacteno = oWav.NactiRamecBufferu((long)par.Begin.TotalMilliseconds, (long)par.Delka.TotalMilliseconds, MyKONST.ID_BUFFERU_PREPISOVANEHO_ELEMENTU_FONETICKY_PREPIS);//)this.bPozadovanyPocatekRamce, this.bPozadovanaDelkaRamceMS, this.bIDBufferu);        
             oWav.RamecSynchronne = false;
 
             Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
@@ -2313,7 +2268,7 @@ namespace NanoTrans
                     TextBox pTB2 = ((TextBox)MySetup.Setup.RichTag.tSender);
                     int pPoziceKurzoru = pTB2.CaretIndex;
                     int j = -1;
-                    long pTime = -1;
+                    TimeSpan pTime = new TimeSpan(-1);
                     //long pTime = myDataSource.VratCasElementuPocatek((MyTag)pTB.Tag);
 
                     if (pTag.JeOdstavec)
@@ -2333,18 +2288,18 @@ namespace NanoTrans
                         else if (pTB.CaretIndex == pTB.Text.Length)
                         {
                             pTime = myDataSource.VratCasElementuKonec((MyTag)pTB.Tag);
-                            if (pTime < 0)
+                            if (pTime < TimeSpan.Zero)
                             {
                                 //pTime = myDataSource.VratCasElementuPocatek((MyTag)pTB.Tag);
                             }
                         }
                         else if (j >= 0) pTime = pCZnacky[j].Time;
                     }
-                    if (pTime >= 0)
+                    if (pTime >= TimeSpan.Zero)
                     {
                         //if (oVlna.KurzorPoziceMS > pTime)
                         {
-                            NastavPoziciKurzoru(TimeSpan.FromMilliseconds(pTime), true, true);
+                            NastavPoziciKurzoru(pTime, true, true);
                         }
                     }
                 }
@@ -2448,15 +2403,24 @@ namespace NanoTrans
                 if (sender != tbFonetickyPrepis && !foneticshavefocus)//pri prekliku do fonetiky preskok obtezuje
                 {
                     //provede zvyrazneni vyberu ve vlne podle dat
-                    waveform1.CaretPosition = waveform1.SelectionBegin = TimeSpan.FromMilliseconds(myDataSource.VratCasElementuPocatek(MySetup.Setup.RichTag));
-                    waveform1.SelectionEnd = TimeSpan.FromMilliseconds(myDataSource.VratCasElementuKonec(MySetup.Setup.RichTag));
+                    waveform1.SelectionBegin = myDataSource.VratCasElementuPocatek(MySetup.Setup.RichTag);
+                    
+                    if(!richX_manualfocus)
+                    {
+                        waveform1.CaretPosition = waveform1.SelectionBegin;
+                        
+                    }
+                    
+
+                    waveform1.SelectionEnd = myDataSource.VratCasElementuKonec(MySetup.Setup.RichTag);
 
                     //waveform1.SliderPostion = waveform1.SelectionEnd;
 
                     //nastaveni pozice kurzoru a obsluha prehravani podle nastaveni
                     if (MySetup.Setup.SetupSkocitNaPozici && !pNeskakatNaZacatekElementu)
                     {
-                        waveform1.CaretPosition = waveform1.SelectionBegin;
+                        if (!richX_manualfocus)
+                            waveform1.CaretPosition = waveform1.SelectionBegin;
                         pIndexBufferuVlnyProPrehrani = (int)waveform1.CaretPosition.TotalMilliseconds;
                         if (MySetup.Setup.SetupSkocitZastavit)
                         {
@@ -2499,6 +2463,8 @@ namespace NanoTrans
                 }
                 ZobrazitFonetickyPrepisOdstavce(MySetup.Setup.RichTag);
                 foneticshavefocus = (sender == tbFonetickyPrepis);
+
+                richX_manualfocus = false;
             }
             catch (Exception ex)
             {
@@ -2709,8 +2675,8 @@ namespace NanoTrans
 
                         this.Title = MyKONST.NAZEV_PROGRAMU + " [novy]";
                         PridejKapitolu(-1, "Kapitola 0");
-                        PridejSekci(0, "Sekce 0", -1, -1, -1, -1);
-                        PridejOdstavec(0, 0, "", null, -1, 0, -1, new MySpeaker());
+                        PridejSekci(0, "Sekce 0", -1, -1, new TimeSpan(-1), new TimeSpan(-1));
+                        PridejOdstavec(0, 0, "", null, -1, TimeSpan.Zero, new TimeSpan(-1), new MySpeaker());
                         myDataSource.Ulozeno = true;
                         ZobrazXMLData();
 
@@ -2724,8 +2690,8 @@ namespace NanoTrans
                     myDataSource = new MySubtitlesData();
                     this.Title = MyKONST.NAZEV_PROGRAMU + " [novy]";
                     PridejKapitolu(-1, "Kapitola 0");
-                    PridejSekci(0, "Sekce 0", -1, -1, -1, -1);
-                    PridejOdstavec(0, 0, "", null, -1, 0, -1, new MySpeaker());
+                    PridejSekci(0, "Sekce 0", -1, -1, new TimeSpan(-1), new TimeSpan(-1));
+                    PridejOdstavec(0, 0, "", null, -1, TimeSpan.Zero, new TimeSpan(-1), new MySpeaker());
                     myDataSource.Ulozeno = true;
                     ZobrazXMLData();
                     return true;
@@ -2903,6 +2869,8 @@ namespace NanoTrans
                             if (pNactenoTTA) pDataSource.JmenoSouboru = null;
                             myDataSource = null;
                             myDataSource = pDataSource;
+
+                           
                             myDataSource.Ulozeno = true;
 
                             //nacteni audio souboru pokud je k dispozici
@@ -2955,7 +2923,16 @@ namespace NanoTrans
                             }
                         }
 
+
+                        Stopwatch sw = new Stopwatch();
+                        sw.Start();
+                        //TODO: funkcni databinding na mydatasource mainformu
+                        VirtualizingListBox.Subtitles = myDataSource;
+                        sw.Stop();
+                        sw.Reset();
+                        sw.Start();
                         ZobrazXMLData();
+                        sw.Stop();
                         this.Title = MyKONST.NAZEV_PROGRAMU + " [" + myDataSource.JmenoSouboru + "]";
                         return true;
                     }
@@ -2992,9 +2969,9 @@ namespace NanoTrans
                                     sr.Close();
                                     fs.Close();
                                     pDataSource.NovaKapitola();
-                                    pDataSource.NovaSekce(0, "", -1, -1, -1);
+                                    pDataSource.NovaSekce(0, "", -1, new TimeSpan(-1), new TimeSpan(-1));
                                     pDataSource.NovyOdstavec(0, 0, pText, new List<MyCasovaZnacka>(), -1);
-                                    pDataSource.UpravCasElementu(new MyTag(0, 0, 0), 0, -1);
+                                    pDataSource.UpravCasElementu(new MyTag(0, 0, 0), TimeSpan.Zero, new TimeSpan(-1));
                                     //pDataSource.Chapters[0].Sections[0].Paragraphs[0].begin = 0;
                                     //pDataSource.Chapters[0].Sections[0].PhoneticParagraphs[0].begin = 0;
                                     pDataSource.JmenoSouboru = fi.FullName.ToUpper().Replace(".TXT", "_PHONETIC.XML");
@@ -3163,7 +3140,7 @@ namespace NanoTrans
                 {
                     //pIndexBufferuVlnyProPrehrani = (int)position.TotalMilliseconds;
                     if (jeVideo) meVideo.Position = waveform1.CaretPosition;
-                    List<MyTag> pTagy = myDataSource.VratElementDanehoCasu((long)position.TotalMilliseconds, null);
+                    List<MyTag> pTagy = myDataSource.VratElementDanehoCasu(position, null);
                     for (int i = 0; i < pTagy.Count; i++)
                     {
                         if (pTagy[i].tKapitola == MySetup.Setup.RichTag.tKapitola && pTagy[i].tSekce == MySetup.Setup.RichTag.tSekce && pTagy[i].tOdstavec == MySetup.Setup.RichTag.tOdstavec)
@@ -3237,7 +3214,7 @@ namespace NanoTrans
             }
         }
 
-        private void VyberFonetikuMeziCasovymiZnackami(long aPoziceKurzoru)
+        private void VyberFonetikuMeziCasovymiZnackami(TimeSpan aPoziceKurzoru)
         {
             try
             {
@@ -3264,7 +3241,7 @@ namespace NanoTrans
                     {
                         TextBox pRTB = tbFonetickyPrepis;
 
-                        if (aPoziceKurzoru >= pP.begin && aPoziceKurzoru <= pP.end)
+                        if (aPoziceKurzoru >= pP.Begin && aPoziceKurzoru <= pP.End)
                         {
                             int aIndex1 = -1;
                             int aIndex2 = -1;
@@ -3288,7 +3265,7 @@ namespace NanoTrans
                                 }
                                 else
                                 {
-                                    if (aIndex1 >= 0 && aIndex2 >= 0 && pCasZnacky[i2].Time - pCasZnacky[i1].Time == 0)
+                                    if (aIndex1 >= 0 && aIndex2 >= 0 && pCasZnacky[i2].Time - pCasZnacky[i1].Time == TimeSpan.Zero)
                                     {
                                         i2 += 1;
                                         if (i2 >= pCasZnacky.Count) i2 = pCasZnacky.Count - 1;
@@ -3328,7 +3305,7 @@ namespace NanoTrans
 
 
 
-        private void VyberTextMeziCasovymiZnackami(long aPoziceKurzoru)
+        private void VyberTextMeziCasovymiZnackami(TimeSpan aPoziceKurzoru)
         {
             try
             {
@@ -3353,7 +3330,7 @@ namespace NanoTrans
                     {
                         TextBox pRTB = (TextBox)MySetup.Setup.RichTag.tSender;
 
-                        if (aPoziceKurzoru >= pP.begin && aPoziceKurzoru <= pP.end)
+                        if (aPoziceKurzoru >= pP.Begin && aPoziceKurzoru <= pP.End)
                         {
                             int aIndex1 = -1;
                             int aIndex2 = -1;
@@ -3377,7 +3354,7 @@ namespace NanoTrans
                                 }
                                 else
                                 {
-                                    if (aIndex1 >= 0 && aIndex2 >= 0 && pCasZnacky[i2].Time - pCasZnacky[i1].Time == 0)
+                                    if (aIndex1 >= 0 && aIndex2 >= 0 && pCasZnacky[i2].Time - pCasZnacky[i1].Time == TimeSpan.Zero)
                                     {
                                         i2 += 1;
                                         if (i2 >= pCasZnacky.Count) i2 = pCasZnacky.Count - 1;
@@ -3477,7 +3454,7 @@ namespace NanoTrans
                         NastavPoziciKurzoru(waveform1.CaretPosition, false, true);
                     }
 
-                    if (Playing) VyberTextMeziCasovymiZnackami((long)playpos.TotalMilliseconds);
+                    if (Playing) VyberTextMeziCasovymiZnackami(playpos);
                 }
 
                 long pPozadovanyPocatekVlny = (long)waveform1.WaveBegin.TotalMilliseconds;
@@ -3744,13 +3721,13 @@ namespace NanoTrans
             {
 
                 if (aTagVyberu == null) return false;
-                long pPocatekMS = myDataSource.VratCasElementuPocatek(aTagVyberu);
-                long pKonecMS = myDataSource.VratCasElementuKonec(aTagVyberu);
+                TimeSpan pPocatekMS = myDataSource.VratCasElementuPocatek(aTagVyberu);
+                TimeSpan pKonecMS = myDataSource.VratCasElementuKonec(aTagVyberu);
                 aTagVyberu.tSender = VratSenderTextboxu(aTagVyberu);
 
 
-                waveform1.SelectionBegin = TimeSpan.FromMilliseconds(pPocatekMS);
-                waveform1.SelectionEnd = TimeSpan.FromMilliseconds(pKonecMS);
+                waveform1.SelectionBegin = pPocatekMS;
+                waveform1.SelectionEnd = pKonecMS;
 
                 if (aTagVyberu.tOdstavec != MySetup.Setup.RichTag.tOdstavec || aTagVyberu.tSekce != MySetup.Setup.RichTag.tSekce || aTagVyberu.tKapitola != MySetup.Setup.RichTag.tKapitola)
                 {
@@ -3912,24 +3889,12 @@ namespace NanoTrans
 
         private void MNapoveda_Popis_Programu_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                if (!oknoNapovedy.IsLoaded)
-                {
-                    oknoNapovedy = new WinHelp();
-                    oknoNapovedy.Show();
-                }
-            }
-            catch (Exception ex)
-            {
-                MyLog.LogujChybu(ex);
-            }
-
+            CommandHelp.Execute(null, this);
         }
 
         private void MNapoveda_O_Programu_Click(object sender, RoutedEventArgs e)
         {
-            new WinOProgramu(MyKONST.NAZEV_PROGRAMU).ShowDialog();
+            CommandAbout.Execute(null, this);
         }
 
         #endregion
@@ -4150,7 +4115,7 @@ namespace NanoTrans
         {
             if (MySetup.Setup.RichFocus)
             {
-                PridejSekci(MySetup.Setup.RichTag.tKapitola, "", MySetup.Setup.RichTag.tSekce, -1, -1, -1);
+                PridejSekci(MySetup.Setup.RichTag.tKapitola, "", MySetup.Setup.RichTag.tSekce, -1, new TimeSpan(-1), new TimeSpan(-1));
             }
         }
 
@@ -4267,7 +4232,10 @@ namespace NanoTrans
 
         void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
+            
             ExceptionCatchWindow w = new ExceptionCatchWindow(this,e.ExceptionObject as Exception);
+            w.ShowDialog();
+            
         }
 
         void tbFonetickyPrepis_LostFocus(object sender, RoutedEventArgs e)
@@ -4363,22 +4331,20 @@ namespace NanoTrans
                             if (pPocatekMS == -1 && pKonecMS == -1)
                             {
                                 pPocatekMS = long.Parse(pPoleRozdeleneHvezdickou[1]) * 10;
-                                aCasoveZnacky.Add(new MyCasovaZnacka(aAbsolutniCasPocatku + pPocatekMS, aPredchoziDelkaTextu + aText.Length - 1, aPredchoziDelkaTextu + aText.Length));
+                                aCasoveZnacky.Add(new MyCasovaZnacka(TimeSpan.FromMilliseconds(aAbsolutniCasPocatku + pPocatekMS), aPredchoziDelkaTextu + aText.Length - 1, aPredchoziDelkaTextu + aText.Length));
                             }
                             else if (pPocatekMS >= 0 && pKonecMS == -1)
                             {
 
                                 pKonecMS = long.Parse(pPoleRozdeleneHvezdickou[0]) * 10;
-                                aCasoveZnacky.Add(new MyCasovaZnacka(aAbsolutniCasPocatku + pKonecMS, aPredchoziDelkaTextu + aText.Length - 2, aPredchoziDelkaTextu + aText.Length - 1));
+                                aCasoveZnacky.Add(new MyCasovaZnacka(TimeSpan.FromMilliseconds(aAbsolutniCasPocatku + pKonecMS), aPredchoziDelkaTextu + aText.Length - 2, aPredchoziDelkaTextu + aText.Length - 1));
 
                                 pPocatekMS = long.Parse(pPoleRozdeleneHvezdickou[1]) * 10;
-                                aCasoveZnacky.Add(new MyCasovaZnacka(aAbsolutniCasPocatku + pPocatekMS, aPredchoziDelkaTextu + aText.Length - 1, aPredchoziDelkaTextu + aText.Length));
+                                aCasoveZnacky.Add(new MyCasovaZnacka(TimeSpan.FromMilliseconds(aAbsolutniCasPocatku + pPocatekMS), aPredchoziDelkaTextu + aText.Length - 1, aPredchoziDelkaTextu + aText.Length));
 
 
                                 pKonecMS = -1;
                             }
-                            //aCasoveZnacky.Add(new MyCasovaZnacka(aAbsolutniCasPocatku + pPocatekMS, aText.Length - 1));
-                            //aCasoveZnacky.Add(new MyCasovaZnacka(aAbsolutniCasPocatku + pKonecMS, aText.Length ));
                         }
                         else if (pPoleRozdeleneHvezdickou.Length == 1) //jedna se o text
                         {
@@ -4616,7 +4582,7 @@ namespace NanoTrans
                             {
                                 MyTag pTag = pSeznamOdstavcuKRozpoznani[0];
                                 pSeznamOdstavcuKRozpoznani.RemoveAt(0);
-                                SpustRozpoznavaniVybranehoElementu(pTag, -1, -1, true);
+                                SpustRozpoznavaniVybranehoElementu(pTag, new TimeSpan(-1),new TimeSpan(-1), true);
                             }
 
 
@@ -4818,7 +4784,7 @@ namespace NanoTrans
         /// <param name="aPocatekMS"></param>
         /// <param name="aKonecMS"></param>
         /// <returns></returns>
-        private bool SpustRozpoznavaniVybranehoElementu(MyTag aTag, long aPocatekMS, long aKonecMS, bool aIgnorovatTextOdstavce)
+        private bool SpustRozpoznavaniVybranehoElementu(MyTag aTag, TimeSpan aPocatekMS, TimeSpan aKonecMS, bool aIgnorovatTextOdstavce)
         {
             if (oPrepisovac != null && (oPrepisovac.Rozpoznavani || oPrepisovac.Ukoncovani))
             {
@@ -4840,13 +4806,13 @@ namespace NanoTrans
                 return false;
             }
 
-            long pPocatekMS;
-            long pKonceMS;
-            long pDelkaMS;
+            TimeSpan pPocatekMS;
+            TimeSpan pKonceMS;
+            TimeSpan pDelkaMS;
 
 
 
-            if (aPocatekMS >= 0 && aKonecMS >= 0)
+            if (aPocatekMS >= TimeSpan.Zero && aKonecMS >= TimeSpan.Zero)
             {
                 pPocatekMS = aPocatekMS;
                 pKonceMS = aKonecMS;
@@ -4868,17 +4834,17 @@ namespace NanoTrans
                 MessageBox.Show("Není načten žádný audio soubor pro přepis! Automatický přepis nebude spuštěn.", "Upozornění:", MessageBoxButton.OK, MessageBoxImage.Asterisk);
                 return false;
             }
-            if (pDelkaMS <= 0)
+            if (pDelkaMS <= TimeSpan.Zero)
             {
                 MessageBox.Show("Vybraný element nemá přiřazena žádná audio data k přepsání. Nejprve je vyberte.", "Upozornění:", MessageBoxButton.OK, MessageBoxImage.Asterisk);
                 return false;
             }
-            if (pPocatekMS < 0 || pPocatekMS > oWav.DelkaSouboruMS)
+            if (pPocatekMS < TimeSpan.Zero || pPocatekMS.TotalMilliseconds > oWav.DelkaSouboruMS)
             {
                 MessageBox.Show("Počátek audio dat elementu je mimo audio soubor! Automatický přepis nebude spuštěn.", "Upozornění:", MessageBoxButton.OK, MessageBoxImage.Asterisk);
                 return false;
             }
-            if (pKonceMS < 0 || pKonceMS > oWav.DelkaSouboruMS)
+            if (pKonceMS < TimeSpan.Zero || pKonceMS.TotalMilliseconds > oWav.DelkaSouboruMS)
             {
                 MessageBox.Show("Konec audio dat elementu je mimo audio soubor! Automatický přepis nebude spuštěn.", "Upozornění:", MessageBoxButton.OK, MessageBoxImage.Asterisk);
                 return false;
@@ -4914,7 +4880,7 @@ namespace NanoTrans
                     }
                     else return false;
                 }
-                aTag = PridejSekci(aTag.tKapitola, "Sekce automatického přepisu", -1, -1, pChapter.begin, pChapter.end);
+                aTag = PridejSekci(aTag.tKapitola, "Sekce automatického přepisu", -1, -1, pChapter.Begin, pChapter.End);
             }
 
             //testovani sekce
@@ -4964,7 +4930,7 @@ namespace NanoTrans
                 }
                 else
                 {
-                    aTag = PridejOdstavec(aTag.tKapitola, aTag.tSekce, "", null, -1, pSection.begin, pSection.end, myDataSource.SeznamMluvcich.VratSpeakera(pSection.speaker));
+                    aTag = PridejOdstavec(aTag.tKapitola, aTag.tSekce, "", null, -1, pSection.Begin, pSection.End, myDataSource.SeznamMluvcich.VratSpeakera(pSection.speaker));
                 }
             }
 
@@ -4974,7 +4940,7 @@ namespace NanoTrans
             {
                 MyParagraph pParagraph = myDataSource[aTag];
                 if (pParagraph == null) return false;
-                if (pParagraph.DelkaMS <= 0)
+                if (pParagraph.Delka <= TimeSpan.Zero)
                 {
                     MessageBox.Show("Vybraný element nemá přiřazena žádná audio data k přepsání. Nejprve je vyberte.", "Upozornění:", MessageBoxButton.OK, MessageBoxImage.Asterisk);
                     return false;
@@ -5049,9 +5015,9 @@ namespace NanoTrans
             oPrepisovac.PrepsanyTextCasoveZnacky = new List<MyCasovaZnacka>();
 
             //spusti asynchronni nacteni bufferu
-            if (pOdstavec.DelkaMS > 0)
+            if (pOdstavec.Delka> TimeSpan.Zero)
             {
-                oWav.AsynchronniNacteniRamce2(pOdstavec.begin, pOdstavec.DelkaMS, MyKONST.ID_BUFFERU_PREPISOVANEHO_ELEMENTU);
+                oWav.AsynchronniNacteniRamce2((long)pOdstavec.Begin.TotalMilliseconds, (long)pOdstavec.Delka.TotalMilliseconds, MyKONST.ID_BUFFERU_PREPISOVANEHO_ELEMENTU);
             }
             ZmenStavTlacitekRozpoznavace(true, false, false, true);
             //NASLEDNE SE ceka na INITIALIZED a pak je spusteno rozpoznavani
@@ -5461,7 +5427,7 @@ namespace NanoTrans
                     {
 
                     }
-                    if (pOdstavec.DelkaMS < 20)
+                    if (pOdstavec.Delka < TimeSpan.FromMilliseconds(20))
                     {
                         pOdstavec = null;
                     }
@@ -5472,10 +5438,10 @@ namespace NanoTrans
                 }
                 if (pOdstavec == null) return;
                 //spusti asynchronni nacteni bufferu
-                if (pOdstavec.DelkaMS > 0)
+                if (pOdstavec.Delka > TimeSpan.Zero)
                 {
                     bFonetika.TextKPrepsani = pOdstavec.Text;
-                    oWav.AsynchronniNacteniRamce2(pOdstavec.begin, pOdstavec.DelkaMS, MyKONST.ID_BUFFERU_PREPISOVANEHO_ELEMENTU_FONETICKY_PREPIS);
+                    oWav.AsynchronniNacteniRamce2((long)pOdstavec.Begin.TotalMilliseconds, (long)pOdstavec.Delka.TotalMilliseconds, MyKONST.ID_BUFFERU_PREPISOVANEHO_ELEMENTU_FONETICKY_PREPIS);
                 }
             }
             else
@@ -5502,7 +5468,7 @@ namespace NanoTrans
         /// Spusti foneticky prepis elementu, pokud je aPocatek a aKonec nastaven>=0 dojde k rozpoznani vyberu a ulozeni do vybraneho elementu
         /// </summary>
         /// <returns></returns>
-        private bool SpustFonetickyPrepis(MySubtitlesData aDokument, MyTag aTag, long aPocatekMS, long aKonecMS)
+        private bool SpustFonetickyPrepis(MySubtitlesData aDokument, MyTag aTag, TimeSpan aPocatekMS, TimeSpan aKonecMS)
         {
             if (bFonetika != null && bFonetika.Prepisovani)
             {
@@ -5524,13 +5490,13 @@ namespace NanoTrans
             aTag = new MyTag(aTag);
             aTag.tTypElementu = MyEnumTypElementu.foneticky;
 
-            long pPocatekMS;
-            long pKonceMS;
-            long pDelkaMS;
+            TimeSpan pPocatekMS;
+            TimeSpan pKonceMS;
+            TimeSpan pDelkaMS;
 
 
 
-            if (aPocatekMS >= 0 && aKonecMS >= 0)
+            if (aPocatekMS >= TimeSpan.Zero && aKonecMS >= TimeSpan.Zero)
             {
                 pPocatekMS = aPocatekMS;
                 pKonceMS = aKonecMS;
@@ -5548,17 +5514,17 @@ namespace NanoTrans
                 MessageBox.Show("Není načten žádný audio soubor pro přepis! Automatický přepis nebude spuštěn.", "Upozornění:", MessageBoxButton.OK, MessageBoxImage.Asterisk);
                 return false;
             }
-            if (pDelkaMS <= 0 && aTag.JeOdstavec)
+            if (pDelkaMS <= TimeSpan.Zero && aTag.JeOdstavec)
             {
                 MessageBox.Show("Vybraný element nemá přiřazena žádná audio data k přepsání. Nejprve je vyberte.", "Upozornění:", MessageBoxButton.OK, MessageBoxImage.Asterisk);
                 return false;
             }
-            if ((pPocatekMS < 0 || pPocatekMS > oWav.DelkaSouboruMS) && aTag.JeOdstavec)
+            if ((pPocatekMS < TimeSpan.Zero || pPocatekMS.TotalMilliseconds > oWav.DelkaSouboruMS) && aTag.JeOdstavec)
             {
                 MessageBox.Show("Počátek audio dat elementu je mimo audio soubor! Automatický přepis nebude spuštěn.", "Upozornění:", MessageBoxButton.OK, MessageBoxImage.Asterisk);
                 return false;
             }
-            if ((pKonceMS < 0 || pKonceMS > oWav.DelkaSouboruMS) && aTag.JeOdstavec)
+            if ((pKonceMS < TimeSpan.Zero || pKonceMS.TotalMilliseconds > oWav.DelkaSouboruMS) && aTag.JeOdstavec)
             {
                 //MessageBox.Show("Konec audio dat elementu je mimo audio soubor! Automatický přepis nebude spuštěn.", "Upozornění:", MessageBoxButton.OK, MessageBoxImage.Asterisk);
                 //return false;
@@ -5664,7 +5630,7 @@ namespace NanoTrans
                 MyParagraph pPhoneticPar = aDokument[aTag];
 
                 if (pParagraph == null) return false;
-                if (pParagraph.DelkaMS <= 0)
+                if (pParagraph.Delka <= TimeSpan.Zero)
                 {
                     MessageBox.Show("Vybraný element nemá přiřazena žádná audio data k přepsání. Nejprve je vyberte.", "Upozornění:", MessageBoxButton.OK, MessageBoxImage.Asterisk);
                     return false;
@@ -5703,11 +5669,11 @@ namespace NanoTrans
             bFonetika.TagKPrepsani = aTag;
 
             //spusti asynchronni nacteni bufferu
-            if (pOdstavec.DelkaMS > 0)
+            if (pOdstavec.Delka > TimeSpan.Zero)
             {
                 pDokumentFonetickehoPrepisu = aDokument;
                 bFonetika.TextKPrepsani = pOdstavec.Text;
-                oWav.AsynchronniNacteniRamce2(pOdstavec.begin, pOdstavec.DelkaMS, MyKONST.ID_BUFFERU_PREPISOVANEHO_ELEMENTU_FONETICKY_PREPIS);
+                oWav.AsynchronniNacteniRamce2((long)pOdstavec.Begin.TotalMilliseconds, (long)pOdstavec.Delka.TotalMilliseconds, MyKONST.ID_BUFFERU_PREPISOVANEHO_ELEMENTU_FONETICKY_PREPIS);
                 this.ZobrazStavProgramu("Spuštěno vytváření fonetického přepisu... (HTK)");
 
             }
@@ -5821,7 +5787,7 @@ namespace NanoTrans
             MyTag pTag = new MyTag(MySetup.Setup.RichTag);
             Normalizovat(myDataSource, pTag, 1);
 
-            SpustFonetickyPrepis(myDataSource, pTag, -1, -1);
+            SpustFonetickyPrepis(myDataSource, pTag, new TimeSpan(-1), new TimeSpan(-1));
             try
             {
                 spSeznam.UpdateLayout();
@@ -5856,38 +5822,39 @@ namespace NanoTrans
                     for (int j = 0; j < pS.Paragraphs.Count; j++)
                     {
                         MyParagraph pP = new MyParagraph(pS.Paragraphs[j]);
-                        if (aTag.tKapitola == 0 && aTag.tSekce == 0 && j == 0 && pP.begin < 0) pP.begin = 0; //nastaveni pocatku, pokud neni definovan a jsme u 1.elementu
+                        if (aTag.tKapitola == 0 && aTag.tSekce == 0 && j == 0 && pP.Begin < TimeSpan.Zero) 
+                            pP.Begin = TimeSpan.Zero; //nastaveni pocatku, pokud neni definovan a jsme u 1.elementu
 
-                        if (j > 0 && pPomocnyOdstavec.end < 0 && pPomocnyOdstavec.begin >= 0 && pP.begin >= 0)
+                        if (j > 0 && pPomocnyOdstavec.End < TimeSpan.Zero && pPomocnyOdstavec.Begin >= TimeSpan.Zero && pP.Begin >= TimeSpan.Zero)
                         {
-                            pPomocnyOdstavec.end = pP.begin;
+                            pPomocnyOdstavec.End = pP.Begin;
                             novaSekce.Paragraphs.Add(pPomocnyOdstavec);
                             pPomocnyOdstavec = new MyParagraph();
                         }
 
                         pPomocnyOdstavec.UlozTextOdstavce(pPomocnyOdstavec.Text + pP.Text + " ", new List<MyCasovaZnacka>());
-                        if (pPomocnyOdstavec.begin < 0 && pP.begin >= 0)
+                        if (pPomocnyOdstavec.Begin < TimeSpan.Zero && pP.Begin >= TimeSpan.Zero)
                         {
-                            pPomocnyOdstavec.begin = pP.begin;
+                            pPomocnyOdstavec.Begin = pP.Begin;
                         }
-                        else if (pPomocnyOdstavec.begin >= 0 && pP.begin >= 0)
+                        else if (pPomocnyOdstavec.Begin >= TimeSpan.Zero && pP.Begin >= TimeSpan.Zero)
                         {
-                            pPomocnyOdstavec.end = pP.begin;
+                            pPomocnyOdstavec.End = pP.Begin;
                             novaSekce.Paragraphs.Add(pPomocnyOdstavec);
                             pPomocnyOdstavec = new MyParagraph();
-                            pPomocnyOdstavec.begin = pP.begin;
+                            pPomocnyOdstavec.Begin = pP.Begin;
                         }
-                        if (pP.end >= 0) pPomocnyOdstavec.end = pP.end;
+                        if (pP.End >= TimeSpan.Zero) pPomocnyOdstavec.End = pP.End;
 
-                        if (pPomocnyOdstavec.end >= 0)
+                        if (pPomocnyOdstavec.End >= TimeSpan.Zero)
                         {
                             novaSekce.Paragraphs.Add(pPomocnyOdstavec);
                             pPomocnyOdstavec = new MyParagraph();
                         }
                     }
-                    if (pPomocnyOdstavec.begin >= 0 && pPomocnyOdstavec.end < 0 && pKopieDokumentu.Chapters[aTag.tKapitola].Sections.Count - 1 == aTag.tSekce)
+                    if (pPomocnyOdstavec.Begin >= TimeSpan.Zero && pPomocnyOdstavec.End < TimeSpan.Zero && pKopieDokumentu.Chapters[aTag.tKapitola].Sections.Count - 1 == aTag.tSekce)
                     {
-                        pPomocnyOdstavec.end = oWav.DelkaSouboruMS;
+                        pPomocnyOdstavec.End = TimeSpan.FromMilliseconds (oWav.DelkaSouboruMS);
                         novaSekce.Paragraphs.Add(pPomocnyOdstavec);
                     }
                     if (novaSekce.Paragraphs.Count != novaSekce.PhoneticParagraphs.Count)
@@ -5895,7 +5862,7 @@ namespace NanoTrans
                         novaSekce.PhoneticParagraphs.Clear();
                         for (int i = 0; i < novaSekce.Paragraphs.Count; i++)
                         {
-                            novaSekce.PhoneticParagraphs.Add(new MyParagraph("", new List<MyCasovaZnacka>(), novaSekce.Paragraphs[i].begin, novaSekce.Paragraphs[i].end));
+                            novaSekce.PhoneticParagraphs.Add(new MyParagraph("", new List<MyCasovaZnacka>(), novaSekce.Paragraphs[i].Begin, novaSekce.Paragraphs[i].End));
                         }
                     }
 
@@ -5906,7 +5873,7 @@ namespace NanoTrans
                         return -3;
                     }
                     if (Normalizovat(pKopieDokumentu, aTag, -1) < 0) return -2; //normalizace zrusena nebo skoncila chybou
-                    SpustFonetickyPrepis(pKopieDokumentu, aTag, -1, -1);
+                    SpustFonetickyPrepis(pKopieDokumentu, aTag, new TimeSpan(-1), new TimeSpan(-1));
                 }
                 return 0;
             }
@@ -5929,8 +5896,8 @@ namespace NanoTrans
                 aTagOdstavecFonetickyDokument.tTypElementu = MyEnumTypElementu.foneticky;
                 MyParagraph pOdstavecFoneticky = pDokumentFonetickehoPrepisu[aTagOdstavecFonetickyDokument];
                 int pIndexPocatkuSlov = 0;
-                long pBegin = -1;
-                long pEnd = 0;
+                TimeSpan pBegin = new TimeSpan(-1);
+                TimeSpan pEnd = TimeSpan.Zero;
                 bool pStopDekodovani = false;
                 for (int i = 0; i < pSekcePuvodni.Paragraphs.Count; i++)
                 {
@@ -5942,26 +5909,24 @@ namespace NanoTrans
                     if (!pP.trainingElement)
                     {
                         //if (pBegin < 0 && i == 0) pBegin = 0;
-                        if (pBegin < 0)
+                        if (pBegin < TimeSpan.Zero)
                         {
-                            pBegin = pP.begin;
+                            pBegin = pP.Begin;
                         }
 
                         bool behat = true;
                         int pPosledniIndex = 0; //posledni index zapsany do noveho odstavce v puvodnim textu - info o preskoceni interpunkce atd...
-                        //long pBegin = 0;
-                        //long pEnd = 0;
                         while (behat)
                         {
                             MyPhrase pFraze = pOdstavecFoneticky.Phrases[pIndexPocatkuSlov];
                             if (pFraze.TextPrepisovany != null)
                             {
                                 int pIndex = pText.ToLower().IndexOf(pFraze.TextPrepisovany, pPosledniIndex);
-                                MyPhrase pFraze2 = new MyPhrase(pFraze.begin, pFraze.end, pFraze.TextPrepisovany, pP.speakerID, MyEnumTypElementu.normalni);
+                                MyPhrase pFraze2 = new MyPhrase(pFraze.Begin, pFraze.End, pFraze.TextPrepisovany, MyEnumTypElementu.normalni);
                                 if (pPosledniIndex != pIndex)
                                 {
                                     //pBegin = 0;
-                                    pEnd = pFraze2.begin;
+                                    pEnd = pFraze2.Begin;
                                     int pDelka = pIndex - pPosledniIndex;
                                     if (pDelka <= 0)
                                     {
@@ -5969,7 +5934,7 @@ namespace NanoTrans
                                         if (pDelkaKonec > 0)
                                         {
                                             string pTextKonec = pText.Substring(pPosledniIndex);
-                                            MyPhrase pPhraseKonec = new MyPhrase(pBegin, pEnd, pTextKonec, pP.speakerID);
+                                            MyPhrase pPhraseKonec = new MyPhrase(pBegin, pEnd, pTextKonec);
                                             pNovyOdstavec.Phrases.Add(pPhraseKonec);
                                         }
                                         if (pIndex >= 0)
@@ -5977,19 +5942,11 @@ namespace NanoTrans
                                         break;
                                     }
                                     string pText2 = pText.Substring(pPosledniIndex, pIndex - pPosledniIndex);
-                                    MyPhrase pPhrase15 = new MyPhrase(pBegin, pEnd, pText2, pP.speakerID);
+                                    MyPhrase pPhrase15 = new MyPhrase(pBegin, pEnd, pText2);
                                     pNovyOdstavec.Phrases.Add(pPhrase15);
                                     pBegin = pEnd;
                                 }
-                                pBegin = pFraze2.end;
-                                if (pFraze.Text.Contains("rukavice"))
-                                {
-
-                                }
-                                if (pFraze.Text.Contains("řikala"))
-                                {
-
-                                }
+                                pBegin = pFraze2.End;
                                 pNovyOdstavec.Phrases.Add(pFraze2);
                                 pPosledniIndex = pIndex + pFraze2.Text.Length;
 
@@ -6005,18 +5962,18 @@ namespace NanoTrans
                                 {
                                     string pTextKonec = pText.Substring(pPosledniIndex);
                                     pEnd = pBegin;
-                                    MyPhrase pPhraseKonec = new MyPhrase(pBegin, pEnd, pTextKonec, pP.speakerID);
+                                    MyPhrase pPhraseKonec = new MyPhrase(pBegin, pEnd, pTextKonec);
                                     pNovyOdstavec.Phrases.Add(pPhraseKonec);
                                 }
                             }
                         }
                         if (pNovyOdstavec.Phrases.Count > 0)
                         {
-                            if (pNovyOdstavec.begin < 0) pNovyOdstavec.begin = pNovyOdstavec.Phrases[0].begin;
-                            if (pNovyOdstavec.end < 0)
+                            if (pNovyOdstavec.Begin < TimeSpan.Zero) pNovyOdstavec.Begin = pNovyOdstavec.Phrases[0].Begin;
+                            if (pNovyOdstavec.End < TimeSpan.Zero)
                             {
-                                pNovyOdstavec.end = pNovyOdstavec.Phrases[pNovyOdstavec.Phrases.Count - 1].end;
-                                pBegin = pNovyOdstavec.end;
+                                pNovyOdstavec.End = pNovyOdstavec.Phrases[pNovyOdstavec.Phrases.Count - 1].End;
+                                pBegin = pNovyOdstavec.End;
                             }
                             pNovyOdstavec.trainingElement = true;
                         }
@@ -6089,7 +6046,7 @@ namespace NanoTrans
                                     {
                                         MyPhrase pFraze = pP.Phrases[l];
                                         //pRadek += "[" + pFraze.begin.ToString() + "]" + pFraze.Text + "[" + pFraze.end.ToString() + "]";
-                                        pRadek += "[" + pFraze.begin.ToString() + "]" + pFraze.Text;
+                                        pRadek += "[" + (pFraze.Begin).ToString() + "]" + pFraze.Text;
                                     }
                                     sw.WriteLine(pRadek);
                                 }
@@ -6256,9 +6213,9 @@ namespace NanoTrans
                                     {
                                         pWAV.ZacniPrevodSouboruNaDocasneWav(pJmenoSouboruWAV, "e://", 60000);
                                     }
-                                    if (pWAV.NactiRamecBufferu(pp.begin, pp.DelkaMS, -1))
+                                    if (pWAV.NactiRamecBufferu((long)pp.Begin.TotalMilliseconds, (long)pp.Delka.TotalMilliseconds, -1))
                                     {
-                                        MyBuffer16 pBuffer = new MyBuffer16(pp.DelkaMS);
+                                        MyBuffer16 pBuffer = new MyBuffer16((long)pp.Delka.TotalMilliseconds);
                                         pBuffer.UlozDataDoBufferu(pWAV.NacitanyBufferSynchronne.data, pWAV.NacitanyBufferSynchronne.pocatecniCasMS, pWAV.NacitanyBufferSynchronne.koncovyCasMS);
                                         MyWav.VytvorWavSoubor(pBuffer, pJmenoSouboruWAV.Replace(".wav", "_phonetic" + prozsirit + ".wav"));
                                     }
@@ -6631,8 +6588,10 @@ namespace NanoTrans
         {
         }
 
+        bool richX_manualfocus = false;
         private void waveform1_CarretPostionChangedByUser(object sender, Waveform.TimeSpanEventArgs e)
         {
+            richX_manualfocus = true;
             if (Playing)
             {
                 Playing = false;
@@ -6640,7 +6599,7 @@ namespace NanoTrans
             pIndexBufferuVlnyProPrehrani = (int)waveform1.CaretPosition.TotalMilliseconds;
 
             bool fixVisible = true;
-            List<MyTag> tags = myDataSource.VratElementDanehoCasu(pIndexBufferuVlnyProPrehrani,null);
+            List<MyTag> tags = myDataSource.VratElementDanehoCasu(TimeSpan.FromMilliseconds(pIndexBufferuVlnyProPrehrani),null);
 
             for (int i = 0; i < spSeznam.Children.Count && fixVisible; i++)
             {
@@ -6650,7 +6609,7 @@ namespace NanoTrans
                 foreach (MyTag mt in tags)
                 {
                     MyParagraph mp = myDataSource[mt];
-                    if (p != null && p.begin == mp.begin && p.end == mp.end)
+                    if (p != null && p.Begin == mp.Begin && p.End == mp.End)
                     {
                         fixVisible = false;
                         ((spSeznam.Children[i] as Grid).Children[0] as TextBox).Focus();
@@ -6661,6 +6620,7 @@ namespace NanoTrans
 
             if (fixVisible)
                 ZobrazXMLData();
+
 
 
         }

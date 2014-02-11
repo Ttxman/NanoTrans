@@ -53,12 +53,14 @@ namespace NanoTrans
         public static RoutedCommand CommandSaveTranscription = new RoutedCommand();
         public static RoutedCommand CommandSaveTranscriptionAs = new RoutedCommand();
         public static RoutedCommand CommandHelp = new RoutedCommand();
+        public static RoutedCommand CommandAbout = new RoutedCommand();
 
 
-
+        public static RoutedCommand CommandNewParagraphAtPosition = new RoutedCommand();
 
         public void InitCommands()
         {
+            #region mainform bindings
             this.CommandBindings.Add(new CommandBinding(CommandFindDialog, CFindDialogExecute));
             this.CommandBindings.Add(new CommandBinding(CommandPlayPause, CPlayPauseExecute));
             this.CommandBindings.Add(new CommandBinding(CommandScrollUp, CScrollUP));
@@ -79,7 +81,7 @@ namespace NanoTrans
             this.CommandBindings.Add(new CommandBinding(CommandSaveTranscription, CSaveTranscription));
             this.CommandBindings.Add(new CommandBinding(CommandSaveTranscriptionAs, CSaveTranscriptionAs));
             this.CommandBindings.Add(new CommandBinding(CommandHelp, CHelp));
-
+            this.CommandBindings.Add(new CommandBinding(CommandAbout, CAbout));
 
 
             CommandFindDialog.InputGestures.Add(new KeyGesture(Key.F, ModifierKeys.Control));
@@ -87,6 +89,7 @@ namespace NanoTrans
             CommandPlayPause.InputGestures.Add(new KeyGesture(Key.Tab));
             CommandPlayPause.InputGestures.Add(new KeyGesture(Key.Tab, ModifierKeys.Control));
             CommandPlayPause.InputGestures.Add(new KeyGesture(Key.Tab, ModifierKeys.Shift));
+            CommandPlayPause.InputGestures.Add(new KeyGesture(Key.Tab, ModifierKeys.Control | ModifierKeys.Shift));
             CommandScrollDown.InputGestures.Add(new KeyGesture(Key.PageDown));
             CommandScrollUp.InputGestures.Add(new KeyGesture(Key.PageUp));
             CommandSmallJumpRight.InputGestures.Add(new KeyGesture(Key.Right,ModifierKeys.Alt));
@@ -102,10 +105,18 @@ namespace NanoTrans
             CommandCreateNewTranscription.InputGestures.Add(new KeyGesture(Key.N, ModifierKeys.Control));
             CommandOpenTranscription.InputGestures.Add(new KeyGesture(Key.O, ModifierKeys.Control));
             CommandSaveTranscription.InputGestures.Add(new KeyGesture(Key.S, ModifierKeys.Control));
-            CommandHelp.InputGestures.Add(new KeyGesture(Key.F1, ModifierKeys.Control));
+            CommandAbout.InputGestures.Add(new KeyGesture(Key.F1, ModifierKeys.Control));
             CommandHelp.InputGestures.Add(new KeyGesture(Key.F1));
+            #endregion
+
+            this.CommandBindings.Add(new CommandBinding(CommandNewParagraphAtPosition, CNewParagraphAtPosition));
+
+
+
+            CommandNewParagraphAtPosition.InputGestures.Add(new KeyGesture(Key.Return));
         }
 
+        #region mainform actions
         private void CFindDialogExecute(object sender, ExecutedRoutedEventArgs e)
         {
             if (!m_findDialog.IsLoaded || !m_findDialog.IsVisible)
@@ -129,17 +140,14 @@ namespace NanoTrans
                 Playing = false;
                 if (MWP != null)
                 {
-
-                    //TODO: proc enjsou tyhle 3 veci na jednom miste?
                     waveform1.CaretPosition = MWP.PausedAt;
-                    //pIndexBufferuVlnyProPrehrani = (int)MWP.PausedAt.TotalMilliseconds;
                 }
             }
             else
             {
-
+                waveform1.Invalidate();
                 bool adjustspeed = false;
-                if (Keyboard.Modifiers == ModifierKeys.Shift || ToolBar2BtnSlow.IsChecked == true)
+                if ((Keyboard.Modifiers & ModifierKeys.Shift)== ModifierKeys.Shift || ToolBar2BtnSlow.IsChecked == true)
                 {
                     adjustspeed = true;
                     meVideo.SpeedRatio = MySetup.Setup.ZpomalenePrehravaniRychlost;
@@ -149,7 +157,7 @@ namespace NanoTrans
                     meVideo.SpeedRatio = 1.0;
                 }
 
-                if (Keyboard.Modifiers == ModifierKeys.Control)
+                if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
                 {
                     prehratVyber = true;
                     oldms = TimeSpan.Zero;
@@ -162,13 +170,15 @@ namespace NanoTrans
                     else
                     {
                         MyParagraph par = myDataSource[MySetup.Setup.RichTag];
-                        long konec = myDataSource.VratCasElementuPocatek(MySetup.Setup.RichTag) + 5;
-                        NastavPoziciKurzoru(TimeSpan.FromMilliseconds(konec), true, true);
-                        waveform1.SelectionBegin = TimeSpan.FromMilliseconds(konec);
-                        waveform1.SelectionEnd = TimeSpan.FromMilliseconds(konec + 120000);
+                        TimeSpan konec = myDataSource.VratCasElementuPocatek(MySetup.Setup.RichTag) + TimeSpan.FromMilliseconds(5);
+                        NastavPoziciKurzoru(konec, true, true);
+                        waveform1.SelectionBegin = konec;
+                        waveform1.SelectionEnd = konec + TimeSpan.FromMilliseconds(120000);
                     }
 
                 }
+
+                meVideo.Position = waveform1.CaretPosition;
                 if (jeVideo) meVideo.Play();
                 //spusteni prehravani pomoci tlacitka-kvuli nacteni primeho prehravani
 
@@ -321,7 +331,7 @@ namespace NanoTrans
             }
             else
             {
-                SpustRozpoznavaniVybranehoElementu(MySetup.Setup.RichTag, -1, -1, false);
+                SpustRozpoznavaniVybranehoElementu(MySetup.Setup.RichTag, new TimeSpan(-1), new TimeSpan(-1), false);
             }
         }
 
@@ -421,6 +431,8 @@ namespace NanoTrans
         {
             OtevritTitulky(true, "", false);
             //refresh uz vykreslenych textboxu
+
+            VirtualizingListBox.Refresh();
             this.Dispatcher.Invoke(new Action(
                 delegate()
                 {
@@ -462,18 +474,20 @@ namespace NanoTrans
         {
             UlozitTitulky(true, "");
         }
+
+        private void CAbout(object sender, ExecutedRoutedEventArgs e)
+        {
+            new WinOProgramu(MyKONST.NAZEV_PROGRAMU).ShowDialog();
+        }
         
         private void CHelp(object sender, ExecutedRoutedEventArgs e)
         {
-            if (Keyboard.Modifiers == ModifierKeys.Control) 
-                MNapoveda_O_Programu_Click(null, new RoutedEventArgs());
-            else
-                MNapoveda_Popis_Programu_Click(null, new RoutedEventArgs());
+            if (oknoNapovedy ==null || !oknoNapovedy.IsLoaded)
+            {
+                oknoNapovedy = new WinHelp();
+                oknoNapovedy.Show();
         }
-
-
-
-
+        }
 
         int searchtextoffset = 0;
         public void FindNext(string pattern, bool isregex, bool CaseSensitive)
@@ -492,7 +506,7 @@ namespace NanoTrans
             if (myDataSource.FindNext(ref tag, ref searchtextoffset, pattern, isregex, CaseSensitive))
             {
                 MyParagraph p = myDataSource[tag];
-                waveform1.CaretPosition = TimeSpan.FromMilliseconds(p.begin);
+                waveform1.CaretPosition = p.Begin;
 
                 //TODO: omg neni potreba, zadna virtualizace neexistuje .... ZobrazXMLData();
 
@@ -530,6 +544,98 @@ namespace NanoTrans
         }
 
         public FindDialog m_findDialog;
+        #endregion
+
+
+        #region textboxActions
+        private void CNewParagraphAtPosition(object sender, ExecutedRoutedEventArgs e)
+        {
+            TranscriptionElement te = VirtualizingListBox.ActiveTransctiption;
+                if (te!= null)
+                {
+                    //rozdeleni
+
+                    MyParagraph before = new MyParagraph();
+                    MyParagraph after = new MyParagraph();
+                    MyParagraph par = te as MyParagraph;
+                    int i;
+
+                    int pos = VirtualizingListBox.ActiveElement.myTextBox1.CaretIndex;
+
+                    if(pos == 0)
+                        return;
+
+                    int sum = 0;
+                    for (i = 0; i < par.Phrases.Count;i++)
+                    {
+                        if (sum + par.Phrases[i].Text.Length == pos) //deleni v mezere
+                        {
+                            int ix = te.ParentIndex;
+                            te.Parent.RemoveAt(ix);
+                            var b = new List<MyPhrase>();
+                            var a = new List<MyPhrase>();
+                            for (int j = 0; j <= i; j++)
+                                b.Add(par.Phrases[i]);
+
+                            for (int j = i+1; j <= par.Phrases.Count; j++)
+                                a.Add(par.Phrases[i]);
+
+                            par.Phrases.Clear();
+
+                            te.Parent.Insert(new MyParagraph(a), ix);
+                            te.Parent.Insert(new MyParagraph(b), ix); 
+                            break;
+                        }
+                        else if (sum > pos && sum < pos + par.Phrases[i].Text.Length)
+                        { 
+                        
+                        }
+                    }
+                }
+                else if(myDataSource.VratElementDanehoCasu(waveform1.CaretPosition).Count == 0)
+                {
+
+                    //novy v prazdnu
+                    int indx = -1;
+                    TranscriptionElement lastbefore = null;
+                    bool openelement = false;
+                    foreach (var elm in myDataSource)
+                    {
+                        indx++;
+                        if (lastbefore == null)
+                            lastbefore = elm;
+                        else if (elm.End >= lastbefore.End && elm.End <= waveform1.CaretPosition)
+                        {
+                            lastbefore = elm;
+                        }
+                        else if(elm.End < TimeSpan.Zero) //neukonceny element
+                        {
+                            elm.End = waveform1.CaretPosition;
+                            lastbefore = elm;
+                            openelement = true;
+                            break;
+                        }else
+                            break;
+                    }
+
+                    var p = new MyParagraph() { Begin = lastbefore.End, End = waveform1.CaretPosition };
+                    if(openelement)
+                        p.End = new TimeSpan(-1);
+
+                    myDataSource.Insert(indx, p);
+
+                    MySection s = p.Parent as MySection;
+                    var pp = new MyParagraph() { Begin = lastbefore.End, End = waveform1.CaretPosition, IsPhonetic = true };
+
+                    int ix = s.Paragraphs.IndexOf(p);
+                    s.PhoneticParagraphs.Insert(ix, pp);
+
+
+                }
+        }
+        #endregion
+
+
 
 
         #endregion
@@ -652,201 +758,7 @@ namespace NanoTrans
                         e.Handled = true;
                     }
                 }
-                if (e.Key == Key.Return)
-                {
 
-                    MyTag x = (MyTag)((TextBox)(sender)).Tag;
-                    MyTag xfon = new MyTag(x) { tTypElementu = MyEnumTypElementu.foneticky };
-                    MyParagraph para = myDataSource[x];
-                    MyTag next = myDataSource.VratOdstavecNasledujiciTag(x);
-
-
-                    //prida do seznamu richtextboxu novou komponentu
-
-                    if (x.tTypElementu == MyEnumTypElementu.foneticky)
-                    {
-                        MenuItemFonetickeVarianty_Click(null, new RoutedEventArgs());
-                        return;
-                    }
-
-                    if ((x.tOdstavec > -1))
-                    {
-                        if (!e.IsRepeat)
-                        {
-                            MyParagraph pPuvodniOdstavec = myDataSource[x];
-                            if (string.IsNullOrEmpty(pTB.Text))
-                                return;
-
-                            long pocatek = myDataSource.VratCasElementuPocatek(x);
-                            if (pocatek + 20 >= waveform1.CaretPosition.TotalMilliseconds) //minuly elment nema konec
-                                return;
-
-                            this.pUpravitOdstavec = false; //odstavec je upraven jiz zde, a nebude dale upravovan v udalosti text change
-
-                            string trDalsi = "";
-                            if (((TextBox)sender).Text.Length > ((TextBox)sender).SelectionStart) trDalsi = ((TextBox)sender).Text.Substring(((TextBox)sender).SelectionStart);
-
-
-
-
-                            //casove znacky budouciho odstavce
-                            List<MyCasovaZnacka> pNoveZnacky = myDataSource[x].VratCasoveZnackyTextu;
-
-
-                            bool fonetic = true;
-                            MyParagraph puvodnifon = myDataSource[xfon];
-                            if (puvodnifon == null)
-                                fonetic = false;
-                            List<MyCasovaZnacka> pNoveZnackyFon = myDataSource[xfon].VratCasoveZnackyTextu;
-
-                            if (pNoveZnackyFon == null || pNoveZnackyFon.Count == 0)
-                                fonetic = false;
-
-                            //smazani casovych znacek,ktere patri puvodnimu textboxu
-                            int pDelkaTextu = pPuvodniOdstavec.Text.Length;
-                            while (pNoveZnacky.Count > 0 && pNoveZnacky[0].Index2 < pDelkaTextu - trDalsi.Length)
-                            {
-                                pNoveZnacky.RemoveAt(0);
-                                if (fonetic)
-                                    pNoveZnackyFon.RemoveAt(0);
-                            }
-
-                            string trdalsifon = "";
-                            string trAktualniFon = "";
-                            if (fonetic)
-                            {
-                                trdalsifon = myDataSource[xfon].Text.Substring(pNoveZnackyFon[0].Index1);
-                                trAktualniFon = myDataSource[xfon].Text.Substring(0, pNoveZnackyFon[0].Index1);
-                            }
-                            for (int i = 0; i < pNoveZnacky.Count; i++) //odecteni indexu casovych znacek
-                            {
-                                pNoveZnacky[i].Index1 = pNoveZnacky[i].Index1 - (pDelkaTextu - trDalsi.Length);
-                                pNoveZnacky[i].Index2 = pNoveZnacky[i].Index2 - (pDelkaTextu - trDalsi.Length);
-                                if (fonetic)
-                                {
-                                    pNoveZnackyFon[i].Index1 = pNoveZnackyFon[i].Index1 - (pDelkaTextu - trDalsi.Length);
-                                    pNoveZnackyFon[i].Index2 = pNoveZnackyFon[i].Index2 - (pDelkaTextu - trDalsi.Length);
-                                }
-                            }
-
-
-
-                            //vytvoreni noveho odstavce, jeho textboxu a jeho zobrazeni
-                            long pomKon = myDataSource.VratCasElementuKonec(x); //pokud mel puvodni element index konce,je prirazen novemu elementu
-
-                            if (UpravCasZobraz(x, -2, (long)waveform1.CaretPosition.TotalMilliseconds))
-                            {
-
-
-                                long pomPoc = myDataSource.VratCasElementuKonec(x);
-                                if (pomKon <= pomPoc) pomKon = -1;
-
-                                //pokud je stisknut ctrl, je vytvoren novy mluvci
-                                MySpeaker pSpeaker = new MySpeaker();
-                                if (Keyboard.Modifiers != ModifierKeys.Control)
-                                    pSpeaker = myDataSource.VratSpeakera(x);
-                                //
-
-                                MyTag newparagraph = PridejOdstavec(x.tKapitola, x.tSekce, trDalsi, pNoveZnacky, x.tOdstavec, pomPoc, pomKon, pSpeaker);
-
-                                MyTag newparfon = new MyTag(newparagraph) { tTypElementu = MyEnumTypElementu.foneticky };
-
-                                MyParagraph mp = myDataSource[newparfon];
-
-                                if (fonetic)
-                                {
-
-                                    for (int i = 0; i < puvodnifon.Phrases.Count; i++)
-                                    {
-                                        if (puvodnifon.Phrases[i].begin >= pNoveZnackyFon[0].Time)
-                                        {
-                                            mp.Phrases.Add(puvodnifon.Phrases[i]);
-                                        }
-                                    }
-
-                                }
-                                //pokud nema dalsi odstavec text, musi se nastavit aby byl pozdeji odstavec upravovan
-                                if (trDalsi == null || trDalsi == "")
-                                {
-                                    pUpravitOdstavec = true;
-                                }
-
-
-                            }
-
-
-
-                            //upraveny text puvodniho odstavce
-                            //zmena textu v aktualnim textboxu
-                            ///zac = ((RichTextBox)(sender)).Document.ContentStart;
-                            ///kon = ((RichTextBox)(sender)).Selection.Start;
-                            ///TextRange trAktualni = new TextRange(zac, kon);
-                            string trAktualni = ((TextBox)sender).Text;
-                            if (trAktualni.Length > ((TextBox)sender).SelectionStart) trAktualni = ((TextBox)sender).Text.Remove(((TextBox)sender).SelectionStart);
-
-                            //myDataSource.UpravElementOdstavce(x.tKapitola, x.tSekce, x.tOdstavec, trAktualni.Text, nastaveniAplikace.CasoveZnacky);
-                            MyTag x2 = new MyTag(x);
-                            x.tTypElementu = MyEnumTypElementu.normalni;
-
-                            xfon = new MyTag(x) { tTypElementu = MyEnumTypElementu.foneticky };
-                            myDataSource.UpravElementOdstavce(x2, trAktualni, myDataSource[x].VratCasoveZnackyTextu);
-                            if (fonetic)
-                                myDataSource.UpravElementOdstavce(new MyTag(xfon), trAktualniFon, myDataSource[xfon].VratCasoveZnackyTextu);
-                            ///flowDoc = VytvorFlowDocumentOdstavce(myDataSource[x));
-                            //nastaveni aktualnich dat textboxu odstavce,aby nedochazelo ke zmenam
-                            MySetup.Setup.CasoveZnacky = myDataSource[x].VratCasoveZnackyTextu;
-                            MySetup.Setup.CasoveZnackyText = myDataSource[x].Text;
-
-
-
-
-                            ///((RichTextBox)(sender)).Document = flowDoc;
-                            ((TextBox)sender).Text = myDataSource[x].Text;
-
-                            if (fonetic)
-                                tbFonetickyPrepis.Text = myDataSource[xfon].Text;
-
-                            if ((x.tOdstavec > -1) || (x.tSekce > -1))
-                            {
-                                spSeznam.UpdateLayout();
-                                e.Handled = true;
-                                ((Grid)spSeznam.Children[index + 1]).Children[0].Focus();
-                            }
-
-
-                        }
-
-                    }
-                    else if (x.tSekce > -1)
-                    {
-                        if (waveform1.CaretPosition < TimeSpan.Zero)
-                            return;
-
-                        MyTag pMT = PridejOdstavec(x.tKapitola, x.tSekce, "", null, -2, (long)waveform1.CaretPosition.TotalMilliseconds, -1, new MySpeaker());
-                        try
-                        {
-                            ((TextBox)pMT.tSender).Focus();
-                        }
-                        catch
-                        {
-
-                        }
-                    }
-                    else if (x.tKapitola > -1)
-                    {
-                        MyTag pMT = PridejSekci(x.tKapitola, "", -1, -1, -1, -1);
-                        try
-                        {
-                            ((TextBox)pMT.tSender).Focus();
-                        }
-                        catch
-                        {
-
-                        }
-                    }
-                    UpdateXMLData();    //update mluvcich...
-                    return;
-                }
 
                 else if (e.Key == Key.F2 && !e.IsRepeat)
                 {
@@ -868,14 +780,7 @@ namespace NanoTrans
                     //TODO: nevim jestli (mluvci sekce) to enkdo nekdy pouzival, ale F3 potrebuju
                     e.Handled = true;
                     MyTag pomTag = null;
-                    //  if (Keyboard.Modifiers == ModifierKeys.Shift)
-                    //  {
-                    pomTag = PridejSekci(mT.tKapitola, "", mT.tSekce, mT.tOdstavec, -1, -1);
-                    //  }
-                    //  else
-                    //  {
-                    //     pomTag = PridejSekci(mT.tKapitola, "", mT.tSekce, -1, -1, -1);
-                    //  }
+                    pomTag = PridejSekci(mT.tKapitola, "", mT.tSekce, mT.tOdstavec, new TimeSpan(-1), new TimeSpan(-1));
 
                     if (pomTag != null)
                     {
@@ -913,7 +818,6 @@ namespace NanoTrans
                     {
                         OdstranKapitolu(mT.tKapitola);
                     }
-                    //Keyboard.Modifiers == ModifierKeys.Control = false;
                 }
                 else if (e.Key == Key.Delete && Keyboard.Modifiers == ModifierKeys.Control && !e.IsRepeat)        //smazani pocatecniho casoveho indexu
                 {
@@ -924,14 +828,12 @@ namespace NanoTrans
                 {
                     e.Handled = true;
                     menuItemVlna1_prirad_zacatek_Click(null, new RoutedEventArgs());
-                    //Keyboard.Modifiers == ModifierKeys.Control = false;
 
                 }
                 else if (e.Key == Key.End && Keyboard.Modifiers == ModifierKeys.Control && !e.IsRepeat) //nastavi index konce elementu podle pozice kurzoru
                 {
                     e.Handled = true;
                     menuItemVlna1_prirad_konec_Click(null, new RoutedEventArgs());
-                    //Keyboard.Modifiers == ModifierKeys.Control = false;
                 }
                 else if (Keyboard.Modifiers == ModifierKeys.Control && e.Key == Key.Space)    //ctrl+mezernik = prida casovou znacku do textu
                 {
@@ -1100,12 +1002,7 @@ namespace NanoTrans
                                 {
 
 
-                                    ///flowDoc = ((RichTextBox)((Grid)spSeznam.Children[index - 1]).Children[0]).Document;
-                                    ///zac = ((RichTextBox)((Grid)spSeznam.Children[index - 1]).Children[0]).Document.ContentStart;
-                                    ///kon = flowDoc.ContentEnd.GetPositionAtOffset(-1);
-                                    ///tr = new TextRange(zac, kon);
                                     tr = ((TextBox)((Grid)spSeznam.Children[index - 1]).Children[0]).Text;
-                                    ///int pDelka = flowDoc.ContentStart.GetOffsetToPosition(flowDoc.ContentEnd);  //delka ve "znacich" kvuli nastaveni kurzoru
                                     int pDelka = tr.Length;
                                     string t = tr;
                                     t = t.Replace("\n\r", "\r");       //nahrazeni \n za \r kvuli odradkovani
@@ -1116,7 +1013,7 @@ namespace NanoTrans
                                     MyTag pTagPredchoziho = new MyTag(mT.tKapitola, mT.tSekce, mT.tOdstavec - 1);
                                     List<MyCasovaZnacka> pCasoveZnackyPredchoziho = myDataSource[pTagPredchoziho].VratCasoveZnackyTextu;
 
-                                    myDataSource.UpravCasElementu(pTagPredchoziho, -2, myDataSource.VratCasElementuKonec(mT));    //koncovy cas elementu je nastaven podle aktualniho
+                                    myDataSource.UpravCasElementu(pTagPredchoziho, new TimeSpan(-2), myDataSource.VratCasElementuKonec(mT));    //koncovy cas elementu je nastaven podle aktualniho
 
                                     OdstranOdstavec(mT.tKapitola, mT.tSekce, mT.tOdstavec); //odstrani odstavec z datove struktury
 
@@ -1204,10 +1101,10 @@ namespace NanoTrans
                                 t2 = t2.Replace("\n", "\r");       //nahrazeni \n za \r kvuli odradkovani
                                 List<MyCasovaZnacka> pCasoveZnackyNasledujiciho = myDataSource[pTagNasledujicihoOdstavce].VratCasoveZnackyTextu;
 
-                                myDataSource.UpravCasElementu(mT, -2, myDataSource.VratCasElementuKonec(pTagNasledujicihoOdstavce));    //koncovy cas elementu je nastaven podle nasledujiciho
+                                myDataSource.UpravCasElementu(mT, new TimeSpan(-2), myDataSource.VratCasElementuKonec(pTagNasledujicihoOdstavce));    //koncovy cas elementu je nastaven podle nasledujiciho
 
-                                waveform1.SelectionBegin = TimeSpan.FromMilliseconds(myDataSource.VratCasElementuPocatek(mT));
-                                waveform1.SelectionEnd = TimeSpan.FromMilliseconds(myDataSource.VratCasElementuKonec(mT));
+                                waveform1.SelectionBegin = myDataSource.VratCasElementuPocatek(mT);
+                                waveform1.SelectionEnd =   myDataSource.VratCasElementuKonec(mT);
 
                                 OdstranOdstavec(mT.tKapitola, mT.tSekce, mT.tOdstavec + 1);
                                 //prepocitani novych casovych znacek

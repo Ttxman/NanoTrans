@@ -15,12 +15,6 @@ namespace NanoTrans
         /// buffer pro podrobne zobrazeni a prevazne pro prehravani audio dat 16000, 2byty, mono
         /// </summary>
         public MyBuffer16 bufferPrehravaniZvuku = null;
-
-        /// <summary>
-        /// buffer pro rychle zobrazeni vsech dat vlny - obsahuje pole floatu,ktere je mozno zobrazit
-        /// </summary>
-        public MyBufferVlny bufferCeleVlny = null;
-
                 
         /// <summary>
         /// property kolik milisekund je zobrazenych ve vlne
@@ -70,30 +64,24 @@ namespace NanoTrans
             set
             {
 
+
                 _KurzorPozice = value; 
             } 
         }     //pozice kurzoru prehravani v ms
-        private long _KurzorVyberPocatekMS;
+        private TimeSpan _KurzorVyberPocatekMS;
         /// <summary>
         /// pozice vyberu vyberu v ms
         /// </summary>
-        public long KurzorVyberPocatekMS
+        
+        public TimeSpan KurzorVyberPocatek
         {
             get { return _KurzorVyberPocatekMS; }
             set 
             { 
                 _KurzorVyberPocatekMS = value;
-                StackTrace st = new StackTrace(true);
-                string trace = "";
-                foreach (var frame in st.GetFrames())
-                {
-                    trace += frame.GetMethod().Name + frame.GetFileLineNumber() + ">";
                 }
-                System.Diagnostics.Debug.WriteLine(trace);
-            
             }
-        }
-        public long KurzorVyberKonecMS { get; set; }     //pozice kurzoru vyberu v ms
+        public TimeSpan KurzorVyberKonec { get; set; }     //pozice kurzoru vyberu v ms
         
         public bool MouseLeftDown { get; set; }         //info o vyberu...
 
@@ -106,12 +94,11 @@ namespace NanoTrans
         {
             this.bufferPrehravaniZvuku = new MyBuffer16(aPocatecniVelikostBufferuMS);
             this.bufferPrehravaniZvuku.UlozDataDoBufferuNaKonec(new short[480000], 30000);
-            this.bufferCeleVlny = new MyBufferVlny(aPocatecniVelikostBufferuMS, MyKONST.ROZLISENI_ZOBRAZENI_VLNY_S);
             
             //constructor
             KurzorPoziceMS = 0;
-            KurzorVyberPocatekMS = 0;
-            KurzorVyberKonecMS = 0;
+            KurzorVyberPocatek = TimeSpan.Zero ;
+            KurzorVyberKonec = TimeSpan.Zero;
             MouseLeftDown = false;
 
 

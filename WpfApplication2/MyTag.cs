@@ -60,6 +60,15 @@ namespace NanoTrans
             this.tSender = null;
         }
 
+        public bool IsDefault
+        {
+            get
+            {
+                return tKapitola == -1 && tSekce == -1 && tOdstavec == -1;
+            }
+        }
+
+
         public MyTag(int aKapitola, int aSekce, int aOdstavec)
         {
             this.tKapitola = aKapitola;

@@ -2,8 +2,9 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Title="NanoTrans" Height="758" Width="867" Closing="Window_Closing"
-    xmlns:local="clr-namespace:NanoTrans" ResizeMode="CanResizeWithGrip" SizeChanged="Window_SizeChanged" Loaded="Window_Loaded" WindowStartupLocation="CenterScreen" PreviewKeyUp="Window_PreviewKeyUp" Icon="icons/pen.ico" IsEnabled="True" AllowDrop="True" Drop="Window_Drop" LocationChanged="Window_LocationChanged" LostFocus="Window_LostFocus">
-
+    xmlns:local="clr-namespace:NanoTrans" ResizeMode="CanResizeWithGrip" SizeChanged="Window_SizeChanged" Loaded="Window_Loaded" WindowStartupLocation="CenterScreen" PreviewKeyUp="Window_PreviewKeyUp" Icon="icons/pen.ico" IsEnabled="True" AllowDrop="True" Drop="Window_Drop" LocationChanged="Window_LocationChanged" LostFocus="Window_LostFocus"
+    Name = "MainWindow"
+    xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase" >
     <Window.Resources>
         <!--ObjectDataProvider x:Key="MyStringData" 
                         ObjectType="{x:Type local:MyStrings}" /-->
@@ -121,14 +122,17 @@
             
             <GridSplitter  Margin="0,0,0,7" Width="5" Focusable="False" IsTabStop="False" ShowsPreview="True" HorizontalAlignment="Right" />
 
-            <Grid Margin="0,0,6,0" Name="gPrepis" VerticalAlignment="Top" Panel.ZIndex="100">
-                <ScrollViewer Name="svDokument" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" Margin="0,0,0,1.998">
+            <Grid Margin="0,0,6,0" Name="gPrepis" Panel.ZIndex="100">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="200" />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <ScrollViewer Grid.Row="0" Name="svDokument" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" Margin="0,0,0,1.998">
                     
                     <StackPanel Name="spSeznam" Orientation="Vertical" CanVerticallyScroll="True" CanHorizontallyScroll="False" AllowDrop="False">
                         
                     </StackPanel>
                 </ScrollViewer>
-
             </Grid>
             <!--ListBox Name="spSeznam" IsSynchronizedWithCurrentItem="True" SizeChanged="spSeznam_SizeChanged" SelectionMode="Extended" Margin="0,0,17.221,0" Focusable="False" Height="50" VerticalAlignment="Top">
                 
@@ -206,13 +210,13 @@
                     </Grid>
                 </TabItem>
             </TabControl>
+          
             <!--StackPanel Margin="58.622,0,0,-68.868" Name="stackPanel1" Background="Cyan" Height="65.774" VerticalAlignment="Bottom" Grid.Column="1">
                 <Button Height="18.887" Name="button9" Width="83.325" Click="button9_Click">nova kapitola</Button>
                 <Button Height="18.887" Name="button11" Width="77.77" Click="button11_Click">nova sekce</Button>
                 <Button Height="19.998" Name="button14" Width="95.546" Click="button14_Click">novy odstavec</Button>
             </StackPanel-->
         </Grid>
-        
         <GroupBox Header="Audio: " Name="groupBox1" Grid.Row="2" Height="52" VerticalAlignment="Top">
             <Grid>
                 <Button  Name="btNacistAudioSoubor" Click="button1_Click" VerticalAlignment="Top" Focusable="False" IsTabStop="False" Height="29.277" Margin="294,0,0,0" HorizontalAlignment="Left" Width="72">
@@ -320,6 +324,7 @@
                 </Grid>
             </GroupBox>
             <CheckBox Height="16" Margin="0,0,231,11" Name="chbPrehravatRozpoznane" VerticalAlignment="Bottom" HorizontalAlignment="Right" Checked="chbPrehravatRozpoznane_Checked" Focusable="False" IsTabStop="False">Přehrávat rozpoznané</CheckBox>
+            <local:SubtitlesVizualizer x:Name="VirtualizingListBox" Background="#FF7DAF7D"  Margin="6,-79,231,0" ClipToBounds="True" />
         </Grid>
         <GridSplitter Grid.Row="1" Margin="0,0,0,-3" Name="gridSplitter3" Height="5" VerticalAlignment="Bottom" Focusable="False" IsTabStop="False" Grid.IsSharedSizeScope="False" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" ResizeBehavior="PreviousAndNext" ShowsPreview="True" />
         <Button Grid.Row="2" Height="23" HorizontalAlignment="Left" Margin="280,0,0,2" Name="btPriraditVyber" VerticalAlignment="Bottom" Click="btPriraditVyber_Click" Focusable="False" IsTabStop="False">Přiřadit výběr k elementu</Button>

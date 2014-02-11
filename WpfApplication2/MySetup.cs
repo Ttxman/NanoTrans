@@ -321,7 +321,7 @@ namespace NanoTrans
             { 
                 m_BarvaTextBoxuOdstavce = value;
                 if (PropertyChanged != null)
-                    m_refresher.Refresher();
+                    PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs("BarvaTextBoxuOdstavce"));
             }
         }                    
         [XmlIgnore]
@@ -365,7 +365,29 @@ namespace NanoTrans
         
         public bool SetupSkocitNaPozici { get; set; }  //pri kliknuti na textbox, v pripade casove znacky skoci na pozici
         public bool SetupSkocitZastavit { get; set; }  //pri kliknuti na textbox, v pripade casove znacky skoci na pozici a pozastavi pripadne prehravani
-        public double SetupTextFontSize { get; set; }       //udava velikost pisma v textboxech   
+
+        double m_SetupTextFontSize;
+        public double SetupTextFontSize //udava velikost pisma v textboxech   
+        { 
+            get{return m_SetupTextFontSize;}
+            set
+            {
+                m_SetupTextFontSize = value;
+                if (PropertyChanged != null)
+                {
+                    PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs("SetupTextFontSize"));
+                    PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs("SetupOthersFontSize"));
+                }
+            }
+        }
+
+        public double SetupOthersFontSize
+        {
+            get { return m_SetupTextFontSize * 0.87; }
+        }
+
+
+
         public string PriponaTitulku { get; set; } //property pripona titulku
         public string PriponaDatabazeMluvcich { get; set; }
         public string CestaDatabazeMluvcich { get; set; }

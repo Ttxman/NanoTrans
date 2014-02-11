@@ -22,9 +22,10 @@ namespace NanoTrans
         private Exception m_e;
         public ExceptionCatchWindow(Window1 parent, Exception e)
         {
+            InitializeComponent();
+            m_e = e;
             m_parent = parent;
             textBox1.Text = e.Message;
-            InitializeComponent();
         }
 
         private void buttonSaveAndRestart_Click(object sender, RoutedEventArgs e)
@@ -37,6 +38,11 @@ namespace NanoTrans
         private void buttonIgnore_Click(object sender, RoutedEventArgs e)
         {
             Close();
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }
