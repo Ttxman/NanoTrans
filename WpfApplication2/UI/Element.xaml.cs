@@ -32,8 +32,8 @@ namespace NanoTrans
         public static readonly DependencyProperty ValueElementProperty =
         DependencyProperty.Register("ValueElement", typeof(TranscriptionElement), typeof(Element), new FrameworkPropertyMetadata(OnValueElementChanged));
 
-        public bool DisableAutomaticElementVisibilityChanges{get; set;}
-        public bool EditPhonetics{get;set;}
+        public bool DisableAutomaticElementVisibilityChanges { get; set; }
+        public bool EditPhonetics { get; set; }
 
 
         public void RefreshSpeakerButton()
@@ -65,7 +65,7 @@ namespace NanoTrans
 
         public static void OnValueElementChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-           
+
             TranscriptionElement val = (TranscriptionElement)e.NewValue;
             Element el = (Element)d;
             el.m_Element = val;
@@ -97,7 +97,7 @@ namespace NanoTrans
                 t = e.NewValue.GetType();
             }
 
-            
+
             if (t == typeof(MyParagraph))
             {
                 MyParagraph p = (MyParagraph)val;
@@ -105,7 +105,7 @@ namespace NanoTrans
                 el.textend.Visibility = Visibility.Visible;
                 el.stackPanel1.Visibility = Visibility.Visible;
                 el.Background = MySetup.Setup.BarvaTextBoxuOdstavce;
-                Element.RefreshSpeakerButton(el,p);
+                Element.RefreshSpeakerButton(el, p);
                 el.checkBox1.Visibility = Visibility.Visible;
                 el.checkBox1.IsChecked = ((MyParagraph)val).trainingElement;
             }
@@ -265,9 +265,10 @@ namespace NanoTrans
         private bool updating = false;
 
 
-        public Element():this(false)
-        { 
-        
+        public Element()
+            : this(false)
+        {
+
         }
 
 
@@ -285,9 +286,9 @@ namespace NanoTrans
             if (!m_IsPasiveElement)
                 RepaintAttributes();
 
-            
+
             editor.TextArea.TextView.ElementGenerators.Add(DefaultNonEditableBlockGenerator);
-            editor.TextArea.IndentationStrategy = new NoIndentationStrategy() ;
+            editor.TextArea.IndentationStrategy = new NoIndentationStrategy();
             editor.Options.InheritWordWrapIndentation = false;
 
             if (!m_IsPasiveElement)
@@ -298,7 +299,7 @@ namespace NanoTrans
                 editor.Document.Changed += new EventHandler<DocumentChangeEventArgs>(Document_Changed);
 
                 editor.TextArea.TextView.MouseLeftButtonDown += new MouseButtonEventHandler(TextView_MouseLeftButtonDown);
-                editor.TextArea.TextView.MouseDown+=TextView_MouseDown;
+                editor.TextArea.TextView.MouseDown += TextView_MouseDown;
             }
         }
 
@@ -311,7 +312,11 @@ namespace NanoTrans
                 return;
 
             e.Handled = true;
-            TextArea ta = editor.TextArea;
+            RaiseCorrector(editor.TextArea);
+        }
+
+        private void RaiseCorrector(TextArea ta)
+        {
             if (ta != null)
             {
                 if (ta.Selection.Length <= 0)
@@ -321,22 +326,78 @@ namespace NanoTrans
                 if (selection.Length == 0)
                     return;
                 completionWindow = new CompletionWindow(editor.TextArea);
+
+
+
+
                 completionWindow.ResizeMode = ResizeMode.NoResize;
 
                 IList<ICompletionData> data = completionWindow.CompletionList.CompletionData;
                 foreach (string s in CorrectionsGenerator.GetCorrectionsFor(selection))
                     data.Add(new CodeCompletionDataCorretion(s));
 
+                Visual target = completionWindow;    // Target element
+                var routedEvent = Keyboard.KeyDownEvent; // Event to send
+                bool closenotcorrect = false;
+                completionWindow.KeyDown += (object sender, KeyEventArgs e) =>
+                {
+
+
+                    if (e.Key == Key.Q)
+                    {
+                        e.Handled = true;
+                        completionWindow.RaiseEvent(
+                          new KeyEventArgs(
+                            Keyboard.PrimaryDevice,
+                            PresentationSource.FromVisual(target),
+                            0,
+                            Key.Up) { RoutedEvent = routedEvent }
+                        );
+
+                    }
+                    else if (e.Key == Key.W)
+                    {
+                        e.Handled = true;
+                        completionWindow.RaiseEvent(
+                          new KeyEventArgs(
+                            Keyboard.PrimaryDevice,
+                            PresentationSource.FromVisual(target),
+                            0,
+                            Key.Down) { RoutedEvent = routedEvent }
+                        );
+                    }
+                    else if (e.Key == Key.Escape)
+                    {
+                        closenotcorrect = true;
+                    }
+                };
+
 
                 completionWindow.Show();
                 completionWindow.Focus();
 
-                completionWindow.Closed += delegate
+                completionWindow.Deactivated += (object sender, EventArgs e) =>
+                    {
+                        if (!closenotcorrect && completionWindow!=null && completionWindow.CompletionList.SelectedItem != null)
+                        {
+                            completionWindow.RaiseEvent(
+                                  new KeyEventArgs(
+                                    Keyboard.PrimaryDevice,
+                                    PresentationSource.FromVisual(target),
+                                    0,
+                                    Key.Enter) { RoutedEvent = routedEvent }
+                                );
+                        }
+                    };
+
+                completionWindow.Closing += delegate
                 {
                     completionWindow = null;
                 };
             }
         }
+
+
 
         void TextView_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -345,7 +406,7 @@ namespace NanoTrans
                 var t = editor.TextArea.TextView.GetPosition(e.GetPosition(editor));
                 if (!t.HasValue)
                     return;
-                int pos = editor.Document.GetLineByNumber(t.Value.Line).Offset+t.Value.Column;
+                int pos = editor.Document.GetLineByNumber(t.Value.Line).Offset + t.Value.Column;
                 if (t.HasValue && ValueElement != null && ValueElement.IsParagraph)
                 {
                     MyParagraph p = (MyParagraph)ValueElement;
@@ -427,7 +488,7 @@ namespace NanoTrans
             {
                 m_from = from;
                 m_len = len;
-                border = new Pen(Brushes.ForestGreen,1);
+                border = new Pen(Brushes.ForestGreen, 1);
                 border.Freeze();
             }
 
@@ -568,7 +629,7 @@ namespace NanoTrans
                 get { return 0; }
             }
         }
-        
+
         public class NoIndentationStrategy : IIndentationStrategy
         {
             public void IndentLine(TextDocument document, DocumentLine line)
@@ -588,7 +649,7 @@ namespace NanoTrans
             {
                 TimeSpan val = ValueElement.Begin;
                 this.textbegin.Text = string.Format("{0}:{1:00}:{2:00},{3}", val.Hours, val.Minutes, val.Seconds, val.Milliseconds.ToString("00").Substring(0, 2));
-                EndChanged(this,null);//zmena zacatku muze ovlivnit konec...
+                EndChanged(this, null);//zmena zacatku muze ovlivnit konec...
             }
 
         }
@@ -648,7 +709,16 @@ namespace NanoTrans
 
             MyParagraph par = ValueElement as MyParagraph;
 
-            if ((Keyboard.Modifiers & ModifierKeys.Shift) == 0) //pohyb v textu
+
+            if ((Keyboard.Modifiers & ModifierKeys.Control) != 0 && completionWindow == null) //TODO: vyhodit korekce ven
+            {
+                if (e.Key == Key.Q || e.Key == Key.W)
+                {
+                    RaiseCorrector(editor.TextArea);
+                    return;
+                }
+            }
+            else if ((Keyboard.Modifiers & ModifierKeys.Shift) == 0) //pohyb v textu
             {
                 if ((e.Key == Key.Up))
                 {
@@ -701,6 +771,7 @@ namespace NanoTrans
             }
 
 
+
             if (e.Key == Key.Back && editor.SelectionLength == 0)
             {
                 if (editor.CaretOffset == 0 && MergeWithPreviousRequest != null)
@@ -713,7 +784,7 @@ namespace NanoTrans
                     MergeWithnextRequest(this, new EventArgs());
 
             }
-            else if (e.Key == Key.Enter || e.Key==Key.Return)
+            else if (e.Key == Key.Enter || e.Key == Key.Return)
             {
                 if (editor.SelectionLength == 0)
                 {
@@ -813,7 +884,7 @@ namespace NanoTrans
                 int pos = 0;
                 foreach (MyPhrase p in par.Phrases)
                 {
-                    
+
                     string etext = (EditPhonetics ? p.Phonetics : p.Text);
                     int len = etext.Length;
 
@@ -822,7 +893,7 @@ namespace NanoTrans
                         int iidx = offset - pos;
                         if (removedl > len - iidx) //odmazani textu pokracuje i za aktualni frazi
                         {
-                            
+
                             if (iidx == 0) //mazeme celou frazi
                             {
                                 removedl -= len;
@@ -838,12 +909,13 @@ namespace NanoTrans
                                 else
                                     p.Text = s;
 
-                                removedl -= len-s.Length;
+                                removedl -= len - s.Length;
                                 offset = pos + s.Length;
 
 
                             }
-                        }else if(len == removedl) //maze se presne 1 fraze
+                        }
+                        else if (len == removedl) //maze se presne 1 fraze
                         {
                             removedl -= len;
                             offset = pos + len;
@@ -867,7 +939,7 @@ namespace NanoTrans
                             else
                                 p.Text = s;
                             break;
-                            
+
                         }
                     }
 
@@ -900,7 +972,7 @@ namespace NanoTrans
                 }
                 else
                 {
-                    var phr = new MyPhrase() {Text = text };
+                    var phr = new MyPhrase() { Text = text };
                     par.BeginUpdate();
                     par.Phrases.Add(phr);
                     par.SilentEndUpdate();
@@ -909,7 +981,7 @@ namespace NanoTrans
 
             if (par.Text != editor.Text)
             {
-              editor.Background = Brushes.Red;
+                editor.Background = Brushes.Red;
             }
 
         }
@@ -930,11 +1002,11 @@ namespace NanoTrans
             if (offset > editor.Text.Length)
                 offset = editor.Text.Length;
             editor.CaretOffset = offset;
-            if (length > 0 && length+offset < editor.Text.Length)
-            { 
-                editor.Select(offset,length);
+            if (length > 0 && length + offset < editor.Text.Length)
+            {
+                editor.Select(offset, length);
             }
-        
+
         }
 
         int m_forcesellength = 0;
@@ -964,7 +1036,7 @@ namespace NanoTrans
 
         public void SetCaretOffset(int offset)
         {
-            SetSelection(offset, 0,offset);
+            SetSelection(offset, 0, offset);
         }
 
         public int TextLength
@@ -979,20 +1051,20 @@ namespace NanoTrans
                 ChangeSpeakerRequest(this, new EventArgs());
 
             var be = BindingOperations.GetBindingExpressionBase(button1, Button.ContentProperty);
-            if(be!=null)
+            if (be != null)
                 be.UpdateTarget();
         }
 
         private TimeSpan m_higlightedPosition = new TimeSpan(-1);
         public TimeSpan HiglightedPostion
-        { 
+        {
             set
             {
                 m_higlightedPosition = value;
                 if (BackgroundHiglighter != null)
                     editor.TextArea.TextView.BackgroundRenderers.Remove(BackgroundHiglighter);
                 BackgroundHiglighter = null;
-                if(value < TimeSpan.Zero || ValueElement == null || !ValueElement.IsParagraph || value < ValueElement.Begin || value > ValueElement.End)
+                if (value < TimeSpan.Zero || ValueElement == null || !ValueElement.IsParagraph || value < ValueElement.Begin || value > ValueElement.End)
                     return;
                 MyParagraph p = (MyParagraph)ValueElement;
                 int pos = 0;
@@ -1004,11 +1076,11 @@ namespace NanoTrans
                         editor.TextArea.TextView.BackgroundRenderers.Add(BackgroundHiglighter);
                         return;
                     }
-                    pos+=(EditPhonetics)?ph.Phonetics.Length:ph.Text.Length;
+                    pos += (EditPhonetics) ? ph.Phonetics.Length : ph.Text.Length;
                 }
             }
 
-            get 
+            get
             {
                 return m_higlightedPosition;
             }
@@ -1016,7 +1088,7 @@ namespace NanoTrans
 
         public override string ToString()
         {
-            return base.ToString()+":"+this.Text;
+            return base.ToString() + ":" + this.Text;
         }
     }
     public class SpellChecker : DocumentColorizingTransformer
