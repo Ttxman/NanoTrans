@@ -325,16 +325,20 @@ namespace NanoTrans
 
                 if (selection.Length == 0)
                     return;
+
+                var corrs = CorrectionsGenerator.GetCorrections(selection);
+                if (corrs.Count() <= 1)
+                    return;
+
                 completionWindow = new CompletionWindow(editor.TextArea);
-
-
-
 
                 completionWindow.ResizeMode = ResizeMode.NoResize;
 
                 IList<ICompletionData> data = completionWindow.CompletionList.CompletionData;
-                foreach (string s in CorrectionsGenerator.GetCorrectionsFor(selection))
+                foreach (string s in corrs)
                     data.Add(new CodeCompletionDataCorretion(s));
+
+
 
                 Visual target = completionWindow;    // Target element
                 var routedEvent = Keyboard.KeyDownEvent; // Event to send
@@ -376,19 +380,20 @@ namespace NanoTrans
                 completionWindow.Show();
                 completionWindow.Focus();
 
-                completionWindow.Deactivated += (object sender, EventArgs e) =>
+                completionWindow.LostKeyboardFocus +=
+                (sender, e) =>
+                {
+                    if (!completionWindow.IsKeyboardFocusWithin && !closenotcorrect && completionWindow != null && completionWindow.CompletionList.SelectedItem != null)
                     {
-                        if (!closenotcorrect && completionWindow!=null && completionWindow.CompletionList.SelectedItem != null)
-                        {
-                            completionWindow.RaiseEvent(
-                                  new KeyEventArgs(
-                                    Keyboard.PrimaryDevice,
-                                    PresentationSource.FromVisual(target),
-                                    0,
-                                    Key.Enter) { RoutedEvent = routedEvent }
-                                );
-                        }
-                    };
+                        completionWindow.RaiseEvent(
+                              new KeyEventArgs(
+                                Keyboard.PrimaryDevice,
+                                PresentationSource.FromVisual(target),
+                                0,
+                                Key.Enter) { RoutedEvent = routedEvent }
+                            );
+                    }
+                };
 
                 completionWindow.Closing += delegate
                 {
@@ -396,6 +401,8 @@ namespace NanoTrans
                 };
             }
         }
+
+
 
 
 
@@ -1094,6 +1101,7 @@ namespace NanoTrans
     public class SpellChecker : DocumentColorizingTransformer
     {
         static TextDecorationCollection defaultdecoration;
+        static TextDecorationCollection defaultdecorationGreen;
 
         //nacteni celeho slovniku z souboru do hash tabulky
         static NHunspell.Hunspell spell = null;
@@ -1162,8 +1170,58 @@ namespace NanoTrans
             tdc.Add(td);
 
             defaultdecoration = tdc;
+
+
+
+            tdc = new TextDecorationCollection();
+
+            g = new StreamGeometry();
+            using (var context = g.Open())
+            {
+                context.BeginFigure(new Point(0, 1), false, false);
+                context.BezierTo(new Point(1, 0), new Point(2, 2), new Point(3, 1), true, true);
+            }
+
+             p = new System.Windows.Shapes.Path() { Data = g, Stroke = Brushes.Green, StrokeThickness = 0.25, StrokeEndLineCap = PenLineCap.Square, StrokeStartLineCap = PenLineCap.Square };
+
+             vb = new VisualBrush(p)
+            {
+                Viewbox = new Rect(0, 0, 3, 2),
+                ViewboxUnits = BrushMappingMode.Absolute,
+                Viewport = new Rect(0, 0.8, 6, 4),
+                ViewportUnits = BrushMappingMode.Absolute,
+                TileMode = TileMode.Tile
+
+            };
+
+
+
+             td = new TextDecoration()
+            {
+                Location = TextDecorationLocation.Underline,
+                Pen = new Pen(vb, 4),
+                PenThicknessUnit = TextDecorationUnit.Pixel,
+                PenOffsetUnit = TextDecorationUnit.Pixel
+
+            };
+            tdc.Add(td);
+
+            defaultdecorationGreen = tdc;
         }
 
+
+        public static bool Checkword(string word)
+        {
+            if (spell == null)
+                return true;
+
+            if (!Element.wordIgnoreChecker.IsMatch(word) && !spell.Spell(word))
+            {
+                return false;
+            }
+
+            return true;
+        }
 
         protected override void ColorizeLine(DocumentLine line)
         {
@@ -1175,8 +1233,18 @@ namespace NanoTrans
             foreach (Match m in matches)
             {
                 string s = text.Substring(m.Index, m.Length).ToLower();
+                if(CorrectionsGenerator.GetCorrections(s).Count() > 1)
+                {
+                    base.ChangeLinePart(
+                            lineStartOffset + m.Index,
+                            lineStartOffset + m.Index + m.Length,
+                            (VisualLineElement element) =>
+                            {
+                                element.TextRunProperties.SetTextDecorations(defaultdecorationGreen);
 
-                if (!Element.wordIgnoreChecker.IsMatch(s) && !spell.Spell(s))
+                            });
+                }
+                else if (!Checkword(s))
                 {
                     base.ChangeLinePart(
                         lineStartOffset + m.Index,

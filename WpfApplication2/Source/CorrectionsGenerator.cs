@@ -47,7 +47,14 @@ namespace NanoTrans
             Tuple.Create(new Regex(@"(\S+)ud(\s*)"),new []{"$1uď$2"}),
         };
 
-        public static IEnumerable<string> GetCorrectionsFor(string data)
+
+        public static IEnumerable<string>GetCorrections(string data)
+        {
+              return GetCorrectionPermutations(data).Where(w=>SpellChecker.Checkword(w));
+        }
+
+
+        private static IEnumerable<string> GetCorrectionPermutations(string data)
         {
             yield return data;
 
