@@ -28,7 +28,6 @@
             <RowDefinition Height="134"/>
             <RowDefinition Height="236" />
         </Grid.RowDefinitions>
-
         <StackPanel Orientation="Vertical" Grid.ColumnSpan="2">
             <Menu Name="menu1" Height="22" VerticalAlignment="Top" HorizontalAlignment="Stretch">
                 <MenuItem Header="{lex:Loc}" Focusable="True" Tag="10" Name="menuFile">
@@ -237,7 +236,6 @@
                         SliderPositionChanged="waveform1_SliderPositionChanged"
                         CaretPostionChangedByUser="waveform1_CaretPostionChangedByUser" ParagraphClick="waveform1_ParagraphClick" 
                         ParagraphDoubleClick="waveform1_ParagraphDoubleClick" CaretPostionChanged="waveform1_CaretPostionChanged" 
-                        ElementChanged="waveform1_ElementChanged"
                         Transcription="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:Window1}},Path=Transcription}" Grid.ColumnSpan="2">
             <local:Waveform.ContextMenu>
                 <ContextMenu>

@@ -394,8 +394,10 @@ namespace NanoTrans
             }
         }
 
+        //TODO:
         public event EventHandler CurrentChanged;
 
+        //TODO:
         public event CurrentChangingEventHandler CurrentChanging;
 
         SpeakerContainer _currentItem = null;
@@ -561,6 +563,7 @@ namespace NanoTrans
 
         private SpeakerCollection _localSpeakers;
 
+        //TODO:
         private SpeakerCollection _onlineSpeakers;
 
         public void RemoveSpeaker(Speaker s)
