@@ -1272,7 +1272,8 @@ namespace NanoTrans
         /// <returns></returns>
         public bool Serializovat(string jmenoSouboru, MySubtitlesData co, bool aUkladatKompletMluvci)
         {
-            Stream s = File.Open(jmenoSouboru, FileMode.Create);
+            FileStream s =new FileStream(jmenoSouboru, FileMode.Create,FileAccess.Write,FileShare.None,1024*1024);
+           
             bool output = Serializovat(s, co, aUkladatKompletMluvci);
 
             if (output)
@@ -1850,7 +1851,7 @@ namespace NanoTrans
                 while (reader.Name == "Speaker")
                 {
                     bool end = false;
-                    bool id = false;
+                    bool id;
                     MySpeaker sp = new MySpeaker();
                     reader.ReadStartElement("Speaker");
                     while (!end)
@@ -1887,7 +1888,11 @@ namespace NanoTrans
                                 break;
 
                             default:
-                                throw new Exception("neočekávaný formát speakera, tag="+reader.Name);
+                                if (reader.IsEmptyElement)
+                                    reader.Read();
+                                else
+                                    reader.ReadElementString();
+                                break;
                         }
                     }
                     data.SeznamMluvcich.Speakers.Add(sp);
@@ -1949,7 +1954,7 @@ namespace NanoTrans
                             i++;
                             if (index < i + s.GetTotalChildrenCount())
                             {
-                                return s.Paragraphs[i + s.GetTotalChildrenCount() - index];
+                                return s.Paragraphs[index - i];
 
                             }
                             i+=s.GetTotalChildrenCount();
