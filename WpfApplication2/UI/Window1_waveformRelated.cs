@@ -35,21 +35,23 @@ namespace NanoTrans
         //+ vlny
         private void ToolBar2BtnPlus_Click(object sender, RoutedEventArgs e)
         {
+            ToolBar2BtnAuto.IsChecked = false;
             waveform1.Scale += 0.5;
         }
 
         //- vlny
         private void ToolBar2BtnMinus_Click(object sender, RoutedEventArgs e)
         {
+            ToolBar2BtnAuto.IsChecked = false;
             waveform1.Scale -= 0.5;
         }
 
         private void ToolBar2BtnAuto_Click(object sender, RoutedEventArgs e)
         {
+            waveform1.Scale = 1;
             if (waveform1.ScaleAutomaticaly)
             {
                 waveform1.ScaleAutomaticaly = false;
-                waveform1.Scale = 1;
                 ToolBar2BtnAuto.IsChecked = false;
             }
             else

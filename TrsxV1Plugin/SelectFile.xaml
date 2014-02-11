@@ -10,7 +10,7 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
-        <ListBox Name="box" MouseDoubleClick="box_MouseDoubleClick" KeyDown="box_KeyDown" />
+        <ListBox Name="box" MouseDoubleClick="box_MouseDoubleClick" KeyDown="box_KeyDown" Margin="0,0,0,0" />
         <StackPanel Grid.Row="1">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -20,6 +20,7 @@
                 <Label Grid.Column="0" Content="Filtr:" Name="label1" VerticalAlignment="Top" HorizontalAlignment="Left" />
                 <TextBox Grid.Column="1" Name="textBox1" TextChanged="textBox1_TextChanged" HorizontalAlignment="Stretch" KeyDown="textBox1_KeyDown" PreviewKeyDown="textBox1_PreviewKeyDown" />
             </Grid>
+            <CheckBox Content="Odstranit nefonémy" HorizontalAlignment="Left" VerticalAlignment="Bottom" IsChecked="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=RemoveNonPhonemes, Mode=OneWayToSource}"/>
             <Button Click="Button_Click">OK</Button>
         </StackPanel>
 

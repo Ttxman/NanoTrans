@@ -34,6 +34,14 @@ namespace TrsxV1Plugin
                 var filename = bucket.First().Substring(6).Trim();
                 var time = double.Parse(bucket.First(l => l.StartsWith("TRES:")).Substring(6).Trim(), CultureInfo.InvariantCulture);
                 var orto = bucket.First(l => l.StartsWith("ORTOT:")).Substring(7).Split('|').ToArray();
+                var ortotpl = bucket.FirstOrDefault(l => l.StartsWith("ORTOTP:"));
+
+                if (!string.IsNullOrWhiteSpace(ortotpl))
+                {
+                    var ortotp = ortotpl.Substring(8).Split('|').Select(w=>w.Trim()).ToArray();
+
+                    orto = ortotp.Select((w,i)=>(w=="")?orto[i]:w).ToArray();
+                }
                 var starts = bucket.First(l => l.StartsWith("START:")).Substring(7).Split('|').Select(t => TimeSpan.FromSeconds(double.Parse(t, CultureInfo.InvariantCulture) * time)).ToArray();
                 var ends = bucket.First(l => l.StartsWith("STOP:")).Substring(6).Split('|').Select(t => TimeSpan.FromSeconds(double.Parse(t, CultureInfo.InvariantCulture) * time)).ToArray();
                 var pron = bucket.First(l => l.StartsWith("PRON:")).Substring(6).Split('|').ToArray();
@@ -66,7 +74,7 @@ namespace TrsxV1Plugin
                         TimeSpan begin;
                         TimeSpan end;
 
-                        if(pah.Phrases.Count > 0)//pokud uz jsou sestavene enkae fraze spocitam jestli presahnou spolu s tichy 20s
+                        if(pah.Phrases.Count > 0)//pokud uz jsou sestavene nejake fraze spocitam jestli presahnou spolu s tichy 20s
                         {
                             begin = pah.Phrases.First().Begin;
                             end = silence.Last().End;
@@ -92,8 +100,16 @@ namespace TrsxV1Plugin
                                 pah  = new MyParagraph();
                             }
 
-                            foreach (var ss in silence)
-                                pah.Phrases.Add(ss);
+                            if (sf.RemoveNonPhonemes)
+                            {
+                                   MyPhrase mp = new MyPhrase(silence.First().Begin,silence.Last().End,"");
+                                   pah.Phrases.Add(mp);
+                            }
+                            else
+                            { 
+                                foreach (var ss in silence)
+                                    pah.Phrases.Add(ss);
+                            }
                             silence.Clear();
 
                             pah.Begin = pah.Phrases.First().Begin;
@@ -105,8 +121,12 @@ namespace TrsxV1Plugin
                             pah.Phrases.Add(phrazes[0]);
                         }else//mam ji malo -  prilepit nerecovy udalosti k odstavci
                         {
-                            foreach(var ss in silence)
-                                pah.Phrases.Add(ss);
+                            if (!sf.RemoveNonPhonemes)
+                            {
+                                foreach (var ss in silence)
+                                    pah.Phrases.Add(ss);
+                            }
+
                             silence.Clear();
                             pah.Phrases.Add(phrazes[0]);
                         }
@@ -119,10 +139,13 @@ namespace TrsxV1Plugin
                 }
 
                 //dosyp zbytek do prepisu
-                while (silence.Count > 0)
+                if (!sf.RemoveNonPhonemes)
                 {
-                    pah.Phrases.Add(silence[0]);
-                    silence.RemoveAt(0);
+                    while (silence.Count > 0)
+                    {
+                        pah.Phrases.Add(silence[0]);
+                        silence.RemoveAt(0);
+                    }
                 }
                 pah.Begin = pah.Phrases.First().Begin;
                 pah.End = pah.Phrases.Last().End;

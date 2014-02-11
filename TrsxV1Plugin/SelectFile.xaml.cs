@@ -19,6 +19,11 @@ namespace TrsxV1Plugin
     /// </summary>
     public partial class SelectFile : Window
     {
+        public bool RemoveNonPhonemes
+        {
+            get;
+            set;
+        }
         List<string> m_data;
         public SelectFile(List<string> data)
         {

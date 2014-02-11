@@ -666,7 +666,7 @@ namespace NanoTrans
                     {
                         pPole[k] = this.pDataNacitana[k];
                     }
-                    MyEventArgs e = new MyEventArgs(pPole, pPole.Length, 0, (long)((double)(i * 1000) / this.pFrekvence), MyKONST.ID_ZOBRAZOVACIHO_BUFFERU_VLNY);
+                    MyEventArgs e = new MyEventArgs(pPole, pPole.Length, 0, (long)(((double)i * 1000) / this.pFrekvence), MyKONST.ID_ZOBRAZOVACIHO_BUFFERU_VLNY);
 
                     //pokusne pridano
                     this.pPocetVzorku = i;
