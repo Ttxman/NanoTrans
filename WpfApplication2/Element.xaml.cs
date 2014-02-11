@@ -1045,6 +1045,11 @@ namespace NanoTrans
                 return m_higlightedPosition;
             }
         }
+
+        public override string ToString()
+        {
+            return base.ToString()+":"+this.Text;
+        }
     }
 
     [ValueConversion(typeof(TranscriptionElement), typeof(string))]

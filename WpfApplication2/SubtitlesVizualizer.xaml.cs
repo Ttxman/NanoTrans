@@ -407,6 +407,11 @@ namespace NanoTrans
         {
             if (e.PreviousSize.Height > 0.001 && e.PreviousSize != e.NewSize)
             {
+                if (sender as Element == null || ((Element)sender).ValueElement == null)
+                { 
+                    RecreateElements(gridscrollbar.Value,true);
+                    return;
+                }
                 double delta = e.NewSize.Height - ((Element)sender).ValueElement.height;
                 ((Element)sender).ValueElement.height = e.NewSize.Height;
 
@@ -579,139 +584,143 @@ namespace NanoTrans
 
         public void RecreateElements(double newpos, bool repaintall = false)
         {
-            if (gridstack == null || Subtitles == null)
-                return;
-            double maxh = this.ActualHeight;
-
-            if (m_Updating)
+            using (Dispatcher.DisableProcessing())
             {
-                m_updated = true;
-                return;
-            }
+                if (gridstack == null || Subtitles == null)
+                    return;
+                double maxh = this.ActualHeight;
 
-            double pos = 0;
-            bool ffound = false;
-
-            TranscriptionElement te = ActiveTransctiption;
-            int offset = m_activeTranscriptionOffset;
-            int sellength = m_activetransctiptionSelectionLength;
-            int selstart = m_activetransctiptionSelectionStart;
-
-            List<Element> before = new List<Element>();
-            List<Element> present = new List<Element>();
-            List<Element> after = new List<Element>();
-
-            if (Subtitles != null)
-            {
-                double move = 0;
-                foreach (TranscriptionElement el in Subtitles)
+                if (m_Updating)
                 {
-                    Element l = null;
-                    bool recycling = false;
-                    if (pos + el.height >= newpos && !ffound)
-                    {
+                    m_updated = true;
+                    return;
+                }
 
-                        move = pos - newpos;
-                        foreach (Element ll in gridstack.Children)
-                            if (!repaintall && ll.ValueElement == el)
+                double pos = 0;
+                bool ffound = false;
+
+                TranscriptionElement te = ActiveTransctiption;
+                int offset = m_activeTranscriptionOffset;
+                int sellength = m_activetransctiptionSelectionLength;
+                int selstart = m_activetransctiptionSelectionStart;
+
+                List<Element> before = new List<Element>();
+                List<Element> present = new List<Element>();
+                List<Element> after = new List<Element>();
+
+                if (Subtitles != null)
+                {
+                    double move = 0;
+                    foreach (TranscriptionElement el in Subtitles)
+                    {
+                        Element l = null;
+                        bool recycling = false;
+                        if (pos + el.height >= newpos && !ffound)
+                        {
+
+                            move = pos - newpos;
+                            foreach (Element ll in gridstack.Children)
+                                if (!repaintall && ll.ValueElement == el)
+                                {
+                                    l = ll;
+                                    recycling = true;
+                                    break;
+                                }
+
+                            if (l == null)
                             {
-                                l = ll;
-                                recycling = true;
-                                break;
+                                l = GetElement();
+                                l.ValueElement = el;
+                            }
+                            gridstack.Margin = new Thickness(0, move, 0, 0);
+                            ffound = true;
+                        }
+                        else if (ffound && pos < newpos + maxh - move + el.height)
+                        {
+                            if (after.Count == 0)
+                                foreach (Element ll in gridstack.Children)
+                                    if (!repaintall && ll.ValueElement == el)
+                                    {
+                                        l = ll;
+                                        recycling = true;
+                                        break;
+                                    }
+
+                            if (l == null)
+                            {
+                                l = GetElement();
+                                l.ValueElement = el;
                             }
 
-                        if (l == null)
-                        {
-                            l = GetElement();
-                            l.ValueElement = el;
                         }
-                        gridstack.Margin = new Thickness(0, move, 0, 0);
-                        ffound = true;
-                    }
-                    else if (ffound && pos < newpos + maxh - move + el.height)
-                    {
-                        foreach (Element ll in gridstack.Children)
-                            if (!repaintall && ll.ValueElement == el)
+
+
+                        if (l != null)
+                        {
+                            if (!recycling)
                             {
-                                l = ll;
-                                recycling = true;
-                                break;
+                                l.GotFocus += l_GotFocus;
+                                l.LostFocus += l_LostFocus;
+
+                                l.MergeWithnextRequest += l_MergeWithnextRequest;
+                                l.MergeWithPreviousRequest += l_MergeWithPreviousRequest;
+                                l.MoveDownRequest += l_MoveDownRequest;
+                                l.MoveUpRequest += l_MoveUpRequest;
+                                l.MoveLeftRequest += l_MoveLeftRequest;
+                                l.MoveRightRequest += l_MoveRightRequest;
+                                l.SplitRequest += l_SplitRequest;
+                                l.NewRequest += l_NewRequest;
+                                l.ChangeSpeakerRequest += l_ChangeSpeakerRequest;
+                                l.SetTimeRequest += l_SetTimeRequest;
+                                l.ContentChanged += (X, Y) => Subtitles.Ulozeno = false;
+                                l.editor.TextArea.SelectionChanged += new EventHandler(TextArea_SelectionChanged);
+                                l.editor.TextArea.Caret.PositionChanged += new EventHandler(Caret_PositionChanged);
                             }
 
-                        if (l == null)
-                        {
-                            l = GetElement();
-                            l.ValueElement = el;
+                            if (recycling)
+                                present.Add(l);
+                            else if (present.Count > 0)
+                                after.Add(l);
+                            else
+                                before.Add(l);
                         }
 
+                        pos += el.height;
                     }
 
 
-                    if (l != null)
+                    List<Element> elms = new List<Element>();
+                    foreach (Element el in gridstack.Children)
+                        if (!present.Contains(el))
+                            elms.Add(el);
+
+                    elms.ForEach(e => { gridstack.Children.Remove(e); RecycleElement(e); });
+
+                    before.Reverse();
+                    before.ForEach(e => gridstack.Children.Insert(0, e));
+                    after.ForEach(e => gridstack.Children.Add(e));
+
+
+
+                }
+
+
+                foreach (Element l in gridstack.Children)
+                {
+                    l.SizeChanged += l_SizeChanged;
+                    if (l.ValueElement == ActiveTransctiption)
                     {
-                        if (!recycling)
-                        {
-                            l.GotFocus += l_GotFocus;
-                            l.LostFocus += l_LostFocus;
-
-                            l.MergeWithnextRequest += l_MergeWithnextRequest;
-                            l.MergeWithPreviousRequest += l_MergeWithPreviousRequest;
-                            l.MoveDownRequest += l_MoveDownRequest;
-                            l.MoveUpRequest += l_MoveUpRequest;
-                            l.MoveLeftRequest += l_MoveLeftRequest;
-                            l.MoveRightRequest += l_MoveRightRequest;
-                            l.SplitRequest += l_SplitRequest;
-                            l.NewRequest += l_NewRequest;
-                            l.ChangeSpeakerRequest += l_ChangeSpeakerRequest;
-                            l.SetTimeRequest += l_SetTimeRequest;
-                            l.ContentChanged += (X, Y) => Subtitles.Ulozeno = false;
-                            l.editor.TextArea.SelectionChanged += new EventHandler(TextArea_SelectionChanged);
-                            l.editor.TextArea.Caret.PositionChanged += new EventHandler(Caret_PositionChanged);
-                        }
-
-                        if (recycling)
-                            present.Add(l);
-                        else if (present.Count > 0)
-                            after.Add(l);
+                        if (sellength <= 0)
+                            l.SetCaretOffset((offset > 0) ? offset : 0);
                         else
-                            before.Add(l);
+                            l.SetSelection(selstart, sellength, (offset > 0) ? offset : 0);
+                        l.HiglightedPostion = HiglightedPostion;
+                        l.maingrid.Background = Brushes.Beige;
                     }
-
-                    pos += el.height;
-                }
-
-
-                List<Element> elms = new List<Element>();
-                foreach (Element el in gridstack.Children)
-                    if (!present.Contains(el))
-                        elms.Add(el);
-
-                elms.ForEach(e => { gridstack.Children.Remove(e); RecycleElement(e); });
-
-                before.Reverse();
-                before.ForEach(e => gridstack.Children.Insert(0, e));
-                after.ForEach(e => gridstack.Children.Add(e));
-
-
-
-            }
-
-
-            foreach (Element l in gridstack.Children)
-            {
-                l.SizeChanged += l_SizeChanged;
-                if (l.ValueElement == ActiveTransctiption)
-                {
-                    if (sellength <= 0)
-                        l.SetCaretOffset((offset > 0) ? offset : 0);
                     else
-                        l.SetSelection(selstart, sellength, (offset > 0) ? offset : 0);
-                    l.HiglightedPostion = HiglightedPostion;
-                    l.maingrid.Background = Brushes.Beige;
-                }
-                else
-                {
-                    l.SetCaretOffset(-1);
+                    {
+                        l.SetCaretOffset(-1);
+                    }
                 }
             }
         }
