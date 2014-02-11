@@ -57,8 +57,7 @@ commmand is executed by shell with parameters {0} and {1}, where {0} is input fi
 exact parameter string for executable is specified in Plugins.xml  
 ### .NET assembly
 assembly and class are specified in Plugins.xml  
-There are some basic   
-on specified class public static method is called to do the importin/exporting  
+On the specified class public static method is called to do the importin/exporting  
 required formats are:  
 import: Func<Stream, Transcription, bool> ... public static bool Import(Stream input, Transcription storage)  
 export: Func<Transcription, Stream, bool> ... public static bool Export(Transcription t, Stream Output)  
