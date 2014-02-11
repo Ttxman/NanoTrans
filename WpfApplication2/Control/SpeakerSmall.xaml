@@ -16,29 +16,29 @@
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <Border Grid.ColumnSpan="2" Margin="1" BorderBrush="Blue" BorderThickness="1" Visibility="{Binding Marked, Converter={StaticResource visConverter}}">
+        <Border Grid.ColumnSpan="2" Margin="1" BorderBrush="Blue" BorderThickness="1" Visibility="{Binding SpeakerContainer.Marked,RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type my:SpeakerSmall}},  Converter={StaticResource visConverter}}">
         </Border>
 
         <Grid Margin="5,5,0,5" Width="50" Height="50" Visibility="{Binding MiniatureVisible, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type my:SpeakerSmall}}, Converter={StaticResource visConverter}}">
             <Rectangle Grid.Column="0" Margin="0" Fill="Gray"/>
-            <my:LoadingAnimation Grid.Column="0"  Margin="5" Visibility="{Binding Updating, Converter={StaticResource visConverter}}" />
-            <Image Source="{Binding ImgBase64, Converter={StaticResource jpgConverter}}" Grid.Column="0" Margin="5,5,5,5" Stretch="UniformToFill" />
+            <my:LoadingAnimation Grid.Column="0"  Margin="5" Visibility="{Binding SpeakerContainer.Updating, Converter={StaticResource visConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type my:SpeakerSmall}}}" />
+            <Image Source="{Binding SpeakerContainer.ImgBase64, Converter={StaticResource jpgConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type my:SpeakerSmall}}}" Grid.Column="0" Margin="5,5,5,5" Stretch="UniformToFill" />
         </Grid>
         
         <StackPanel Orientation="Vertical" Grid.Column="1" Margin="5,0,0,0">
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="{Binding DegreeBefore}"/>
+                <TextBlock Text="{Binding SpeakerContainer.DegreeBefore, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type my:SpeakerSmall}}}"/>
                 <TextBlock Text=" "/>
-                <TextBlock FontWeight="Bold" Text="{Binding FullName}" />
+                <TextBlock FontWeight="Bold" Text="{Binding SpeakerContainer.FullName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type my:SpeakerSmall}}}" />
                 <TextBlock Text=" "/>
-                <TextBlock Text="{Binding DegreeAfter}"/>
+                <TextBlock Text="{Binding SpeakerContainer.DegreeAfter, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type my:SpeakerSmall}}}"/>
             </StackPanel>
-            <TextBlock Grid.Column="1" Text="{Binding Language}" />
+            <TextBlock Grid.Column="1" Text="{Binding SpeakerContainer.Language, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type my:SpeakerSmall}}}" />
         </StackPanel>
         <StackPanel Grid.Column="1" Margin="2" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Right">
-            <Image Source="/NanoTrans;component/icons/web16.png" Width="12" Visibility="{Binding IsOnline, Converter={StaticResource visConverter}}" />
-            <Image Source="/NanoTrans;component/icons/computer16.png" Width="12" Visibility="{Binding IsLocal, Converter={StaticResource visConverter}}"/>
-            <Image Source="/NanoTrans;component/icons/Document16.png" Width="12" Visibility="{Binding IsDocument, Converter={StaticResource visConverter}}"/>
+            <Image Source="/NanoTrans;component/icons/web16.png" Width="12" Visibility="{Binding SpeakerContainer.IsOnline, Converter={StaticResource visConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type my:SpeakerSmall}}}" />
+            <Image Source="/NanoTrans;component/icons/computer16.png" Width="12" Visibility="{Binding SpeakerContainer.IsLocal, Converter={StaticResource visConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type my:SpeakerSmall}}}"/>
+            <Image Source="/NanoTrans;component/icons/Document16.png" Width="12" Visibility="{Binding SpeakerContainer.IsDocument, Converter={StaticResource visConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type my:SpeakerSmall}}}"/>
         </StackPanel>
     </Grid>
 </UserControl>

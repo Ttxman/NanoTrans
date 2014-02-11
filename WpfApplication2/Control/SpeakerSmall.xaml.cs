@@ -27,8 +27,7 @@ namespace NanoTrans
         public static void OnSpeakerChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             SpeakerSmall sender = (SpeakerSmall)d;
-            sender.DataContext = e.NewValue;
-            BindingOperations.SetBinding(sender, LoadingProperty, new Binding("IsLoading") { Source = e.NewValue });
+            BindingOperations.SetBinding(sender, LoadingProperty, new Binding("IsLoading") { Source = sender.SpeakerContainer });
         }
 
         public SpeakerContainer SpeakerContainer

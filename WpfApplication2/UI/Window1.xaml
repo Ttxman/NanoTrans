@@ -109,6 +109,9 @@
             </Menu>
             <ToolBarTray Name="toolBarTray2" Height="28" VerticalAlignment="Top">
                 <ToolBar Name="toolBar1" VerticalAlignment="Top" HorizontalAlignment="Left" Loaded="toolBar1_Loaded"></ToolBar>
+                <ToolBar>
+                    <Button Click="Button_Click_2">ZZZZ</Button>
+                </ToolBar>
             </ToolBarTray>
         </StackPanel>
         <Grid Margin="0,55,0,5" Name="gListVideo" Grid.ColumnSpan="2">
@@ -277,7 +280,6 @@
             </StatusBarItem>
 
         </StatusBar>
-        <Button Content="speakersynchronizer" RenderTransformOrigin="0.827,0.471" Margin="745,28,25,291" Click="Button_Click_1"/>
     </Grid>
 
 </Window>

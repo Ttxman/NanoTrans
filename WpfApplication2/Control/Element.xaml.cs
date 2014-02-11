@@ -1295,41 +1295,12 @@ public event PropertyChangedEventHandler PropertyChanged;
     [ValueConversion(typeof(TranscriptionElement), typeof(string))]
     public class SpeakerConverter : IValueConverter
     {
-        public static Speaker GetSpeaker(TranscriptionElement te)
-        {
-            TranscriptionElement x = te;
-            Type t = x.GetType();
-
-            while (x.Parent != null && t != typeof(Transcription))
-            {
-                x = x.Parent;
-                t = x.GetType();
-            }
-
-            Transcription sd = x as Transcription;
-            int id = int.MinValue;
-            if (sd != null)
-            {
-
-                if (te.GetType() == typeof(TranscriptionParagraph))
-                {
-                    TranscriptionParagraph par = (TranscriptionParagraph)te;
-                    id = par.SpeakerID;
-                }
-                else if (te.GetType() == typeof(TranscriptionSection))
-                {
-                    TranscriptionSection sec = (TranscriptionSection)te;
-                    id = sec.Speaker;
-                }
-            }
-
-            return sd.GetSpeakerByID(id);
-        }
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            if (value == null)
-                return "";
-            return (GetSpeaker((TranscriptionElement)value)??Speaker.DefaultSpeaker).FullName;
+            if(value is TranscriptionParagraph)
+                return (((TranscriptionParagraph)value).Speaker??Speaker.DefaultSpeaker).FullName;
+
+            return "";
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)

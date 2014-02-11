@@ -675,7 +675,7 @@ namespace NanoTrans
                                             p.Speaker = ss;
 
                                         Transcription.Speakers.RemoveSpeaker(i);
-                                        
+
                                     }
                                 }
                             }
@@ -2052,9 +2052,13 @@ namespace NanoTrans
 
         }
 
-        private void Button_Click_1(object sender, RoutedEventArgs e)
+
+
+        private void Button_Click_2(object sender, RoutedEventArgs e)
         {
-            //new SpeakerSynchronizer(MySetup.Setup.CestaDatabazeMluvcich).ShowDialog();
+            new SpeakerSynchronizer(Transcription, SpeakersDatabase).ShowDialog();
+            VirtualizingListBox.SpeakerChanged();
+            
         }
 
     }

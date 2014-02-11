@@ -576,6 +576,11 @@ namespace NanoTrans
             }
         }
 
+        public List<SpeakerAttribute> Attributes
+        {
+            get { return Speaker.Attributes; }
+        }
+
         bool _marked = false;
         public bool Marked
         {
@@ -611,7 +616,7 @@ namespace NanoTrans
             this.SpeakerColletion = speakers;
         }
 
-        bool _isLoading = true;
+        bool _isLoading = false;
         public bool IsLoading
         {
             get { return _isLoading; }

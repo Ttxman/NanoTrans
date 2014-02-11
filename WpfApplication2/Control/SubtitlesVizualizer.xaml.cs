@@ -543,7 +543,10 @@ namespace NanoTrans
             }
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="e">if param is null, refresh speakers on all rendered elemens </param>
         public void SpeakerChanged(Element e = null)
         {
             foreach (Element ee in listbox.VisualFindChildren<Element>())

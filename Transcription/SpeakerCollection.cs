@@ -113,29 +113,7 @@ namespace NanoTrans.Core
         /// <returns></returns>
         public bool RemoveSpeaker(Speaker aSpeaker)
         {
-            try
-            {
-                if (aSpeaker.FullName != null && aSpeaker.FullName != "")
-                {
-                    for (int i = 0; i < _Speakers.Count; i++)
-                    {
-                        if ((_Speakers[i]).FullName == aSpeaker.FullName)
-                        {
-                            this._Speakers.RemoveAt(i);
-                            return true;
-                        }
-
-                    }
-                    return false;
-
-
-                }
-                else return false;
-            }
-            catch// (Exception ex)
-            {
-                return false;
-            }
+            return _Speakers.Remove(aSpeaker);
         }
 
 

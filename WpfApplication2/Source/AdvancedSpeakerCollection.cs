@@ -8,7 +8,7 @@ using System.Xml.Linq;
 
 namespace NanoTrans
 {
-    class AdvancedSpeakerCollection : SpeakerCollection
+    public class AdvancedSpeakerCollection : SpeakerCollection
     {
         public override XElement Serialize()
         {
