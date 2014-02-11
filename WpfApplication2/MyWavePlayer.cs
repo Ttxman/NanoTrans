@@ -86,10 +86,8 @@ namespace NanoTrans
 
                 int pos = (ppos / m_buffersize) * m_buffersize;//integery nasobeni zaokrouhleni na buffery
 
-                if (ppos >= pos)
-                    actual = ppos - pos;
-                else
-                    actual = ppos + (m_buffDescription.BufferBytes - pos);
+                actual = ppos - pos;
+
 
                 actual /= 2;
                 return actual;
@@ -132,25 +130,40 @@ namespace NanoTrans
         }
 
 
+        
         public TimeSpan PlayPosition
         {
             get
             {
-                int actual = 0;
-                int ppos = m_soundBuffer.PlayPosition;
-                int pos = (ppos / m_buffersize);//integery nasobeni zaokrouhleni na buffery
-
-                lock (timestamp)
+                lock (this)
                 {
-                    int key = 0;
-                    if (pos != timestamp.Peek().Key)
-                         timestamp.Dequeue();
+                    int actual = 0;
+                    int ppos = m_soundBuffer.PlayPosition;
+                    int pos = (ppos / m_buffersize); // index casti bufferu
 
-                    actual = timestamp.Peek().Value + MSplayedThisBufer;
+
+                    lock (timestamp)
+                    {
+                        if (timestamp.Count == 0)
+                            return TimeSpan.Zero;
+                        if (pos != timestamp.Peek().Key)
+                            timestamp.Dequeue();
+                    }
+
+                        int msplayed = 0;
+
+
+                        pos *= m_buffersize; //pozice casti bufferu v bytech
+
+                        int samplesPlayed = (ppos - pos)/2;
+
+                        msplayed = (int)(1000.0 * samplesPlayed / m_soundBuffer.Frequency);
+
+                        actual = timestamp.Peek().Value + msplayed;
+                   
+
+                    return TimeSpan.FromMilliseconds(actual);
                 }
-                
-               // System.Diagnostics.Debug.WriteLine("s_"+actual);
-                return TimeSpan.FromMilliseconds(actual);
             }
         }
 
@@ -273,13 +286,11 @@ namespace NanoTrans
             lock (timestamp)
             {
                 timestamp.Enqueue(new KeyValuePair<int, int>(m_bfpos / m_buffersize, timems));
-
             }
             m_samplesPlayed += data.Length;
             m_bfpos += 2 * data.Length;
             m_bfpos %= m_buffDescription.BufferBytes;
 
-            System.Diagnostics.Debug.WriteLine(m_bfpos);
         }
 
 
@@ -336,9 +347,18 @@ namespace NanoTrans
 
         public void Pause()
         {
+            m_pausedAt = PlayPosition;
             m_soundBuffer.Stop();
             m_soundBuffer.SetCurrentPosition(0);
         }
+
+        private TimeSpan m_pausedAt = TimeSpan.Zero;
+        public TimeSpan PausedAt
+        {
+            get { return m_pausedAt; }
+        }
+
+
         System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
         private void RetrieveData()
         {

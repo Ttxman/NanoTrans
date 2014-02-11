@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 //using System.Linq;
 using System.Text;
+using System.Diagnostics;
 
 namespace NanoTrans
 {
@@ -59,9 +60,27 @@ namespace NanoTrans
         /// automaticke prizpusobeni osy
         /// </summary>
         public bool AutomatickeMeritko { get; set; }
-        
-        
-        public long KurzorPoziceMS { get; set; }     //pozice kurzoru prehravani v ms
+
+        private long _KurzorPozice;
+        public long KurzorPoziceMS 
+        { 
+            get
+            {
+                return _KurzorPozice; 
+            } 
+            set
+            {
+           /*     StackTrace st = new StackTrace();
+                string trace = "";
+                foreach(var frame in  st.GetFrames())
+                {
+                    trace+=frame.GetMethod().Name+">";
+                }
+
+                Debug.WriteLine(trace);*/
+                _KurzorPozice = value; 
+            } 
+        }     //pozice kurzoru prehravani v ms
         private long _KurzorVyberPocatekMS;
         /// <summary>
         /// pozice vyberu vyberu v ms

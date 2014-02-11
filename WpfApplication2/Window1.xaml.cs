@@ -21,6 +21,7 @@ using System.Diagnostics;
 using System.Windows.Threading;
 using System.Text.RegularExpressions;
 using USBHIDDRIVER;
+using dbg = System.Diagnostics.Debug;
 
 
 namespace NanoTrans
@@ -1848,9 +1849,6 @@ namespace NanoTrans
                     oVlna.bufferPrehravaniZvuku.UlozDataDoBufferu(me.data, me.pocatecniCasMS, me.koncovyCasMS);
                     if (me.pocatecniCasMS == 0)
                     {
-                        //mSekundyKonec = 0;
-
-
                         //mSekundyKonec = 0;
                         if (!timer1.IsEnabled) InitializeTimer();
                         if (oVlna.DelkaVlnyMS < 30000)
@@ -4066,9 +4064,10 @@ namespace NanoTrans
         {
             try
             {
+
                 if (aMilisekundy < 0) return;
                 oVlna.KurzorPoziceMS = aMilisekundy;
-                TimeSpan ts = new TimeSpan(aMilisekundy * 10000);
+                TimeSpan ts = new TimeSpan(aMilisekundy * 10000); //tick == 100ns
                 string label = ts.Hours.ToString() + ":" + ts.Minutes.ToString("D2") + ":" + ts.Seconds.ToString("D2") + "," + ((int)ts.Milliseconds / 10).ToString("D2");
 
                 lAudioPozice.Dispatcher.BeginInvoke(new Action(delegate()
@@ -4083,15 +4082,17 @@ namespace NanoTrans
 
                 rectangle1.Margin = new Thickness(aLeft - 2, rectangle1.Margin.Top, rectangle1.Margin.Right, rectangle1.Margin.Bottom);
 
-                if (!Playing && jeVideo && Math.Abs(meVideo.Position.TotalMilliseconds - (aMilisekundy - 150)) > 200)
+               
+                if (!Playing && jeVideo && Math.Abs(meVideo.Position.TotalMilliseconds /*- (aMilisekundy - 150)*/) > 200)
                 {
-                    meVideo.Position = new TimeSpan((aMilisekundy - 150) * 10000);
+                    //meVideo.Position = new TimeSpan((aMilisekundy - 150) * 10000);
+                    meVideo.Position = ts;
                 }
 
                 if (nastavitMedia)
                 {
                     pIndexBufferuVlnyProPrehrani = (int)aMilisekundy;
-                    if (jeVideo) meVideo.Position = new TimeSpan(aMilisekundy * 10000);
+                    if (jeVideo) meVideo.Position = ts;//; new TimeSpan(aMilisekundy * 10000);
                     List<MyTag> pTagy = myDataSource.VratElementDanehoCasu(aMilisekundy, null);
                     for (int i = 0; i < pTagy.Count; i++)
                     {
@@ -4272,6 +4273,7 @@ namespace NanoTrans
 
                 long rozdil = oVlna.DelkaVlnyMS; //delka zobrazeni v msekundach
                 long celkMilisekundy = (long)slPoziceMedia.Value;
+
                 if (_playing)
                 {
 
@@ -5495,13 +5497,13 @@ namespace NanoTrans
 
         private void slPoziceMedia_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-
             if (mouseDown)
             {
                 if (jeVideo) meVideo.Pause();
                 int SliderValue = (int)slPoziceMedia.Value;
                 TimeSpan ts = new TimeSpan(0, 0, 0, 0, SliderValue);
-                oVlna.KurzorPoziceMS = (long)slPoziceMedia.Value;
+                //oVlna.KurzorPoziceMS = (long)slPoziceMedia.Value;
+                NastavPoziciKurzoru(oVlna.KurzorPoziceMS, true, true);
                 pIndexBufferuVlnyProPrehrani = SliderValue;
                 //pCasZacatkuPrehravani = DateTime.Now.AddMilliseconds(-pIndexBufferuVlnyProPrehrani);
                 if (jeVideo) meVideo.Position = ts;
@@ -7750,6 +7752,7 @@ namespace NanoTrans
                             if (MWP != null)
                             {
                                 MWP.Pause();
+                                oVlna.KurzorPoziceMS = (long)MWP.PausedAt.TotalMilliseconds;
                                 Playing = false;
                             }
                         }

@@ -714,12 +714,15 @@ namespace NanoTrans
         /// <param name="aDelkaMS"></param>
         /// <param name="aBuffer"></param>
         /// <returns></returns>
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
         public bool NactiRamecBufferu(long aPocatekMS, long aDelkaMS, int aIDBufferu)
         {
-            
             BinaryReader input = null;
             try
             {
+                TimeSpan bufferstart = TimeSpan.FromMilliseconds(aPocatekMS);
+                TimeSpan bufferLen = TimeSpan.FromMilliseconds(aDelkaMS);
+
                 this._NacitaniBufferu = true;
                 if (this.Nacteno)
                 {
@@ -731,7 +734,10 @@ namespace NanoTrans
                     
                     this.bIDBufferu = aIDBufferu;
                     int j = 0;  //index pro vystupni data
-                    int pIndexDocasneho = (int)((aPocatekMS / 1000) / (this.delkaDocasnehoWav / this.pFrekvence));
+                    int delkadocasnehoMS = (int)(this.delkaDocasnehoWav / this.pFrekvence) * 1000;
+
+                    int pIndexDocasneho =(int) aPocatekMS / delkadocasnehoMS;
+
                     if ((pIndexDocasneho >= 0) && (pIndexDocasneho < this.docasneZvukoveSoubory.Count - 1 || (pIndexDocasneho < this.docasneZvukoveSoubory.Count && this.Prevedeno)))
                     {
                         if (pIndexDocasneho >= docasneZvukoveSoubory.Count - 1 && !this.Prevedeno)
@@ -745,7 +751,7 @@ namespace NanoTrans
                         //long pPocetVzorkuDocasneho = this.delkaDocasnehoWav / 1000 * this.pFrekvence;   //pocet vzorku v docasnem souboru
                         long pPocetVzorkuDocasneho = (pfi.Length - 44) / 2;
                         long pPocetVzorkuNacist = aDelkaMS * (pFrekvence/1000);
-                        int pPocatecniIndexVSouboru = (int)((aPocatekMS - pIndexDocasneho * ((double)delkaDocasnehoWav / this.pFrekvence * 1000)) / 1000 * pFrekvence) * this.pVelikostVzorku + 44;
+                        int pPocatecniIndexVSouboru = (int)((aPocatekMS - pIndexDocasneho * ((double)delkaDocasnehoWav / this.pFrekvence * 1000)) * (pFrekvence / 1000)) * this.pVelikostVzorku + 44;
                         int pNacistDat = (int)(pPocetVzorkuDocasneho - pPocatecniIndexVSouboru / this.pVelikostVzorku) + 22;
                         bool hotovo = false;
                         this.pDataNacitana = new short[pPocetVzorkuNacist];  //nove pole nacitanych obektu
@@ -758,7 +764,7 @@ namespace NanoTrans
                             if (input != null)
                             {
 
-
+                                pIndexDocasneho++;
                                 int pCount = (int)(pNacistDat) * this.pVelikostVzorku;
                                 
                                 byte[] pBuffer = new byte[pCount];
@@ -768,7 +774,10 @@ namespace NanoTrans
                                 input.Close();
                                 input = null;
 
+                                
                                 //prevod do pole nacitanych dat
+                               //TODO: --- Buffer.BlockCopy(pBuffer, 0, pDataNacitana, j * 2, pCount);
+
                                 for (int i = 0; i < pCount / 2; i++)
                                 {
                                     this.pDataNacitana[j] = BitConverter.ToInt16(pBuffer, i * this.pVelikostVzorku);
@@ -803,6 +812,10 @@ namespace NanoTrans
                         MyEventArgs e = new MyEventArgs(this.pDataNacitana, this.pDataNacitana.Length, aPocatekMS, aPocatekMS + aDelkaMS, aIDBufferu);
                         if (HaveData != null && RamecSynchronne == false)
                         {
+                            /*BinaryWriter bw = new BinaryWriter(new FileStream("C:\\buffer.pcm", FileMode.Create));
+                            foreach (short s in pDataNacitana)
+                                bw.Write(s);
+                            bw.Close();*/
                             HaveData(this, e); // nacten ramec k zvuku a poslani tohoto ramce ven z tridy pomoci e
                         }
                         else
