@@ -162,14 +162,58 @@ namespace NanoTrans.Core
 
         }
 
-        public override void ElementInserted(TranscriptionElement element, int index)
+        public override void ElementInserted(TranscriptionElement element, int absoluteindex)
         {
         }
 
-        public override void ElementRemoved(TranscriptionElement element, int index)
+        public override void ElementRemoved(TranscriptionElement element, int absoluteindex)
         {
         }
 
+        public override int AbsoluteIndex
+        {
+            get 
+            {
+                return 0;
+            }
+        }
+
+        public override void Add(TranscriptionElement data)
+        {
+            throw new NotSupportedException();
+        }
+
+        public override bool Remove(TranscriptionElement value)
+        {
+            throw new NotSupportedException();
+        }
+
+        public override void RemoveAt(int index)
+        {
+            throw new NotSupportedException();
+        }
+
+        public override bool Replace(TranscriptionElement oldelement, TranscriptionElement newelement)
+        {
+            throw new NotSupportedException();
+        }
+
+        public override void Insert(int index, TranscriptionElement data)
+        {
+            throw new NotSupportedException();
+        }
+
+        public override TranscriptionElement this[int Index]
+        {
+            get
+            {
+                throw new NotSupportedException();
+            }
+            set
+            {
+                throw new NotSupportedException();
+            }
+        }
     }
 
 }

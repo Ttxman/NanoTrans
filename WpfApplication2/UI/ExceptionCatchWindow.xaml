@@ -1,11 +1,18 @@
 ﻿<Window x:Class="NanoTrans.ExceptionCatchWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Nastala neočekáváná výjimka" Height="379" Width="709" Loaded="Window_Loaded">
+        
+        xmlns:lex="http://wpflocalizeextension.codeplex.com"
+        lex:LocalizeDictionary.DesignCulture="cs"
+        lex:LocalizeDictionary.IncludeInvariantCulture="False"
+        lex:ResxLocalizationProvider.DefaultAssembly="NanoTrans"
+        lex:ResxLocalizationProvider.DefaultDictionary="Strings"
+        
+        Title="{lex:LocText Key=ExceptionWindowTitle}" Height="379" Width="709" Loaded="Window_Loaded">
     <Grid>
         <TextBox Name="textBox1" Margin="0,101,0,58"/>
-        <TextBlock Text="Nastala neočekávaná chyba programu. Abyste zabránily ztrátě dat uložte změny a restartujte NanoTrans" Height="71" Name="label1" VerticalAlignment="Top" FontSize="25" FontFamily="20" FontWeight="Bold" TextWrapping="Wrap" Foreground="#FFE10000" />
-        <Label Content="Výpis chyby:" Height="28" HorizontalAlignment="Left" Margin="0,77,0,0" Name="label2" VerticalAlignment="Top" Width="86" />
-        <Button Content="Uložit a restartovat" HorizontalAlignment="Left" Margin="12,0,0,12" Name="buttonSaveAndRestart" Width="118" Height="40" VerticalAlignment="Bottom" Click="buttonSaveAndRestart_Click" />
+        <TextBlock Text="{lex:LocText Key=ExceptionWindowBigMessage}" Height="71" Name="label1" VerticalAlignment="Top" FontSize="25" FontFamily="20" FontWeight="Bold" TextWrapping="Wrap" Foreground="#FFE10000" />
+        <Label Content="{lex:LocText Key=ExceptionWindowExceptionTitle}" Height="28" HorizontalAlignment="Left" Margin="0,77,0,0" Name="label2" VerticalAlignment="Top" Width="86" />
+        <Button Content="{lex:LocText Key=ExceptionWindowSaveAndRestartButton}" HorizontalAlignment="Left" Margin="12,0,0,12" Name="buttonSaveAndRestart" Width="118" Height="40" VerticalAlignment="Bottom" Click="buttonSaveAndRestart_Click" />
     </Grid>
 </Window>

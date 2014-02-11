@@ -9,17 +9,12 @@ using System.Xml.Serialization;
 
 namespace NanoTrans.Core
 {
-    [XmlInclude(typeof(Speaker))]
     public class MySpeakers
     {
-        private bool _Ulozeno = false;
-        [XmlIgnore]
-        public bool Ulozeno { get { return _Ulozeno; } }
-        [XmlIgnore]
-        private string _JmenoSouboru;
-        public string JmenoSouboru
+        private string _fileName;
+        public string FileName
         {
-            get { return _JmenoSouboru; }
+            get { return _fileName; }
         }
 
         private List<Speaker> m_Speakers = new List<Speaker>();    //vsichni mluvci ve streamu
@@ -42,13 +37,15 @@ namespace NanoTrans.Core
             m_Speakers = speakers.ToList();
         }
 
-        //copy constructor
+        /// <summary>
+        /// copy constructor
+        /// </summary>
+        /// <param name="aSpeakers"></param>
         public MySpeakers(MySpeakers aSpeakers)
         {
             if (aSpeakers != null)
             {
-                this._JmenoSouboru = aSpeakers._JmenoSouboru;
-                this._Ulozeno = aSpeakers._Ulozeno;
+                this._fileName = aSpeakers._fileName;
                 if (aSpeakers.m_Speakers != null)
                 {
                     this.m_Speakers = new List<Speaker>();
@@ -152,47 +149,24 @@ namespace NanoTrans.Core
             return null;
         }
 
-        public XElement Serialize(bool strict)
+        public XElement Serialize()
         {
-            XElement elm = new XElement(strict ? "speakers" : "sp",
+            XElement elm = new XElement("sp",
                 elements.Select(e => new XAttribute(e.Key, e.Value)),
-                m_Speakers.Select(s => s.Serialize(strict))
+                m_Speakers.Select(s => s.Serialize())
             );
 
             return elm;
         }
 
-        /// <summary>
-        /// Serializuje tuto tridu a ulozi data do xml souboru
-        /// </summary>
-        /// <param name="jmenoSouboru"></param>
-        /// <param name="co"></param>
-        /// <returns></returns>
-        public bool Serialize_V1(String jmenoSouboru, MySpeakers co)
+        public void Serialize(string filename)
         {
-            try
-            {
-                if (!File.Exists(jmenoSouboru))
-                    Directory.CreateDirectory(Path.GetDirectoryName(jmenoSouboru));
-
-                XmlSerializer serializer = new XmlSerializer(typeof(MySpeakers));
-                TextWriter writer = new StreamWriter(jmenoSouboru);
-                //XmlTextWriter writer = new XmlTextWriter(jmenoSouboru, Encoding.UTF8);
-
-                serializer.Serialize(writer, co);
-                writer.Close();
-                this._JmenoSouboru = jmenoSouboru;
-                this._Ulozeno = true;
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
+            var xelm = Serialize();
+            xelm.Save(filename);
         }
 
-        //Deserializuje soubor             
-        public MySpeakers Deserialize(String filename)
+        //deserialize speaker database file...          
+        public static MySpeakers Deserialize(String filename)
         {
             //pokud neexistuje soubor, vrati prazdnou databazi
             if (!new FileInfo(filename).Exists)
@@ -200,19 +174,73 @@ namespace NanoTrans.Core
                 return new MySpeakers();
             }
 
-            XmlSerializer serializer = new XmlSerializer(typeof(MySpeakers));
-            //FileStream reader = new FileStream(jmenoSouboru, FileMode.Open);
-            //TextReader reader = new StreamReader("e:\\MySubtitlesDataXml.txt");
-            MySpeakers md;// = new MySubtitlesData();
+            XDocument doc = XDocument.Load(filename);
 
-            XmlTextReader xreader = new XmlTextReader(filename);
-            md = (MySpeakers)serializer.Deserialize(xreader);
-            xreader.Close();
-            md._JmenoSouboru = filename;
-            md._Ulozeno = true;
-            return md;
 
+            if (doc.Root.Name == "MySpeakers") //old format from XmlSerializer
+            {
+                var root = doc.Root;
+                MySpeakers mysp = new MySpeakers();
+                var speakers = root.Elements("Speaker");
+                foreach (var sp in speakers)
+                {
+                    Speaker speaker = new Speaker();
+
+                    var id = sp.Element("ID");
+                    var fname = sp.Element("FirstName");
+                    var sname = sp.Element("Surname");
+                    var sex = sp.Element("Sex");
+                    var comment = sp.Element("Comment");
+                    var lang = sp.Element("DefaultLang");
+
+                    if (id != null)
+                        speaker.ID = XmlConvert.ToInt32(id.Value);
+                    else
+                        continue;
+
+                    speaker.FirstName = fname.Value ?? "";
+                    speaker.Surname = sname.Value ?? "";
+
+                    switch (sex.Value.ToLower())
+                    {
+                        case "m":
+                        case "muž":
+                        case "male":
+                            speaker.Sex = Speaker.Sexes.Male;
+                            break;
+                          
+                        case "f":
+                        case "žena":
+                        case "female":
+                            speaker.Sex = Speaker.Sexes.Female;
+                            break;
+                        default:
+                            speaker.Sex = Speaker.Sexes.X;
+                            break;
+                    }
+
+                    speaker.Comment = fname.Value ?? "";
+
+                    int langid = XmlConvert.ToInt32(lang.Value??"-1");
+                    if (langid >= 0 && langid < Speaker.Langs.Count)
+                        speaker.DefaultLang = langid;
+                    else
+                        speaker.DefaultLang = 0;
+
+                    mysp.AddSpeaker(speaker);
+                }
+
+                return mysp;
+
+            }
+            else
+            { 
+            
+            }
+            return null;
         }
+
+
 
     }
 }

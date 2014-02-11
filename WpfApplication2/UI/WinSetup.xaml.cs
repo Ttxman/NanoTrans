@@ -95,8 +95,6 @@ namespace NanoTrans
                 val = (decimal)(aNastaveni.VlnaMalySkok);
                 if (val >= UpDownJump.Minimum.Value && val <= UpDownJump.Maximum.Value)
                     UpDownJump.Value = val;
-
-                checkBoxSaveShortened.IsChecked = aNastaveni.SaveInShortFormat;
             }
         
         }
@@ -147,15 +145,16 @@ namespace NanoTrans
             bNastaveni.VlnaMalySkok = (double)UpDownJump.Value;
 
 
-            bNastaveni.SaveInShortFormat = checkBoxSaveShortened.IsChecked == true;
+            bNastaveni.SaveInShortFormat = true;
             this.Close();
         }
 
         private void ButtonLoadSpeakersDatabase_Click(object sender, RoutedEventArgs e)
         {
             Microsoft.Win32.OpenFileDialog fileDialog = new Microsoft.Win32.OpenFileDialog();
-            fileDialog.Title = "Načíst cestu s databází mluvčích...";
-            fileDialog.Filter = "Soubory mluvčích (*" + bNastaveni.PriponaDatabazeMluvcich + ")|*" + bNastaveni.PriponaDatabazeMluvcich + "|Všechny soubory (*.*)|*.*";
+            fileDialog.Title = Properties.Strings.FileDialogLoadSpeakersDatabaseTitle;
+            fileDialog.Filter = string.Format(Properties.Strings.FileDialogLoadSpeakersDatabaseFilter, "*.xml","*.xml");
+                
             try
             {
                 FileInfo fi = new FileInfo(bNastaveni.CestaDatabazeMluvcich);
@@ -170,12 +169,9 @@ namespace NanoTrans
             fileDialog.RestoreDirectory = true;
             if (fileDialog.ShowDialog() == true)
             {
-                MySpeakers ms = new MySpeakers();
-                ms = ms.Deserialize(fileDialog.FileName);
-                if (ms != null && ms.Ulozeno)
-                {
-                    tbCestaDatabazeMluvcich.Text = ms.JmenoSouboru;
-                }
+                MySpeakers ms = MySpeakers.Deserialize(fileDialog.FileName);
+                if(ms!=null)
+                    tbCestaDatabazeMluvcich.Text = ms.FileName;
             }
         }
 
@@ -186,7 +182,7 @@ namespace NanoTrans
             Stream s= DownloadOneFileWindow.DownloadFile(URL);
             if (s == null)
             {
-                MessageBox.Show(this, "Soubor nebyl stažen, uživatel zastavil stahování, cílová adresa už neexistuje, nebo není dostupné připojení k internetu", "Problém se stahováním z internetu", MessageBoxButton.OK, MessageBoxImage.Warning); 
+                MessageBox.Show(this, Properties.Strings.MessageBoxDictionaryDownloadError, Properties.Strings.MessageBoxDictionaryDownloadErrorCaption, MessageBoxButton.OK, MessageBoxImage.Warning); 
             }else
                 GetDictionaryFromZip(s);
         }
@@ -194,7 +190,7 @@ namespace NanoTrans
         private void ButtonLoadOpenOfficeSpellchekingDictionaries(object sender, RoutedEventArgs e)
         {
             OpenFileDialog of = new OpenFileDialog();
-            of.Filter = "Rozšíření OpenOffice 3 {*.zip,*.oxt} |*.zip;*.oxt";
+            of.Filter = Properties.Strings.FileDialogLoadOODictionaryFilter;
 
             if (of.ShowDialog(this)==true)
             {
@@ -204,7 +200,7 @@ namespace NanoTrans
                 }
                 catch
                 {
-                    MessageBox.Show(this, "Soubor nelze otevřít, je poškozený, nebo to není rozšíření Open Office 3", "Problém s otevřením souboru",MessageBoxButton.OK,MessageBoxImage.Warning);   
+                    MessageBox.Show(this, Properties.Strings.MessageBoxDictionaryFormatError, Properties.Strings.MessageBoxWarningCaption, MessageBoxButton.OK, MessageBoxImage.Warning);   
                 }
             }
         }
@@ -221,14 +217,14 @@ namespace NanoTrans
 
                 if (dic != null)
                 {
-                    if (MessageBox.Show(this, "Načíst slovník " + System.IO.Path.GetFileNameWithoutExtension(aff.FileName) + "?", "Načtení slovníku", MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK)
+                    if (MessageBox.Show(this,string.Format(Properties.Strings.MessageBoxDictionaryConfirmLoad,System.IO.Path.GetFileNameWithoutExtension(aff.FileName)), Properties.Strings.MessageBoxQuestionCaption, MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK)
                     {
                         var readme = zf.Entries.Where(en => en.FileName.ToLower().Contains("readme")).FirstOrDefault();
                         if (readme != null)
                         {
                             string ss = new StreamReader(readme.OpenReader()).ReadToEnd();
                             
-                            if (TextWallWindow.ShowWall(true, "Pro instalaci slovníků si musíte být vědomi tohoto:", ss))
+                            if (TextWallWindow.ShowWall(true, Properties.Strings.OODictionaryLicenceTitle, ss))
                             {
                                 
                                 if (SpellChecker.SpellEngine != null)
@@ -249,7 +245,7 @@ namespace NanoTrans
                                     dic.Extract(fs);
 
                                 SpellChecker.LoadVocabulary();
-                                MessageBox.Show(this, "Slovníky pro kontrolu pravopisu byly nainstalovány", "Informace", MessageBoxButton.OK, MessageBoxImage.Information);
+                                MessageBox.Show(this, Properties.Strings.MessageBoxDictinaryInstalled,Properties.Strings.MessageBoxInfoCaption , MessageBoxButton.OK, MessageBoxImage.Information);
                             }
                         }
 

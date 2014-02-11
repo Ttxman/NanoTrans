@@ -152,10 +152,6 @@ namespace NanoTrans
         }
 
 
-
-        public string PriponaTitulku { get; set; } //property pripona titulku
-        public string PriponaDatabazeMluvcich { get; set; }
-
         private string m_CestaDatabazeMluvcich;
         public string CestaDatabazeMluvcich
         {
@@ -248,10 +244,8 @@ namespace NanoTrans
         {
             
             NastavDefaultHodnoty();
-            PriponaTitulku = ".trsx";
-            PriponaDatabazeMluvcich = ".xml";
             UkladatKompletnihoMluvciho = false;
-            SaveInShortFormat = false;
+            SaveInShortFormat = true;
 
             BarvaTextBoxuOdstavce = Brushes.AliceBlue;
             BarvaTextBoxuOdstavceAktualni = Brushes.AntiqueWhite;
@@ -332,7 +326,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Chyba pri derializaci konfiguračního souboru souboru: " + ex.Message);
+                MessageBox.Show(Properties.Strings.MessageBoxConfigFileDeserializationError + ex.Message);
                 return this;
             }
 

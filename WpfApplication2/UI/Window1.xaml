@@ -2,6 +2,13 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:NanoTrans"
+        
+        xmlns:lex="http://wpflocalizeextension.codeplex.com"
+        lex:LocalizeDictionary.DesignCulture="cs"
+        lex:LocalizeDictionary.IncludeInvariantCulture="False"
+        lex:ResxLocalizationProvider.DefaultAssembly="NanoTrans"
+        lex:ResxLocalizationProvider.DefaultDictionary="Strings"
+        
     Title="NanoTrans" Height="758" Width="867" Closing="Window_Closing"
     ResizeMode="CanResizeWithGrip" Loaded="Window_Loaded" WindowStartupLocation="CenterScreen" PreviewKeyUp="Window_PreviewKeyUp" Icon="../icons/pen.ico" IsEnabled="True" AllowDrop="True" Drop="Window_Drop"
     xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase" MouseDown="Window_MouseDown">
@@ -20,125 +27,132 @@
             <RowDefinition Height="134"/>
             <RowDefinition Height="236" />
         </Grid.RowDefinitions>
-        <GridSplitter Margin="0,0,0,0" Name="gridSplitter1" Height="5" VerticalAlignment="Bottom" Grid.Row="0" Focusable="False" IsTabStop="False" Grid.IsSharedSizeScope="False" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" ResizeBehavior="CurrentAndNext" ShowsPreview="True" Grid.ColumnSpan="2" />
-        <Menu Name="menu1" Height="22" VerticalAlignment="Top" HorizontalAlignment="Stretch" Grid.ColumnSpan="2">
-            <MenuItem Header="Soubor" Focusable="True" Tag="10" Name="menuSoubor">
-                <MenuItem Header="_Nový přepis" InputGestureText="Ctrl+N" Click="MSoubor_Novy_Click" Name="menuSouborNovyPrepis">
-                    <MenuItem.Icon>
-                        <Image Source="/icons/iNovy.png"/>
-                    </MenuItem.Icon>
-                </MenuItem>
-                   
-                <MenuItem Header="_Otevřít přepis" InputGestureText="Ctrl+O" Name="menuSouborOtevritPrepis" Click="MSoubor_Otevrit_Titulky_Click">
-                    <MenuItem.Icon>
-                        <Image Source="/icons/iOtevrit.png"/>
-                    </MenuItem.Icon>
-                </MenuItem>
-                <Separator />
-                <MenuItem Header="Uložit" InputGestureText="Ctrl+S" Click="MSoubor_Ulozit_Click" Name="menuSouborUlozit">
-                    <MenuItem.Icon>
-                        <Image Source="/icons/iUlozit.png"/>
-                    </MenuItem.Icon>
-                </MenuItem>
-                <MenuItem Header="Uložit přepis jako..." Click="MSoubor_Ulozit_Titulky_Jako_Click" Name="menuSouborUlozitJako" />
-                <Separator />
-                <MenuItem Header="Exportovat (Ctrl+Shift+E)" Name="menuSouborExportovat" Click="menuSouborExportovat_Click" />
 
-                <MenuItem Header="Importovat (Ctrl+Shift+I)" Name="menuSouborImportovat" Click="menuSouborImportovat_Click" />
-                <MenuItem Header="Otevřít audio..." Click="MSoubor_Otevrit_Zvukovy_Soubor_Click" Name="menuSouborOtevritAudio">
-                    <MenuItem.Icon>
-                        <Image Source="/icons/iAudio.png"/>
-                    </MenuItem.Icon>
-                </MenuItem>
-                <MenuItem Header="Otevřít video..." Click="MSoubor_Otevrit_Video_Click" Name="menuSouborOtevritVideo" />
-                
-                <Separator />
-                <MenuItem Header="Konec" Click="MSoubor_Konec_Click" Name="menuSouborKonec" />
-            </MenuItem>
-            <MenuItem Header="Úpravy" Name="menuUpravy">
-                <MenuItem Header="Nová kapitola" InputGestureText="F4"  Click="MUpravy_Nova_Kapitola_Click" Name="menuUpravyKapitola" />
-                <MenuItem Header="Nová sekce na pozici" InputGestureText="F5" Click="MUpravy_Nova_Sekce_Click" Name="menuUpravySekce" />
-                <Separator />
-                <MenuItem Header="Smazat položku" InputGestureText="Shift+Del" Click="MUpravy_Smazat_Polozku_Click" Name="menuUpravySmazat" />
-                <Separator />
-                <MenuItem Header="Odstraň neřečové události" Name="menuUpravySmazatNerecoveUdalosti" Click="menuUpravySmazatNerecoveUdalosti_Click" />
-            </MenuItem>
+        <StackPanel Orientation="Vertical" Grid.ColumnSpan="2">
+            <Menu Name="menu1" Height="22" VerticalAlignment="Top" HorizontalAlignment="Stretch">
+                <MenuItem Header="{lex:Loc}" Focusable="True" Tag="10" Name="menuFile">
+                    <MenuItem Header="{lex:Loc}" InputGestureText="Ctrl+N" Click="MSoubor_Novy_Click" Name="menuFileNewTranscription">
+                        <MenuItem.Icon>
+                            <Image Source="/icons/iNovy.png"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
 
-            <MenuItem Header="_Nástroje" Tag="20" Name="menuNastroje">
-                <MenuItem Header="Nastav mluvčího" InputGestureText="Ctrl+M" Click="MNastroje_Nastav_Mluvciho_Click" Name="menuNastrojeNastavMluvciho">
-                    <MenuItem.Icon>
-                        <Image Source="/icons/iMluvci1.png"/>
-                    </MenuItem.Icon>
+                    <MenuItem Header="{lex:Loc}" InputGestureText="Ctrl+O" Name="menuFileOpenTranscription" Click="MSoubor_Otevrit_Titulky_Click">
+                        <MenuItem.Icon>
+                            <Image Source="/icons/iOtevrit.png"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <Separator />
+                    <MenuItem Header="{lex:Loc}" InputGestureText="Ctrl+S" Click="MSoubor_Ulozit_Click" Name="menuFileSave">
+                        <MenuItem.Icon>
+                            <Image Source="/icons/iUlozit.png"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="{lex:Loc}" Click="MSoubor_Ulozit_Titulky_Jako_Click" Name="menuFileSaveAs" />
+                    <Separator />
+                    <MenuItem Header="{lex:Loc}" Name="menufileExport" Click="menuSouborExportovat_Click" />
+
+                    <MenuItem Header="{lex:Loc}" Name="menuFileImport" Click="menuSouborImportovat_Click" />
+                    <MenuItem Header="{lex:Loc}" Click="MSoubor_Otevrit_Zvukovy_Soubor_Click" Name="menufileOpenAudio">
+                        <MenuItem.Icon>
+                            <Image Source="/icons/iAudio.png"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="{lex:Loc}" Click="MSoubor_Otevrit_Video_Click" Name="menuFileOpenVideo" />
+
+                    <Separator />
+                    <MenuItem Header="{lex:Loc}" Click="MSoubor_Konec_Click" Name="menuFileExit" />
                 </MenuItem>
-                <Separator/>
-                <MenuItem IsEnabled="False" Header="Vytvořit obrázek mluvčího" InputGestureText="F12" Click="menuItemVideoPoriditFotku_Click" Name="menuNastrojeObrazekMluvciho" />
-                <Separator/>
-                <MenuItem IsEnabled="False" Header="Normalizace" InputGestureText="F9" Click="menuItemNastrojeNormalizovat_Click" Name="menuNastrojeNormalizace" />
-                <MenuItem Header="Fonetický přepis" Name="menuNastrojeFonetika">
-                    <MenuItem Header="Zobrazit fonetický přepis" Click="menuItemFonetickyPrepis_Click" Name="menuNastrojeFonetikaZobrazit" />
+                <MenuItem Header="{lex:Loc}" Name="menuEdit">
+                    <MenuItem Header="{lex:Loc}" InputGestureText="F4"  Click="MUpravy_Nova_Kapitola_Click" Name="menuEditNewChapter" />
+                    <MenuItem Header="{lex:Loc}" InputGestureText="F5" Click="MUpravy_Nova_Sekce_Click" Name="menuEditNewSection" />
+                    <Separator />
+                    <MenuItem Header="{lex:Loc}" InputGestureText="Shift+Del" Click="MUpravy_Smazat_Polozku_Click" Name="menuEditDeleteElement" />
+                    <Separator />
+                    <MenuItem Header="{lex:Loc}"  Click="menuUpravySmazatNerecoveUdalosti_Click" Name="menuEditDeleteNonSpeechEvents" />
+                </MenuItem>
+
+                <MenuItem Header="{lex:Loc}" Tag="20" Name="menuTools">
+                    <MenuItem Header="{lex:Loc}" InputGestureText="Ctrl+M" Click="MNastroje_Nastav_Mluvciho_Click" Name="menuToolsSetSpeaker">
+                        <MenuItem.Icon>
+                            <Image Source="/icons/iMluvci1.png"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
                     <Separator/>
-                    <MenuItem IsEnabled="False" Header="Automatický fonetický přepis" InputGestureText="F10" Click="menuItemNastrojeFonetickyPrepis_Click" Name="menuNastrojeFonetikaFonetika" />
-                </MenuItem>
-                
-                <MenuItem Header="Video" Name="menuNastrojeVideo">
-                    <MenuItem Header="Zobrazit Video" Name="menuNastrojeVideoZobrazit" Click="menuNastrojeVideoZobrazit_Click" />
-                </MenuItem>
-                <MenuItem IsEnabled="False" Header="Allignment" InputGestureText="" Click="menuItemNastrojeAllignment_Click"/>
-                
-                <Separator/>
-                <MenuItem Header="Nastavení" Click="MNastroje_Nastaveni_Click" Name="menuNastrojeNastaveni">
-                    <MenuItem.Icon>
-                        <Image Source="/icons/iNastaveni.png"/>
-                    </MenuItem.Icon>
-                </MenuItem>
-                
-            </MenuItem>
+                    <MenuItem Header="{lex:Loc}" Name="menuToolsFonetics">
+                        <MenuItem Header="Zobrazit fonetický přepis" Click="menuItemFonetickyPrepis_Click" Name="menuToolsFoneticsShow" />
+                    </MenuItem>
 
+                    <MenuItem Header="{lex:Loc}" Name="menuToolsVideo">
+                        <MenuItem Header="{lex:Loc}" Click="menuNastrojeVideoZobrazit_Click" Name="menuToolsVideoShow"/>
+                    </MenuItem>
 
-            <MenuItem Header="_NanoTrans" Tag="20" Name="menuPrepisovac" Visibility="Collapsed">
-                <MenuItem Header="Automatický přepis" InputGestureText="F5" Click="button10_Click" Name="menuPrepisovacPrepis">
-                    
-                </MenuItem>
-                <MenuItem Header="Diktát" InputGestureText="F6" Click="btDiktat_Click" Name="menuPrepisovacDiktat" />
-                <Separator/>
-                <MenuItem Header="Hlasové ovládání" InputGestureText="F7" Click="btHlasoveOvladani_Click" Name="menuPrepisovacHlasoveOvladani" />
-                
-            </MenuItem>
-            <MenuItem Header="Nápověda" Name="menuNapoveda">
-                <MenuItem Header="Popis programu" InputGestureText="F1" Click="MNapoveda_Popis_Programu_Click" Name="menuNapovedaPopis">
-                    <MenuItem.Icon>
-                        <Image Source="/icons/iTip.png"/>
-                    </MenuItem.Icon>
-                </MenuItem>
-                <Separator></Separator>
-                <MenuItem Header="O programu" InputGestureText="Ctrl+F1" Click="MNapoveda_O_Programu_Click" Name="menuNapovedaOProgramu" />
-            </MenuItem>
-        </Menu>
+                    <Separator/>
+                    <MenuItem Header="{lex:Loc}" Click="MNastroje_Nastaveni_Click" Name="menuToolsSettings">
+                        <MenuItem.Icon>
+                            <Image Source="/icons/iNastaveni.png"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
 
+                </MenuItem>
+
+                <MenuItem Header="{lex:Loc}" Name="menuHelp">
+                    <MenuItem Header="{lex:Loc}" InputGestureText="F1" Click="MNapoveda_Popis_Programu_Click" Name="menuHelpHelp">
+                        <MenuItem.Icon>
+                            <Image Source="/icons/iTip.png"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <Separator></Separator>
+                    <MenuItem Header="{lex:Loc}" InputGestureText="Ctrl+F1" Click="MNapoveda_O_Programu_Click" Name="menuHelpAbout" />
+                    <MenuItem Header="refreshabsolutes" Click="MenuItem_Click" />
+                </MenuItem>
+            </Menu>
+            <ToolBarTray Name="toolBarTray2" Height="28" VerticalAlignment="Top">
+                <ToolBar Name="toolBar1" VerticalAlignment="Top" HorizontalAlignment="Left" Loaded="toolBar1_Loaded"></ToolBar>
+            </ToolBarTray>
+        </StackPanel>
         <Grid Margin="0,55,0,5" Name="gListVideo" Grid.ColumnSpan="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="500.77*" />
                 <ColumnDefinition Width="300" />
             </Grid.ColumnDefinitions>
-            <local:SubtitlesVizualizer Margin="0,0,5,0" Grid.Column="0" x:Name="VirtualizingListBox" Background="#FF7DAF7D" ClipToBounds="False" Transcription="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:Window1}},Path=Transcription}" ChangeSpeaker="VirtualizingListBox_ChangeSpeaker" SelectedElementChanged="VirtualizingListBox_SelectedElementChanged" SetTimeRequest="VirtualizingListBox_SetTimeRequest" />
-
+            <local:SubtitlesVizualizer Margin="0,0,5,0" Grid.Column="0" x:Name="VirtualizingListBox" Background="#FF7DAF7D" ClipToBounds="False" Transcription="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:Window1}},Path=Transcription}" ChangeSpeaker="VirtualizingListBox_ChangeSpeaker" SelectedElementChanged="VirtualizingListBox_SelectedElementChanged" SetTimeRequest="VirtualizingListBox_SetTimeRequest">
+                <local:SubtitlesVizualizer.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="{lex:BLoc Key=NanoTrans:Strings:TranscriptionContextMenuSetSpeaker}" InputGestureText="Ctrl+M" Click="menuItemX_SetSpeaker_Click"/>
+                        <Separator />
+                        <MenuItem Header="{lex:BLoc Key=NanoTrans:Strings:TranscriptionContextMenuNewChapter}" InputGestureText="F4" Click="menuItemX3_NewChapter_Click"/>
+                        <MenuItem Header="{lex:BLoc Key=NanoTrans:Strings:TranscriptionContextMenuNewSection}" InputGestureText="F5" Click="menuItemX2_NewSection_Click"/>
+                        <MenuItem Header="{lex:BLoc Key=NanoTrans:Strings:TranscriptionContextMenuNewSectionAtPosition}" InputGestureText="Shift+F5" Click="menuItemX2b_newSectionAtPosition_Click"/>
+                        <Separator />
+                        <MenuItem Header="{lex:BLoc Key=NanoTrans:Strings:TranscriptionContextMenuDeleteElement}"  Click="menuItemX4_DeleteElement_Click"/>
+                        <Separator />
+                        <MenuItem Header="{lex:BLoc Key=NanoTrans:Strings:TranscriptionContextMenuExport}" Click="menuItemX7_ExportElement_Click"/>
+                        <Separator />
+                        <MenuItem Header="{lex:BLoc Key=NanoTrans:Strings:TranscriptionContextMenuAdd50ms}" Click="menuItemX8_add50msClick"/>
+                        <MenuItem Header="{lex:BLoc Key=NanoTrans:Strings:TranscriptionContextMenuSubstract50ms}" Click="menuItemX9_substract50msClick"/>
+                    </ContextMenu>
+                </local:SubtitlesVizualizer.ContextMenu>
+            </local:SubtitlesVizualizer>
             <GridSplitter Grid.Column="0" Width="5" Focusable="False" IsTabStop="False" ShowsPreview="True" HorizontalAlignment="Right" />
-            <!--ListBox Name="spSeznam" IsSynchronizedWithCurrentItem="True" SizeChanged="spSeznam_SizeChanged" SelectionMode="Extended" Margin="0,0,17.221,0" Focusable="False" Height="50" VerticalAlignment="Top">
-                
-            </ListBox-->
-            <TabControl Grid.Column="1"  Name="tabControl1" SelectedIndex="0" Focusable="False">
-                <TabItem Name="tiVideo">
+            <TabControl Grid.Column="1"  Name="infoPanels" SelectedIndex="0" Focusable="False">
+                <TabItem Name="infoPanelsVideo">
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
                             <Image Height="18" Source="/icons/avi.jpg" />
-                            <TextBlock Text="Video" Margin="2,0,0,0" VerticalAlignment="Center" />
-                         </StackPanel>
+                            <TextBlock Text="{lex:Loc}" Margin="2,0,0,0" VerticalAlignment="Center" Name="infoPanelsVideoHeader" />
+                        </StackPanel>
                     </TabItem.Header>
                     <Grid Grid.Column="1" Margin="1,0,1,1" Name="grid2" HorizontalAlignment="Stretch" Focusable="False">
                         <Grid Name="gVideoPouze" Margin="0,0,0,29" Background="Black">
-                            <MediaElement Name="meVideo" LoadedBehavior="Manual" Stretch="Uniform" IsMuted="True" />    
+                            <Grid.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="{lex:BLoc Key=NanoTrans:Strings:VideoContextMenuTakeSnapshot}" Click="menuItemVideoTakePicture_Click"/>
+                                </ContextMenu>
+                            </Grid.ContextMenu>
+                            <MediaElement Name="meVideo" LoadedBehavior="Manual" Stretch="Uniform" IsMuted="True" />
                         </Grid>
-                        
+
                         <Button Height="20" Margin="0,2,0,0" Name="btCloseVideo" VerticalAlignment="Top" Padding="0,0,1,1" Click="btCloseVideo_Click" HorizontalAlignment="Right" Width="20" Focusable="False" IsTabStop="False">X</Button>
                         <TextBox Margin="0,0,50,0" Name="tbVideoSoubor" Background="LightGoldenrodYellow" IsReadOnly="True" IsEnabled="True" Focusable="False" IsTabStop="False" Height="24.557" VerticalAlignment="Bottom"></TextBox>
                         <Button Name="btOtevritVideo" Click="button6_Click" Margin="0,0,0.053,1.226" Height="23.331" VerticalAlignment="Bottom" Focusable="False" IsTabStop="False" HorizontalAlignment="Right" Width="44">
@@ -150,75 +164,80 @@
                     </Grid>
                 </TabItem>
 
-                <TabItem Name="tiInfo">
-                    <TabItem.Header>
-                        <StackPanel Orientation="Horizontal">
-                            <!--Image Height="18" Source="/icons/avi.jpg" /-->
-                            <TextBlock Text="Info o dokumentu" Margin="2,0,0,0" VerticalAlignment="Center" />
-                         </StackPanel>
-                    </TabItem.Header>
-                    <Grid Grid.Column="1" Margin="1,1,1,1" Name="gInfo" HorizontalAlignment="Stretch" Focusable="False" >
-                        <Label Height="25" Name="lDatum" VerticalAlignment="Top" HorizontalAlignment="Left"  Margin="5.142,10,0,0">Datum a čas:</Label>
-                        <Label HorizontalAlignment="Left" Margin="5.142,41,0,0" Name="lZdroj" Width="50.912" Height="25" VerticalAlignment="Top">Zdroj:</Label>
-                        <Label Height="25" HorizontalAlignment="Left" Margin="5.142,72,0,0" Name="lTyp" VerticalAlignment="Top" Width="50.912">Typ:</Label>
-                        <ComboBox Height="23" Margin="60.462,74,7,0" Name="cbTypPoradu" VerticalAlignment="Top" IsEditable="True" />
-                        <ComboBox Height="23" Margin="60.462,43,7,0" Name="cbZdroj" VerticalAlignment="Top" IsEditable="True" />
-                        <TextBox Height="23" Margin="81,12,7,0" Name="tbDatumCasDokumentu" VerticalAlignment="Top" />
-                    </Grid>
-                </TabItem>
-
             </TabControl>
         </Grid>
-        <GroupBox Header="Audio: " Name="groupBox1" Grid.Row="2" Height="52" VerticalAlignment="Top" Grid.ColumnSpan="2">
+
+        <GridSplitter Margin="0,0,0,0" Name="gridSplitter1" Height="5" VerticalAlignment="Bottom" Grid.Row="0" Focusable="False" IsTabStop="False" Grid.IsSharedSizeScope="False" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" ResizeBehavior="CurrentAndNext" ShowsPreview="True" Grid.ColumnSpan="2" />
+        <Grid Name="gFonetickyPrepis" Grid.Row="1" Margin="0,0,0,8" Grid.ColumnSpan="2">
+            <Grid VerticalAlignment="Stretch">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="21"/>
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" BorderThickness="1" BorderBrush="LightBlue" VerticalAlignment="Stretch">
+                    <local:Element x:Name="phoneticTranscription" Margin="1,1,1,1" IsEnabled="False" VerticalAlignment="Stretch" />
+                </Border>
+                <Button HorizontalAlignment="Right" Focusable="False" Height="20" IsTabStop="False" Padding="0,0,1,1" Width="20" VerticalAlignment="Top" Name="btZavritFonPrepis" Click="btZavritFonPrepis_Click" Grid.Column="1">X</Button>
+            </Grid>
+        </Grid>
+
+
+        <GroupBox Header="{lex:Loc}" Name="mainWindowAudioPanelHeader" Grid.Row="2" VerticalAlignment="Top" Grid.ColumnSpan="2" Margin="2">
             <Grid>
-                <Button  Name="btNacistAudioSoubor" Click="button1_Click" VerticalAlignment="Top" Focusable="False" IsTabStop="False" Height="29.277" Margin="294,0,0,0" HorizontalAlignment="Left" Width="72">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Margin="4">Audio...</TextBlock>
-                        <Image Margin="0,2,0,0" Source="/icons/iOtevrit.png" StretchDirection="DownOnly">
-                            
-                        </Image>
-                    </StackPanel>
-                </Button>
-                <Image Name="image1" Stretch="Uniform" Source="/icons/nota.png" HorizontalAlignment="Right" Width="36.663" StretchDirection="Both" Margin="0,-3,-1,0" Height="33.723" VerticalAlignment="Top" />
-                <TextBox Margin="372,2.554,222,0" Name="tbAudioSoubor" Background="LightGoldenrodYellow" IsReadOnly="False" IsEnabled="True" Height="24.557" VerticalAlignment="Top" Focusable="True" IsTabStop="True"></TextBox>
-                
-                
-                <Label Margin="0,4,195,0" Name="lPocatek" HorizontalAlignment="Right" Width="29.675" Height="22.723" VerticalAlignment="Top">Poč.</Label>
-                <Label HorizontalAlignment="Right" Margin="0,3,102,0" Name="lKonec" Width="33" Height="21.277" VerticalAlignment="Top">Kon.</Label>
-                <Label Name="lAudioIndex1" FontSize="11" FontWeight="Bold" Foreground="Green" Margin="0,4.001,118,0" HorizontalAlignment="Right" Width="84.219" Height="23.723" VerticalAlignment="Top">0:00:00,00</Label>
-                <Label Name="lAudioIndex2" Width="76" FontSize="11" FontWeight="Bold" Foreground="Red" HorizontalAlignment="Right" Margin="0,4,33,0" Height="22.723" VerticalAlignment="Top">0:00:00,00</Label>
-                <ToolBarTray  Name="toolBarTray1" VerticalAlignment="Top" HorizontalAlignment="Left">
-                    <ToolBar>
-                        <Button Click="ToolBar2BtnPlus_Click" Focusable="False" IsTabStop="False" Name="ToolBar2BtnPlus" ToolTip="Zvětší vlnu ve směru Y">
-                            <Image Source="/icons/iPlus.png" />
-                        </Button>
-                        <Button Click="ToolBar2BtnMinus_Click" Focusable="False" IsTabStop="False" Name="ToolBar2BtnMinus" ToolTip="Zmenší vlnu ve směru Y">
-                            <Image Source="/icons/iMinus.png" />
-                        </Button>
-                        <ToggleButton Click="ToolBar2BtnAuto_Click" IsChecked="True" Focusable="False" IsTabStop="False" Name="ToolBar2BtnAuto" ToolTip="Automaticky nastaví měřítko vlny" ClickMode="Press">
-                            <Image Source="/icons/iAutoSize.png" />
-                        </ToggleButton>
-                        <ToggleButton IsChecked="False" Name="ToolBar2BtnSlow">
-                            <Image Source="/NanoTrans;component/icons/isnail.png" />
-                        </ToggleButton>
-                    </ToolBar>
-                    <ToolBar>
-                        <Button Name="Toolbar1Btn5" Click="Toolbar1Btn5_Click" Focusable="False" IsTabStop="False" Tag="5000">5s</Button>
-                        <Button Name="Toolbar1Btn10" Click="Toolbar1Btn5_Click" IsTabStop="False" Focusable="False" Tag="10000">10s</Button>
-                        <Button Name="Toolbar1Btn20" Click="Toolbar1Btn5_Click" Focusable="False" IsTabStop="False" Tag="20000">20s</Button>
-                        <Button Name="Toolbar1Btn30" Click="Toolbar1Btn5_Click" Focusable="False" IsTabStop="False" Tag="30000">30s</Button>
-                        <Button Name="Toolbar1Btn60" Click="Toolbar1Btn5_Click" Focusable="False" IsTabStop="False" Tag="60000">1m</Button>
-                        <Button Name="Toolbar1Btn120" Click="Toolbar1Btn5_Click" Focusable="False" IsTabStop="False" Tag="120000">2m</Button>
-                        <Button Name="Toolbar1Btn300" Click="Toolbar1Btn5_Click" Focusable="False" IsTabStop="False" Tag="180000">3m</Button>
-                    </ToolBar>
-                </ToolBarTray>
-                <StackPanel Margin="372,0,184.895,0.422" Name="stackPanel1" Orientation="Horizontal" Height="27.157" VerticalAlignment="Bottom">
-                    <MediaElement Name="mediaElement1" LoadedBehavior="Manual" Width="71.104" Height="14.224"></MediaElement>
-                    <MediaElement Name="meAudio" LoadedBehavior="Manual" Width="71.104" Height="14.224"></MediaElement>
+                <StackPanel Orientation="Horizontal">
+                    <ToolBarTray  Name="toolBarTray1" VerticalAlignment="Top" HorizontalAlignment="Left">
+                        <ToolBar>
+                            <Button Click="ToolBar2BtnPlus_Click" Focusable="False" IsTabStop="False" Name="ToolBar2BtnPlus" ToolTip="Zvětší vlnu ve směru Y">
+                                <Image Source="/icons/iPlus.png" />
+                            </Button>
+                            <Button Click="ToolBar2BtnMinus_Click" Focusable="False" IsTabStop="False" Name="ToolBar2BtnMinus" ToolTip="Zmenší vlnu ve směru Y">
+                                <Image Source="/icons/iMinus.png" />
+                            </Button>
+                            <ToggleButton Click="ToolBar2BtnAuto_Click" IsChecked="True" Focusable="False" IsTabStop="False" Name="ToolBar2BtnAuto" ToolTip="Automaticky nastaví měřítko vlny" ClickMode="Press">
+                                <Image Source="/icons/iAutoSize.png" />
+                            </ToggleButton>
+                            <ToggleButton IsChecked="False" Name="ToolBar2BtnSlow">
+                                <Image Source="/NanoTrans;component/icons/isnail.png" />
+                            </ToggleButton>
+                        </ToolBar>
+                        <ToolBar>
+                            <Button Name="Toolbar1Btn5" Click="Toolbar1Btn5_Click" Focusable="False" IsTabStop="False" Tag="5000">5s</Button>
+                            <Button Name="Toolbar1Btn10" Click="Toolbar1Btn5_Click" IsTabStop="False" Focusable="False" Tag="10000">10s</Button>
+                            <Button Name="Toolbar1Btn20" Click="Toolbar1Btn5_Click" Focusable="False" IsTabStop="False" Tag="20000">20s</Button>
+                            <Button Name="Toolbar1Btn30" Click="Toolbar1Btn5_Click" Focusable="False" IsTabStop="False" Tag="30000">30s</Button>
+                            <Button Name="Toolbar1Btn60" Click="Toolbar1Btn5_Click" Focusable="False" IsTabStop="False" Tag="60000">1m</Button>
+                            <Button Name="Toolbar1Btn120" Click="Toolbar1Btn5_Click" Focusable="False" IsTabStop="False" Tag="120000">2m</Button>
+                            <Button Name="Toolbar1Btn300" Click="Toolbar1Btn5_Click" Focusable="False" IsTabStop="False" Tag="180000">3m</Button>
+                        </ToolBar>
+                    </ToolBarTray>
+                    <TextBox Name="tbAudioSoubor" Background="LightGoldenrodYellow" IsReadOnly="False" IsEnabled="True" Width="250" Focusable="True" IsTabStop="True"></TextBox>
+                    <Button Name="loadAudioButton" Click="button1_Click" VerticalAlignment="Top" Focusable="False" IsTabStop="False" HorizontalAlignment="Left">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Margin="4" Name="mainWindowLoadAudioButtonText" Text="{lex:Loc}"/>
+                            <Image Margin="0,2,0,0" Source="/icons/iOtevrit.png" StretchDirection="DownOnly" />
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
-             
             </Grid>
         </GroupBox>
+
+        <local:Waveform Grid.Row="2" Margin="3,52,1,26" x:Name="waveform1" PlayPauseClick="waveform1_PlayPauseClick" 
+                        SliderPositionChanged="waveform1_SliderPositionChanged"
+                        CarretPostionChangedByUser="waveform1_CarretPostionChangedByUser" ParagraphClick="waveform1_ParagraphClick" 
+                        ParagraphDoubleClick="waveform1_ParagraphDoubleClick" CarretPostionChanged="waveform1_CarretPostionChanged" 
+                        ElementChanged="waveform1_ElementChanged"
+                        Transcription="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:Window1}},Path=Transcription}" Grid.ColumnSpan="2">
+            <local:Waveform.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="{lex:BLoc Key=NanoTrans:Strings:WaveformContextMenuSetStart}" InputGestureText="Ctrl+Home" Click="menuItemVlna1_SetStart_Click"/>
+                    <MenuItem Header="{lex:BLoc Key=NanoTrans:Strings:WaveformContextMenuSetEnd}" InputGestureText="Ctrl+End" Click="menuItemVlna1_SetEnd_Click" />
+                    <Separator/>
+                    <MenuItem Header="{lex:BLoc Key=NanoTrans:Strings:WaveformContextMenuSetSelection}" InputGestureText="Ctrl+Space" Click="menuItemVlna1_SetSelection_Click" />
+                    <Separator/>
+                    <MenuItem Header="{lex:BLoc Key=NanoTrans:Strings:WaveformContextMenuSetStartToCursor}" Click="menuItemVlna1_SetStartToCursor_Click" />
+                </ContextMenu>
+            </local:Waveform.ContextMenu>
+        </local:Waveform>
 
         <StatusBar  Name="statusBar1" VerticalAlignment="Bottom" Grid.Row="2" HorizontalAlignment="Stretch" Grid.ColumnSpan="2">
             <StatusBar.ItemsPanel>
@@ -239,41 +258,16 @@
             </StatusBar.ItemsPanel>
 
             <StatusBarItem>
-                <TextBlock Name="tbStavProgramu">Připraven</TextBlock>
-            </StatusBarItem>
-            <StatusBarItem Grid.Column="1">
-                <TextBlock Name="tbRozpoznanyPrikaz">...</TextBlock>
+                <TextBlock Name="tbStavProgramu"/>
             </StatusBarItem>
             <StatusBarItem Grid.Column="3" Margin="1,1,15,1">
                 <ProgressBar Margin="1,1,1,1" Name="pbPrevodAudio" Value="0" Width="150" Height="15" Foreground="GreenYellow" ToolTip="Stav převodu multimediálního souboru" Visibility="Hidden" />
             </StatusBarItem>
             <StatusBarItem Grid.Column="2">
-                <TextBlock Name="lPrevodAudia" Visibility="Hidden">Převod audia:</TextBlock>
+                <TextBlock Visibility="Hidden" Name="mainWindowStatusbarAudioConversionHeader" Text="{lex:Loc}"/>
             </StatusBarItem>
 
         </StatusBar>
-        <Grid Name="gFonetickyPrepis" Grid.Row="1" Margin="0,0,0,8" Grid.ColumnSpan="2">
-            <Border Margin="0,0,24,30" BorderThickness="1" BorderBrush="LightBlue" >
-                    <local:Element x:Name="phoneticTranscription" Margin="1,1,1,1" IsEnabled="False" />
-            </Border>
-            <Button Focusable="False" Height="20" IsTabStop="False" Padding="0,0,1,1" Width="20" HorizontalAlignment="Right" Margin="0,10.573,1.337,0" Grid.Row="1" VerticalAlignment="Top" Name="btZavritFonPrepis" Click="btZavritFonPrepis_Click">X</Button>
-            <Button IsEnabled="False" Focusable="False" HorizontalAlignment="Right" IsTabStop="False" Name="btOdstranitNefonemy" ToolTip="Odstraní znaky z fonetického přepisu, které nejsou fonémy" Click="btOdstranitNefonemy_Click" VerticalAlignment="Bottom" Margin="0,0,592,5.724" Height="21.277">Odstr. nefonémy (F11)</Button>
-            <Button IsEnabled="False" Focusable="False" HorizontalAlignment="Left" IsTabStop="False" Margin="19,0,0,5.724" Name="btNormalizovat" Click="btNormalizovat_Click" VerticalAlignment="Bottom" Height="21.277">Normalizovat (F9)</Button>
-
-        </Grid>
-        <GridSplitter Grid.Row="1" Margin="0,0,0,233" Name="gridSplitter3" Height="5" VerticalAlignment="Bottom" Focusable="False" IsTabStop="False" Grid.IsSharedSizeScope="False" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" ResizeBehavior="PreviousAndNext" ShowsPreview="True" Grid.ColumnSpan="2" Grid.RowSpan="2" />
-        <Button Visibility="Hidden" Grid.Row="2" Height="23" HorizontalAlignment="Left" Margin="280,0,0,2" Name="btPriraditVyber" VerticalAlignment="Bottom" Click="btPriraditVyber_Click" Focusable="False" IsTabStop="False">Přiřadit výběr k elementu</Button>
-        <ToolBarTray Margin="0,26,0,0" Name="toolBarTray2" Height="28" VerticalAlignment="Top" Grid.ColumnSpan="2">
-            <ToolBar Height="26" Margin="0,0,0,0" Name="toolBar1" VerticalAlignment="Top" HorizontalAlignment="Left" Loaded="toolBar1_Loaded"></ToolBar>
-        </ToolBarTray>
-        <Button Content="TS" Height="23" Margin="0,26,38,0" Name="button2" Width="27" HorizontalAlignment="Right" VerticalAlignment="Top" Click="button2_Click" Foreground="Black" Visibility="Hidden" />
-        <Button Content="Bck" Height="23" Margin="0,26,5,0" Name="button3" Width="33" VerticalAlignment="Top" HorizontalAlignment="Right" Click="button3_Click_1" Visibility="Hidden" Grid.ColumnSpan="2" />
-        <local:Waveform Grid.Row="2" Margin="3,52,1,26" x:Name="waveform1" PlayPauseClick="waveform1_PlayPauseClick" 
-                        SliderPositionChanged="waveform1_SliderPositionChanged"
-                        CarretPostionChangedByUser="waveform1_CarretPostionChangedByUser" ParagraphClick="waveform1_ParagraphClick" 
-                        ParagraphDoubleClick="waveform1_ParagraphDoubleClick" CarretPostionChanged="waveform1_CarretPostionChanged" 
-                        ElementChanged="waveform1_ElementChanged"
-                        Transcription="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:Window1}},Path=Transcription}" Grid.ColumnSpan="2" />
     </Grid>
-    
+
 </Window>

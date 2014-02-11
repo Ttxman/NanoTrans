@@ -111,6 +111,29 @@ namespace NanoTrans.Core
             this.End = aEnd;
         }
 
+
+        public override int AbsoluteIndex
+        {
+            get
+            {
+
+                if (m_Parent != null)
+                {
+                    int sum = 0; //transcription (parent) is root element
+                    sum += m_Parent.Children.Take(this.ParentIndex) //take previous siblings
+                        .Sum(s => s.GetTotalChildrenCount()); //+ all pre siblings counts (index on sublayers)
+
+                    sum += ParentIndex; //+ parent index (index on sibling layer)
+                    //this.Text = sum.ToString();
+                    return sum;//+1 self .... first children is +1 in absolute indexing
+
+                }
+
+                return 0;
+            }
+        }
+
+
     }
 
 

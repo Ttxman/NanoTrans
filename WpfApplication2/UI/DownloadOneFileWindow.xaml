@@ -2,7 +2,14 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Name="window"
-        Title="Stahování" Width="500" Height="105" Loaded="window_Loaded">
+        
+            xmlns:lex="http://wpflocalizeextension.codeplex.com"
+            lex:LocalizeDictionary.DesignCulture="cs"
+            lex:LocalizeDictionary.IncludeInvariantCulture="False"
+            lex:ResxLocalizationProvider.DefaultAssembly="NanoTrans"
+            lex:ResxLocalizationProvider.DefaultDictionary="Strings"
+        
+        Title="{lex:LocText Key=DownloadFileWindowTitle}" Width="500" Height="105" Loaded="window_Loaded">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="30" />

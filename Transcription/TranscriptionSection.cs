@@ -118,6 +118,30 @@ namespace NanoTrans.Core
         {
             return m_children.Count;
         }
-    }
 
+        public override int AbsoluteIndex
+        {
+            get
+            {
+
+                if (m_Parent != null)
+                {
+                    
+                    int sum = m_Parent.AbsoluteIndex;//parent absolute index index
+                    sum += m_Parent.Children.Take(this.ParentIndex) //take previous siblings
+                        .Sum(s => s.GetTotalChildrenCount()); //+ all pre siblings counts (index on sublayers)
+
+                    sum += ParentIndex; //+ parent index (index on sibling layer)
+                    //... sum = all previous
+
+                    sum++;//+1 - this
+                   // this.Text = sum.ToString();
+                    return sum;
+
+                }
+
+                return 0;
+            }
+        }
+    }
 }

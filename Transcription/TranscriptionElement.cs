@@ -151,11 +151,26 @@ namespace NanoTrans.Core
             get { return Children.Count > 0; }
         }
 
+
+
+        public abstract int AbsoluteIndex
+        {
+            get;
+        }
+
+        public virtual void ElementInserted(TranscriptionElement element, int absoluteindex)
+        {
+            if (m_Parent != null)
+                m_Parent.ElementInserted(element, absoluteindex);//+1 for this
+        }
+
         public virtual void Add(TranscriptionElement data)
         {
             m_children.Add(data);
             data.m_Parent = this;
             data.m_ParentIndex = m_children.Count - 1;
+
+            ElementInserted(data, data.AbsoluteIndex);
             ChildrenCountChanged(ChangedAction.Add);
         }
 
@@ -170,23 +185,11 @@ namespace NanoTrans.Core
             {
                 m_children[i].m_ParentIndex = i;
             }
-            ElementInserted(data, data.m_ParentIndex);
+            ElementInserted(data, data.AbsoluteIndex);
             ChildrenCountChanged(ChangedAction.Add);
             ChildrenCountChanged(ChangedAction.Replace);
 
         }
-
-        public virtual int AbsoluteIndex
-        {
-            get { return (m_Parent != null) ? m_Parent.AbsoluteIndex + m_ParentIndex : 0; }
-        }
-
-        public virtual void ElementInserted(TranscriptionElement element, int index)
-        {
-            if (m_Parent != null)
-                m_Parent.ElementInserted(element, m_Parent.ParentIndex + index + 1);//+1 for this
-        }
-
         public virtual void RemoveAt(int index)
         {
 
@@ -194,6 +197,7 @@ namespace NanoTrans.Core
                 throw new IndexOutOfRangeException();
 
             TranscriptionElement element = m_children[index];
+            int indexabs = element.AbsoluteIndex;
             var c = m_children[index];
             c.m_Parent = null;
             c.m_ParentIndex = -1;
@@ -203,15 +207,15 @@ namespace NanoTrans.Core
             {
                 m_children[i].m_ParentIndex = i;
             }
-            ElementRemoved(element, index);
+            ElementRemoved(element, indexabs);
             ChildrenCountChanged(ChangedAction.Remove);
 
         }
 
-        public virtual void ElementRemoved(TranscriptionElement element, int index)
+        public virtual void ElementRemoved(TranscriptionElement element, int absoluteindex)
         {
             if (m_Parent != null)
-                m_Parent.ElementRemoved(element, m_Parent.ParentIndex + index + 1);//+1 for this
+                m_Parent.ElementRemoved(element, absoluteindex);//+1 for this
         }
 
         public virtual bool Remove(TranscriptionElement value)
@@ -278,7 +282,7 @@ namespace NanoTrans.Core
                 n = n.Next();
                 yield return n;
             }
-           
+
         }
 
 

@@ -2,7 +2,14 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Name="window"
-        Title="TextWallWindow" Height="600" Width="800" >
+        
+        xmlns:lex="http://wpflocalizeextension.codeplex.com"
+        lex:LocalizeDictionary.DesignCulture="cs"
+        lex:LocalizeDictionary.IncludeInvariantCulture="False"
+        lex:ResxLocalizationProvider.DefaultAssembly="NanoTrans"
+        lex:ResxLocalizationProvider.DefaultDictionary="Strings"
+        
+        Title="{lex:LocText TextWallWindowTitle}" Height="600" Width="800" >
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
@@ -10,8 +17,8 @@
         </Grid.RowDefinitions>
         <TextBox Name="textbox" Grid.Row="0" IsReadOnly="True" VerticalScrollBarVisibility="Visible" />
         <StackPanel Grid.Row="1" Orientation="Horizontal" Name="ButtonStack">
-            <Button Margin="10,1,10,1" Click="Button_Click">OK</Button>
-            <Button Margin="10,1,1,1" Click="Button_Click_1">Cancel</Button>
+            <Button Margin="10,1,10,1" Click="Button_Click" Content="{lex:Loc TextWallWindowOKButton}"/>
+            <Button Margin="10,1,1,1" Click="Button_Click_1" Content="{lex:Loc TextWallWindowCancelButton}"/>
         </StackPanel>
     </Grid>
 </Window>

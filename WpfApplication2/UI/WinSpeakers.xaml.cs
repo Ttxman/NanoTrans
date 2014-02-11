@@ -87,7 +87,7 @@ namespace NanoTrans
             {
                 if (lbSeznamMluvcich.SelectedItem != null)
                 {
-                    if (MessageBox.Show("Opravdu chcete smazat vybraného mluvčího z příslušného seznamu i datové struktury, pokud je v ní přítomen?", "Upozornění:", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                    if (MessageBox.Show(Properties.Strings.MessageBoxConfirmUsedSpeakerDeletion, Properties.Strings.MessageBoxQuestionCaption, MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                     {
                         if (myDataSource.RemoveSpeaker(lbSeznamMluvcich.SelectedItem as Speaker))
                         {
@@ -98,7 +98,7 @@ namespace NanoTrans
                 }
                 else if (lbDatabazeMluvcich.SelectedItem != null)
                 {
-                    if (MessageBox.Show("Opravdu chcete smazat vybraného mluvčího z databáze programu?", "Upozornění:", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                    if (MessageBox.Show(Properties.Strings.MessageBoxConfirmUsedSpeakerDeletion, Properties.Strings.MessageBoxQuestionCaption, MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                     {
                         if (lbDatabazeMluvcich.SelectedItem != null)
                         {
@@ -248,8 +248,8 @@ namespace NanoTrans
         private void btExterniDatabaze_Click(object sender, RoutedEventArgs e)
         {
                 Microsoft.Win32.OpenFileDialog fileDialog = new Microsoft.Win32.OpenFileDialog();
-                fileDialog.Title = "Otevřít soubor s databází mluvčích...";
-                fileDialog.Filter = "Soubory mluvčích (*" + bNastaveni.PriponaDatabazeMluvcich + ")|*" + bNastaveni.PriponaDatabazeMluvcich + "|Všechny soubory (*.*)|*.*";
+                fileDialog.Title = Properties.Strings.FileDialogLoadSpeakersDatabaseTitle;
+                fileDialog.Filter = string.Format(Properties.Strings.FileDialogLoadSpeakersDatabaseFilter, "*.xml", "*.xml");
                 try
                 {
                     FileInfo fi = new FileInfo(bNastaveni.CestaDatabazeMluvcich);
@@ -264,8 +264,8 @@ namespace NanoTrans
                 fileDialog.RestoreDirectory = true;
                 if (fileDialog.ShowDialog() == true)
                 {
-                    MySpeakers ms = this.bDatabazeMluvcich.Deserialize(fileDialog.FileName);
-                    if (ms != null && ms.Ulozeno)
+                    MySpeakers ms = MySpeakers.Deserialize(fileDialog.FileName);
+                    if (ms != null)
                     {
                         this.bDatabazeMluvcich = ms;
                         lbDatabazeMluvcich.Items.Clear();
@@ -273,8 +273,6 @@ namespace NanoTrans
                         {
                             lbDatabazeMluvcich.Items.Add((this.bDatabazeMluvcich.Speakers[i]).FullName);
                         }
-
-
                     }
                 }
         }
@@ -322,9 +320,8 @@ namespace NanoTrans
         {
 
                 Microsoft.Win32.SaveFileDialog fileDialog = new Microsoft.Win32.SaveFileDialog();
-                fileDialog.Title = "Uložit databází mluvčích...";
-                fileDialog.Filter = "Soubory mluvčích (*" + bNastaveni.PriponaDatabazeMluvcich + ")|*" + bNastaveni.PriponaDatabazeMluvcich + "|Všechny soubory (*.*)|*.*";
-                //fileDialog.FileName = "SeznamMluvcich";
+                fileDialog.Title = Properties.Strings.FileDialogSaveSpeakersDatabaseTitle;
+                fileDialog.Filter = string.Format(Properties.Strings.FileDialogLoadSpeakersDatabaseFilter, "*.xml", "*.xml");
                 try
                 {
                     FileInfo fi = new FileInfo(bNastaveni.CestaDatabazeMluvcich);
@@ -338,11 +335,8 @@ namespace NanoTrans
                 fileDialog.FilterIndex = 1;
                 fileDialog.RestoreDirectory = true;
                 if (fileDialog.ShowDialog() == true)
-                {
-                    if (this.bDatabazeMluvcich.Serialize_V1(fileDialog.FileName, this.bDatabazeMluvcich))
-                    {
-
-                    }
+                {                
+                    bDatabazeMluvcich.Serialize(fileDialog.FileName);
                 }
 
         }
@@ -394,7 +388,7 @@ namespace NanoTrans
             }
             else
             {
-                MessageBox.Show("Není výbraný mluvčí na kterého neviditelné převést","Chyba",MessageBoxButton.OK,MessageBoxImage.Exclamation);
+                MessageBox.Show(Properties.Strings.MessageBoxSpeakerReplaceTargetNotSelected,Properties.Strings.MessageBoxInfoCaption , MessageBoxButton.OK, MessageBoxImage.Exclamation);
             }
         }
 
@@ -438,11 +432,11 @@ namespace NanoTrans
                             elm = elm.Next();
                         }
                     }
-                    MessageBox.Show("Převedeno", "Převedeno", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show(Properties.Strings.MessageBoxSpeakerReplaceDone, Properties.Strings.MessageBoxInfoCaption, MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 else
                 {
-                    MessageBox.Show("Nelze Převést", "Nelze Převést", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                    MessageBox.Show(Properties.Strings.MessageBoxSpeakerCannotReplace, Properties.Strings.MessageBoxInfoCaption, MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 }
 
                 

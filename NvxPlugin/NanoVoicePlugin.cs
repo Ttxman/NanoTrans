@@ -51,7 +51,7 @@ namespace NvxPlugin
                 segmentation = segmentations.First();
 
             TimeSpan unitlen = new TimeSpan((long)(TimeSpan.FromSeconds(1).Ticks * XmlConvert.ToDouble(segmentation.Attribute("tres").Value)));
-            segmentations.Elements("Segment");
+            //segmentations.Elements("Segment");
 
             Transcription tr = storage;
             TranscriptionChapter ch = new TranscriptionChapter();
@@ -84,7 +84,11 @@ namespace NvxPlugin
             tr.Add(ch);
 
 
-            tr.AssingSpeakersByID();
+           tr.AssingSpeakersByID(); //added in newer version
+
+
+
+
             return true;
         }
 

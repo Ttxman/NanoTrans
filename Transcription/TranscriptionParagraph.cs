@@ -290,14 +290,41 @@ namespace NanoTrans.Core
             this.Begin = new TimeSpan(-1);
             this.End = new TimeSpan(-1);
             this.trainingElement = false;
-            this.Speaker = Speaker.DefaultSpeaker;
         }
 
         //when phraze is removed...
-        public override void ElementRemoved(TranscriptionElement element, int index)
+        public override void ElementRemoved(TranscriptionElement element, int absoluteindex)
         {
             base.ElementChanged(this);
         }
+        //when phraze is inserted/added
+        public override void ElementInserted(TranscriptionElement element, int absoluteindex)
+        {
+            base.ElementChanged(this);
+        }
+
+        //when phraze is replaced
+        public override void ElementReplaced(TranscriptionElement oldelement, TranscriptionElement newelement)
+        {
+            base.ElementChanged(this);
+        }
+
+        public override int AbsoluteIndex
+        {
+            get
+            {
+                if (m_Parent != null)
+                {
+                    int sum = m_Parent.AbsoluteIndex + m_ParentIndex + 1;
+                    //this.Phrases.Clear();
+                  //  this.Add(new TranscriptionPhrase(){Text = sum.ToString()});
+                    return sum;
+                }
+
+                return 0;
+            }
+        }
+
     }
 
 }

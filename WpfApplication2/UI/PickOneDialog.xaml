@@ -4,6 +4,13 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
+        
+        xmlns:lex="http://wpflocalizeextension.codeplex.com"
+        lex:LocalizeDictionary.DesignCulture="cs"
+        lex:LocalizeDictionary.IncludeInvariantCulture="False"
+        lex:ResxLocalizationProvider.DefaultAssembly="NanoTrans"
+        lex:ResxLocalizationProvider.DefaultDictionary="Strings"
+        
              Height="600" Width="800" SizeToContent="WidthAndHeight" Loaded="Window_Loaded" PreviewKeyDown="textBox1_PreviewKeyDown">
     <Grid>
         <Grid.RowDefinitions>
@@ -17,10 +24,10 @@
                     <ColumnDefinition Width="auto" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <Label Grid.Column="0" Content="Filtr:" Name="label1" VerticalAlignment="Top" HorizontalAlignment="Left" />
+                <Label Grid.Column="0" Content="{lex:Loc PickOneDialogFilterLabel}" Name="label1" VerticalAlignment="Top" HorizontalAlignment="Left" />
                 <TextBox Grid.Column="1" Name="textBox1" TextChanged="textBox1_TextChanged" HorizontalAlignment="Stretch" KeyDown="textBox1_KeyDown" />
             </Grid>
-            <Button Click="Button_Click">OK</Button>
+            <Button Click="Button_Click" Content="{lex:Loc PickOneDialogOKButton}"/>
         </StackPanel>
         
     </Grid>

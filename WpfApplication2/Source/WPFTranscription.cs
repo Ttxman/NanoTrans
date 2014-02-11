@@ -49,16 +49,16 @@ namespace NanoTrans
                 CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, oldelement, newelement));
         }
 
-        public override void ElementInserted(TranscriptionElement element, int index)
+        public override void ElementInserted(TranscriptionElement element, int absoluteindex)
         {
             if (CollectionChanged != null)
-                CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, element, index));
+                CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, element, absoluteindex));
         }
 
-        public override void ElementRemoved(TranscriptionElement element, int index)
+        public override void ElementRemoved(TranscriptionElement element, int absoluteindex)
         {
             if (CollectionChanged != null)
-                CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, element, index));
+                CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, element, absoluteindex));
         }
 
         public NotifyCollectionChangedAction MapEvent(ChangedAction action)

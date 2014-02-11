@@ -168,12 +168,12 @@ namespace NanoTrans
             string[] masks = m_ImportPlugins.Select(p => p.Mask).ToArray();
             string[] filetypes = masks.SelectMany(m=>m.Split('|').Where((p,i)=>i%2==1).SelectMany(ex=>ex.Split(';'))).Distinct().ToArray();
 
-            string allfilesMask = string.Format("Soubory všech importovatelných typů({0})|{0}",string.Join(";",filetypes));
+            string allfilesMask = string.Format(Properties.Strings.FileDialogLoadImportFilter,string.Join(";",filetypes));
             OpenFileDialog opf = new OpenFileDialog();
             opf.CheckFileExists = true;
             opf.CheckPathExists = true;
             opf.Filter = string.Join("|", new[] { allfilesMask }.Concat(masks));
-
+            opf.Title = Properties.Strings.FileDialogLoadImportTitle;
             bool filedialogopened = false;
             if (e.Parameter is string)
             {
@@ -193,7 +193,7 @@ namespace NanoTrans
                     
                     if (plugins.Length != 1)
                     {
-                        PickOneDialog pd = new PickOneDialog(plugins.Select(p=>p.Name).ToList(),"Soubor s danou příponou je možné importovat více pluginy, vyberte ten správný");
+                        PickOneDialog pd = new PickOneDialog(plugins.Select(p=>p.Name).ToList(),Properties.Strings.ImportSelectImportPlugin);
                         if (pd.ShowDialog() == true)
                         {
                              LoadSubtitlesData(plugins[pd.SelectedIndex].ExecuteImport(opf.FileName));
@@ -248,7 +248,7 @@ namespace NanoTrans
         {
             if ((T1 - T2).Duration() <= TimeSpan.FromMilliseconds(100))
             {
-                MessageBox.Show("Odstavec nemůže být kratší než 100ms", "Chyba", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                MessageBox.Show(Properties.Strings.MessageBoxTooShortParagraph, Properties.Strings.MessageBoxWarningCaption, MessageBoxButton.OK, MessageBoxImage.Warning);
                 return true;
             }
 
@@ -295,13 +295,14 @@ namespace NanoTrans
 
         private void CNewSection(object sender, ExecutedRoutedEventArgs e)
         {
-            TranscriptionSection s = new TranscriptionSection("Sekce");
+            TranscriptionSection s = new TranscriptionSection(Properties.Strings.DefaultSectionText);
             TranscriptionParagraph p = new TranscriptionParagraph();
             p.Add(new TranscriptionPhrase());
-            s.Add(p);
             Transcription.Add(s);
+            s.Add(p);
             VirtualizingListBox.ActiveTransctiption = s;
         }
+
         private void CInsertNewSection(object sender, ExecutedRoutedEventArgs e)
         {
             if (VirtualizingListBox.ActiveTransctiption != null)
@@ -311,7 +312,7 @@ namespace NanoTrans
                     TranscriptionParagraph p = (TranscriptionParagraph)VirtualizingListBox.ActiveTransctiption;
                     int idx = p.ParentIndex;
                     TranscriptionSection sec = (TranscriptionSection)p.Parent;
-                    TranscriptionSection s = new TranscriptionSection("Sekce");
+                    TranscriptionSection s = new TranscriptionSection(Properties.Strings.DefaultSectionText);
                     for (int i = idx; i < sec.Children.Count; i++)
                         s.Add(sec[i]);
 
@@ -319,33 +320,36 @@ namespace NanoTrans
 
                     sec.Parent.Insert(sec.ParentIndex + 1, s);
                     VirtualizingListBox.ActiveTransctiption = s;
+
+                    VirtualizingListBox.Reset();
                 }
                 else if (VirtualizingListBox.ActiveTransctiption.IsSection)
                 {
-                    var s = new TranscriptionSection("Sekce");
+                    var s = new TranscriptionSection(Properties.Strings.DefaultSectionText);
                     s.Children.AddRange(VirtualizingListBox.ActiveTransctiption.Children);
                     VirtualizingListBox.ActiveTransctiption.Children.Clear();
                     VirtualizingListBox.ActiveTransctiption.Parent.Insert(VirtualizingListBox.ActiveTransctiption.ParentIndex, s);
                     VirtualizingListBox.ActiveTransctiption = s;
+                    VirtualizingListBox.Reset();
                 }
                 else if (VirtualizingListBox.ActiveTransctiption.IsChapter)
                 {
-                    var s = new TranscriptionSection("Sekce");
+                    var s = new TranscriptionSection(Properties.Strings.DefaultSectionText);
                     VirtualizingListBox.ActiveTransctiption.Insert(0, s);
-
                     VirtualizingListBox.ActiveTransctiption = s;
+                    VirtualizingListBox.Reset();
                 }
             }
         }
         private void CNewChapter(object sender, ExecutedRoutedEventArgs e)
         {
-            TranscriptionChapter c = new TranscriptionChapter("Kapitola");
-            TranscriptionSection s = new TranscriptionSection("Sekce");
+            TranscriptionChapter c = new TranscriptionChapter(Properties.Strings.DefaultChapterText);
+            TranscriptionSection s = new TranscriptionSection(Properties.Strings.DefaultSectionText);
             TranscriptionParagraph p = new TranscriptionParagraph();
             p.Add(new TranscriptionPhrase());
-            s.Add(p);
-            c.Add(s);
             Transcription.Add(c);
+            c.Add(s);
+            s.Add(p);
             VirtualizingListBox.ActiveTransctiption = c;
         }
         private void CDeleteElement(object sender, ExecutedRoutedEventArgs e)
@@ -549,35 +553,16 @@ namespace NanoTrans
 
         private void CGeneratePhoneticTranscription(object sender, ExecutedRoutedEventArgs e)
         {
-            //TODO:
-          /*  if (MyKONST.VERZE == MyEnumVerze.Externi) return;
-            if (oPrepisovac != null && oPrepisovac.Rozpoznavani)
-            {
-                if (MessageBox.Show("Opravdu chcete přerušit právě probíhající přepis?", "", MessageBoxButton.YesNoCancel, MessageBoxImage.Question) == MessageBoxResult.Yes)
-                {
-                    if (oPrepisovac.StopHned() == 0)
-                    {
-                      if (pSeznamOdstavcuKRozpoznani != null) pSeznamOdstavcuKRozpoznani.Clear();
-                    }
-                }
-            }
-            else
-            {
-                SpustRozpoznavaniVybranehoElementu(VirtualizingListBox.ActiveTransctiption, new TimeSpan(-1), new TimeSpan(-1), false);
-            }
-           * */
+
         }
 
         private void CStartStopDictate(object sender, ExecutedRoutedEventArgs e)
         {
-            if (MyKONST.VERZE == MyEnumVerze.Externi) return;
-            //diktat docasne zrusen
         
         }
 
         private void CStartStopVoiceControl(object sender, ExecutedRoutedEventArgs e)
         {
-            if (MyKONST.VERZE == MyEnumVerze.Externi) return;
 
         
         }
@@ -612,18 +597,18 @@ namespace NanoTrans
             }
             else
             {
-                MessageBox.Show("Nelze vytvořit obrázek mluvčího, protože není načteno video", "Upozornění!");
+                MessageBox.Show(Properties.Strings.MessageBoxCannotTakeSnapshotVideoNotLoaded, Properties.Strings.MessageBoxWarningCaption,MessageBoxButton.OK,MessageBoxImage.Warning);
             }
         
         }
         private void CCreateNewTranscription(object sender, ExecutedRoutedEventArgs e)
         {
-            NoveTitulky();
+            NewTranscription();
         }
 
         private void COpenTranscription(object sender, ExecutedRoutedEventArgs e)
         {
-            OtevritTitulky(true, "", false);
+            OpenTranscription(true, "", false);
         }
        
         private void CSaveTranscription(object sender, ExecutedRoutedEventArgs e)
@@ -696,7 +681,7 @@ namespace NanoTrans
             }
             else
             {
-                if (MessageBox.Show("Vyhledávaný výraz nebyl nalezen, začít znovu od začátku dokumentu?", "Vyhledávání", MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes)
+                if (MessageBox.Show(Properties.Strings.MessageBoxSearchTryFromBegining, Properties.Strings.MessageBoxSearchCaption, MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes)
                 {
                     var first = m_mydatasource.First();
                     VirtualizingListBox.ActiveTransctiption = first;

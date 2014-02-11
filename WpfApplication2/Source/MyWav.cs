@@ -152,13 +152,13 @@ namespace NanoTrans.Audio
 
 
 
-        private void AsynchronniNacteniRamce()
+        private void AsynchronousFrameLoad()
         {
             this.NactiRamecBufferu(this.bPozadovanyPocatekRamce, this.bPozadovanaDelkaRamceMS, this.bIDBufferu);
         }
 
 
-        private void NastavPocatecniCasNovehoRamce(long aCasMS, long aDelkaMS, int aIDBufferu)  //zavolat pred spustenim nacitani ramce, pote spustit thread
+        private void SetNewFrameStartTime(long aCasMS, long aDelkaMS, int aIDBufferu)  //zavolat pred spustenim nacitani ramce, pote spustit thread
         {
             if (aCasMS < 0)
             {
@@ -172,23 +172,23 @@ namespace NanoTrans.Audio
         /// <summary>
         /// vytvori thread, ktery nasledne zacne snacitanim do bufferu, aIDBufferu-aby bylo venku videt,pro ktery buffer jsou tato data
         /// </summary>
-        public void AsynchronniNacteniRamce2(long aCasMS, long aDelkaMS, int aIDBufferu)
+        public void AsynchronousFrameLoad2(long aCasMS, long aDelkaMS, int aIDBufferu)
         {
-            NastavPocatecniCasNovehoRamce(aCasMS, aDelkaMS, aIDBufferu);
+            SetNewFrameStartTime(aCasMS, aDelkaMS, aIDBufferu);
             if (aIDBufferu == MyKONST.ID_BUFFERU_PREPISOVANEHO_ELEMENTU_FONETICKY_PREPIS)
             {
-                this.tNacitaniBufferu2 = new Thread(AsynchronniNacteniRamce) { Name = "AsynchronniNacteniRamce2()" };
+                this.tNacitaniBufferu2 = new Thread(AsynchronousFrameLoad) { Name = "AsynchronniNacteniRamce2()" };
                 this.tNacitaniBufferu2.Start();
             }
             if (aIDBufferu == MyKONST.ID_BUFFERU_PREPISOVANEHO_ELEMENTU)
             {
-                this.tNacitaniBufferu2 = new Thread(AsynchronniNacteniRamce);
+                this.tNacitaniBufferu2 = new Thread(AsynchronousFrameLoad);
                 this.tNacitaniBufferu2.Start();
             }
             else if (aIDBufferu == MyKONST.ID_ZOBRAZOVACIHO_BUFFERU_VLNY)
             {
 
-                this.tNacitaniBufferu1 = new Thread(AsynchronniNacteniRamce);
+                this.tNacitaniBufferu1 = new Thread(AsynchronousFrameLoad);
                 this.tNacitaniBufferu1.Start();
             }
 

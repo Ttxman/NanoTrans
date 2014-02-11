@@ -64,8 +64,8 @@ namespace NanoTrans
         private void btNacistObrazek_Click(object sender, RoutedEventArgs e)
         {
             Microsoft.Win32.OpenFileDialog fileDialog = new Microsoft.Win32.OpenFileDialog();
-            fileDialog.Title = "Otevřít soubor s obrázkem mluvčího...";
-            fileDialog.Filter = "Soubory obrázků|*.jpg;*.jpeg;*.png;*.gif;*.bmp|Všechny soubory (*.*)|*.*";
+            fileDialog.Title = Properties.Strings.FileDialogLoadImageTitle;
+            fileDialog.Filter = Properties.Strings.FileDialogLoadImageFilter;
             try
             {
                 fileDialog.FilterIndex = 1;

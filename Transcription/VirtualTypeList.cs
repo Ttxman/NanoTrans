@@ -20,6 +20,13 @@ namespace NanoTrans.Core
             m_parent = parent;
         }
 
+        public void AddMany(IEnumerable<T> elements)
+        {
+            foreach (var elm in elements)
+                this.Add(elm);
+        }
+
+
         #region IList<T> Members
 
         public int IndexOf(T item)

@@ -204,16 +204,16 @@ namespace NanoTrans.Core
 
         }
 
-        public XElement Serialize(bool strict)
+        public XElement Serialize()
         {
-            XElement elm = new XElement(strict ? "speaker" : "s",
+            XElement elm = new XElement("s",
                 Elements.Select(e =>
                     new XAttribute(e.Key, e.Value))
                     .Union(new[]{ 
                     new XAttribute("id", m_ID.ToString()),
                     new XAttribute("surname",Surname),
                     new XAttribute("firstname",FirstName),
-                    new XAttribute("sex",(Sex==Sexes.Male)?"M":(Sex==Sexes.Female)?"F":"X")
+                    new XAttribute("sex",(Sex==Sexes.Male)?"m":(Sex==Sexes.Female)?"f":"x")
                     })
             );
 

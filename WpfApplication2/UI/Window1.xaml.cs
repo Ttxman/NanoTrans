@@ -55,6 +55,7 @@ namespace NanoTrans
 
                 if (PropertyChanged != null)
                     PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs("Transcription"));
+
             }
         }
 
@@ -149,313 +150,91 @@ namespace NanoTrans
                 }
             }
         }
-        ContextMenu ContextMenuGridX;
-        ContextMenu ContextMenuVlnaImage;
-        ContextMenu ContextMenuVideo;
-
-
-        /// <summary>
-        /// nastavi formulari jazyk
-        /// </summary>
-        public void NastavJazyk(MyEnumJazyk aJazyk)
-        {
-            MySetup.Setup.jazykRozhranni = aJazyk;
-            if (aJazyk == MyEnumJazyk.cestina) return;
-            if (aJazyk == MyEnumJazyk.anglictina)
-            {
-
-                btNormalizovat.Content = "Normalization (F9)";
-                btOdstranitNefonemy.Content = "Delete Nonphonemes (F11)";
-
-
-                lPocatek.Content = "Beg.";
-                lKonec.Content = "End:";
-                btPriraditVyber.Content = "Assign selection to element";
-
-
-                tiInfo.Header = "Document info";
-
-
-                lDatum.Content = "Date and time:";
-                lZdroj.Content = "Source:";
-                lTyp.Content = "Type:";
-
-
-                //menu
-                menuSoubor.Header = "File";
-                menuSouborExportovat.Header = "Export...";
-                menuSouborKonec.Header = "Close";
-                menuSouborNovyPrepis.Header = "New transcription";
-                menuSouborOtevritAudio.Header = "Open audio file";
-                menuSouborOtevritPrepis.Header = "Open transcription";
-                menuSouborOtevritVideo.Header = "Open video file";
-                menuSouborUlozit.Header = "Save";
-                menuSouborUlozitJako.Header = "Save as...";
-
-                menuUpravy.Header = "Edit";
-                menuUpravyKapitola.Header = "New chapter";
-                menuUpravySekce.Header = "New section at...";
-                menuUpravySmazat.Header = "Delete element";
-
-                menuNastroje.Header = "Tools";
-                menuNastrojeFonetika.Header = "Phonetic transcription";
-                menuNastrojeFonetikaFonetika.Header = "Automatic phonetic transcription";
-                menuNastrojeFonetikaZobrazit.Header = "Show phonetic transcription";
-                menuNastrojeNastaveni.Header = "Option";
-                menuNastrojeNastavMluvciho.Header = "Speaker selection";
-                menuNastrojeNormalizace.Header = "Normalization";
-                menuNastrojeObrazekMluvciho.Header = "Speaker picture from video";
-
-                menuPrepisovac.Header = "Voice recognition";
-                menuPrepisovacDiktat.Header = "Dictate";
-                menuPrepisovacHlasoveOvladani.Header = "Voice control";
-                menuPrepisovacPrepis.Header = "Automatic audio recognition";
-
-                menuNapoveda.Header = "Help";
-                menuNapovedaOProgramu.Header = "About";
-                menuNapovedaPopis.Header = "Shortcuts";
-
-
-
-
-            }
-        }
-
-
-        /// <summary>
-        /// zobrazi informace o vyberu vlny na formular
-        /// </summary>
-        public void ZobrazInformaceVyberu()
-        {
-            if (waveform1.SelectionEnd >= waveform1.SelectionBegin)
-            {
-                TimeSpan ts = waveform1.SelectionBegin;
-                lAudioIndex1.Content = ts.Hours.ToString() + ":" + ts.Minutes.ToString("D2") + ":" + ts.Seconds.ToString("D2") + "," + ((int)ts.Milliseconds / 10).ToString("D2"); ;
-                ts = waveform1.SelectionEnd;
-                lAudioIndex2.Content = ts.Hours.ToString() + ":" + ts.Minutes.ToString("D2") + ":" + ts.Seconds.ToString("D2") + "," + ((int)ts.Milliseconds / 10).ToString("D2"); ;
-            }
-            else
-            {
-                TimeSpan ts = waveform1.SelectionEnd;
-                lAudioIndex1.Content = ts.Hours.ToString() + ":" + ts.Minutes.ToString("D2") + ":" + ts.Seconds.ToString("D2") + "," + ((int)ts.Milliseconds / 10).ToString("D2"); ;
-                ts = waveform1.SelectionBegin;
-                lAudioIndex2.Content = ts.Hours.ToString() + ":" + ts.Minutes.ToString("D2") + ":" + ts.Seconds.ToString("D2") + "," + ((int)ts.Milliseconds / 10).ToString("D2"); ;
-            }
-        }
 
         public Window1()
         {
             InitializeComponent();
 
-            try
+            //nastaveni aplikace
+            Stream s = FilePaths.GetConfigFileReadStream();
+            if (s != null)
+                MySetup.Setup = MySetup.Setup.Deserializovat(s);
+            else
+                MySetup.Setup.Serializovat(s, MySetup.Setup);
+
+
+
+
+
+            //nastaveni posledni pozice okna
+            if (MySetup.Setup.OknoPozice != null)
             {
-
-                if (MyKONST.VERZE == MyEnumVerze.Externi)
+                if (MySetup.Setup.OknoPozice.X >= 0 && MySetup.Setup.OknoPozice.Y >= 0)
                 {
-                    //odstraneni automatickeho rozpoznavani - zalozka
-                    tabControl1.Items.RemoveAt(1);
-                    //odstraneni automatickeho rozpoznavani - menu
-                    menu1.Items.RemoveAt(3);
-
+                    this.WindowStartupLocation = WindowStartupLocation.Manual;
+                    this.Left = MySetup.Setup.OknoPozice.X;
+                    this.Top = MySetup.Setup.OknoPozice.Y;
                 }
-
-
-                //nastaveni aplikace
-                Stream s = FilePaths.GetConfigFileReadStream();
-                if (s != null)
-                    MySetup.Setup = MySetup.Setup.Deserializovat(s);
-                else
-                    MySetup.Setup.Serializovat(s, MySetup.Setup);
-
-
-
-
-
-                //nastaveni posledni pozice okna
-                if (MySetup.Setup.OknoPozice != null)
+            }
+            //nastaveni posledni velikosti okna
+            if (MySetup.Setup.OknoVelikost != null)
+            {
+                if (MySetup.Setup.OknoVelikost.Width >= 50 && MySetup.Setup.OknoVelikost.Height >= 50)
                 {
-                    if (MySetup.Setup.OknoPozice.X >= 0 && MySetup.Setup.OknoPozice.Y >= 0)
-                    {
-                        this.WindowStartupLocation = WindowStartupLocation.Manual;
-                        this.Left = MySetup.Setup.OknoPozice.X;
-                        this.Top = MySetup.Setup.OknoPozice.Y;
-                    }
+                    this.Width = MySetup.Setup.OknoVelikost.Width;
+                    this.Height = MySetup.Setup.OknoVelikost.Height;
                 }
-                //nastaveni posledni velikosti okna
-                if (MySetup.Setup.OknoVelikost != null)
+            }
+
+            this.WindowState = MySetup.Setup.OknoStav;
+
+
+            ZobrazitOknoFonetickehoPrepisu(MySetup.Setup.ZobrazitFonetickyPrepis - 1 > 0);
+
+            //databaze mluvcich
+            SpeakersDatabase = new MySpeakers();
+
+            string fname = System.IO.Path.GetFullPath(MySetup.Setup.CestaDatabazeMluvcich);
+            if (fname.Contains(FilePaths.ProgramDirectory))
+            {
+                if (!FilePaths.WriteToAppData)
                 {
-                    if (MySetup.Setup.OknoVelikost.Width >= 50 && MySetup.Setup.OknoVelikost.Height >= 50)
-                    {
-                        this.Width = MySetup.Setup.OknoVelikost.Width;
-                        this.Height = MySetup.Setup.OknoVelikost.Height;
-                    }
-                }
-
-                this.WindowState = MySetup.Setup.OknoStav;
-
-
-                ZobrazitOknoFonetickehoPrepisu(MySetup.Setup.ZobrazitFonetickyPrepis - 1 > 0);
-
-                //databaze mluvcich
-                SpeakersDatabase = new MySpeakers();
-
-                string fname = System.IO.Path.GetFullPath(MySetup.Setup.CestaDatabazeMluvcich);
-                if (fname.Contains(FilePaths.ProgramDirectory))
-                {
-                    if (!FilePaths.WriteToAppData)
-                    {
-                        SpeakersDatabase = SpeakersDatabase.Deserialize(MySetup.Setup.CestaDatabazeMluvcich);
-                    }
-                    else
-                    {
-                        string fname2 = System.IO.Path.Combine(FilePaths.AppDataDirectory, fname.Substring(FilePaths.ProgramDirectory.Length));
-                        if (File.Exists(fname2))
-                        {
-                            SpeakersDatabase = SpeakersDatabase.Deserialize(fname2);
-                        }
-                        else if (File.Exists(MySetup.Setup.CestaDatabazeMluvcich))
-                        {
-                            SpeakersDatabase = SpeakersDatabase.Deserialize(MySetup.Setup.CestaDatabazeMluvcich);
-                        }
-                    }
+                    SpeakersDatabase = MySpeakers.Deserialize(MySetup.Setup.CestaDatabazeMluvcich);
                 }
                 else
                 {
-                    if (File.Exists(MySetup.Setup.CestaDatabazeMluvcich))
+                    string fname2 = System.IO.Path.Combine(FilePaths.AppDataDirectory, fname.Substring(FilePaths.ProgramDirectory.Length));
+                    if (File.Exists(fname2))
                     {
-                        SpeakersDatabase = SpeakersDatabase.Deserialize(MySetup.Setup.CestaDatabazeMluvcich);
+                        SpeakersDatabase = MySpeakers.Deserialize(fname2);
                     }
-                    else
+                    else if (File.Exists(MySetup.Setup.CestaDatabazeMluvcich))
                     {
-                        MessageBox.Show("Databáze mluvčích je nedostupná, změňte cestu v nastavení", "chyba", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                        SpeakersDatabase = MySpeakers.Deserialize(MySetup.Setup.CestaDatabazeMluvcich);
                     }
                 }
-
-
-                //vytvoreni kontext. menu pro oblast s textem
-                ContextMenuGridX = new ContextMenu();
-                MenuItem menuItemX = new MenuItem();
-                menuItemX.Header = "Nastav mluvčího";
-                menuItemX.InputGestureText = "Ctrl+M";
-                menuItemX.Click += new RoutedEventHandler(menuItemX_Nastav_Mluvciho_Click);
-
-                MenuItem menuItemX2 = new MenuItem();
-                menuItemX2.Header = "Nová sekce";
-                menuItemX2.InputGestureText = "F5";
-                menuItemX2.Click += new RoutedEventHandler(menuItemX2_Nova_Sekce_Click);
-
-                MenuItem menuItemX2b = new MenuItem();
-                menuItemX2b.Header = "Nová sekce na pozici";
-                menuItemX2b.InputGestureText = "Shift+F5";
-                menuItemX2b.Click += new RoutedEventHandler(menuItemX2b_Nova_Sekce_Click);
-
-                MenuItem menuItemX3 = new MenuItem();
-                menuItemX3.Header = "Nová kapitola";
-                menuItemX3.InputGestureText = "F4";
-                menuItemX3.Click += new RoutedEventHandler(menuItemX3_Nova_Kapitola_Click);
-
-                MenuItem menuItemX4 = new MenuItem();
-                menuItemX4.Header = "Smazat...";
-                menuItemX4.InputGestureText = "Shift+Del";
-                menuItemX4.Click += new RoutedEventHandler(menuItemX4_Smaz_Click);
-
-                MenuItem menuItemX7 = new MenuItem();
-                menuItemX7.Header = "Exportovat záznam";
-                menuItemX7.InputGestureText = "Ctrl+Shift+X";
-                menuItemX7.Click += new RoutedEventHandler(menuItemX7_Click);
-
-
-                MenuItem menuItemX8 = new MenuItem();
-                menuItemX8.Header = "Posunout zbytek +50ms";
-                menuItemX8.Click += new RoutedEventHandler(menuItemX8_add50msClick);
-
-                MenuItem menuItemX9 = new MenuItem();
-                menuItemX9.Header = "Posunout zbytek -50ms";
-                menuItemX9.Click += new RoutedEventHandler(menuItemX9_substract50msClick);
-
-                ContextMenuGridX.Items.Add(menuItemX);
-                ContextMenuGridX.Items.Add(new Separator());
-                ContextMenuGridX.Items.Add(menuItemX3);
-                ContextMenuGridX.Items.Add(menuItemX2);
-                ContextMenuGridX.Items.Add(menuItemX2b);
-                ContextMenuGridX.Items.Add(new Separator());
-                ContextMenuGridX.Items.Add(menuItemX4);
-                ContextMenuGridX.Items.Add(new Separator());
-                ContextMenuGridX.Items.Add(menuItemX7);
-                ContextMenuGridX.Items.Add(new Separator());
-                ContextMenuGridX.Items.Add(menuItemX8);
-                ContextMenuGridX.Items.Add(menuItemX9);
-
-
-
-
-                //menu pro image
-                ContextMenuVlnaImage = new ContextMenu();
-                MenuItem menuItemVlna1 = new MenuItem();
-                menuItemVlna1.Header = "Přiřadit čas začátku elementu";
-                menuItemVlna1.InputGestureText = "Ctrl+Home";
-                menuItemVlna1.Click += new RoutedEventHandler(menuItemVlna1_prirad_zacatek_Click);
-                MenuItem menuItemVlna2 = new MenuItem();
-                menuItemVlna2.Header = "Přiřadit čas konce elementu";
-                menuItemVlna2.InputGestureText = "Ctrl+End";
-                menuItemVlna2.Click += new RoutedEventHandler(menuItemVlna1_prirad_konec_Click);
-                MenuItem menuItemVlna3 = new MenuItem();
-                menuItemVlna3.Header = "Přiřadit čas výběru elementu";
-                menuItemVlna3.Click += new RoutedEventHandler(menuItemVlna1_prirad_vyber_Click);
-                MenuItem menuItemVlna4 = new MenuItem();
-                menuItemVlna4.Header = "Přidej čas. značku odstavce";
-                menuItemVlna4.InputGestureText = "Ctrl+Mezerník";
-                menuItemVlna4.Click += new RoutedEventHandler(menuItemVlna1_prirad_casovou_znacku_Click);
-                MenuItem menuItemVlna5 = new MenuItem();
-                menuItemVlna5.Header = "Automatické rozpoznání výběru";
-                menuItemVlna5.Click += new RoutedEventHandler(menuItemVlna1_automaticke_rozpoznavani_useku_Click);
-
-                MenuItem menuItemVlna6 = new MenuItem();
-                menuItemVlna6.Header = "Posunout přepis - začátek ke kurzoru";
-                menuItemVlna6.Click += new RoutedEventHandler(menuItemVlna1_posunoutZacatekKeKurzoru_Click);
-
-
-                ContextMenuVlnaImage.Items.Add(menuItemVlna1);
-                ContextMenuVlnaImage.Items.Add(menuItemVlna2);
-                ContextMenuVlnaImage.Items.Add(new Separator());
-                ContextMenuVlnaImage.Items.Add(menuItemVlna3);
-                ContextMenuVlnaImage.Items.Add(new Separator());
-                ContextMenuVlnaImage.Items.Add(menuItemVlna6);
-
-                waveform1.ContextMenu = ContextMenuVlnaImage;
-
-                //menu pro video
-                ContextMenuVideo = new ContextMenu();
-                MenuItem menuItemVideoPoriditFotku = new MenuItem();
-                menuItemVideoPoriditFotku.Header = "Sejmout obrázek mlvčího";
-                menuItemVideoPoriditFotku.Click += new RoutedEventHandler(menuItemVideoPoriditFotku_Click);
-                ContextMenuVideo.Items.Add(menuItemVideoPoriditFotku);
-                gVideoPouze.ContextMenu = ContextMenuVideo;
-
-
-                VirtualizingListBox.ContextMenu = ContextMenuGridX;
             }
-            catch (Exception ex)
+            else
             {
-                MessageBox.Show("chyba" + ex.Message);
+                if (File.Exists(MySetup.Setup.CestaDatabazeMluvcich))
+                {
+                    SpeakersDatabase = MySpeakers.Deserialize(MySetup.Setup.CestaDatabazeMluvcich);
+                }
+                else
+                {
+                    MessageBox.Show(Properties.Strings.MessageBoxLocalSpeakersDatabaseUnreachableLoad, Properties.Strings.MessageBoxWarningCaption, MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
             }
 
 
-            try
-            {
-                //oWav = new MyWav(new ExampleCallback(ResultCallback), new BufferCallback(ResultCallbackBuffer), 1000000);
-                oWav = new WavReader();
-                oWav.HaveData += oWav_HaveData;
-                oWav.HaveFileNumber += oWav_HaveFileNumber;
-                oWav.TemporaryWavesDone += new EventHandler(oWav_TemporaryWavesDone);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("chyba2" + ex.Message);
-            }
+            oWav = new WavReader();
+            oWav.HaveData += oWav_HaveData;
+            oWav.HaveFileNumber += oWav_HaveFileNumber;
+            oWav.TemporaryWavesDone += new EventHandler(oWav_TemporaryWavesDone);
+
         }
 
-        private void menuItemVlna1_posunoutZacatekKeKurzoru_Click(object sender, RoutedEventArgs e)
+        private void menuItemVlna1_SetStartToCursor_Click(object sender, RoutedEventArgs e)
         {
             TranscriptionElement te = VirtualizingListBox.ActiveElement.ValueElement;
 
@@ -593,14 +372,9 @@ namespace NanoTrans
 
             if (e.LengthMS >= oWav.FileLengthMS)
             {
-                if (MySetup.Setup.jazykRozhranni == MyEnumJazyk.anglictina)
-                {
-                    ZobrazStavProgramu("Conversion complete!");
-                }
-                else
-                    ZobrazStavProgramu("Převod souboru dokončen!");
+                ZobrazStavProgramu(Properties.Strings.mainWindowStatusbarStatusTextConversionDone);
                 pbPrevodAudio.Visibility = Visibility.Hidden;
-                lPrevodAudia.Visibility = Visibility.Hidden;
+                mainWindowStatusbarAudioConversionHeader.Visibility = Visibility.Hidden;
             }
 
             CommandManager.InvalidateRequerySuggested();
@@ -693,106 +467,96 @@ namespace NanoTrans
         #region RclickMEnu
 
         //--------------------------------menu videa---------------------------------------------
-        void menuItemVideoPoriditFotku_Click(object sender, RoutedEventArgs e)
+        void menuItemVideoTakePicture_Click(object sender, RoutedEventArgs e)
         {
             CommandTakeSpeakerSnapshotFromVideo.Execute(null, this);
         }
 
 
         //--------------------------------obsluha context menu pro gridy v listboxu--------------------------------------------------
-        void menuItemX_Nastav_Mluvciho_Click(object sender, RoutedEventArgs e)
+        void menuItemX_SetSpeaker_Click(object sender, RoutedEventArgs e)
         {
             CommandAssignSpeaker.Execute(null, null);
         }
 
-        void menuItemX2_Nova_Sekce_Click(object sender, RoutedEventArgs e)
+        void menuItemX2_NewSection_Click(object sender, RoutedEventArgs e)
         {
             CommandNewSection.Execute(null, null);
         }
 
-        void menuItemX2b_Nova_Sekce_Click(object sender, RoutedEventArgs e)
+        void menuItemX2b_newSectionAtPosition_Click(object sender, RoutedEventArgs e)
         {
             CommandInsertNewSection.Execute(null, null);
         }
 
-        void menuItemX3_Nova_Kapitola_Click(object sender, RoutedEventArgs e)
+        void menuItemX3_NewChapter_Click(object sender, RoutedEventArgs e)
         {
             CommandNewChapter.Execute(null, null);
         }
 
-        void menuItemX4_Smaz_Click(object sender, RoutedEventArgs e)
+        void menuItemX4_DeleteElement_Click(object sender, RoutedEventArgs e)
         {
             CommandDeleteElement.Execute(null, null);
         }
 
         static Encoding win1250 = Encoding.GetEncoding("windows-1250");
 
-        void menuItemX7_Click(object sender, RoutedEventArgs e)
+        void menuItemX7_ExportElement_Click(object sender, RoutedEventArgs e)
         {
             CommandExportElement.Execute(null, null);
 
         }
         #endregion
 
-        public bool NoveTitulky()
+        public bool NewTranscription()
         {
-            try
+            if (Transcription != null && !Transcription.Saved)
             {
-                if (Transcription != null && !Transcription.Saved)
+                MessageBoxResult mbr = MessageBox.Show(Properties.Strings.MessageBoxSaveBeforeClosing, Properties.Strings.MessageBoxQuestionCaption, MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+                if (mbr == MessageBoxResult.Cancel || mbr == MessageBoxResult.None)
                 {
-                    MessageBoxResult mbr = MessageBox.Show("Přepis není uložený. Chcete ho nyní uložit? ", "Upozornění:", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
-                    if (mbr == MessageBoxResult.Cancel || mbr == MessageBoxResult.None)
+                    return false;
+                }
+                else if (mbr == MessageBoxResult.Yes || mbr == MessageBoxResult.No)
+                {
+                    if (mbr == MessageBoxResult.Yes)
                     {
-                        return false;
-                    }
-                    else if (mbr == MessageBoxResult.Yes || mbr == MessageBoxResult.No)
-                    {
-                        if (mbr == MessageBoxResult.Yes)
+                        if (Transcription.FileName != null)
                         {
-                            if (Transcription.FileName != null)
-                            {
-                                if (!UlozitTitulky(false, Transcription.FileName)) return false;
-                            }
-                            else
-                            {
-                                if (!UlozitTitulky(true, Transcription.FileName)) return false;
-                            }
+                            if (!UlozitTitulky(false, Transcription.FileName)) return false;
+                        }
+                        else
+                        {
+                            if (!UlozitTitulky(true, Transcription.FileName)) return false;
                         }
                     }
                 }
-
-                var source = new WPFTranscription();
-                this.Title = MyKONST.NAZEV_PROGRAMU + " [novy]";
-                var c = new TranscriptionChapter("Kapitola 0");
-                var s = new TranscriptionSection("Sekce 0");
-                var p = new TranscriptionParagraph();
-                p.Add(new TranscriptionPhrase());
-                c.Add(s);
-                s.Add(p);
-                source.Add(c);
-                source.Saved = true;
-                Transcription = source;
-                VirtualizingListBox.ActiveTransctiption = p;
-                return true;
-
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Chyba pri vytvareni novych titulku " + ex.Message, "Chyba");
-                return false;
-            }
+
+            var source = new WPFTranscription();
+            var c = new TranscriptionChapter(Properties.Strings.DefaultChapterText);
+            var s = new TranscriptionSection(Properties.Strings.DefaultSectionText);
+            var p = new TranscriptionParagraph();
+            p.Add(new TranscriptionPhrase());
+            c.Add(s);
+            s.Add(p);
+            source.Add(c);
+            source.Saved = true;
+            Transcription = source;
+            VirtualizingListBox.ActiveTransctiption = p;
+            return true;
         }
 
 
 
 
-        public bool OtevritTitulky(bool pouzitOpenDialog, string jmenoSouboru, bool aDavkovySoubor)
+        public bool OpenTranscription(bool pouzitOpenDialog, string jmenoSouboru, bool aDavkovySoubor)
         {
             try
             {
                 if (Transcription != null && !Transcription.Saved)
                 {
-                    MessageBoxResult mbr = MessageBox.Show("Přepis není uložený. Chcete ho nyní uložit? ", "Upozornění:", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+                    MessageBoxResult mbr = MessageBox.Show(Properties.Strings.MessageBoxSaveBeforeClosing, Properties.Strings.MessageBoxQuestionCaption, MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
                     if (mbr == MessageBoxResult.Cancel || mbr == MessageBoxResult.None)
                     {
                         return false;
@@ -819,15 +583,8 @@ namespace NanoTrans
                 {
                     Microsoft.Win32.OpenFileDialog fileDialog = new Microsoft.Win32.OpenFileDialog();
 
-                    fileDialog.Title = "Otevřít soubor s titulky...";
-                    //fdlg.InitialDirectory = @"c:\" ;
-                    fileDialog.Filter = "Soubory titulků (*" + MySetup.Setup.PriponaTitulku + ")|*" + MySetup.Setup.PriponaTitulku;
-                    if (MyKONST.VERZE == MyEnumVerze.Interni)
-                    {
-                        fileDialog.Filter += "|Soubory (*.trsx) |*.trsx";
-                        fileDialog.Filter = "Podporované typy (*.trsx, *.xml)|*.trsx;*.xml;|" + fileDialog.Filter;
-                    }
-                    fileDialog.Filter += "|Všechny soubory (*.*)|*.*";
+                    fileDialog.Title = Properties.Strings.FileDialogLoadTranscriptionTitle;
+                    fileDialog.Filter = Properties.Strings.FileDialogLoadTranscriptionTitle;
                     fileDialog.FilterIndex = 1;
                     fileDialog.RestoreDirectory = true;
 
@@ -836,7 +593,7 @@ namespace NanoTrans
                     {
                         if (Transcription != null && !Transcription.Saved)
                         {
-                            MessageBoxResult mbr = MessageBox.Show("Přepis není uložený. Chcete ho nyní uložit? ", "Upozornění:", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+                            MessageBoxResult mbr = MessageBox.Show(Properties.Strings.MessageBoxSaveBeforeClosing, Properties.Strings.MessageBoxQuestionCaption, MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
                             if (mbr == MessageBoxResult.Cancel || mbr == MessageBoxResult.None)
                             {
                                 return false;
@@ -861,7 +618,7 @@ namespace NanoTrans
 
                         if (pDataSource == null)
                         {
-                            NoveTitulky();
+                            NewTranscription();
                         }
                         else
                         {
@@ -889,7 +646,7 @@ namespace NanoTrans
                                     FileInfo fi2 = new FileInfo(pAudioFile);
                                     if (fi2.Exists)
                                     {
-                                        NactiAudio(pAudioFile);
+                                        LoadAudio(pAudioFile);
                                     }
                                 }
                             }
@@ -901,7 +658,7 @@ namespace NanoTrans
                                 FileInfo fi2 = new FileInfo(pVideoFile);
                                 if (fi2.Exists && (meVideo.Source == null || meVideo.Source.AbsolutePath.ToUpper() != pVideoFile.ToUpper()))
                                 {
-                                    NactiVideo(pVideoFile);
+                                    LoadVideo(pVideoFile);
                                 }
                             }
 
@@ -934,59 +691,9 @@ namespace NanoTrans
                 }
                 else
                 {
-                    if (aDavkovySoubor)
-                    {
-                        try
-                        {
-                            WPFTranscription pDataSource = null;
-                            FileInfo fi = new FileInfo(jmenoSouboru);
-                            if (fi != null && fi.Exists)
-                            {
-                                FileInfo[] files = fi.Directory.GetFiles("*.XML");
-                                for (int i = 0; i < files.Length; i++)
-                                {
-                                    if (files[i].Name.ToUpper() == fi.Name.ToUpper().Replace(".TXT", "_PHONETIC.XML"))
-                                    {
-                                        pDataSource = WPFTranscription.Deserialize(files[i].FullName);
-                                        break;
-                                    }
-                                }
-                                if (pDataSource == null)
-                                {
-                                    pDataSource = new WPFTranscription();
-                                    FileStream fs = new FileStream(fi.FullName, FileMode.Open);
-                                    StreamReader sr = new StreamReader(fs, Encoding.GetEncoding("windows-1250"));
-                                    string pText = sr.ReadToEnd();
-                                    sr.Close();
-                                    fs.Close();
 
-                                    var c = new TranscriptionChapter("");
-                                    var s = new TranscriptionSection("");
-                                    var p = new TranscriptionParagraph() { Begin = TimeSpan.Zero };
-                                    c.Add(s);
-                                    s.Add(p);
-                                    pDataSource.Add(c);
+                    Transcription = WPFTranscription.Deserialize(jmenoSouboru);
 
-
-
-                                    pDataSource.FileName = fi.FullName.ToUpper().Replace(".TXT", "_PHONETIC.XML");
-
-                                }
-                                Transcription = pDataSource;
-                                string pWav = fi.FullName.ToUpper().Replace(".TXT", ".WAV");
-                                NactiAudio(pWav);
-
-                            }
-                        }
-                        catch
-                        {
-
-                        }
-                    }
-                    else
-                    {
-                        Transcription = WPFTranscription.Deserialize(jmenoSouboru);
-                    }
                     if (Transcription != null)
                     {
                         this.Title = MyKONST.NAZEV_PROGRAMU + " [" + Transcription.FileName + "]";
@@ -1010,7 +717,7 @@ namespace NanoTrans
                                 FileInfo fi2 = new FileInfo(pAudioFile);
                                 if (fi2.Exists && (!oWav.Loaded || oWav.FilePath.ToUpper() != pAudioFile.ToUpper()))
                                 {
-                                    NactiAudio(pAudioFile);
+                                    LoadAudio(pAudioFile);
                                 }
                             }
                         }
@@ -1022,21 +729,21 @@ namespace NanoTrans
                             FileInfo fi2 = new FileInfo(pVideoFile);
                             if (fi2.Exists && (meVideo.Source == null || meVideo.Source.AbsolutePath.ToUpper() != pVideoFile.ToUpper()))
                             {
-                                NactiVideo(pVideoFile);
+                                LoadVideo(pVideoFile);
                             }
                         }
                         return true;
                     }
                     else
                     {
-                        NoveTitulky();
+                        NewTranscription();
                         return false;
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Chyba pri otevirani prepisu: " + ex.Message, "Chyba");
+                MessageBox.Show(Properties.Strings.MessageBoxOpenTranscriptionError + ex.Message, Properties.Strings.MessageBoxErrorCaption, MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
         }
@@ -1051,8 +758,8 @@ namespace NanoTrans
                 {
                     Microsoft.Win32.SaveFileDialog fileDialog = new Microsoft.Win32.SaveFileDialog();
 
-                    fileDialog.Title = "Uložit soubor s titulky...";
-                    fileDialog.Filter = "Soubory titulků (*" + MySetup.Setup.PriponaTitulku + ")|*" + MySetup.Setup.PriponaTitulku + "|Všechny soubory (*.*)|*.*";
+                    fileDialog.Title = Properties.Strings.FileDialogSaveTranscriptionTitle;
+                    fileDialog.Filter = Properties.Strings.FileDialogSaveTranscriptionFilter;
                     fileDialog.FilterIndex = 1;
                     fileDialog.OverwritePrompt = true;
                     fileDialog.RestoreDirectory = true;
@@ -1073,7 +780,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Chyba pri ukladani titulku: " + ex.Message, "Chyba");
+                MessageBox.Show(Properties.Strings.MessageBoxSaveTranscriptionError + ex.Message, Properties.Strings.MessageBoxErrorCaption, MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
         }
@@ -1183,14 +890,13 @@ namespace NanoTrans
         /// </summary>
         /// <param name="aFileName"></param>
         /// <returns></returns>
-        private bool NactiAudio(string aFileName)
+        private bool LoadAudio(string aFileName)
         {
             try
             {
                 Microsoft.Win32.OpenFileDialog openDialog = new Microsoft.Win32.OpenFileDialog();
-                openDialog.Title = "Otevřít zvukový soubor...";
-                openDialog.InitialDirectory.Contains("d:\\");
-                openDialog.Filter = "Multimediální soubory (*.wav, *.mp3, *.wma, *.avi, *.mpg, *.wmv)|*.wav;*.mp3;*.wma;*.avi;*.mpg;*.mpeg;*.wmv|Zvukové soubory (*.wav, *.mp3, *.wma)|*.wav;*.mp3;*.wma|Všechny soubory (*.*)|*.*";
+                openDialog.Title = Properties.Strings.LoadAudioTitle;
+                openDialog.Filter = Properties.Strings.LoadAudioFilter;
                 openDialog.FilterIndex = 1;
 
                 bool pOtevrit = false;
@@ -1245,14 +951,14 @@ namespace NanoTrans
 
                         //start prevodu docasnych souboru
                         oWav.AsynchronniPrevodMultimedialnihoSouboruNaDocasne2(aFileName); //spusti se thread ktery prevede soubor na temp wavy
-                        ZobrazStavProgramu("Probíhá převod vybraného audio souboru na podporovaný formát...");
+                        ZobrazStavProgramu(Properties.Strings.mainWindowStatusbarStatusTextConversionRunning);
                         pbPrevodAudio.Visibility = Visibility.Visible;
-                        lPrevodAudia.Visibility = Visibility.Visible;
+                        mainWindowStatusbarAudioConversionHeader.Visibility = Visibility.Visible;
                         /////////////
                     }
                     else
                     {
-                        MessageBox.Show("Soubor, který se pokoušíte přehrát není podporován nebo je poškozený", "Upozornění", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        MessageBox.Show(Properties.Strings.MessageBoxAudioFormatError, Properties.Strings.MessageBoxWarningCaption, MessageBoxButton.OK, MessageBoxImage.Warning);
                     }
 
 
@@ -1282,7 +988,7 @@ namespace NanoTrans
 
         private void button1_Click(object sender, RoutedEventArgs e)
         {
-            NactiAudio(null);
+            LoadAudio(null);
         }
 
         /// <summary>
@@ -1290,13 +996,13 @@ namespace NanoTrans
         /// </summary>
         /// <param name="aFileName"></param>
         /// <returns></returns>
-        private bool NactiVideo(string aFileName)
+        private bool LoadVideo(string aFileName)
         {
             try
             {
                 Microsoft.Win32.OpenFileDialog openDialog = new Microsoft.Win32.OpenFileDialog();
-                openDialog.Title = "Otevřít video soubor...";
-                openDialog.Filter = "Video soubor (*.avi, *.mpg, *.wmv)|*.avi;*.mpg;*.mpeg;*.wmv|Všechny soubory (*.*)|*.*";
+                openDialog.Title = Properties.Strings.LoadVideoTitle;
+                openDialog.Filter = Properties.Strings.LoadVideoFilter;
                 FileInfo fi = null;
                 if (aFileName != null) fi = new FileInfo(aFileName);
                 bool pOtevrit = fi != null && fi.Exists;
@@ -1322,19 +1028,19 @@ namespace NanoTrans
                     {
 
                     }
-                    tabControl1.SelectedIndex = 0;
+                    infoPanels.SelectedIndex = 0;
 
                     if (oWav != null && oWav.FilePath != null && oWav.FilePath != "")
                     {
-                        if (!pOtevrit && MessageBox.Show("Chcete použít jako zdroj audia načítaný video soubor?", "Otázka:", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                        if (!pOtevrit && MessageBox.Show(Properties.Strings.MessageBoxUseVideoFileAsAudioSource, Properties.Strings.MessageBoxQuestionCaption, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                         {
-                            NactiAudio(openDialog.FileName);
+                            LoadAudio(openDialog.FileName);
                         }
                     }
                     else
                     {
                         //automaticke nacteni audia
-                        NactiAudio(openDialog.FileName);
+                        LoadAudio(openDialog.FileName);
                     }
 
                     //gListVideo.ColumnDefinitions[1].Width = new GridLength(150);
@@ -1381,7 +1087,7 @@ namespace NanoTrans
 
         private void button3_Click(object sender, RoutedEventArgs e)
         {
-            mediaElement1.Stop();
+            // mediaElement1.Stop();
 
             Playing = false;
             waveform1.CaretPosition = TimeSpan.Zero;
@@ -1401,7 +1107,7 @@ namespace NanoTrans
 
         private void MSoubor_Otevrit_Video_Click(object sender, RoutedEventArgs e)
         {
-            NactiVideo(null);
+            LoadVideo(null);
         }
 
         private void MSoubor_Ulozit_Click(object sender, RoutedEventArgs e)
@@ -1488,7 +1194,7 @@ namespace NanoTrans
                 Pedalthread.Abort();
             if (Transcription != null && !Transcription.Saved)
             {
-                MessageBoxResult mbr = MessageBox.Show("Přepis není uložený. Chcete ho nyní uložit? ", "Varování", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+                MessageBoxResult mbr = MessageBox.Show(Properties.Strings.MessageBoxSaveBeforeClosing, Properties.Strings.MessageBoxQuestionCaption, MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
                 if (mbr == MessageBoxResult.Yes || mbr == MessageBoxResult.No)
                 {
                     if (mbr == MessageBoxResult.Yes)
@@ -1549,19 +1255,19 @@ namespace NanoTrans
                     if (fname.StartsWith(FilePaths.ProgramDirectory))//kdyz je to v adresari (program files..)
                     {
                         if (!FilePaths.WriteToAppData) //checkni jestli muzes zapisovat
-                            SpeakersDatabase.Serialize_V1(fname, SpeakersDatabase);
+                            SpeakersDatabase.Serialize(fname);
                         else
-                            SpeakersDatabase.Serialize_V1(FilePaths.AppDataDirectory + fname.Substring(FilePaths.ProgramDirectory.Length), SpeakersDatabase);
+                            SpeakersDatabase.Serialize(FilePaths.AppDataDirectory + fname.Substring(FilePaths.ProgramDirectory.Length));
                     }
                     else //neni to u me neresit prava
                     {
                         try
                         {
-                            SpeakersDatabase.Serialize_V1(MySetup.Setup.CestaDatabazeMluvcich, SpeakersDatabase);
+                            SpeakersDatabase.Serialize(MySetup.Setup.CestaDatabazeMluvcich);
                         }
                         catch
                         {
-                            if (MessageBox.Show("Cesta k databázi mluvčích je neplatná, mluvčí nebudou uloženi (v nastavní jde cesta změnit)", "chyba", MessageBoxButton.OKCancel) == MessageBoxResult.Cancel)
+                            if (MessageBox.Show(Properties.Strings.MessageBoxLocalSpeakersDatabaseUnreachableSave, Properties.Strings.MessageBoxWarningCaption, MessageBoxButton.OKCancel) == MessageBoxResult.Cancel)
                             {
                                 e.Cancel = true;
                                 return;
@@ -1690,17 +1396,17 @@ namespace NanoTrans
 
             if (pCesta == null)
             {
-                NoveTitulky();
+                NewTranscription();
             }
             else
             {
                 if (import)
                 {
-                    NoveTitulky();
+                    NewTranscription();
                     CommandImportFile.Execute(pCesta, this);
                 }
                 else
-                    OtevritTitulky(false, pCesta, false);
+                    OpenTranscription(false, pCesta, false);
             }
 
             VirtualizingListBox.RequestTimePosition += delegate(out TimeSpan value) { value = waveform1.CaretPosition; };
@@ -1747,7 +1453,7 @@ namespace NanoTrans
                     FileInfo fi2 = new FileInfo(pAudioFile);
                     if (fi2.Exists)
                     {
-                        NactiAudio(pAudioFile);
+                        LoadAudio(pAudioFile);
                     }
                     else
                     {
@@ -1874,247 +1580,6 @@ namespace NanoTrans
             CommandGeneratePhoneticTranscription.Execute(null, this);
         }
 
-        /// <summary>
-        /// spusti rozpoznavani vybraneho elementu... pokud je element sekce a kapitola, zkusi rozpoznat jednotlive odstavce - DODELAT!!!!!!!!
-        /// </summary>
-        /// <param name="aTag"></param>
-        /// <param name="aPocatekMS"></param>
-        /// <param name="aKonecMS"></param>
-        /// <returns></returns>
-        private bool SpustRozpoznavaniVybranehoElementu(TranscriptionElement aTag, TimeSpan aPocatekMS, TimeSpan aKonecMS, bool aIgnorovatTextOdstavce)
-        {
-
-
-            //TODO:(x) rozpoznani elementu
-            MessageBox.Show("Automatické fonetické rozpoznáni není v této verzi podporováno", "Oznámení", MessageBoxButton.OK, MessageBoxImage.Information);
-            return false;
-            #region sbaleno
-            /*
-            if (oPrepisovac != null && (oPrepisovac.Rozpoznavani || oPrepisovac.Ukoncovani))
-            {
-                if (MessageBox.Show("Dochází k automatickému rozpoznávání jiného úkolu. Nejprve musíte zastavit předchozí rozpoznávání.\nChcete ho nyní přerušit?", "", MessageBoxButton.YesNoCancel, MessageBoxImage.Question) == MessageBoxResult.Yes)
-                {
-                    if (oPrepisovac.StopHned() == 0)
-                    {
-
-                    }
-                }
-                return false;
-            }
-
-
-
-            if (aTag == null)
-            {
-                MessageBox.Show("Není vybrán ani nastaven žádný element k přepsání!", "Upozornění:", MessageBoxButton.OK, MessageBoxImage.Asterisk);
-                return false;
-            }
-
-            TimeSpan pPocatekMS;
-            TimeSpan pKonceMS;
-            TimeSpan pDelkaMS;
-
-
-
-            if (aPocatekMS >= TimeSpan.Zero && aKonecMS >= TimeSpan.Zero)
-            {
-                pPocatekMS = aPocatekMS;
-                pKonceMS = aKonecMS;
-            }
-            else
-            {
-                //kontrola audio dat jestli jsou vybrana
-                pPocatekMS = myDataSource.VratCasElementuPocatek(aTag);
-                pKonceMS = myDataSource.VratCasElementuKonec(aTag);
-            }
-            pDelkaMS = pKonceMS - pPocatekMS;
-
-            if (!oWav.Nacteno)
-            {
-                MessageBox.Show("Není načten žádný audio soubor pro přepis! Automatický přepis nebude spuštěn.", "Upozornění:", MessageBoxButton.OK, MessageBoxImage.Asterisk);
-                return false;
-            }
-            if (pDelkaMS <= TimeSpan.Zero)
-            {
-                MessageBox.Show("Vybraný element nemá přiřazena žádná audio data k přepsání. Nejprve je vyberte.", "Upozornění:", MessageBoxButton.OK, MessageBoxImage.Asterisk);
-                return false;
-            }
-            if (pPocatekMS < TimeSpan.Zero || pPocatekMS.TotalMilliseconds > oWav.DelkaSouboruMS)
-            {
-                MessageBox.Show("Počátek audio dat elementu je mimo audio soubor! Automatický přepis nebude spuštěn.", "Upozornění:", MessageBoxButton.OK, MessageBoxImage.Asterisk);
-                return false;
-            }
-            if (pKonceMS < TimeSpan.Zero || pKonceMS.TotalMilliseconds > oWav.DelkaSouboruMS)
-            {
-                MessageBox.Show("Konec audio dat elementu je mimo audio soubor! Automatický přepis nebude spuštěn.", "Upozornění:", MessageBoxButton.OK, MessageBoxImage.Asterisk);
-                return false;
-            }
-
-            pPozadovanyStavRozpoznavace = MyKONST.ROZPOZNAVAC_0_OFFLINE_ROZPOZNAVANI;
-
-            //pridani kapitoly pokud neexistuje
-            if (aTag.tKapitola < 0)
-            {
-                aTag = PridejKapitolu(-1, "Kapitola automatického přepisu");
-            }
-            //testovani zda je element kapitola a dotazy na jeho plnost
-            if (aTag.JeKapitola)
-            {
-                MyChapter pChapter = myDataSource.VratKapitolu(aTag);
-                if (pChapter == null)
-                {
-                    MessageBox.Show("Není vybrán ani nastaven žádný element k přepsání!", "Upozornění:", MessageBoxButton.OK, MessageBoxImage.Asterisk);
-                    return false;
-                }
-                if (pChapter.hasSection)
-                {
-                    if (MessageBox.Show("Vybraná kapitola již obsahuje sekce. Chcete je všechny smazat a začít s přepisem?", "Upozornění:", MessageBoxButton.YesNoCancel, MessageBoxImage.Asterisk) == MessageBoxResult.Yes)
-                    {
-                        //odstrani predesle sekce
-                        for (int i = 0; i < pChapter.Sections.Count; i++)
-                        {
-                            OdstranSekci(aTag.tKapitola, i);
-                        }
-
-
-                    }
-                    else return false;
-                }
-                aTag = PridejSekci(aTag.tKapitola, "Sekce automatického přepisu", -1, -1, pChapter.Begin, pChapter.End);
-            }
-
-            //testovani sekce
-            if (aTag.JeSekce)
-            {
-                pSeznamOdstavcuKRozpoznani = new List<MyTag>();
-
-                MySection pSection = myDataSource.VratSekci(aTag);
-                if (pSection == null)
-                {
-                    MessageBox.Show("Není vybrán ani nastaven žádný element k přepsání!", "Upozornění:", MessageBoxButton.OK, MessageBoxImage.Asterisk);
-                    return false;
-                }
-
-                if (pSection.hasParagraph)
-                {
-                    if (MessageBox.Show("Vybraná sekce již obsahuje odstavce. Chcete je všechny automaticky přepsat? Text uvnitř bude smazán.", "Upozornění:", MessageBoxButton.YesNoCancel, MessageBoxImage.Asterisk) == MessageBoxResult.Yes)
-                    {
-
-                        //odstavce k prepsani
-                        for (int i = 0; i < pSection.Paragraphs.Count; i++)
-                        {
-
-                            //uprava tagu, aby obsahoval i sender na textbox, pokud byly vytvareny
-                            MyTag ppTag = new MyTag(aTag.tKapitola, aTag.tSekce, i);
-                            ppTag.tSender = VratSenderTextboxu(ppTag);
-                            if (ppTag.tSender != null) ((TextBox)ppTag.tSender).Clear();
-                            pSeznamOdstavcuKRozpoznani.Add(ppTag);
-                        }
-                        aTag = pSeznamOdstavcuKRozpoznani[0];
-                        pSeznamOdstavcuKRozpoznani.RemoveAt(0);
-                        aIgnorovatTextOdstavce = true;
-                    }
-                    else return false;
-                }
-                else
-                {
-                    aTag = PridejOdstavec(aTag.tKapitola, aTag.tSekce, "", null, -1, pSection.Begin, pSection.End, myDataSource.SeznamMluvcich.VratSpeakera(pSection.speaker));
-                }
-            }
-
-
-
-            if (aTag.JeOdstavec)
-            {
-                MyParagraph pParagraph = myDataSource[aTag];
-                if (pParagraph == null) return false;
-                if (pParagraph.Delka <= TimeSpan.Zero)
-                {
-                    MessageBox.Show("Vybraný element nemá přiřazena žádná audio data k přepsání. Nejprve je vyberte.", "Upozornění:", MessageBoxButton.OK, MessageBoxImage.Asterisk);
-                    return false;
-                }
-                if (pParagraph.Phrases.Count > 0 && pParagraph.Text.Length > 0)
-                {
-                    if (aIgnorovatTextOdstavce)
-                    {
-                        pParagraph.UlozTextOdstavce("", null);
-                    }
-                    else
-                    {
-                        if (MessageBox.Show("Vybraný odstavec obsahuje text. Chcete přesto začít s přepisem? Data budou přepsána", "Upozornění:", MessageBoxButton.YesNoCancel, MessageBoxImage.Asterisk) == MessageBoxResult.Yes)
-                        {
-                            pParagraph.UlozTextOdstavce("", null);
-                        }
-                        else return false;
-                    }
-                }
-
-            }
-            else
-            {
-                MessageBox.Show("Není vybrán ani nastaven žádný element k přepsání!", "Upozornění:", MessageBoxButton.OK, MessageBoxImage.Asterisk);
-                return false;
-            }
-
-
-
-
-
-            aTag.tSender = VratSenderTextboxu(aTag);
-
-
-
-
-            if (oPrepisovac == null) oPrepisovac = new MyPrepisovac(MySetup.Setup.AbsolutniAdresarRozpoznavace, MySetup.Setup.rozpoznavac.Mluvci, MySetup.Setup.rozpoznavac.JazykovyModel, MySetup.Setup.rozpoznavac.PrepisovaciPravidla, MySetup.Setup.rozpoznavac.LicencniServer, MySetup.Setup.rozpoznavac.LicencniSoubor, MySetup.Setup.rozpoznavac.DelkaInternihoBufferuPrepisovace, MySetup.Setup.rozpoznavac.KvalitaRozpoznavaniDiktat, new EventHandler(oPrepisovac_HaveDataPrectena));
-
-            string pMluvci = MySetup.Setup.rozpoznavac.Mluvci;
-            string pJazykovyModel = MySetup.Setup.rozpoznavac.JazykovyModel;
-            MySpeaker pSpeaker = myDataSource.VratSpeakera(aTag);
-            if (pSpeaker != null)
-            {
-                if (pSpeaker.RozpoznavacMluvci != null) pMluvci = MySetup.Setup.rozpoznavac.MluvciRelativniAdresar + "/" + pSpeaker.RozpoznavacMluvci;
-                if (pSpeaker.RozpoznavacJazykovyModel != null) pJazykovyModel = MySetup.Setup.rozpoznavac.JazykovyModelRelativniAdresar + "/" + pSpeaker.RozpoznavacJazykovyModel;
-            }
-            oPrepisovac.InicializaceRozpoznavace(MySetup.Setup.AbsolutniAdresarRozpoznavace, MySetup.Setup.rozpoznavac.LicencniSoubor, pMluvci, pJazykovyModel, MySetup.Setup.rozpoznavac.PrepisovaciPravidla, MySetup.Setup.rozpoznavac.DelkaInternihoBufferuPrepisovace.ToString(), null);
-
-            //oPrepisovac.InicializaceRozpoznavace();
-            //oPrepisovac.HaveDataPrectena += new DataReadyEventHandler(oPrepisovac_HaveDataPrectena);
-            if (timerRozpoznavace != null && timerRozpoznavace.IsEnabled == false)
-            {
-                InitializeTimerRozpoznavace(MyKONST.PERIODA_TIMERU_ROZPOZNAVACE_MS);
-            }
-
-            //inicializace prepisovace a hlidaciho timeru
-            //vrati vybrany odstavec
-            MyParagraph pOdstavec = myDataSource[aTag];
-            //ulozi tag vybraneho odstavce do promenne prepisovace a vymaze pripadna drivejsi data z pomocnych promennych
-            oPrepisovac.PrepisovanyElementTag = aTag;
-
-            //pokus o uzamceni textboxu proti upravam psani
-            try
-            {
-                ((TextBox)oPrepisovac.PrepisovanyElementTag.tSender).IsReadOnly = true;
-            }
-            catch
-            {
-
-            }
-            oPrepisovac.PrepsanyText = "";
-            oPrepisovac.PrepsanyTextCasoveZnacky = new List<MyCasovaZnacka>();
-
-            //spusti asynchronni nacteni bufferu
-            if (pOdstavec.Delka> TimeSpan.Zero)
-            {
-                oWav.AsynchronniNacteniRamce2((long)pOdstavec.Begin.TotalMilliseconds, (long)pOdstavec.Delka.TotalMilliseconds, MyKONST.ID_BUFFERU_PREPISOVANEHO_ELEMENTU);
-            }
-            ZmenStavTlacitekRozpoznavace(true, false, false, true);
-            //NASLEDNE SE ceka na INITIALIZED a pak je spusteno rozpoznavani
-            return true;
-             */
-            #endregion
-
-        }
-
         private void btHlasoveOvladani_Click(object sender, RoutedEventArgs e)
         {
             CommandStartStopVoiceControl.Execute(null, this);
@@ -2136,23 +1601,6 @@ namespace NanoTrans
         private void menuItemFonetickyPrepis_Click(object sender, RoutedEventArgs e)
         {
             CommandShowPanelFoneticTranscription.Execute(null, this);
-        }
-
-        private void btFonetickyPrepis_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("Automatické fonetické rozpoznáni není v této verzi podporováno", "Oznámení", MessageBoxButton.OK, MessageBoxImage.Information);
-            return;
-            //TODO:(x) foneticky prepis
-            /*
-            try
-            {
-                MyFonetic mf = new MyFonetic(MySetup.Setup.absolutniCestaEXEprogramu);
-                tbphoneticTranscription.Text = mf.VratFonetickyPrepis(VirtualizingListBox.ActiveTransctiption.Text);
-            }
-            catch
-            {
-
-            }*/
         }
 
 
@@ -2258,7 +1706,7 @@ namespace NanoTrans
                 if (p[i].ToLower() == "filenamew")
                 {
                     string[] o = (string[])e.Data.GetData(p[i]);
-                    OtevritTitulky(false, o[0].ToString(), false);
+                    OpenTranscription(false, o[0].ToString(), false);
                 }
             }
 
@@ -2319,66 +1767,6 @@ namespace NanoTrans
 
         }
 
-        private void button3_Click_1(object sender, RoutedEventArgs e)
-        {
-            if (Back_data.Count == 0)
-                return;
-
-
-            byte[] state = Back_data[Back_data.Count - 1];
-            Back_data.RemoveAt(Back_data.Count - 1);
-            //myDataSource
-            try
-            {
-                MemoryStream ms = new MemoryStream(state);
-
-                Transcription = WPFTranscription.Deserialize(ms);
-                if (Transcription != null)
-                {
-                    this.Title = MyKONST.NAZEV_PROGRAMU + " [" + Transcription.FileName + "]";
-                    //nacteni audio souboru pokud je k dispozici
-                    if (Transcription.mediaURI != null && Transcription.FileName != null)
-                    {
-                        FileInfo fiA = new FileInfo(Transcription.mediaURI);
-                        string pAudioFile = null;
-                        if (fiA.Exists)
-                        {
-                            pAudioFile = fiA.FullName;
-                        }
-                        else
-                        {
-                            FileInfo fi = new FileInfo(Transcription.FileName);
-                            pAudioFile = fi.Directory.FullName + "\\" + Transcription.mediaURI;
-                        }
-                        FileInfo fi2 = new FileInfo(pAudioFile);
-                        if (fi2.Exists && (!oWav.Loaded || oWav.FilePath.ToUpper() != pAudioFile.ToUpper()))
-                        {
-                            NactiAudio(pAudioFile);
-                        }
-                    }
-
-                    if (Transcription.videoFileName != null && Transcription.FileName != null)
-                    {
-                        FileInfo fi = new FileInfo(Transcription.FileName);
-                        string pVideoFile = fi.Directory.FullName + "\\" + Transcription.videoFileName;
-                        FileInfo fi2 = new FileInfo(pVideoFile);
-                        if (fi2.Exists && (meVideo.Source == null || meVideo.Source.AbsolutePath.ToUpper() != pVideoFile.ToUpper()))
-                        {
-                            NactiVideo(pVideoFile);
-                        }
-                    }
-                }
-                else
-                {
-                    NoveTitulky();
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Chyba pri obnoveni stavu: " + ex.Message, "Chyba");
-            }
-
-        }
         #endregion
 
         private void waveform1_SliderPositionChanged(object sender, Waveform.TimeSpanEventArgs e)
@@ -2634,6 +2022,14 @@ namespace NanoTrans
                     Debug.WriteLine(ex);
                 }
 
+            }
+        }
+
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            foreach (var item in Transcription)
+            {
+                Debug.WriteLine(item.Text);
             }
         }
 
