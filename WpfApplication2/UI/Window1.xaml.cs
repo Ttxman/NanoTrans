@@ -88,7 +88,7 @@ namespace NanoTrans
         /// po vybrani elementu pokracuje v prehravani
         /// </summary>
         bool prehratVyber = false;  //prehrava jen vybranou prepsanou sekci, pokud je specifikovan zacatek a konec
-      
+
 
 
 
@@ -271,7 +271,7 @@ namespace NanoTrans
                     MySetup.Setup.Serializovat(s, MySetup.Setup);
 
 
-                
+
 
 
                 //nastaveni posledni pozice okna
@@ -1553,7 +1553,7 @@ namespace NanoTrans
                         MySetup.Setup.OknoStav = this.WindowState;
                     }
 
-                        MySetup.Setup.Serializovat(FilePaths.GetConfigFileWriteStream(), MySetup.Setup);
+                    MySetup.Setup.Serializovat(FilePaths.GetConfigFileWriteStream(), MySetup.Setup);
 
                 }
             }
@@ -1601,9 +1601,9 @@ namespace NanoTrans
         //pokusi se zamerit textbox pri spousteni aplikace
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            
+
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
-            
+
             InitCommands();
             LoadPlugins();
             //inicializuje (asynchronni) nacitani slovniku
@@ -1648,7 +1648,8 @@ namespace NanoTrans
                 {
                     import = true;
                     pCesta = App.Startup_ARGS[1];
-                }else
+                }
+                else
                     pCesta = App.Startup_ARGS[0];
             }
 
@@ -1672,7 +1673,7 @@ namespace NanoTrans
             VirtualizingListBox.RequestPlayPause += delegate() { CommandPlayPause.Execute(null, null); };
 
 
-            
+
         }
 
 
@@ -1721,8 +1722,8 @@ namespace NanoTrans
             }
 
             this.Title = MyKONST.NAZEV_PROGRAMU + " [" + data.JmenoSouboru + "]";
-            
-        
+
+
         }
 
         private void menuSouborImportovatClick(object sender, RoutedEventArgs e)
@@ -1741,7 +1742,7 @@ namespace NanoTrans
 
             if (File.Exists(pedalsexe))
             {
-                
+
                 var StartInfo = new ProcessStartInfo(pedalsexe)
                 {
                     Arguments = "-nokeypress",
@@ -2547,6 +2548,35 @@ namespace NanoTrans
 
         #endregion
 
+        private void menuUpravySmazatNerecoveUdalosti_Click(object sender, RoutedEventArgs e)
+        {
+            using (new WaitCursor())
+            {
+                VirtualizingListBox.BeginUpdate();
+                try
+                {
+                    MyParagraph p = myDataSource.Chapters[0].Sections[0].Paragraphs[0];
+                    while (p != null)
+                    {
+                        for (int i = p.Phrases.Count - 1; i >= 0; i--)
+                        {
+                            if (Element.ignoredGroup.IsMatch(p.Phrases[i].Text.Trim()))
+                            {
+                                p.RemoveAt(i);
+                            }
+                        }
+                        p = (MyParagraph)p.NextSibling();
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex);
+                }
+                VirtualizingListBox.EndUpdate();
+
+            }
+        }
 
     }
 }

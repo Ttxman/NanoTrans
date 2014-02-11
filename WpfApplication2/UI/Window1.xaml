@@ -55,6 +55,8 @@
                 <MenuItem Header="Nová sekce na pozici" InputGestureText="F5" Click="MUpravy_Nova_Sekce_Click" Name="menuUpravySekce" />
                 <Separator />
                 <MenuItem Header="Smazat položku" InputGestureText="Shift+Del" Click="MUpravy_Smazat_Polozku_Click" Name="menuUpravySmazat" />
+                <Separator />
+                <MenuItem Header="Odstraň neřečové události" Name="menuUpravySmazatNerecoveUdalosti" Click="menuUpravySmazatNerecoveUdalosti_Click" />
             </MenuItem>
 
             <MenuItem Header="_Nástroje" Tag="20" Name="menuNastroje">
@@ -84,6 +86,7 @@
                         <Image Source="/icons/iNastaveni.png"/>
                     </MenuItem.Icon>
                 </MenuItem>
+                
             </MenuItem>
 
 

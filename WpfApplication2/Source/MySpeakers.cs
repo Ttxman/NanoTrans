@@ -293,7 +293,6 @@ namespace NanoTrans
                 MessageBox.Show("Chyba pri serializaci souboru s nastavením: " + ex.Message,"Varování!");
                 return false;
             }
-
         }
 
         //Deserializuje soubor             
