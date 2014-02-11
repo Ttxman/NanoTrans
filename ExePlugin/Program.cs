@@ -12,8 +12,6 @@ namespace ExePlugin
     {
         static System.Reflection.Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
         {
-            Console.WriteLine(args.Name);
-            Console.ReadLine();
             if (args.Name.StartsWith("NanoTransCore"))
             {
                 string path = Assembly.GetExecutingAssembly().Location;
