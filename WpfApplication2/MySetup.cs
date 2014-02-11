@@ -499,7 +499,7 @@ namespace NanoTrans
             catch (Exception ex)
             {
                 //MessageBox.Show("Chyba pri serializaci konfiguračního souboru: " + ex.Message);
-                Window1.logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
                 return false;
             }
 
@@ -523,7 +523,7 @@ namespace NanoTrans
             catch (Exception ex)
             {
                 MessageBox.Show("Chyba pri derializaci konfiguračního souboru souboru: " + ex.Message);
-                Window1.logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
                 return this;
             }
 

@@ -62,9 +62,14 @@
     <StartupObject>NanoTrans.App</StartupObject>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.DirectX, Version=1.0.2902.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Windows\Microsoft.NET\DirectX for Managed Code\1.0.2902.0\Microsoft.DirectX.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.DirectX.DirectSound, Version=1.0.2902.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\Windows\Microsoft.NET\DirectX for Managed Code\1.0.2902.0\Microsoft.DirectX.DirectSound.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\Windows\Microsoft.NET\DirectX for Managed Code\1.0.2902.0\Microsoft.DirectX.DirectSound.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -179,7 +184,6 @@
     <Compile Include="MyBuffer16.cs" />
     <Compile Include="MyEnumTypElementu.cs" />
     <Compile Include="MyFonetic.cs" />
-    <Compile Include="MyLANGUAGE.cs" />
     <Compile Include="MyLog.cs" />
     <Compile Include="MyKONST.cs" />
     <Compile Include="MyMakro.cs" />
@@ -188,7 +192,6 @@
     <Compile Include="MySpeakers.cs" />
     <Compile Include="MySubtitlesData.cs" />
     <Compile Include="MyTag.cs" />
-    <Compile Include="MyTTAx.cs" />
     <Compile Include="MyVlna.cs" />
     <Compile Include="MyWav.cs" />
     <Compile Include="MyWavePlayer.cs" />
@@ -232,7 +235,6 @@
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="app.config" />
-    <None Include="ClassDiagram1.cd" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -330,6 +332,10 @@
       <ProductName>Windows Installer 3.1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Microsoft.DirectX.DirectSound.dll" />
+    <Content Include="Microsoft.DirectX.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

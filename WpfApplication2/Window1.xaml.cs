@@ -76,7 +76,7 @@ namespace NanoTrans
                                 HIDkey = Key.System;
                                 HIDsystemkey = Key.Left;
                                 Window_PreviewKeyDown(null, null);
-                                lAudioPozice.Dispatcher.Invoke(new myhandler(Window_PreviewKeyDown), null, null);
+                                lAudioPozice.Dispatcher.Invoke(new KeyEventHandler(Window_PreviewKeyDown), null, null);
                             }
                         }
                         else if ((((byte)FCPedal.Middle) & stat) != 0)
@@ -85,7 +85,7 @@ namespace NanoTrans
                             {
                                 HIDkey = Key.Tab;
                                 HIDsystemkey = Key.None;
-                                lAudioPozice.Dispatcher.Invoke(new myhandler(Window_PreviewKeyDown), null, null);
+                                lAudioPozice.Dispatcher.Invoke(new KeyEventHandler(Window_PreviewKeyDown), null, null);
                                 
                             }
 
@@ -96,7 +96,7 @@ namespace NanoTrans
                             {
                                 HIDkey = Key.System;
                                 HIDsystemkey = Key.Right;
-                                lAudioPozice.Dispatcher.Invoke(new myhandler(Window_PreviewKeyDown), null, null);
+                                lAudioPozice.Dispatcher.Invoke(new KeyEventHandler(Window_PreviewKeyDown), null, null);
                             }
 
                         }
@@ -107,8 +107,6 @@ namespace NanoTrans
 			}
 			ev.Clear();
 		}
-
-        delegate void myhandler(object x, KeyEventArgs y);
 
     	#endregion
         WinLog mWL = null;
@@ -141,10 +139,9 @@ namespace NanoTrans
         /// databaze mluvcich konkretniho programu
         /// </summary>
         public MySpeakers myDatabazeMluvcich;
-        public static MyLog logAplikace = new MyLog();
         public MySetup nastaveniAplikace = null;          //trida pro nastaveni vlastnosti aplikace
 
-        public static bool spustenoOknoNapovedy = false;        //informace o spustenem oknu napovedy
+        //public static bool spustenoOknoNapovedy = false;        //informace o spustenem oknu napovedy
         WinHelp oknoNapovedy;                                   //okno s napovedou
 
 
@@ -460,7 +457,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
                 return false;
             }
 
@@ -479,8 +476,6 @@ namespace NanoTrans
             return UpdateXMLData(true, true, true, true, true);
         }
 
-
-        private delegate bool DelegatUpdateXMLData();
         /// <summary>
         /// thread SAFE, zobrazi a aktualizuje u listu s daty u odstavcu a ostatnich polozek jmena mluvcich, a velikkost fontu prepisu
         /// </summary>
@@ -493,7 +488,7 @@ namespace NanoTrans
                 if (this.Dispatcher.Thread != System.Threading.Thread.CurrentThread)
                 {
                     //do invoke stuff here
-                    this.Dispatcher.Invoke(new DelegatUpdateXMLData(UpdateXMLData), new object[] { });
+                    this.Dispatcher.Invoke(new Func<bool>(UpdateXMLData), new object[] { });
                     return false;
                 }
 
@@ -765,7 +760,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
                 return false;
             }
 
@@ -805,7 +800,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
             }
 
         }
@@ -835,7 +830,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
             }
 
         }
@@ -875,7 +870,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
                 return null;
             }
         }
@@ -968,7 +963,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
                 return null;
             }
         }
@@ -1042,7 +1037,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
                 MessageBox.Show("Chyba pri vkladani richtextboxu odstavce..." + ex.Message);
                 return null;
             }
@@ -1084,7 +1079,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
                 return false;
             }
 
@@ -1165,7 +1160,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
                 //MessageBox.Show("Chyba pri mazani richtextboxu odstavce..." + ex.Message);
                 return false;
             }
@@ -1237,7 +1232,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
                 MessageBox.Show("Chyba pri mazani richtextboxu odstavce..." + ex.Message);
                 return false;
             }
@@ -1406,7 +1401,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
                 return false;
             }
 
@@ -1453,7 +1448,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
                 return false;
             }
         }
@@ -1708,7 +1703,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
                
             }
             return new short[0];
@@ -1771,18 +1766,9 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
             }
         }
-
-
-
-        /// <summary>
-        /// delegovana metoda pro zmenu vizualnich komponent z threadu prevodu souboru
-        /// </summary>
-        /// <param name="e"></param>
-        private delegate void DelegateUpravaUIzThreaduPrevoduSouboru(MyEventArgs2 e);
-
 
 
         /// <summary>
@@ -1795,7 +1781,7 @@ namespace NanoTrans
             try
             {
                 MyEventArgs2 e2 = (MyEventArgs2)e;
-                this.Dispatcher.Invoke(DispatcherPriority.Normal, new DelegateUpravaUIzThreaduPrevoduSouboru(ZobrazProgressPrevoduSouboru), e2);
+                this.Dispatcher.Invoke(DispatcherPriority.Normal, new Action<MyEventArgs2>(ZobrazProgressPrevoduSouboru), e2);
                 if (oVlna != null && oVlna.bufferCeleVlny != null)
                 {
                     ///oVlna.bufferCeleVlny.UlozDataDoBufferu(oWav.DataProVykresleniNahleduVlny, 0, oWav.PrevedenoDatMS);
@@ -1803,7 +1789,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
             }
         }
 
@@ -1925,7 +1911,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
             }
 
 
@@ -2338,7 +2324,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
             }
         }
 
@@ -2359,7 +2345,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
             }
         }
 
@@ -2372,7 +2358,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
             }
         }
 
@@ -2499,7 +2485,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
             }
         }
 
@@ -2536,7 +2522,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
             }
         }
 
@@ -2551,7 +2537,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
             }
         }
 
@@ -2566,7 +2552,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
             }
         }
 
@@ -2584,7 +2570,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
             }
         }
 
@@ -2601,7 +2587,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
             }
         }
 
@@ -2618,7 +2604,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
             }
         }
 
@@ -2635,7 +2621,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
             }
         }
 
@@ -2691,7 +2677,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
             }
         }
 
@@ -2774,7 +2760,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
             }
         }
 
@@ -2810,7 +2796,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
             }
         }
 
@@ -3515,7 +3501,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
             }
         }
 
@@ -3625,7 +3611,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
             }
         }
 
@@ -3683,7 +3669,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
                 MessageBox.Show("Chyba pri vytvareni novych titulku " + ex.Message, "Chyba");
                 return false;
             }
@@ -4008,7 +3994,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
                 MessageBox.Show("Chyba pri nacitani titulku: " + ex.Message, "Chyba");
                 return false;
             }
@@ -4066,7 +4052,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
                 MessageBox.Show("Chyba pri ukladani titulku: " + ex.Message, "Chyba");
                 Console.WriteLine(ex);
                 return false;
@@ -4081,8 +4067,6 @@ namespace NanoTrans
             try
             {
                 if (aMilisekundy < 0) return;
-                //long celkMilisekundy = (long)(nastaveniAplikace.mSekundyVlnyZac + aLeft / myImage.ActualWidth * (nastaveniAplikace.mSekundyVlny));
-                //oVlna.Kurzor = (long)mediaElement1.Position.TotalMilliseconds;        //pozice kurzoru v ms
                 oVlna.KurzorPoziceMS = aMilisekundy;
                 TimeSpan ts = new TimeSpan(aMilisekundy * 10000);
                 string label = ts.Hours.ToString() + ":" + ts.Minutes.ToString("D2") + ":" + ts.Seconds.ToString("D2") + "," + ((int)ts.Milliseconds / 10).ToString("D2");
@@ -4121,14 +4105,10 @@ namespace NanoTrans
                     }
                     VyberElement(pTagy[0], aNeskakatNaZacatekElementu);
                 }
-
-
-
-
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
             }
 
 
@@ -4266,7 +4246,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
             }
 
 
@@ -4426,7 +4406,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
                 //MessageBox.Show("OnTimer(): " + ex.Message);
             }
 
@@ -4538,7 +4518,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
                 return false;
             }
 
@@ -4609,7 +4589,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
                 return false;
             }
 
@@ -4720,7 +4700,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
                 return false;
             }
         }
@@ -4874,7 +4854,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
                 return false;
             }
         }
@@ -4940,8 +4920,8 @@ namespace NanoTrans
         {
             if (this.Dispatcher.Thread != System.Threading.Thread.CurrentThread)
             {
-                this.Dispatcher.Invoke(new DelegatVyberElementu(VyberElement), new object[] { aTagVyberu, aNezastavovatPrehravani });
-                //this.Dispatcher.Invoke(new DelegateKresliVlnuAOstatni(KresliVlnuAOstatni), new object[] { aImage });
+                this.Dispatcher.Invoke(new DelegatVyberElementu(VyberElement), aTagVyberu, aNezastavovatPrehravani );
+
                 return false;
             }
             bool pStav = nastaveniAplikace.SetupSkocitZastavit;
@@ -5052,7 +5032,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
                 return false;
             }
         }
@@ -5139,7 +5119,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
                 return false;
             }
 
@@ -5169,9 +5149,6 @@ namespace NanoTrans
             return true;
         }
 
-
-        private delegate void DelegatKresliVlnu(object aParametry);
-
         /// <summary>
         /// THREAD SAFE - nakresli vlnu do formulare
         /// </summary>
@@ -5182,7 +5159,7 @@ namespace NanoTrans
             {
                 if (this.Dispatcher.Thread != System.Threading.Thread.CurrentThread)
                 {
-                    this.Dispatcher.Invoke(new DelegatKresliVlnu(KresliVlnuB), new object[] { aParametry });
+                    this.Dispatcher.Invoke(new Action<object>(KresliVlnuB), new object[] { aParametry });
                     //this.Dispatcher.Invoke(new DelegateKresliVlnuAOstatni(KresliVlnuAOstatni), new object[] { aImage });
                     return;
                 }
@@ -5400,7 +5377,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
                 //return false;
             }
 
@@ -5454,7 +5431,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
             }
         }
 
@@ -5478,7 +5455,7 @@ namespace NanoTrans
                     MWP.Dispose();
                     MWP = null;
                 }
-                MWP = new MyWavePlayer(nastaveniAplikace.audio.VystupniZarizeniIndex,4800, new DataRequestProc(WOP_ChciData));
+                MWP = new MyWavePlayer(nastaveniAplikace.audio.VystupniZarizeniIndex,4800, WOP_ChciData);
                 return true;
             }
             catch
@@ -5698,7 +5675,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
             }
 
         }
@@ -5726,16 +5703,15 @@ namespace NanoTrans
         {
             try
             {
-                if (!spustenoOknoNapovedy)
+                if (!oknoNapovedy.IsLoaded)
                 {
                     oknoNapovedy = new WinHelp();
-                    spustenoOknoNapovedy = true;
                     oknoNapovedy.Show();
                 }
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
             }
 
         }
@@ -5880,7 +5856,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
             }
         }
 
@@ -6003,7 +5979,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
             }
         }
 
@@ -6210,7 +6186,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
             }
         }
 
@@ -6285,7 +6261,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
             }
         }
 
@@ -6297,7 +6273,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
             }
         }
         #endregion
@@ -6333,7 +6309,8 @@ namespace NanoTrans
                                 if (!UlozitTitulky(true, myDataSource.JmenoSouboru)) e.Cancel = true;
                             }
                         }
-                        if (spustenoOknoNapovedy)
+
+                        if (oknoNapovedy!=null && !oknoNapovedy.IsLoaded)
                         {
                             oknoNapovedy.Close();
                         }
@@ -6348,7 +6325,7 @@ namespace NanoTrans
 
 
                 }
-                else if (spustenoOknoNapovedy)
+                else if (oknoNapovedy.IsLoaded)
                 {
                     oknoNapovedy.Close();
                 }
@@ -6439,7 +6416,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
 
             }
         }
@@ -6525,7 +6502,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
             }
         }
 
@@ -6594,7 +6571,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
             }
 
 
@@ -6716,14 +6693,6 @@ namespace NanoTrans
 
         }
 
-
-        /// <summary>
-        /// delegovana metoda pro zmenu vizualnich komponent z threadu rozpoznavace
-        /// </summary>
-        /// <param name="e"></param>
-        private delegate void DelegateUpravaUIzThreaduRozpoznavace(MyEventArgsPrectenaData e);
-
-
         /// <summary>
         /// prectena data z asynchronniho read vyvolaji udalost a toto je jeji osetreni
         /// </summary>
@@ -6734,11 +6703,11 @@ namespace NanoTrans
             try
             {
                 MyEventArgsPrectenaData e2 = (MyEventArgsPrectenaData)e;
-                this.Dispatcher.Invoke(DispatcherPriority.Normal, new DelegateUpravaUIzThreaduRozpoznavace(ZobrazZpravuRozpoznavace), e2);
+                this.Dispatcher.Invoke(DispatcherPriority.Normal, new Action<MyEventArgsPrectenaData>(ZobrazZpravuRozpoznavace), e2);
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
             }
         }
 
@@ -6804,7 +6773,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                Window1.logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
                 return false;
             }
         }
@@ -6905,7 +6874,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
                 return false;
             }
 
@@ -7225,13 +7194,11 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
             }
 
         }
 
-
-        private delegate void DelegatZobrazStavProgramu(string aZprava);
         /// <summary>
         /// zobrazi zpravu o stavu programu ve spodni liste programu, je thread SAFE
         /// </summary>
@@ -7241,7 +7208,7 @@ namespace NanoTrans
             if (this.Dispatcher.Thread != System.Threading.Thread.CurrentThread)
             {
                 //do invoke stuff here
-                this.Dispatcher.Invoke(new DelegatZobrazStavProgramu(ZobrazStavProgramu), new object[] { aZprava });
+                this.Dispatcher.Invoke(new Action<string>(ZobrazStavProgramu),  aZprava );
                 return;
             }
             tbStavProgramu.Text = aZprava;
@@ -7307,7 +7274,7 @@ namespace NanoTrans
                 //vytvoreni instance prepisovace, pokud neexistuje
                 if (oPrepisovac == null)
                 {
-                    oPrepisovac = new MyPrepisovac(nastaveniAplikace.AbsolutniAdresarRozpoznavace, nastaveniAplikace.rozpoznavac.Mluvci, nastaveniAplikace.rozpoznavac.JazykovyModel, nastaveniAplikace.rozpoznavac.PrepisovaciPravidla, nastaveniAplikace.rozpoznavac.LicencniServer, nastaveniAplikace.rozpoznavac.LicencniSoubor, nastaveniAplikace.rozpoznavac.DelkaInternihoBufferuPrepisovace, nastaveniAplikace.rozpoznavac.KvalitaRozpoznavaniDiktat, new DataPrectenaEventHandler(oPrepisovac_HaveDataPrectena));
+                    oPrepisovac = new MyPrepisovac(nastaveniAplikace.AbsolutniAdresarRozpoznavace, nastaveniAplikace.rozpoznavac.Mluvci, nastaveniAplikace.rozpoznavac.JazykovyModel, nastaveniAplikace.rozpoznavac.PrepisovaciPravidla, nastaveniAplikace.rozpoznavac.LicencniServer, nastaveniAplikace.rozpoznavac.LicencniSoubor, nastaveniAplikace.rozpoznavac.DelkaInternihoBufferuPrepisovace, nastaveniAplikace.rozpoznavac.KvalitaRozpoznavaniDiktat, new EventHandler(oPrepisovac_HaveDataPrectena));
                 }
                 string pMluvci = nastaveniAplikace.rozpoznavac.Mluvci;
                 string pJazykovyModel = nastaveniAplikace.rozpoznavac.JazykovyModel;
@@ -7328,7 +7295,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
                 return false;
             }
 
@@ -7535,7 +7502,7 @@ namespace NanoTrans
 
 
 
-            if (oPrepisovac == null) oPrepisovac = new MyPrepisovac(nastaveniAplikace.AbsolutniAdresarRozpoznavace, nastaveniAplikace.rozpoznavac.Mluvci, nastaveniAplikace.rozpoznavac.JazykovyModel, nastaveniAplikace.rozpoznavac.PrepisovaciPravidla, nastaveniAplikace.rozpoznavac.LicencniServer, nastaveniAplikace.rozpoznavac.LicencniSoubor, nastaveniAplikace.rozpoznavac.DelkaInternihoBufferuPrepisovace, nastaveniAplikace.rozpoznavac.KvalitaRozpoznavaniDiktat, new DataPrectenaEventHandler(oPrepisovac_HaveDataPrectena));
+            if (oPrepisovac == null) oPrepisovac = new MyPrepisovac(nastaveniAplikace.AbsolutniAdresarRozpoznavace, nastaveniAplikace.rozpoznavac.Mluvci, nastaveniAplikace.rozpoznavac.JazykovyModel, nastaveniAplikace.rozpoznavac.PrepisovaciPravidla, nastaveniAplikace.rozpoznavac.LicencniServer, nastaveniAplikace.rozpoznavac.LicencniSoubor, nastaveniAplikace.rozpoznavac.DelkaInternihoBufferuPrepisovace, nastaveniAplikace.rozpoznavac.KvalitaRozpoznavaniDiktat, new EventHandler(oPrepisovac_HaveDataPrectena));
 
             string pMluvci = nastaveniAplikace.rozpoznavac.Mluvci;
             string pJazykovyModel = nastaveniAplikace.rozpoznavac.JazykovyModel;
@@ -8029,7 +7996,7 @@ namespace NanoTrans
                 //vytvoreni instance prepisovace, pokud neexistuje
                 if (oHlasoveOvladani == null)
                 {
-                    oHlasoveOvladani = new MyPrepisovac(nastaveniAplikace.AbsolutniAdresarRozpoznavace, nastaveniAplikace.rozpoznavac.Mluvci, nastaveniAplikace.rozpoznavac.JazykovyModel, nastaveniAplikace.rozpoznavac.PrepisovaciPravidla, nastaveniAplikace.rozpoznavac.LicencniServer, nastaveniAplikace.rozpoznavac.LicencniSoubor, nastaveniAplikace.rozpoznavac.DelkaInternihoBufferuPrepisovace, nastaveniAplikace.rozpoznavac.KvalitaRozpoznavaniOvladani, new DataPrectenaEventHandler(oPrepisovac_HaveDataPrectena));
+                    oHlasoveOvladani = new MyPrepisovac(nastaveniAplikace.AbsolutniAdresarRozpoznavace, nastaveniAplikace.rozpoznavac.Mluvci, nastaveniAplikace.rozpoznavac.JazykovyModel, nastaveniAplikace.rozpoznavac.PrepisovaciPravidla, nastaveniAplikace.rozpoznavac.LicencniServer, nastaveniAplikace.rozpoznavac.LicencniSoubor, nastaveniAplikace.rozpoznavac.DelkaInternihoBufferuPrepisovace, nastaveniAplikace.rozpoznavac.KvalitaRozpoznavaniOvladani, new EventHandler(oPrepisovac_HaveDataPrectena));
                 }
                 string pMluvci = nastaveniAplikace.rozpoznavac.Mluvci;
                 string pJazykovyModel = nastaveniAplikace.rozpoznavac.JazykovyModel;
@@ -8054,7 +8021,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
                 return false;
             }
 
@@ -8188,7 +8155,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
                 //return false;
             }
 
@@ -8800,14 +8767,6 @@ namespace NanoTrans
             Normalizovat(myDataSource, pTag, -1);
         }
 
-
-        /// <summary>
-        /// delegat pro foneticky prepis
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private delegate void DelegateFonetickyPrepis(object sender, RoutedEventArgs e);
-
         /// <summary>
         /// spustu automaticky foneticky prepis - THREAD SAFE
         /// </summary>
@@ -8818,7 +8777,8 @@ namespace NanoTrans
             if (this.Dispatcher.Thread != System.Threading.Thread.CurrentThread)
             {
                 //do invoke stuff here
-                this.Dispatcher.Invoke(new DelegateFonetickyPrepis(menuItemNastrojeFonetickyPrepis_Click), new object[] { sender, e });
+                
+                this.Dispatcher.Invoke(new RoutedEventHandler(menuItemNastrojeFonetickyPrepis_Click), new object[] { sender, e });
                 return;
             }
 
@@ -9201,8 +9161,6 @@ namespace NanoTrans
                         pChb.IsChecked = pNalezeno;
                         pChb.Content = fi.Name;
                         pChb.IsHitTestVisible = false;
-                        //pChb.IsEnabled = false;
-
                         lbDavkoveNacteni.Items.Add(pChb);
                     }
 
@@ -9210,11 +9168,8 @@ namespace NanoTrans
 
 
             }
-            //fdlg.InitialDirectory = @"c:\" ;
-            //fileDialog.Filter = "Soubory titulků (*" + nastaveniAplikace.PriponaTitulku + ")|*" + nastaveniAplikace.PriponaTitulku;
-        }
 
-        private delegate void DelegateNactiPolozkuDavkovehoZpracovani(int aIndexPolozky);
+        }
 
         /// <summary>
         /// nacte polozku davkoveho zpracovani - THREAD SAFE
@@ -9224,7 +9179,7 @@ namespace NanoTrans
         {
             if (this.Dispatcher.Thread != System.Threading.Thread.CurrentThread)
             {
-                this.Dispatcher.Invoke(new DelegateNactiPolozkuDavkovehoZpracovani(NactiPolozkuDavkovehoZpracovani), new object[] { aIndexPolozky });
+                this.Dispatcher.Invoke(new Action<int>(NactiPolozkuDavkovehoZpracovani),  aIndexPolozky);
                 return;
             }
             if (lbDavkoveNacteni.Items.Count == 0) return;
@@ -9301,7 +9256,7 @@ namespace NanoTrans
                                     {
                                         MyBuffer16 pBuffer = new MyBuffer16(pp.DelkaMS);
                                         pBuffer.UlozDataDoBufferu(pWAV.NacitanyBufferSynchronne.data, pWAV.NacitanyBufferSynchronne.pocatecniCasMS, pWAV.NacitanyBufferSynchronne.koncovyCasMS);
-                                        pBuffer.UlozBufferDoWavSouboru(pJmenoSouboruWAV.Replace(".wav", "_phonetic" + prozsirit + ".wav"));
+                                        MyWav.VytvorWavSoubor(pBuffer,pJmenoSouboruWAV.Replace(".wav", "_phonetic" + prozsirit + ".wav"));
                                     }
 
                                 }
@@ -9670,7 +9625,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
                 MessageBox.Show("Chyba pri obnoveni stavu: " + ex.Message, "Chyba");
             }
 

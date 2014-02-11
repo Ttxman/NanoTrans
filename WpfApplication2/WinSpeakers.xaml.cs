@@ -540,7 +540,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                Window1.logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
             }
         }
 
@@ -628,7 +628,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                Window1.logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
             }
         }
 

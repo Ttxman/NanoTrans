@@ -15,8 +15,10 @@ namespace NanoTrans
 
     public delegate void BufferDoneEventHandler(IntPtr data, int size);
 
+
     internal class WaveInBuffer : IDisposable
     {
+
         public WaveInBuffer NextBuffer;
 
         private AutoResetEvent m_RecordEvent = new AutoResetEvent(false);

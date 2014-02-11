@@ -75,6 +75,10 @@ X undo posledni/vice zmen - realizace pomoci savu kompletniho statusu trva u roz
 
 + zachovani casovych znacek jednotlivych slov v odstavci pri jeho editaci, zalozeni sekce, ... v nove vytvorenem prepisu se mi nepodarilo zreprodukovat
 
+20110713
++ distribuce directX wrapperu spolu s EXE
++ oprava padani po nacteni druheho audio souboru v jednom sessionu. (nebo prvniho primo, bez otevreni trsx prepisu)
+
 ############################ TODO / not completed
 
 - odstranit konverzi do wav souboru v pripade, ze je oteviran wav soubor

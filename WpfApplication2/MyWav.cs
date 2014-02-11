@@ -682,7 +682,7 @@ namespace NanoTrans
                 }
                 this._Prevedeno = true; //i pres spadnuti je nacteni ok, doresit preteceni indexu!!!!!!
                 //MessageBox.Show("Načítání a převod audio souboru se nezdařily..."+ ex.Message);
-                Window1.logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
                 
                 return false;
             }
@@ -826,7 +826,7 @@ namespace NanoTrans
                 }
                 
                 //MessageBox.Show("Chyba pri nacitani dalsich ramcu: " + ex.Message);
-                Window1.logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
                 this._NacitaniBufferu = false;
                 return false;
             }
@@ -876,7 +876,7 @@ namespace NanoTrans
                     }
                     catch (Exception ex)
                     {
-                        Window1.logAplikace.LogujChybu(ex);
+                        MyLog.LogujChybu(ex);
                     }
                 }
                 
@@ -892,7 +892,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                Window1.logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
             }
         }
 

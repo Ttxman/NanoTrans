@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace NanoTrans
 {
-    public delegate short[] DataRequestProc();
+    //public delegate short[] DataRequestProc();
 
 
     /// <summary>
@@ -134,12 +134,12 @@ namespace NanoTrans
         DS.SecondaryBuffer m_soundBuffer;
         AutoResetEvent m_synchronizer;
         Thread m_waitThread;
-        DataRequestProc m_requestproc;
+        Func<short[]> m_requestproc;
         BufferDescription m_buffDescription;
         DS.Notify m_notify;
 
 
-        public MyWavePlayer(int device, int BufferByteSize, DataRequestProc fillProc)
+        public MyWavePlayer(int device, int BufferByteSize, Func<short[]> fillProc)
         {
 
             if (BufferByteSize < 500)
@@ -234,30 +234,17 @@ namespace NanoTrans
             }
         }
 
-        private delegate void DataRequestEvent();
-
         int m_bfpos = 0;
         object datalock = new object();
-        System.IO.BinaryWriter bw = new System.IO.BinaryWriter(new System.IO.FileStream(@"c:\prehrano.pcm",System.IO.FileMode.Create));
-        System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
         private void WriteNextData(short[] data)
         {
             lock (datalock)
             {
-               // sw.Reset();
-               // sw.Start();
-               // System.Diagnostics.Debug.WriteLine(data.Length);
-
-               // foreach(short s in data)
-               //     bw.Write(s);
-
                 m_soundBuffer.Write(m_bfpos, data, LockFlag.None);
                 m_samplesPlayed += data.Length;
                 m_bfpos += 2 * data.Length;
                 m_bfpos %= m_buffDescription.BufferBytes;
-                sw.Stop();
 
-               // System.Diagnostics.Debug.WriteLine("time"+sw.ElapsedMilliseconds);
             }
         }
 

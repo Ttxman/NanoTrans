@@ -82,7 +82,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                Window1.logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
                 return -1;
             }
         }
@@ -105,7 +105,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                Window1.logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
                 return new MySpeaker();
             }
 
@@ -139,7 +139,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                Window1.logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
                 return false;
             }
         }
@@ -168,7 +168,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                Window1.logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
                 return new MySpeaker().ID;
             }
         }
@@ -196,7 +196,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                Window1.logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
                 return new MySpeaker();
             }
 
@@ -240,7 +240,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                Window1.logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
                 return false;
             }
 
@@ -270,7 +270,7 @@ namespace NanoTrans
             catch (Exception ex)
             {
                 MessageBox.Show("Chyba pri serializaci souboru s nastavením: " + ex.Message,"Varování!");
-                Window1.logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
                 return false;
             }
 
@@ -302,7 +302,7 @@ namespace NanoTrans
             catch (Exception ex)
             {
                 MessageBox.Show("Chyba při načítání databáze mluvčích - nepodporovaný formát souboru: " + ex.Message);
-                Window1.logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
                 return null;
             }
 

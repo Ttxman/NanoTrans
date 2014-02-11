@@ -10,14 +10,26 @@ namespace NanoTrans
     //trida zodpovedna za logovani udlosti a chyb programu
     public class MyLog
     {
+        public static MyLog Log
+        {
+            get { return m_log; }
+        }
+
+        private static MyLog m_log = new MyLog();
+        public static void LogujChybu(Exception e)
+        {
+            m_log.intLogujChybu(e);
+        }
         public ArrayList seznamChyb = new ArrayList();
-        
-        public MyLog()
+
+
+
+        private MyLog()
         {
             //constructor
         }
 
-        public void LogujChybu(Exception e)
+        private void intLogujChybu(Exception e)
         {
             try
             {
@@ -26,7 +38,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                Window1.logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
             }
 
         }

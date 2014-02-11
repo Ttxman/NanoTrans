@@ -205,7 +205,7 @@ namespace NanoTrans
             catch (Exception ex)
             {
                 //MessageBox.Show("Chyba pri serializaci souboru s ruchy: " + ex.Message, "Varování");
-                Window1.logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
                 return false;
             }
             finally
@@ -252,7 +252,7 @@ namespace NanoTrans
             catch (Exception ex)
             {
                 //MessageBox.Show("Chyba pri serializaci souboru s ruchy: " + ex.Message, "Varování");
-                Window1.logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
                 return false;
             }
             finally
@@ -859,7 +859,7 @@ namespace NanoTrans
                 string pCesta = this._CestaAdresareProgramu + MyKONST.CESTA_FONETIKA_DOCASNY_WAV;
                 if (aBufferAudia.DelkaMS <= 0)
                     return "";
-                if (aBufferAudia.UlozBufferDoWavSouboru(pCesta))
+                if (MyWav.VytvorWavSoubor(aBufferAudia, pCesta))
                 {
                     string pJazyk = "";
                     string pPohlavi = "";

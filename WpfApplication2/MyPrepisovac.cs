@@ -8,7 +8,7 @@ using System.Windows;
 
 namespace NanoTrans
 {
-    public delegate void DataPrectenaEventHandler(object sender, EventArgs e); //delegovana udalostni metoda pro posilani prectene zpravy z rozpoznavace
+   // public delegate void DataPrectenaEventHandler(object sender, EventArgs e); //delegovana udalostni metoda pro posilani prectene zpravy z rozpoznavace
 
     public class MyEventArgsPrectenaData : EventArgs            //upravene eventargs pro predani dat dale
     {
@@ -127,13 +127,13 @@ namespace NanoTrans
         private string InterniVelikostBufferu = "6000";
         private string KvalitaPrepisu = "50";
 
-        private DataPrectenaEventHandler _EventPrectenaDataRozpoznavace = null;
+        private EventHandler _EventPrectenaDataRozpoznavace = null;
 
         
         /// <summary>
         /// construktor - pozaduje cestu k nanocore-rozpoznavaci - pouze adresar, a nazev souboru licence
         /// </summary>
-        public MyPrepisovac(string aCestaNanocore, string aCestaMluvci, string aCestaJazykovyModel, string aCestaPrepisovaciPravidla, string aLicencniServer, string aCestaLicencniSoubor, long aInterniBuffera, long aKvalitaPrepisu, DataPrectenaEventHandler aEventPrectenaDataRozpoznavace)
+        public MyPrepisovac(string aCestaNanocore, string aCestaMluvci, string aCestaJazykovyModel, string aCestaPrepisovaciPravidla, string aLicencniServer, string aCestaLicencniSoubor, long aInterniBuffera, long aKvalitaPrepisu, EventHandler aEventPrectenaDataRozpoznavace)
         {
             this._CestaNanocore = aCestaNanocore;
             this.CestaLicencniSoubor = aCestaLicencniSoubor;
@@ -359,7 +359,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                Window1.logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
             }
         }
         
@@ -392,7 +392,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                Window1.logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
             }
         }
 
@@ -436,7 +436,7 @@ namespace NanoTrans
                     //prRozpoznavac.StandardInput.Write(zprava);
                     if (prRozpoznavac.StandardInput == null || !prRozpoznavac.StandardInput.BaseStream.CanWrite)
                     {
-                        Window1.logAplikace.LogujChybu(new Exception("spadlo to kua"));
+                        MyLog.LogujChybu(new Exception("spadlo to kua"));
                     }
                     else
                     {
@@ -448,7 +448,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                Window1.logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
                 this.pZapisZpravy = false;
             }
 
@@ -489,7 +489,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                Window1.logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
                 return false;
             }
 
@@ -699,7 +699,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                Window1.logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
             }
         }
 

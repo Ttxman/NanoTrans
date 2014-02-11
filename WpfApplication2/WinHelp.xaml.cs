@@ -50,17 +50,5 @@ namespace NanoTrans
         {
             this.Close();
         }
-
-        private void Window_Closed(object sender, EventArgs e)
-        {
-            try
-            {
-                Window1.spustenoOknoNapovedy = false;
-            }
-            catch
-            {
-
-            }
-        }
     }
 }

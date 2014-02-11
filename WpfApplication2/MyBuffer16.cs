@@ -80,16 +80,6 @@ namespace NanoTrans
         }
 
         /// <summary>
-        /// ulozi data bufferu do wav souboru
-        /// </summary>
-        /// <param name="aCestaWAV"></param>
-        /// <returns></returns>
-        public bool UlozBufferDoWavSouboru(string aCestaWAV)
-        {
-            return MyWav.VytvorWavSoubor(this, aCestaWAV);
-        }
-
-        /// <summary>
         /// kompletne smaze data v bufferu, ale zachova jeho nastaveni jako je delka
         /// </summary>
         /// <returns></returns>
@@ -552,7 +542,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                Window1.logAplikace.LogujChybu(ex);
+                MyLog.LogujChybu(ex);
                 return ret;
             }
 
