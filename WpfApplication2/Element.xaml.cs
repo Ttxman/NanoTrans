@@ -40,6 +40,11 @@ namespace NanoTrans
             Element el = (Element)d;
             el.m_Element = val;
 
+            if (el.ValueElement != null)
+            {
+                el.ValueElement.BeginChanged -= el.BeginChanged;
+                el.ValueElement.EndChanged -= el.EndChanged;
+            }
 
             el.updating = true;
             if (val != null)
@@ -115,7 +120,35 @@ namespace NanoTrans
                 el.checkBox1.IsChecked = false;
             }
 
+            el.DataContext = val;
+            if (val != null)
+            {
+                val.BeginChanged += el.BeginChanged;
+                val.EndChanged += el.EndChanged;
 
+                el.BeginChanged(el, null);
+                el.EndChanged(el, null);
+
+                MyParagraph par = val as MyParagraph;
+                if (par != null)
+                {
+                    int i = 0;
+                    foreach (Rectangle r in el.stackPanel1.Children)
+                    {
+                        if ((par.DataAttributes & all[i]) != 0)
+                        {
+                            r.Fill = GetRectangleInnenrColor(all[i]);
+                        }
+                        else
+                        {
+                            r.Fill = GetRectangleBgColor(all[i]);
+                        }
+                        i++;
+                    }
+                }
+            }
+
+            el.updating = false;
         }
 
         TranscriptionElement m_Element;
@@ -127,42 +160,7 @@ namespace NanoTrans
             }
             set
             {
-                updating = true;
-                if (ValueElement != null)
-                {
-                    ValueElement.BeginChanged -= BeginChanged;
-                    ValueElement.EndChanged -= EndChanged;
-                }
                 SetValue(ValueElementProperty, value);
-                DataContext = value;
-                if (value != null)
-                {
-                    value.BeginChanged += BeginChanged;
-                    value.EndChanged += EndChanged;
-
-                    BeginChanged(this, null);
-                    EndChanged(this, null);
-
-                    MyParagraph par = value as MyParagraph;
-                    if (par != null)
-                    {
-                        int i = 0;
-                        foreach (Rectangle r in stackPanel1.Children)
-                        {
-                            if ((par.DataAttributes & all[i]) != 0)
-                            {
-                                r.Fill = GetRectangleInnenrColor(all[i]);
-                            }
-                            else
-                            {
-                                r.Fill = GetRectangleBgColor(all[i]);
-                            }
-                            i++;
-                        }
-                    }
-                }
-
-                updating = false;
             }
         }
 

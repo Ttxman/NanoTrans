@@ -114,6 +114,7 @@ namespace NanoTrans
         /// vychozi delka bufferu pro prehravani audio a presne kresleni vlny
         /// </summary>
         public static long DELKA_VYCHOZIHO_ZOBRAZOVACIHO_BUFFERU_MS = 300000;//180000;
+        public static TimeSpan DELKA_VYCHOZIHO_ZOBRAZOVACIHO_BUFFERU = TimeSpan.FromMilliseconds(DELKA_VYCHOZIHO_ZOBRAZOVACIHO_BUFFERU_MS);
         public static long DELKA_PRVNIHO_RAMCE_ZOBRAZOVACIHO_BUFFERU_MS = 120000;
         //public static long DELKA_VYCHOZIHO_ZOBRAZOVACIHO_BUFFERU_MS = 3600000;//180000;
 

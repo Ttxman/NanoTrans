@@ -248,7 +248,8 @@ namespace NanoTrans
                 string filename = dlg.FileName;
                 //BinaryWriter bw = new BinaryWriter(new FileStream(filename, FileMode.Create));
                 MyBuffer16 bf = new MyBuffer16(oWav.NacitanyBufferSynchronne.data.Length);
-                bf.data = new List<short>(oWav.NacitanyBufferSynchronne.data);
+
+                bf.data = oWav.NacitanyBufferSynchronne.data;
                 MyWav.VytvorWavSoubor(bf, filename);
 
 

@@ -1163,31 +1163,6 @@ namespace NanoTrans
 
                 if (Playing) VyberTextMeziCasovymiZnackami(playpos);
             }
-
-            long pPozadovanyPocatekVlny = (long)waveform1.WaveBegin.TotalMilliseconds;
-
-            long celkMilisekundy = (long)playpos.TotalMilliseconds;
-
-
-            if (oWav.Nacteno && celkMilisekundy > waveform1.AudioBufferEnd.TotalMilliseconds - (waveform1.AudioBufferEnd - waveform1.AudioBufferBegin).TotalMilliseconds * 0.2)
-            {
-                if (!oWav.NacitaniBufferu) //pokud jiz neni nacitano vlakno,dojde k inicializaci threadu
-                {
-                    if (waveform1.AudioBufferEnd.TotalMilliseconds < oWav.DelkaSouboruMS && !oWav.NacitaniBufferu)
-                    {
-                        oWav.AsynchronniNacteniRamce2((long)(celkMilisekundy - (waveform1.AudioBufferEnd - waveform1.AudioBufferBegin).TotalMilliseconds * 0.3), MyKONST.DELKA_VYCHOZIHO_ZOBRAZOVACIHO_BUFFERU_MS, 0);
-                    }
-                }
-            }
-            else if (oWav.Nacteno && (waveform1.AudioBufferBegin > TimeSpan.Zero && celkMilisekundy < waveform1.AudioBufferBegin.TotalMilliseconds + (waveform1.AudioBufferEnd - waveform1.AudioBufferBegin).TotalMilliseconds * 0.2) || pPozadovanyPocatekVlny < waveform1.AudioBufferBegin.TotalMilliseconds)
-            {
-                if (!oWav.NacitaniBufferu) //pokud jiz neni nacitano vlakno,dojde k inicializaci threadu
-                {
-                    oWav.AsynchronniNacteniRamce2((long)(celkMilisekundy - (waveform1.AudioBufferEnd - waveform1.AudioBufferBegin).TotalMilliseconds * 0.6), MyKONST.DELKA_VYCHOZIHO_ZOBRAZOVACIHO_BUFFERU_MS, 0);
-                }
-            }
-
-
         }
 
         /// <summary>
@@ -1246,7 +1221,7 @@ namespace NanoTrans
 
                         waveform1.CaretPosition = TimeSpan.Zero;
                         //  pIndexBufferuVlnyProPrehrani = 0;
-
+                        waveform1.DataRequestCallBack = oWav.NactiRamecBufferu;
 
                         pbPrevodAudio.Value = 0;
                         waveform1.AudioLength = TimeSpan.FromMilliseconds(pDelkaSouboruMS);

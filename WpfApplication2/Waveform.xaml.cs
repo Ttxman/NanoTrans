@@ -88,27 +88,26 @@ namespace NanoTrans
             set
             {
 
-
-               // StackTrace st = new StackTrace(true);
-               // string trace = "";
-               // foreach (var frame in st.GetFrames())
-               // {
-               //     trace += frame.GetMethod().Name + frame.GetFileLineNumber() + ">";
-               // }
-
-
-               // System.Diagnostics.Debug.WriteLine(""+value+":"+trace);
-
+            
 
                 long pos = (long)value.TotalMilliseconds;
                 if (pos == oVlna.KurzorPoziceMS)
                     return;
 
-
-
+                this.AudioBufferCheck(value);
                 oVlna.KurzorPoziceMS = pos;
 
                 TimeSpan ts = value;
+                string label = ts.Hours.ToString() + ":" + ts.Minutes.ToString("D2") + ":" + ts.Seconds.ToString("D2") + "," + ((int)ts.Milliseconds / 10).ToString("D2");
+                lAudioPozice.Content = label;
+
+                InvalidateCarret();
+                InvalidateSelection();
+
+                if (m_updating > 0)
+                    return;
+
+                
 
                 if (value < WaveBegin || value > WaveEnd)
                 {
@@ -117,17 +116,14 @@ namespace NanoTrans
                     EndUpdate();
                 }
 
-                string label = ts.Hours.ToString() + ":" + ts.Minutes.ToString("D2") + ":" + ts.Seconds.ToString("D2") + "," + ((int)ts.Milliseconds / 10).ToString("D2");
-                lAudioPozice.Content = label;
-
-                InvalidateCarret();
-                InvalidateSelection();
+                
 
                 if (m_updating == 0)
                     if (CarretPostionChanged != null)
                         CarretPostionChanged(this, new TimeSpanEventArgs(value));
             }
         }
+
 
         public TimeSpan SliderPostion
         {
@@ -220,8 +216,11 @@ namespace NanoTrans
             set
             {
                 m_autohighlight = value;
-                slPoziceMedia.SelectionStart = oVlna.mSekundyVlnyZac;
-                slPoziceMedia.SelectionEnd = oVlna.mSekundyVlnyKon;
+                if (value)
+                {
+                    slPoziceMedia.SelectionStart = AudioBufferBegin.TotalMilliseconds;
+                    slPoziceMedia.SelectionEnd = AudioBufferEnd.TotalMilliseconds;
+                }
             }
         }
 
@@ -523,7 +522,12 @@ namespace NanoTrans
 
                 for (int i = (int)zac; i < kon; i++)
                 {
-                    if (oVlna.bufferPrehravaniZvuku.data[i] > 0)
+                    if (i >= oVlna.bufferPrehravaniZvuku.data.Length)
+                    {
+                        pMezivypocetK += 0;
+                        pocetK++;
+                    }
+                    else if (oVlna.bufferPrehravaniZvuku.data[i] > 0)
                     {
                         pMezivypocetK += oVlna.bufferPrehravaniZvuku.data[i];
                         pocetK++;
@@ -1071,13 +1075,6 @@ namespace NanoTrans
 
             //casova osa
             InvalidateSpeakers();
-
-            if (m_autohighlight)
-            {
-                slPoziceMedia.SelectionStart = oVlna.mSekundyVlnyZac;
-                slPoziceMedia.SelectionEnd = oVlna.mSekundyVlnyKon;
-            }
-
         }
 
         private void btPosunLevo_Click(object sender, RoutedEventArgs e)
@@ -1227,15 +1224,15 @@ namespace NanoTrans
             WaveBegin = TimeSpan.FromMilliseconds(wbg);
             WaveEnd = TimeSpan.FromMilliseconds(wed);
 
-            if(!updating)
-                CaretPosition = TimeSpan.FromMilliseconds(e.NewValue);
+            CaretPosition = TimeSpan.FromMilliseconds(e.NewValue);
 
             if (CarretPostionChangedByUser != null && !updating)
                 CarretPostionChangedByUser(this, new TimeSpanEventArgs(this.CaretPosition));
-            InvalidateWaveform();
+
 
             if (!updating)
                 EndUpdate();
+            InvalidateWaveform();
         }
 
 
@@ -1245,13 +1242,11 @@ namespace NanoTrans
 
         private void slPoziceMedia_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            BeginUpdate();
+
         }
 
         private void slPoziceMedia_PreviewMouseUp(object sender, MouseButtonEventArgs e)
         {
-            if (m_updating > 0)
-                EndUpdate();
             slPoziceMedia_ValueChanged(slPoziceMedia, new RoutedPropertyChangedEventArgs<double>(slPoziceMedia.Value, slPoziceMedia.Value));
         }
 
@@ -1475,10 +1470,6 @@ namespace NanoTrans
             b.ReleaseMouseCapture();
         }
 
-        
-
-
-
         private void Grid_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             InvalidateWaveform();
@@ -1489,5 +1480,109 @@ namespace NanoTrans
             InvalidateWaveform();
         }
 
-}
+
+        public delegate short[] DataRequestDelegate(TimeSpan begin, TimeSpan end);
+
+        public DataRequestDelegate DataRequestCallBack;
+
+        Thread bufferProcessThread = null;
+        TimeSpan requestedBegin = TimeSpan.Zero;
+        TimeSpan requestedEnd = TimeSpan.Zero;
+        private object wavelock = new object();
+        private void AudioBufferCheck(TimeSpan value)
+        {
+            TimeSpan half = new TimeSpan(MyKONST.DELKA_VYCHOZIHO_ZOBRAZOVACIHO_BUFFERU.Ticks / 2);
+
+            TimeSpan checkarea = new TimeSpan((AudioBufferEnd - AudioBufferBegin).Ticks /5);
+            TimeSpan innercheckE = AudioBufferEnd - checkarea;
+            if (innercheckE > AudioLength || AudioBufferEnd>=AudioLength - TimeSpan.FromMilliseconds(10)) //magic number kvuli zaokrouhlovani
+                innercheckE = AudioLength;
+            TimeSpan innercheckB = AudioBufferBegin + checkarea;
+            if (innercheckB < TimeSpan.Zero || AudioBufferBegin <= TimeSpan.FromMilliseconds(10))
+                innercheckB = TimeSpan.Zero;
+
+
+            TimeSpan outercheckE = requestedEnd - checkarea;
+            if (outercheckE > AudioLength || AudioBufferEnd >= AudioLength - TimeSpan.FromMilliseconds(10))
+                outercheckE = AudioLength;
+            TimeSpan outercheckB = requestedBegin + checkarea;
+            if (outercheckB < TimeSpan.Zero || AudioBufferBegin <= TimeSpan.FromMilliseconds(10))
+                outercheckB = TimeSpan.Zero;
+
+            if (
+                (value > innercheckE ||
+                value < innercheckB)  //nevejdeme se do nacteneho
+                
+                                &&
+
+                (bufferProcessThread==null || (value > outercheckE || 
+                value < outercheckB ))) // nenacitame, nebo se nevejdeme se ani do nacitaneho
+ 
+            {
+                
+                System.Diagnostics.Debug.WriteLine("check" + value);
+                lock (wavelock)
+                {
+                    if (bufferProcessThread != null)
+                    {
+                        bufferProcessThread.Abort();
+                        bufferProcessThread = null;
+                    }
+                }
+
+                TimeSpan begin = value - half;
+                TimeSpan end = value + half;
+
+                if (begin < TimeSpan.Zero)
+                {
+                    begin = TimeSpan.Zero;
+                    end = begin + half + half;
+                }
+                
+                if (end > AudioLength)
+                {
+                    end = AudioLength;
+                    begin = AudioLength - half - half;
+                }
+                requestedBegin = begin;
+                requestedEnd = end;
+                
+                if(DataRequestCallBack!=null)
+                {
+                    lock (wavelock) //vytvareni noveho delegata pocka pokud se uz nastavuje stary
+                    {
+                        requestedBegin = begin;
+                        requestedEnd = end;
+                        bufferProcessThread = new Thread(delegate()
+                        {
+                            short[] data = this.DataRequestCallBack(begin, end);
+                            lock (wavelock)
+                            {
+                                oVlna.bufferPrehravaniZvuku.UlozDataDoBufferu(data, (long)begin.TotalMilliseconds, (long)end.TotalMilliseconds);
+                                bufferProcessThread = null;
+                            }
+                                if (AutomaticProgressHighlight)
+                                {
+                                    this.Dispatcher.Invoke((Action)(() =>
+                                    {
+                                        slPoziceMedia.SelectionStart = begin.TotalMilliseconds;
+                                        slPoziceMedia.SelectionEnd = end.TotalMilliseconds;
+                                    }));
+
+                                }
+
+                            iInvalidateWaveform();
+                        });
+                        bufferProcessThread.Name = "waveform.bufferProcessThread.";
+                    }
+                    bufferProcessThread.Start();
+                                      
+                }
+
+            
+            }
+
+        }
+
+    }
 }

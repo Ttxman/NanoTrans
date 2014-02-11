@@ -42,20 +42,16 @@ namespace NanoTrans
         /// info zda je buffer naplnen daty
         /// </summary>
         public bool Nacteny { get; set; }
-        //public short[] data;
-        public List<short> data;
+        public short[] data;
 
-
+        private object datalock = new object();
         public MyBuffer16(long aDelkaBufferuMS)
         {
             this.Nacteny = false;
             this._PocatekMS = 0;
             this._KonecMS = 0;
-
-
-            //data = new short[aDelkaBufferuMS * (FrekvenceVzorkovani / 1000)];
-            data = new List<short>((int)aDelkaBufferuMS * (1600 / 1000));
-            //data.AddRange(new short[(int)aDelkaBufferuMS * (FrekvenceVzorkovani / 1000)]);
+            lock(datalock)
+                data = new short[(int)aDelkaBufferuMS * (1600 / 1000)];
         }
 
         /// <summary>
@@ -66,9 +62,9 @@ namespace NanoTrans
         {
             //data = new short[data.Length];
             this.Nacteny = false;
-            lock (this.data)
+            lock (datalock)
             {
-                data.Clear();
+                data = new short[0];
             }
 
             this._PocatekMS = 0;
@@ -88,19 +84,18 @@ namespace NanoTrans
         {
             try
             {
+                
                 //this.SmazBuffer();
                 this._PocatekMS = aPocatekMS;
                 this._KonecMS = aKonecMS;
 
-                lock (this.data)
+                if (aData == null)
+                    aData = new short[0];
+
+                lock (datalock)
                 {
                     this.Nacteny = false;
-                    List<short> pData2 = new List<short>(aData);
-                    List<short> pomocny = this.data;
-
-                    data = pData2;
-
-                    pomocny.Clear();
+                    data = aData;
                 }
                 this.Nacteny = true;
                 return 0;
@@ -122,17 +117,22 @@ namespace NanoTrans
         {
             try
             {
-                lock (this.data)
+                if (aData != null && aData.Length > 0)
                 {
-                    this.Nacteny = false;
+                    lock (datalock)
+                    {
+                        this.Nacteny = false;
 
-                    this._KonecMS += aDelkaMS;
+                        this._KonecMS += aDelkaMS;
+
+                        short[] dbf = new short[this.data.Length + aData.Length];
+                        Array.Copy(data, dbf, data.Length);
+                        Array.Copy(aData, 0, dbf, data.Length, data.Length);
+                        this.data = dbf;
 
 
-                    this.data.AddRange(aData);
-
-
-                    this.Nacteny = true;
+                        this.Nacteny = true;
+                    }
                 }
                 return 0;
             }
@@ -183,7 +183,7 @@ namespace NanoTrans
 
                 lock (this.data)
                 {
-                    for (int i = pOdVzorku; i < (pOdVzorku + pKolikVzorku) && i < this.data.Count; i++)
+                    for (int i = pOdVzorku; i < (pOdVzorku + pKolikVzorku) && i < this.data.Length; i++)
                     {
                         pole[(i - pOdVzorku)] = this.data[i];
                         if (pDoVzorku > -1 && i > pDoVzorku)
