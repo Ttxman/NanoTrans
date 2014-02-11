@@ -920,14 +920,13 @@ namespace NanoTrans
                         {
                             if (jeVideo) meVideo.Pause();
                             prehratVyber = false;
+                            Playing = false;
                             if (MWP != null)
                             {
-                                MWP.Pause();
 
                                 //TODO: proc enjsou tyhle 3 veci na jednom miste?
                                 waveform1.CarretPosition = MWP.PausedAt;
                                 pIndexBufferuVlnyProPrehrani = (int)MWP.PausedAt.TotalMilliseconds;
-                                Playing = false;
                             }
                         }
                         else

@@ -399,10 +399,14 @@ namespace NanoTrans
             {
                 string ret="";
                 int i=0;
-                while (aCislo[i] == '0')
+                while (i < aCislo.Length && aCislo[i] == '0' )
                 {
                     i++;
                 }
+
+                if (i >= aCislo.Length)
+                    return "0";
+
                 for (int j = i; j < aCislo.Length; j++)
                 {
                     ret += aCislo[j];

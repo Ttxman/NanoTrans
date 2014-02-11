@@ -340,7 +340,7 @@
                 </Grid>
             </Popup>
         </Canvas>
-        <local:Waveform Grid.Row="2" Margin="3,52,1,26" x:Name="waveform1" PlayPauseClick="waveform1_PlayPauseClick" SliderPositionChanged="waveform1_SliderPositionChanged" UpdateBegin="waveform1_UpdateBegin" UpdateEnd="waveform1_UpdateEnd" CarretPostionChangedByUser="waveform1_CarretPostionChangedByUser" />
+        <local:Waveform Grid.Row="2" Margin="3,52,1,26" x:Name="waveform1" PlayPauseClick="waveform1_PlayPauseClick" SliderPositionChanged="waveform1_SliderPositionChanged" UpdateBegin="waveform1_UpdateBegin" UpdateEnd="waveform1_UpdateEnd" CarretPostionChangedByUser="waveform1_CarretPostionChangedByUser" ParagraphClick="waveform1_ParagraphClick" ParagraphDoubleClick="waveform1_ParagraphDoubleClick" CarretPostionChanged="waveform1_CarretPostionChanged" />
     </Grid>
     
     

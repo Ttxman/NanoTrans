@@ -81,7 +81,13 @@ namespace NanoTrans
             get { return TimeSpan.FromMilliseconds(oVlna.KurzorPoziceMS); }
             set
             {
-                oVlna.KurzorPoziceMS = (long)value.TotalMilliseconds;
+                
+                long pos = (long)value.TotalMilliseconds;
+                if (pos == oVlna.KurzorPoziceMS)
+                    return;
+
+                oVlna.KurzorPoziceMS = pos;
+
                 TimeSpan ts = value;
                 string label = ts.Hours.ToString() + ":" + ts.Minutes.ToString("D2") + ":" + ts.Seconds.ToString("D2") + "," + ((int)ts.Milliseconds / 10).ToString("D2");
                 lAudioPozice.Content = label;
@@ -93,6 +99,9 @@ namespace NanoTrans
                 rectangle1.Margin = new Thickness(aLeft + rectangle1.Width / 2, rectangle1.Margin.Top, rectangle1.Margin.Right, rectangle1.Margin.Bottom);
 
                 InvalidateSelection();
+
+                if (CarretPostionChanged != null)
+                    CarretPostionChanged(this, new TimeSpanEventArgs(value));
             }
         }
 
@@ -237,7 +246,11 @@ namespace NanoTrans
         public MySubtitlesData SubtitlesData
         {
             get { return m_subtitlesData; }
-            set { m_subtitlesData = value; }
+            set 
+            {
+                m_subtitlesData = value;
+                InvalidateSpeakers();
+            }
         }
 
 
@@ -254,12 +267,23 @@ namespace NanoTrans
         public event EventHandler UpdateBegin;
         public event EventHandler UpdateEnd;
         public event EventHandler<TimeSpanEventArgs> CarretPostionChangedByUser;
-
+        public event EventHandler<TimeSpanEventArgs> CarretPostionChanged;
+        public event EventHandler<MyTagEventArgs> ParagraphClick;
+        public event EventHandler<MyTagEventArgs> ParagraphDoubleClick;
 
         public class TimeSpanEventArgs : EventArgs
         {
             public TimeSpan Value;
             public TimeSpanEventArgs(TimeSpan value)
+            {
+                Value = value;
+            }
+        }
+
+        public class MyTagEventArgs : EventArgs
+        { 
+            public MyTag Value;
+            public MyTagEventArgs(MyTag value)
             {
                 Value = value;
             }
@@ -276,8 +300,14 @@ namespace NanoTrans
 
             InitializeComponent();
             Invalidator = new Thread(ProcessInvalidates);
-
             Invalidator.Start();
+            Application.Current.Exit += new ExitEventHandler(Current_Exit);
+        }
+
+        void Current_Exit(object sender, ExitEventArgs e)
+        {
+            if (Invalidator.IsAlive)
+                Invalidator.Interrupt();
         }
 
         /// <summary>
@@ -708,16 +738,16 @@ namespace NanoTrans
         }
 
 
+        private List<Button> bObelnikyMluvcich = new List<Button>();
         private void iInvalidateSpeakers()
         {
             MySubtitlesData aDokument = m_subtitlesData;
             MyVlna aZobrazenaVlna = oVlna;
-            // throw new NotImplementedException();
-            /* try
+            try
              {
 
-                 if (aDokument == null) return false;
-                 if (aZobrazenaVlna == null) return false;
+                 if (aDokument == null) return;
+                 if (aZobrazenaVlna == null) return;
                  //smazani obdelniku mluvcich
                  foreach (Button pL in bObelnikyMluvcich)
                  {
@@ -855,13 +885,51 @@ namespace NanoTrans
                  }
 
 
-                 return true;
+                 return;
              }
              catch (Exception ex)
              {
                  MyLog.LogujChybu(ex);
-                 return false;
-             }*/
+                 return;
+             }
+        }
+
+
+
+
+        void pMluvci_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (sender is Button)
+            {
+                Button sndr = (Button)sender;
+                double width = sndr.Width - 10;
+                (sndr.Content as DockPanel).Width = (width > 0.0) ? width : 0.0;
+            }
+        }
+
+        void pMluvci_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+
+                MyTag pTag = (sender as Button).Tag as MyTag;
+                if (ParagraphDoubleClick != null)
+                    ParagraphDoubleClick(this,new MyTagEventArgs(pTag));
+
+
+
+        }
+
+        /// <summary>
+        /// co se deje pri kliknuti na tlacitko mluvciho v signalu
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void pMluvci_Click(object sender, RoutedEventArgs e)
+        {
+
+                MyTag pTag = (sender as Button).Tag as MyTag;
+                if (ParagraphClick != null)
+                    ParagraphClick(this,new MyTagEventArgs(pTag));
+
         }
 
 
@@ -898,10 +966,6 @@ namespace NanoTrans
             if (PlayPauseClick != null)
                 PlayPauseClick(this, new RoutedEventArgs(Button.ClickEvent));
         }
-
-
-
-
 
         /// <summary>
         /// Thread SAFE - preda data source imagi vlny z threadu
@@ -1215,6 +1279,12 @@ namespace NanoTrans
                 Invalidator.Interrupt();
 
             Invalidator = null;
+        }
+
+        private void grid1_Unloaded(object sender, RoutedEventArgs e)
+        {
+            if (Invalidator.IsAlive)
+                Invalidator.Interrupt();
         }
     }
 }

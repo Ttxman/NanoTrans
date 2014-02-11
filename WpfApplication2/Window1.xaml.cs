@@ -145,9 +145,10 @@ namespace NanoTrans
             get { return _playing; }
             set
             {
+                
                 _playing = value;
                 waveform1.Playing = value;
-
+                oldms = TimeSpan.Zero;
 
                 if (value)
                 {
@@ -155,6 +156,11 @@ namespace NanoTrans
                     {
                         InicializaceAudioPrehravace();
                     }
+                }
+                else
+                {
+                    if (MWP != null)
+                        MWP.Pause();
                 }
 
 
@@ -323,7 +329,7 @@ namespace NanoTrans
             {
                 if (myDataSource != null)
                 {
-                    //spSeznam.Children.Clear();
+                    waveform1.SubtitlesData = myDataSource;
                     spSeznam.Children.Clear();
                     for (int i = 0; i < myDataSource.Chapters.Count; i++)
                     {
@@ -2564,25 +2570,19 @@ namespace NanoTrans
                 {
                     MyParagraph pP = myDataSource.VratOdstavec(nastaveniAplikace.RichTag);
                     nastaveniAplikace.CasoveZnacky = pP.VratCasoveZnackyTextu;    //casove znacky, ktere jsou nastaveny v odstavci
-
-
-                    //ulozeni delky textu - melo by stacit ulozit text v ulozenem odstavci - property text
-                    ///FlowDocument flowDoc = ((RichTextBox)(sender)).Document;
-                    ///TextRange tr = new TextRange(flowDoc.ContentStart, flowDoc.ContentEnd.GetPositionAtOffset(-1));
-
-                    ///nastaveniAplikace.CasoveZnackyText = tr.Text;               //cely text bez koncu - pro pozdejsi porovnani pri zmene
                     nastaveniAplikace.CasoveZnackyText = ((TextBox)sender).Text;
 
                 }
 
                 //provede zvyrazneni vyberu ve vlne podle dat
-                waveform1.SelectionBegin = TimeSpan.FromSeconds(myDataSource.VratCasElementuPocatek(nastaveniAplikace.RichTag));
-                waveform1.SelectionEnd =  TimeSpan.FromSeconds(myDataSource.VratCasElementuKonec(nastaveniAplikace.RichTag));
+                waveform1.SelectionBegin = TimeSpan.FromMilliseconds(myDataSource.VratCasElementuPocatek(nastaveniAplikace.RichTag));
+                waveform1.SelectionEnd =  TimeSpan.FromMilliseconds(myDataSource.VratCasElementuKonec(nastaveniAplikace.RichTag));
 
                 //nastaveni pozice kurzoru a obsluha prehravani podle nastaveni
                 if (nastaveniAplikace.SetupSkocitNaPozici && !pNeskakatNaZacatekElementu)
                 {
                     waveform1.CarretPosition = waveform1.SelectionBegin;
+                    pIndexBufferuVlnyProPrehrani = (int)waveform1.CarretPosition.TotalMilliseconds;
                     if (nastaveniAplikace.SetupSkocitZastavit)
                     {
                         if (jeVideo) meVideo.Play();
@@ -3764,54 +3764,6 @@ namespace NanoTrans
             }
 
         }
-
-
-        void pMluvci_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            if (sender is Button)
-            {
-                Button sndr = (Button)sender;
-                double width = sndr.Width - 10;
-                (sndr.Content as DockPanel).Width = (width > 0.0) ? width : 0.0;
-            }
-        }
-
-        void pMluvci_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            try
-            {
-                MyTag pTag = (sender as Button).Tag as MyTag;
-                VyberElement(pTag, false);
-                new WinSpeakers(pTag, this.nastaveniAplikace, this.myDatabazeMluvcich, myDataSource, null).ShowDialog();
-                UpdateXMLData(false, true, true, false, true);
-            }
-            catch
-            {
-
-            }
-        }
-
-        /// <summary>
-        /// co se deje pri kliknuti na tlacitko mluvciho v signalu
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void pMluvci_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                MyTag pTag = (sender as Button).Tag as MyTag;
-                bool pVybran = VyberElement(pTag, false);
-
-                waveform1.SelectionBegin = TimeSpan.FromMilliseconds(myDataSource.VratCasElementuPocatek(pTag));
-                waveform1.SelectionEnd = TimeSpan.FromMilliseconds(myDataSource.VratCasElementuKonec(pTag));
-            }
-            catch
-            {
-
-            }
-        }
-
 
         delegate bool DelegatVyberElementu(MyTag aTag, bool aNezastavovatPrehravani);
 
@@ -6849,16 +6801,26 @@ namespace NanoTrans
         {
             if (Playing)
             {
-                MWP.Pause();
                 Playing = false;
-                pIndexBufferuVlnyProPrehrani = (int)e.Value.TotalMilliseconds;
-                Playing = true;
-                MWP.Play(MWP.PlaySpeed);
             }
-            else
-            {
-                pIndexBufferuVlnyProPrehrani = (int)e.Value.TotalMilliseconds;
-            }
+            pIndexBufferuVlnyProPrehrani = (int)waveform1.CarretPosition.TotalMilliseconds;
+        }
+
+        private void waveform1_ParagraphClick(object sender, Waveform.MyTagEventArgs e)
+        {
+            bool pVybran = VyberElement(e.Value, false);
+        }
+
+        private void waveform1_ParagraphDoubleClick(object sender, Waveform.MyTagEventArgs e)
+        {
+            VyberElement(e.Value, false);
+            new WinSpeakers(e.Value, this.nastaveniAplikace, this.myDatabazeMluvcich, myDataSource, null).ShowDialog();
+            UpdateXMLData(false, true, true, false, true);
+        }
+
+        private void waveform1_CarretPostionChanged(object sender, Waveform.TimeSpanEventArgs e)
+        {
+            
         }
     }
 }
