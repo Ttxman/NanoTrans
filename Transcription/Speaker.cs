@@ -72,7 +72,7 @@ namespace NanoTrans.Core
         #region serializace nova
 
 
-        public static readonly List<string> Langs = new List<string>{"CZ","SK","RU","HR","PL"};
+        public static readonly List<string> Langs = new List<string>{"CZ","SK","RU","HR","PL","EN","DE"};
         [XmlIgnore]
         public Dictionary<string, string> Elements = new Dictionary<string, string>();
         private static readonly XAttribute EmptyAttribute = new XAttribute("empty", "");
@@ -178,7 +178,7 @@ namespace NanoTrans.Core
 
         public override string ToString()
         {
-            return FullName;
+            return FullName + " (" +Langs[DefaultLang]+ ")";
         }
 
         public static readonly int DefaultID = int.MinValue;
