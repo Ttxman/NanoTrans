@@ -192,12 +192,12 @@ namespace NanoTrans
             BufferPositionNotify[] nots = new BufferPositionNotify[2];
 
             BufferPositionNotify not = new BufferPositionNotify();
-            not.Offset = 100;
+            not.Offset = 500;
             not.EventNotifyHandle = m_synchronizer.SafeWaitHandle.DangerousGetHandle();
             nots[0] = not;
 
             not = new BufferPositionNotify();
-            not.Offset = BufferByteSize + 100;
+            not.Offset = BufferByteSize + 500;
             not.EventNotifyHandle = m_synchronizer.SafeWaitHandle.DangerousGetHandle();
             nots[1] = not;
             m_notify = new Notify(m_soundBuffer);
@@ -235,14 +235,20 @@ namespace NanoTrans
         object datalock = new object();
         private void WriteNextData(short[] data)
         {
-            lock (datalock)
-            {
-                m_soundBuffer.Write(m_bfpos, data, LockFlag.None);
-                m_samplesPlayed += data.Length;
-                m_bfpos += 2 * data.Length;
-                m_bfpos %= m_buffDescription.BufferBytes;
-
-            }
+            //lock (datalock)
+            //{
+                try
+                {
+                    m_soundBuffer.Write(m_bfpos, data, LockFlag.None);
+                    m_samplesPlayed += data.Length;
+                    m_bfpos += 2 * data.Length;
+                    m_bfpos %= m_buffDescription.BufferBytes;
+                }
+                catch (Exception e)
+                {
+                    System.Diagnostics.Debug.WriteLine("DXWriteExc: dl:" + data.Length + " " + m_bfpos);
+                }
+            //}
         }
 
 
