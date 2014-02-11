@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" ?>
+	<!-- soubor s pluginem: File="" - jeden soubor muze obsahovat i vice pluginu -->
+	<!-- maska souboru (normalni windows format: "nazev | maska,maska2..."): Mask="" -->
+	<!-- zastupne symboly:{0} vstupni soubor; {1} vystupni soubor; {2} temp slozka; -->
+	<!-- IsAssembly = true pokud je plugin umisteny v .NET assembly(.dll), jinak false  (pripadne pokud je v exe souboru a stejne chceme volat metodu na tride)-->
+	<!-- spusteni exe souboru s parametry: Parameters = "-z {0}" -->
+
+<Plugins>
+	<Import>
+		<Plugin Name="Import Trsx V1" Mask="trsx v1 soubory - assembly (*.trsx, *.xml)|*.trsx;*.xml" IsAssembly="true" File="TrsxV1Plugin.dll" Class="TrsxV1Plugin.TrsxV1" />
+		<Plugin Name="Import res" Mask="res soubory - assembly (*.res)|*.res;" IsAssembly="true" File="TrsxV1Plugin.dll" Class="TrsxV1Plugin.LoadRes" />
+	</Import>
+	<Export>
+		<Plugin Name="Export Trsx V1" Mask="trsx v1 soubory - assembly (*.trsx, *.xml)|*.trsx;*.xml" IsAssembly="true" File="TrsxV1Plugin.dll" Class="TrsxV1Plugin.TrsxV1" />
+		<Plugin Name="Export text" Mask="txt soubory (*.txt)|*.txt;" IsAssembly="false" File="ExePluginTXTexport.exe" Parameters = "-i {0} -o {1}"/>
+		<Plugin Name="Export text" Mask="txt soubory s časy (*.txt)|*.txt;" IsAssembly="false" File="ExePluginTXTexport.exe" Parameters = "-times -i {0} -o {1}"/>
+	</Export>
+</Plugins>
