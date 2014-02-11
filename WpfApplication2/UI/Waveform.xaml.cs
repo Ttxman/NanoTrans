@@ -402,8 +402,9 @@ namespace NanoTrans
 
 
 
+                    //each drawing should know if it is drawn by itself
+                    //invalidate_waveform = false;
 
-                    invalidate_waveform = false;
                     invalidate_speakers = false;
                     invalidate_selection = false;
                     invalidate_timeline = false;
@@ -452,6 +453,24 @@ namespace NanoTrans
 
         private void iInvalidateWaveform()
         {
+            Debug.WriteLine(WaveBegin);
+            Debug.WriteLine(WaveEnd);
+
+            Debug.WriteLine(AudioBufferBegin);
+            Debug.WriteLine(AudioBufferEnd);
+
+            bool notbuffered = WaveBegin < AudioBufferBegin || WaveEnd > AudioBufferEnd;
+
+
+            Debug.WriteLine(notbuffered);
+            Debug.WriteLine("-----------------------------------------");
+
+            if (notbuffered)
+            {
+                myImage.Source = null;
+                //invalidate_waveform = true; invalidate_waveform is true when this function is called
+                return;
+            }
 
             double zacatek = oVlna.mSekundyVlnyZac;
             double konec = oVlna.mSekundyVlnyKon;
@@ -615,6 +634,7 @@ namespace NanoTrans
                 DrawingImage myDrawingImage = new DrawingImage(myDrawingGroup);
                 InvalidateTimeLine();
                 KresliVlnuAOstatni(myDrawingImage);
+                invalidate_waveform = false;
             }
             catch// (Exception ex)
             {
@@ -1573,7 +1593,7 @@ namespace NanoTrans
 
                             }
 
-                            iInvalidateWaveform();
+                            InvalidateWaveform();
                         });
                         bufferProcessThread.Name = "waveform.bufferProcessThread.";
                     }

@@ -360,6 +360,15 @@ namespace NanoTrans
                 menuItemX7.InputGestureText = "Ctrl+Shift+X";
                 menuItemX7.Click += new RoutedEventHandler(menuItemX7_Click);
 
+
+                MenuItem menuItemX8 = new MenuItem();
+                menuItemX8.Header = "Posunout zbytek +50ms";
+                menuItemX8.Click += new RoutedEventHandler(menuItemX8_add50msClick);
+
+                MenuItem menuItemX9 = new MenuItem();
+                menuItemX9.Header = "Posunout zbytek -50ms";
+                menuItemX9.Click += new RoutedEventHandler(menuItemX9_substract50msClick);
+
                 ContextMenuGridX.Items.Add(menuItemX);
                 ContextMenuGridX.Items.Add(new Separator());
                 ContextMenuGridX.Items.Add(menuItemX3);
@@ -369,6 +378,12 @@ namespace NanoTrans
                 ContextMenuGridX.Items.Add(menuItemX4);
                 ContextMenuGridX.Items.Add(new Separator());
                 ContextMenuGridX.Items.Add(menuItemX7);
+                ContextMenuGridX.Items.Add(new Separator());
+                ContextMenuGridX.Items.Add(menuItemX8);
+                ContextMenuGridX.Items.Add(menuItemX9);
+
+
+
 
                 //menu pro image
                 ContextMenuVlnaImage = new ContextMenu();
@@ -390,10 +405,18 @@ namespace NanoTrans
                 MenuItem menuItemVlna5 = new MenuItem();
                 menuItemVlna5.Header = "Automatické rozpoznání výběru";
                 menuItemVlna5.Click += new RoutedEventHandler(menuItemVlna1_automaticke_rozpoznavani_useku_Click);
+
+                MenuItem menuItemVlna6 = new MenuItem();
+                menuItemVlna6.Header = "Posunout přepis - začátek ke kurzoru";
+                menuItemVlna6.Click += new RoutedEventHandler(menuItemVlna1_posunoutZacatekKeKurzoru_Click);
+
+
                 ContextMenuVlnaImage.Items.Add(menuItemVlna1);
                 ContextMenuVlnaImage.Items.Add(menuItemVlna2);
                 ContextMenuVlnaImage.Items.Add(new Separator());
                 ContextMenuVlnaImage.Items.Add(menuItemVlna3);
+                ContextMenuVlnaImage.Items.Add(new Separator());
+                ContextMenuVlnaImage.Items.Add(menuItemVlna6);
 
                 waveform1.ContextMenu = ContextMenuVlnaImage;
 
@@ -426,6 +449,61 @@ namespace NanoTrans
             {
                 MessageBox.Show("chyba2" + ex.Message);
             }
+        }
+
+        private void menuItemVlna1_posunoutZacatekKeKurzoru_Click(object sender, RoutedEventArgs e)
+        {
+            TranscriptionElement te = VirtualizingListBox.ActiveElement.ValueElement;
+
+            TranscriptionElement pre = te.PreviousSibling();
+
+
+
+            TimeSpan delta = waveform1.CaretPosition - te.Begin;
+
+
+            while (te != null)
+            {
+                te.Begin += delta;
+                te.End += delta;
+
+                te = te.Next();
+            }
+            te = VirtualizingListBox.ActiveElement.ValueElement;
+            if (pre != null && pre.End == te.Begin - delta && pre.IsParagraph && te.IsParagraph)
+                pre.End += delta;
+
+            waveform1.InvalidateSpeakers();
+        }
+
+        private void menuItemX9_substract50msClick(object sender, RoutedEventArgs e)
+        {
+            TranscriptionElement te = VirtualizingListBox.ActiveElement.ValueElement;
+            TimeSpan ms50 = TimeSpan.Zero - TimeSpan.FromMilliseconds(50);
+            while (te != null)
+            {
+                te.Begin += ms50;
+                te.End += ms50;
+
+                te = te.Next();
+            }
+
+            waveform1.InvalidateSpeakers();
+
+        }
+
+        private void menuItemX8_add50msClick(object sender, RoutedEventArgs e)
+        {
+            TranscriptionElement te = VirtualizingListBox.ActiveElement.ValueElement;
+            TimeSpan ms50 = TimeSpan.FromMilliseconds(50);
+            while (te != null)
+            {
+                te.Begin += ms50;
+                te.End += ms50;
+
+                te = te.Next();
+            }
+            waveform1.InvalidateSpeakers();
         }
 
         /// <summary>

@@ -609,6 +609,9 @@ namespace NanoTrans
 
         private void Vizualizer_PreviewKeyDown(object sender, KeyEventArgs e)
         {
+            if (ActiveElement == null)
+                return;
+
             var trans = ActiveElement.TransformToAncestor(listbox);
             var topleft = trans.Transform(default(Point));
 
@@ -667,6 +670,11 @@ namespace NanoTrans
                if (listbox.SelectedItem == value)
                     ScrollToItem(value);
             }
+        }
+
+        private void l_Element_ContentChanged(object sender, EventArgs e)
+        {
+            Subtitles.Ulozeno = false;
         }
 
     }

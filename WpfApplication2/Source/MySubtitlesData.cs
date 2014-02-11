@@ -1899,12 +1899,12 @@ namespace NanoTrans
 
                 reader.Read(); //<?xml version ...
                 reader.Read();
-
-                reader.ReadStartElement("Transcription");
+                data.mediaURI = reader.GetAttribute("audioFileName");
                 string val = reader.GetAttribute("dateTime");
                 if (val != null)
                     data.dateTime = XmlConvert.ToDateTime(val, XmlDateTimeSerializationMode.Local);
-                data.mediaURI = reader.GetAttribute("audioFileName");
+
+                reader.ReadStartElement("Transcription");
 
                 int result;
 
