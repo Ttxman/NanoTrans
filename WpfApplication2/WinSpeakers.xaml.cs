@@ -545,6 +545,15 @@ namespace NanoTrans
         }
 
 
+
+        /// <summary>
+        /// zavola okno s editaci mluvcich a vrati vybraneho a nastaveneho mluvciho, referencneovlivni databazi mluvcich programu
+        /// </summary>
+        /// <returns></returns>
+        public static MySpeaker ZiskejMluvciho(MySpeakers aDatabazeMluvcich, MySpeaker aPuvodniMluvci, string aFotkaBase64)
+        {
+            return ZiskejMluvciho(MySetup.Setup, aDatabazeMluvcich, aPuvodniMluvci, aFotkaBase64);
+        }
         /// <summary>
         /// zavola okno s editaci mluvcich a vrati vybraneho a nastaveneho mluvciho, referencneovlivni databazi mluvcich programu
         /// </summary>
@@ -553,6 +562,7 @@ namespace NanoTrans
         {
             try
             {
+                
                 MySpeaker ret = aPuvodniMluvci;
                 MySubtitlesData ps = new MySubtitlesData();
                 ps.NovySpeaker(aPuvodniMluvci);

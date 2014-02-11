@@ -56,38 +56,38 @@ namespace NanoTrans
         //obsluha kontextoveho menu image vlny
         private void menuItemVlna1_prirad_zacatek_Click(object sender, RoutedEventArgs e)
         {
-            UpravCasZobraz(nastaveniAplikace.RichTag,(long)waveform1.CaretPosition.TotalMilliseconds, -2);
+            UpravCasZobraz(MySetup.Setup.RichTag,(long)waveform1.CaretPosition.TotalMilliseconds, -2);
         }
         private void menuItemVlna1_prirad_konec_Click(object sender, RoutedEventArgs e)
         {
-           UpravCasZobraz(nastaveniAplikace.RichTag, -2, (long)waveform1.CaretPosition.TotalMilliseconds);
+           UpravCasZobraz(MySetup.Setup.RichTag, -2, (long)waveform1.CaretPosition.TotalMilliseconds);
         }
 
         private void menuItemVlna1_prirad_vyber_Click(object sender, RoutedEventArgs e)
         {
-            UpravCasZobraz(nastaveniAplikace.RichTag, (long)waveform1.SelectionBegin.TotalMilliseconds, (long)waveform1.SelectionEnd.TotalMilliseconds);
+            UpravCasZobraz(MySetup.Setup.RichTag, (long)waveform1.SelectionBegin.TotalMilliseconds, (long)waveform1.SelectionEnd.TotalMilliseconds);
         }
 
         private void menuItemVlna1_prirad_casovou_znacku_Click(object sender, RoutedEventArgs e)
         {
-           int pPoziceKurzoru = ((TextBox)nastaveniAplikace.RichTag.tSender).SelectionStart;
+           int pPoziceKurzoru = ((TextBox)MySetup.Setup.RichTag.tSender).SelectionStart;
 
             MyCasovaZnacka pCZ = new MyCasovaZnacka((long)waveform1.CaretPosition.TotalMilliseconds, pPoziceKurzoru - 1, pPoziceKurzoru);
 
-            MyParagraph pOdstavec = myDataSource[nastaveniAplikace.RichTag];
+            MyParagraph pOdstavec = myDataSource[MySetup.Setup.RichTag];
             pOdstavec.PridejCasovouZnacku(pCZ);
 
-            nastaveniAplikace.CasoveZnacky = myDataSource[nastaveniAplikace.RichTag].VratCasoveZnackyTextu;
-            ((TextBox)nastaveniAplikace.RichTag.tSender).Text = myDataSource[nastaveniAplikace.RichTag].Text;
+            MySetup.Setup.CasoveZnacky = myDataSource[MySetup.Setup.RichTag].VratCasoveZnackyTextu;
+            ((TextBox)MySetup.Setup.RichTag.tSender).Text = myDataSource[MySetup.Setup.RichTag].Text;
             //vraceni kurzoru do spravne pozice
 
 
             UpdateXMLData();
-            ZobrazInformaceElementu(nastaveniAplikace.RichTag);
+            ZobrazInformaceElementu(MySetup.Setup.RichTag);
 
             try
             {
-                ((TextBox)nastaveniAplikace.RichTag.tSender).Select(pPoziceKurzoru, 0);
+                ((TextBox)MySetup.Setup.RichTag.tSender).Select(pPoziceKurzoru, 0);
             }
             catch (Exception ex)
             {
@@ -99,7 +99,7 @@ namespace NanoTrans
         {
             try
             {
-                SpustRozpoznavaniVybranehoElementu(nastaveniAplikace.RichTag, (long)waveform1.SelectionBegin.TotalMilliseconds,(long)waveform1.SelectionEnd.TotalMilliseconds, false);
+                SpustRozpoznavaniVybranehoElementu(MySetup.Setup.RichTag, (long)waveform1.SelectionBegin.TotalMilliseconds,(long)waveform1.SelectionEnd.TotalMilliseconds, false);
             }
             catch (Exception ex)
             {

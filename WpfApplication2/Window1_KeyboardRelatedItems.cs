@@ -42,6 +42,20 @@ namespace NanoTrans
         public static RoutedCommand CommandMaximizeMinimize = new RoutedCommand();
         public static RoutedCommand CommandAutomaticFoneticTranscription = new RoutedCommand();
         public static RoutedCommand CommandShowPanelFoneticTranscription = new RoutedCommand();
+        public static RoutedCommand CommandGeneratePhoneticTranscription = new RoutedCommand();
+        public static RoutedCommand CommandStartStopDictate = new RoutedCommand();
+        public static RoutedCommand CommandStartStopVoiceControl = new RoutedCommand(); 
+        public static RoutedCommand CommandNormalizeParagraph = new RoutedCommand();
+        public static RoutedCommand CommandRemoveNonphonemes = new RoutedCommand();
+        public static RoutedCommand CommandTakeSpeakerSnapshotFromVideo = new RoutedCommand();
+        public static RoutedCommand CommandCreateNewTranscription = new RoutedCommand();
+        public static RoutedCommand CommandOpenTranscription = new RoutedCommand();
+        public static RoutedCommand CommandSaveTranscription = new RoutedCommand();
+        public static RoutedCommand CommandSaveTranscriptionAs = new RoutedCommand();
+        public static RoutedCommand CommandHelp = new RoutedCommand();
+
+
+
 
         public void InitCommands()
         {
@@ -54,6 +68,17 @@ namespace NanoTrans
             this.CommandBindings.Add(new CommandBinding(CommandMaximizeMinimize, CMaximizeMinimize));
             this.CommandBindings.Add(new CommandBinding(CommandAutomaticFoneticTranscription, CAutomaticFoneticTranscription));
             this.CommandBindings.Add(new CommandBinding(CommandShowPanelFoneticTranscription, CShowPanelFoneticTranscription));
+            this.CommandBindings.Add(new CommandBinding(CommandGeneratePhoneticTranscription, CGeneratePhoneticTranscription));
+            this.CommandBindings.Add(new CommandBinding(CommandStartStopDictate, CStartStopDictate));
+            this.CommandBindings.Add(new CommandBinding(CommandStartStopVoiceControl, CStartStopVoiceControl));
+            this.CommandBindings.Add(new CommandBinding(CommandNormalizeParagraph, CNormalizeParagraph));
+            this.CommandBindings.Add(new CommandBinding(CommandRemoveNonphonemes, CRemoveNonphonemes));
+            this.CommandBindings.Add(new CommandBinding(CommandTakeSpeakerSnapshotFromVideo, CTakeSpeakerSnapshotFromVideo));
+            this.CommandBindings.Add(new CommandBinding(CommandCreateNewTranscription, CCreateNewTranscription));
+            this.CommandBindings.Add(new CommandBinding(CommandOpenTranscription, COpenTranscription));
+            this.CommandBindings.Add(new CommandBinding(CommandSaveTranscription, CSaveTranscription));
+            this.CommandBindings.Add(new CommandBinding(CommandSaveTranscriptionAs, CSaveTranscriptionAs));
+            this.CommandBindings.Add(new CommandBinding(CommandHelp, CHelp));
 
 
 
@@ -61,14 +86,24 @@ namespace NanoTrans
             CommandFindDialog.InputGestures.Add(new KeyGesture(Key.F3));
             CommandPlayPause.InputGestures.Add(new KeyGesture(Key.Tab));
             CommandPlayPause.InputGestures.Add(new KeyGesture(Key.Tab, ModifierKeys.Control));
+            CommandPlayPause.InputGestures.Add(new KeyGesture(Key.Tab, ModifierKeys.Shift));
             CommandScrollDown.InputGestures.Add(new KeyGesture(Key.PageDown));
             CommandScrollUp.InputGestures.Add(new KeyGesture(Key.PageUp));
             CommandSmallJumpRight.InputGestures.Add(new KeyGesture(Key.Right,ModifierKeys.Alt));
             CommandSmallJumpLeft.InputGestures.Add(new KeyGesture(Key.Left, ModifierKeys.Alt));
             CommandMaximizeMinimize.InputGestures.Add(new KeyGesture(Key.Return, ModifierKeys.Alt));
             CommandAutomaticFoneticTranscription.InputGestures.Add(new KeyGesture(Key.F10, ModifierKeys.Alt));
-
-
+            CommandGeneratePhoneticTranscription.InputGestures.Add(new KeyGesture(Key.F5));
+            CommandStartStopDictate.InputGestures.Add(new KeyGesture(Key.F6));
+            CommandStartStopVoiceControl.InputGestures.Add(new KeyGesture(Key.F7));
+            CommandNormalizeParagraph.InputGestures.Add(new KeyGesture(Key.F9));
+            CommandRemoveNonphonemes.InputGestures.Add(new KeyGesture(Key.F11));
+            CommandTakeSpeakerSnapshotFromVideo.InputGestures.Add(new KeyGesture(Key.F12));
+            CommandCreateNewTranscription.InputGestures.Add(new KeyGesture(Key.N, ModifierKeys.Control));
+            CommandOpenTranscription.InputGestures.Add(new KeyGesture(Key.O, ModifierKeys.Control));
+            CommandSaveTranscription.InputGestures.Add(new KeyGesture(Key.S, ModifierKeys.Control));
+            CommandHelp.InputGestures.Add(new KeyGesture(Key.F1, ModifierKeys.Control));
+            CommandHelp.InputGestures.Add(new KeyGesture(Key.F1));
         }
 
         private void CFindDialogExecute(object sender, ExecutedRoutedEventArgs e)
@@ -107,7 +142,7 @@ namespace NanoTrans
                 if (Keyboard.Modifiers == ModifierKeys.Shift || ToolBar2BtnSlow.IsChecked == true)
                 {
                     adjustspeed = true;
-                    meVideo.SpeedRatio = nastaveniAplikace.ZpomalenePrehravaniRychlost;
+                    meVideo.SpeedRatio = MySetup.Setup.ZpomalenePrehravaniRychlost;
                 }
                 else
                 {
@@ -126,8 +161,8 @@ namespace NanoTrans
                     }
                     else
                     {
-                        MyParagraph par = myDataSource[nastaveniAplikace.RichTag];
-                        long konec = myDataSource.VratCasElementuPocatek(nastaveniAplikace.RichTag) + 5;
+                        MyParagraph par = myDataSource[MySetup.Setup.RichTag];
+                        long konec = myDataSource.VratCasElementuPocatek(MySetup.Setup.RichTag) + 5;
                         NastavPoziciKurzoru(TimeSpan.FromMilliseconds(konec), true, true);
                         waveform1.SelectionBegin = TimeSpan.FromMilliseconds(konec);
                         waveform1.SelectionEnd = TimeSpan.FromMilliseconds(konec + 120000);
@@ -140,7 +175,7 @@ namespace NanoTrans
                 Playing = true;
 
                 if (adjustspeed)
-                    MWP.Play(nastaveniAplikace.ZpomalenePrehravaniRychlost);
+                    MWP.Play(MySetup.Setup.ZpomalenePrehravaniRychlost);
                 else
                     MWP.Play();
 
@@ -271,6 +306,171 @@ namespace NanoTrans
             ZobrazitOknoFonetickehoPrepisu(true);
         }
 
+        private void CGeneratePhoneticTranscription(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (MyKONST.VERZE == MyEnumVerze.Externi) return;
+            if (oPrepisovac != null && oPrepisovac.Rozpoznavani)
+            {
+                if (MessageBox.Show("Opravdu chcete přerušit právě probíhající přepis?", "", MessageBoxButton.YesNoCancel, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                {
+                    if (oPrepisovac.StopHned() == 0)
+                    {
+                        if (pSeznamOdstavcuKRozpoznani != null) pSeznamOdstavcuKRozpoznani.Clear();
+                    }
+                }
+            }
+            else
+            {
+                SpustRozpoznavaniVybranehoElementu(MySetup.Setup.RichTag, -1, -1, false);
+            }
+        }
+
+        private void CStartStopDictate(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (MyKONST.VERZE == MyEnumVerze.Externi) return;
+            if (!btDiktat.IsEnabled) return;
+            if (recording)
+            {
+                if (MWR != null) MWR.Dispose();
+                MWR = null;
+                recording = false;
+                ZmenStavTlacitekRozpoznavace(false, true, false, false);
+            }
+            else
+            {
+                if (SpustRozpoznavaniHlasu())
+                {
+                    ZmenStavTlacitekRozpoznavace(false, true, false, true);
+                }
+            }
+        
+        }
+
+        private void CStartStopVoiceControl(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (MyKONST.VERZE == MyEnumVerze.Externi) return;
+            if (recording)
+            {
+                if (MWR != null) MWR.Dispose();
+                MWR = null;
+                recording = false;
+                ZmenStavTlacitekRozpoznavace(false, false, true, false);
+            }
+            else
+            {
+                if (SpustHlasoveOvladani())
+                {
+                    ZmenStavTlacitekRozpoznavace(false, false, true, true);
+                }
+            }
+        
+        }
+
+        private void CNormalizeParagraph(object sender, ExecutedRoutedEventArgs e)
+        {
+            MyTag pTag = MySetup.Setup.RichTag;
+            Normalizovat(myDataSource, pTag, -1);
+        }
+
+        private void CRemoveNonphonemes(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (bFonetika == null) bFonetika = new MyFonetic(MySetup.Setup.absolutniCestaEXEprogramu);
+
+            bool pStav = bFonetika.OdstraneniNefonetickychZnakuZPrepisu(myDataSource, MySetup.Setup.RichTag);
+            if (pStav)
+            {
+                MyTag pTag = new MyTag(MySetup.Setup.RichTag);
+                pTag.tTypElementu = MyEnumTypElementu.foneticky;
+                MyParagraph pP = myDataSource[pTag];
+                MySetup.Setup.CasoveZnackyText = pP.Text;
+                MySetup.Setup.CasoveZnacky = pP.VratCasoveZnackyTextu;
+            }
+            ZobrazitFonetickyPrepisOdstavce(MySetup.Setup.RichTag);
+        }
+
+        private void CTakeSpeakerSnapshotFromVideo(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (jeVideo)
+            {
+
+                Size dpi = new Size(96, 96);
+
+                RenderTargetBitmap bmp = new RenderTargetBitmap((int)gVideoPouze.ActualWidth, (int)gVideoPouze.ActualHeight + (int)gVideoPouze.Margin.Top, dpi.Width, dpi.Height, PixelFormats.Pbgra32);
+                bmp.Render(gVideoPouze);
+
+
+                BitmapFrame pFrame = BitmapFrame.Create(bmp);
+
+                string pBase = MyKONST.PrevedJPGnaBase64String(pFrame);
+
+
+                WinSpeakers.ZiskejMluvciho(this.myDatabazeMluvcich, null, pBase);
+            }
+            else
+            {
+                MessageBox.Show("Nelze vytvořit obrázek mluvčího, protože není načteno video", "Upozornění!");
+            }
+        
+        }
+        private void CCreateNewTranscription(object sender, ExecutedRoutedEventArgs e)
+        {
+            NoveTitulky();
+        }
+
+        private void COpenTranscription(object sender, ExecutedRoutedEventArgs e)
+        {
+            OtevritTitulky(true, "", false);
+            //refresh uz vykreslenych textboxu
+            this.Dispatcher.Invoke(new Action(
+                delegate()
+                {
+                    foreach (UIElement element in spSeznam.Children)
+                    {
+                        if (element is Grid)
+                        {
+                            foreach (UIElement subelement in ((Grid)element).Children)
+                            {
+                                if (subelement is MyTextBox)
+                                {
+                                    ((MyTextBox)subelement).RefreshTextMarking();
+                                }
+                            }
+                        }
+                    }
+
+
+                }
+                ));
+        }
+       
+        private void CSaveTranscription(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (myDataSource != null)
+            {
+                if (myDataSource.JmenoSouboru != null)
+                {
+                    UlozitTitulky(false, myDataSource.JmenoSouboru);
+                }
+                else
+                {
+                    UlozitTitulky(true, myDataSource.JmenoSouboru);
+                }
+            }
+        }
+        
+        private void CSaveTranscriptionAs(object sender, ExecutedRoutedEventArgs e)
+        {
+            UlozitTitulky(true, "");
+        }
+        
+        private void CHelp(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (Keyboard.Modifiers == ModifierKeys.Control) 
+                MNapoveda_O_Programu_Click(null, new RoutedEventArgs());
+            else
+                MNapoveda_Popis_Programu_Click(null, new RoutedEventArgs());
+        }
+
 
 
 
@@ -278,9 +478,9 @@ namespace NanoTrans
         int searchtextoffset = 0;
         public void FindNext(string pattern, bool isregex, bool CaseSensitive)
         {
-            if (nastaveniAplikace.RichTag == null)
+            if (MySetup.Setup.RichTag == null)
                 return;
-            MyTag tag = nastaveniAplikace.RichTag;
+            MyTag tag = MySetup.Setup.RichTag;
 
             MyParagraph pr = myDataSource[tag];
             if (pr == null)
@@ -358,8 +558,6 @@ namespace NanoTrans
             Right = 0x4,
             Invalid = 0xFF
         }
-        Key HIDsystemkey = Key.None;
-        Key HIDkey = Key.None;
         public void HIDhandler(object sender, System.EventArgs e)
         {
             USBHIDDRIVER.List.ListWithEvent ev = (USBHIDDRIVER.List.ListWithEvent)sender;
@@ -375,19 +573,14 @@ namespace NanoTrans
                         {
                             if ((byte)(FCPedal.Left & FCstatus) == 0) //down event
                             {
-                                HIDkey = Key.System;
-                                HIDsystemkey = Key.Left;
-                                Window_PreviewKeyDown(null, null);
-                                waveform1.Dispatcher.Invoke(new KeyEventHandler(Window_PreviewKeyDown), null, null);
+                                this.Dispatcher.Invoke(new Action(()=>CommandSmallJumpLeft.Execute(null, this)));
                             }
                         }
                         else if ((((byte)FCPedal.Middle) & stat) != 0)
                         {
                             if ((byte)(FCPedal.Middle & FCstatus) == 0) //down event
                             {
-                                HIDkey = Key.Tab;
-                                HIDsystemkey = Key.None;
-                                waveform1.Dispatcher.Invoke(new KeyEventHandler(Window_PreviewKeyDown), null, null);
+                                this.Dispatcher.Invoke(new Action(() => CommandPlayPause.Execute(null, this)));
 
                             }
 
@@ -396,9 +589,7 @@ namespace NanoTrans
                         {
                             if ((byte)(FCPedal.Right & FCstatus) == 0) //down event
                             {
-                                HIDkey = Key.System;
-                                HIDsystemkey = Key.Right;
-                                waveform1.Dispatcher.Invoke(new KeyEventHandler(Window_PreviewKeyDown), null, null);
+                                this.Dispatcher.Invoke(new Action(() => CommandSmallJumpRight.Execute(null, this)));
                             }
 
                         }
@@ -451,11 +642,11 @@ namespace NanoTrans
                     {
                         popup.IsOpen = false;
                         e.Handled = true;
-                        listboxpopupPopulate(nastaveniAplikace.NerecoveUdalosti);
+                        listboxpopupPopulate(MySetup.Setup.NerecoveUdalosti);
 
                         popup_filter = "";
                     }
-                    else if (nastaveniAplikace.ZobrazitFonetickyPrepis > 10)
+                    else if (MySetup.Setup.ZobrazitFonetickyPrepis > 10)
                     {
                         tbFonetickyPrepis.Focus();
                         e.Handled = true;
@@ -603,8 +794,8 @@ namespace NanoTrans
                                 myDataSource.UpravElementOdstavce(new MyTag(xfon), trAktualniFon, myDataSource[xfon].VratCasoveZnackyTextu);
                             ///flowDoc = VytvorFlowDocumentOdstavce(myDataSource[x));
                             //nastaveni aktualnich dat textboxu odstavce,aby nedochazelo ke zmenam
-                            nastaveniAplikace.CasoveZnacky = myDataSource[x].VratCasoveZnackyTextu;
-                            nastaveniAplikace.CasoveZnackyText = myDataSource[x].Text;
+                            MySetup.Setup.CasoveZnacky = myDataSource[x].VratCasoveZnackyTextu;
+                            MySetup.Setup.CasoveZnackyText = myDataSource[x].Text;
 
 
 
@@ -946,8 +1137,8 @@ namespace NanoTrans
 
 
                                     //((RichTextBox)((Grid)spSeznam.Children[index - 1]).Children[0]).Document = new FlowDocument(new Paragraph(new Run(t + s)));
-                                    nastaveniAplikace.CasoveZnackyText = t + s;
-                                    nastaveniAplikace.CasoveZnacky = pCasoveZnackyPredchoziho;
+                                    MySetup.Setup.CasoveZnackyText = t + s;
+                                    MySetup.Setup.CasoveZnacky = pCasoveZnackyPredchoziho;
                                     ///((RichTextBox)((Grid)spSeznam.Children[index - 1]).Children[0]).Document = VytvorFlowDocumentOdstavce(myDataSource[pTagPredchoziho));
                                     ((TextBox)((Grid)spSeznam.Children[index - 1]).Children[0]).Text = myDataSource[pTagPredchoziho].Text;
 
@@ -1036,8 +1227,8 @@ namespace NanoTrans
                                 }
 
 
-                                nastaveniAplikace.CasoveZnackyText = s2 + t2;
-                                nastaveniAplikace.CasoveZnacky = pCasoveZnackyAktualniho;
+                                MySetup.Setup.CasoveZnackyText = s2 + t2;
+                                MySetup.Setup.CasoveZnacky = pCasoveZnackyAktualniho;
                                 ((TextBox)((Grid)spSeznam.Children[index]).Children[0]).Text = myDataSource[mT].Text;
                                 ((TextBox)((Grid)spSeznam.Children[index]).Children[0]).SelectionStart = pDelka2;
                                 ((TextBox)((Grid)spSeznam.Children[index]).Children[0]).SelectionLength = 0;
@@ -1057,116 +1248,6 @@ namespace NanoTrans
             {
                 MyLog.LogujChybu(ex);
             }
-        }
-
-        private void waveform1_PlayPauseClick(object sender, RoutedEventArgs e)
-        {
-            CommandPlayPause.Execute(null, waveform1);
-        }
-
-
-        /// <summary>
-        /// obsluha stisku klaves a zkratek k ovladani programu - pro cely formular
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
-        {
-
-            Key syskey;
-            Key key;
-            bool repeat;
-            if (e == null)
-            {
-                syskey = HIDsystemkey;
-                key = HIDkey;
-                repeat = false;
-
-            }
-            else
-            {
-                syskey = e.SystemKey;
-                key = e.Key;
-                repeat = e.IsRepeat;
-            }
-
-            switch (key)
-            {
-                case Key.F5:       //rozpoznani aktualniho elementu
-                    button10_Click(null, new RoutedEventArgs());
-                    break;
-                case Key.F6:       //diktat
-                    btDiktat_Click(null, new RoutedEventArgs());
-                    break;
-                case Key.F7:       //hlasove ovladani
-                    btHlasoveOvladani_Click(null, new RoutedEventArgs());
-                    break;
-                case Key.F9:       //normalizace textu
-                    menuItemNastrojeNormalizovat_Click(null, new RoutedEventArgs());
-                    break;
-                case Key.F11:       //odstraneni nefonemu...
-                    btOdstranitNefonemy_Click(null, new RoutedEventArgs());
-                    if (e != null)
-                        e.Handled = true;
-                    break;
-                case Key.F12:       //porizeni fotografie z videa a vyvolani spravce mluvcich
-                    menuItemVideoPoriditFotku_Click(null, new RoutedEventArgs());
-                    break;
-
-                case Key.N:
-                    if (!e.IsRepeat && Keyboard.Modifiers == ModifierKeys.Control)
-                    {
-                        if (e != null)
-                            e.Handled = true;
-
-                        MSoubor_Novy_Click(null, new RoutedEventArgs());
-                    }
-                    break;
-                case Key.O:
-                    if (!e.IsRepeat && Keyboard.Modifiers == ModifierKeys.Control)
-                    {
-                        if (e != null)
-                            e.Handled = true;
-                        MSoubor_Otevrit_Titulky_Click(null, new RoutedEventArgs());
-                    }
-                    break;
-                case Key.S:
-                    if (!e.IsRepeat && Keyboard.Modifiers == ModifierKeys.Control)
-                    {
-                        if (e != null)
-                            e.Handled = true;
-                        MSoubor_Ulozit_Click(null, new RoutedEventArgs());
-                    }
-                    break;
-                case Key.F1:
-                    if (!e.IsRepeat)
-                    {
-                        if (Keyboard.Modifiers == ModifierKeys.Control) MNapoveda_O_Programu_Click(null, new RoutedEventArgs());
-                        else
-                            MNapoveda_Popis_Programu_Click(null, new RoutedEventArgs());
-                        if (e != null)
-                            e.Handled = true;
-                    }
-                    break;
-                case Key.F2:
-                    if (!e.IsRepeat && myDataSource != null && myDataSource.Chapters.Count == 0)
-                    {
-                        e.Handled = true;
-                        MyTag pomTag = PridejKapitolu(-1, "");
-                        if (pomTag != null)
-                        {
-                            pomTag.tSender = VratSenderTextboxu(pomTag);
-                            if (pomTag.tSender != null)
-                            {
-                                ((TextBox)pomTag.tSender).Focus();
-                            }
-                        }
-                    }
-                    break;
-                default:
-                    break;
-            }
-
         }
 
         /// <summary>
@@ -1269,12 +1350,12 @@ namespace NanoTrans
                         btHlasoveOvladani_Click(null, new RoutedEventArgs());
                         break;
 
-                    case 1000:
-                        Audio_PlayPause();
-                        break;
-                    case 1001:
-                        Audio_PlayPause();
-                        break;
+                    //case 1000:
+                    //    Audio_PlayPause();
+                    //    break;
+                    //case 1001:
+                    //    Audio_PlayPause();
+                    //    break;
                 }
                 return true;
             }

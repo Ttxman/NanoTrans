@@ -62,7 +62,7 @@ namespace NanoTrans
         /// databaze mluvcich konkretniho programu
         /// </summary>
         public MySpeakers myDatabazeMluvcich;
-        public MySetup nastaveniAplikace = null;          //trida pro nastaveni vlastnosti aplikace
+        //public static MySetup MySetup = null;          //trida pro nastaveni vlastnosti aplikace
 
         //public static bool spustenoOknoNapovedy = false;        //informace o spustenem oknu napovedy
         WinHelp oknoNapovedy;                                   //okno s napovedou
@@ -216,7 +216,7 @@ namespace NanoTrans
         /// </summary>
         public void NastavJazyk(MyEnumJazyk aJazyk)
         {
-            nastaveniAplikace.jazykRozhranni = aJazyk;
+            MySetup.Setup.jazykRozhranni = aJazyk;
             if (aJazyk == MyEnumJazyk.cestina) return;
             if (aJazyk == MyEnumJazyk.anglictina)
             {
@@ -429,16 +429,16 @@ namespace NanoTrans
                     tbDatumCasDokumentu.Text = pDatum.ToString();// this.myDataSource.dateTime.ToShortTimeString();
 
                     //foneticky prepis
-                    if (nastaveniAplikace.fonetickyPrepis.Jazyk == null || nastaveniAplikace.fonetickyPrepis.Jazyk == "") cbJazyk.SelectedIndex = 0; else cbJazyk.Text = nastaveniAplikace.fonetickyPrepis.Jazyk;
-                    if (nastaveniAplikace.fonetickyPrepis.Pohlavi == null || nastaveniAplikace.fonetickyPrepis.Pohlavi == "") cbPohlavi.SelectedIndex = 0; else cbPohlavi.Text = nastaveniAplikace.fonetickyPrepis.Pohlavi;
-                    chbPrehravatRozpoznane.IsChecked = nastaveniAplikace.fonetickyPrepis.PrehratAutomatickyRozpoznanyOdstavec;
+                    if (MySetup.Setup.fonetickyPrepis.Jazyk == null || MySetup.Setup.fonetickyPrepis.Jazyk == "") cbJazyk.SelectedIndex = 0; else cbJazyk.Text = MySetup.Setup.fonetickyPrepis.Jazyk;
+                    if (MySetup.Setup.fonetickyPrepis.Pohlavi == null || MySetup.Setup.fonetickyPrepis.Pohlavi == "") cbPohlavi.SelectedIndex = 0; else cbPohlavi.Text = MySetup.Setup.fonetickyPrepis.Pohlavi;
+                    chbPrehravatRozpoznane.IsChecked = MySetup.Setup.fonetickyPrepis.PrehratAutomatickyRozpoznanyOdstavec;
 
 
 
 
-                    tbFonetickyPrepis.FontSize = nastaveniAplikace.SetupTextFontSize;
+                    tbFonetickyPrepis.FontSize = MySetup.Setup.SetupTextFontSize;
 
-                    int defaultLeftPositionRichX = nastaveniAplikace.defaultLeftPositionRichX;
+                    int defaultLeftPositionRichX = MySetup.Setup.defaultLeftPositionRichX;
 
                     string pNameSpeakerPredchozi = null;
                     string pNameSpeakerPredchoziKratky = null;
@@ -463,10 +463,10 @@ namespace NanoTrans
                         CheckBox pChbTrenovani = ((CheckBox)((Grid)spSeznam.Children[i]).Children[3]);
 
                         //zmena velikosti pisma prepisu
-                        pBt.FontSize = this.nastaveniAplikace.SetupTextFontSize * 0.87;
-                        pTB.FontSize = this.nastaveniAplikace.SetupTextFontSize;
-                        pLbBegin.FontSize = this.nastaveniAplikace.SetupTextFontSize * 0.87;
-                        pLbEnd.FontSize = this.nastaveniAplikace.SetupTextFontSize * 0.87;
+                        pBt.FontSize = MySetup.Setup.SetupTextFontSize * 0.87;
+                        pTB.FontSize = MySetup.Setup.SetupTextFontSize;
+                        pLbBegin.FontSize = MySetup.Setup.SetupTextFontSize * 0.87;
+                        pLbEnd.FontSize = MySetup.Setup.SetupTextFontSize * 0.87;
                         //
 
 
@@ -479,7 +479,7 @@ namespace NanoTrans
 
                         if (aUpdateCasy)
                         {
-                            if (pBegin > -1 && nastaveniAplikace.zobrazitCasBegin)
+                            if (pBegin > -1 && MySetup.Setup.zobrazitCasBegin)
                             {
                                 //pLbBegin.Background = Brushes.Red;
                                 //pTop = pLbBegin.FontSize;
@@ -495,7 +495,7 @@ namespace NanoTrans
                                 pLbBegin.Visibility = Visibility.Hidden;
                             }
 
-                            if (pEnd > -1 && nastaveniAplikace.zobrazitCasEnd)
+                            if (pEnd > -1 && MySetup.Setup.zobrazitCasEnd)
                             {
                                 pDown += pLbEnd.FontSize;
                                 pLbEnd.Visibility = Visibility.Visible;
@@ -542,10 +542,10 @@ namespace NanoTrans
                                         pNameSpeakerPredchoziKratky = pName;
 
                                         FormattedText fmtText = new FormattedText(pName, System.Globalization.CultureInfo.CurrentCulture, FlowDirection.LeftToRight, new Typeface(pTextBlock.FontFamily, pTextBlock.FontStyle, pTextBlock.FontWeight, pTextBlock.FontStretch), pTextBlock.FontSize, pTextBlock.Foreground);
-                                        if (pName != null && fmtText.Width > nastaveniAplikace.maximalniSirkaMluvciho)
+                                        if (pName != null && fmtText.Width > MySetup.Setup.maximalniSirkaMluvciho)
                                         {
                                             pBt.ToolTip = pName;
-                                            while (pName.Length > 0 && fmtText.Width > nastaveniAplikace.maximalniSirkaMluvciho)
+                                            while (pName.Length > 0 && fmtText.Width > MySetup.Setup.maximalniSirkaMluvciho)
                                             {
                                                 pName = pName.Remove(pName.Length - 1);
                                                 fmtText = new FormattedText(pName + "...", System.Globalization.CultureInfo.CurrentCulture, FlowDirection.LeftToRight, new Typeface(pTextBlock.FontFamily, pTextBlock.FontStyle, pTextBlock.FontWeight, pTextBlock.FontStretch), pTextBlock.FontSize, pTextBlock.Foreground);
@@ -578,7 +578,7 @@ namespace NanoTrans
                                     pTextBlock.Text = pName;
 
 
-                                    if (nastaveniAplikace.ZobrazitFotografieMluvcich)
+                                    if (MySetup.Setup.ZobrazitFotografieMluvcich)
                                     {
                                         if (myDataSource.VratSpeakera(aTag).FullName == myDataSource.VratSpeakera(new MyTag(aTag.tKapitola, aTag.tSekce, aTag.tOdstavec - 1)).FullName && myDataSource.VratSpeakera(aTag).FullName != null && myDataSource.VratSpeakera(aTag).FullName != "")
                                         {
@@ -588,7 +588,7 @@ namespace NanoTrans
                                         else
                                         {
                                             pImage.Source = MyKONST.PrevedBase64StringNaJPG(myDataSource.VratSpeakera(aTag).FotoJPGBase64);
-                                            pImage.MaxHeight = nastaveniAplikace.Fotografie_VyskaMax;
+                                            pImage.MaxHeight = MySetup.Setup.Fotografie_VyskaMax;
                                         }
                                     }
                                     else
@@ -633,10 +633,10 @@ namespace NanoTrans
                                 else
                                 {
                                     pBt.Visibility = Visibility.Visible;
-                                    if (nastaveniAplikace.ZobrazitFotografieMluvcich)
+                                    if (MySetup.Setup.ZobrazitFotografieMluvcich)
                                     {
                                         pImage.Source = MyKONST.PrevedBase64StringNaJPG(myDataSource.VratSpeakera(aTag).FotoJPGBase64);
-                                        pImage.MaxHeight = nastaveniAplikace.Fotografie_VyskaMax;
+                                        pImage.MaxHeight = MySetup.Setup.Fotografie_VyskaMax;
                                     }
                                     else
                                     {
@@ -1184,50 +1184,50 @@ namespace NanoTrans
                 }
 
                 //nastaveni aplikace
-                this.nastaveniAplikace = new MySetup(new FileInfo(Application.ResourceAssembly.Location).DirectoryName);
-                if (this.nastaveniAplikace != null)
+                MySetup.Setup = new MySetup(new FileInfo(Application.ResourceAssembly.Location).DirectoryName);
+                if (MySetup.Setup != null)
                 {
-                    nastaveniAplikace = nastaveniAplikace.Deserializovat(nastaveniAplikace.absolutniCestaEXEprogramu + MyKONST.KONFIGURACNI_SOUBOR);
-                    nastaveniAplikace.Serializovat(nastaveniAplikace.absolutniCestaEXEprogramu + MyKONST.KONFIGURACNI_SOUBOR, nastaveniAplikace);
-                    NastavJazyk(nastaveniAplikace.jazykRozhranni);
+                    MySetup.Setup = MySetup.Setup.Deserializovat(MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.KONFIGURACNI_SOUBOR);
+                    MySetup.Setup.Serializovat(MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.KONFIGURACNI_SOUBOR, MySetup.Setup);
+                    NastavJazyk(MySetup.Setup.jazykRozhranni);
                 }
 
-                if (nastaveniAplikace.SpustitLogovaciOkno)
+                if (MySetup.Setup.SpustitLogovaciOkno)
                 {
                     mWL = new WinLog();
                     mWL.Show();
                 }
                 //nastaveni posledni pozice okna
-                if (nastaveniAplikace.OknoPozice != null)
+                if (MySetup.Setup.OknoPozice != null)
                 {
-                    if (nastaveniAplikace.OknoPozice.X >= 0 && nastaveniAplikace.OknoPozice.Y >= 0)
+                    if (MySetup.Setup.OknoPozice.X >= 0 && MySetup.Setup.OknoPozice.Y >= 0)
                     {
                         this.WindowStartupLocation = WindowStartupLocation.Manual;
-                        this.Left = nastaveniAplikace.OknoPozice.X;
-                        this.Top = nastaveniAplikace.OknoPozice.Y;
+                        this.Left = MySetup.Setup.OknoPozice.X;
+                        this.Top = MySetup.Setup.OknoPozice.Y;
                     }
                 }
                 //nastaveni posledni velikosti okna
-                if (nastaveniAplikace.OknoVelikost != null)
+                if (MySetup.Setup.OknoVelikost != null)
                 {
-                    if (nastaveniAplikace.OknoVelikost.Width >= 50 && nastaveniAplikace.OknoVelikost.Height >= 50)
+                    if (MySetup.Setup.OknoVelikost.Width >= 50 && MySetup.Setup.OknoVelikost.Height >= 50)
                     {
-                        this.Width = nastaveniAplikace.OknoVelikost.Width;
-                        this.Height = nastaveniAplikace.OknoVelikost.Height;
+                        this.Width = MySetup.Setup.OknoVelikost.Width;
+                        this.Height = MySetup.Setup.OknoVelikost.Height;
                     }
                 }
 
-                this.WindowState = nastaveniAplikace.OknoStav;
+                this.WindowState = MySetup.Setup.OknoStav;
 
                 bSlovnikFonetickehoDoplneni = new MyFoneticSlovnik();
-                bSlovnikFonetickehoDoplneni.NacistSlovnik(nastaveniAplikace.absolutniCestaEXEprogramu + MyKONST.CESTA_SLOVNIK_FONETIKA_UZIVATELSKY, bSlovnikFonetickehoDoplneni.PridanaSlova);
-                bSlovnikFonetickehoDoplneni.NacistSlovnik(nastaveniAplikace.absolutniCestaEXEprogramu + MyKONST.CESTA_SLOVNIK_FONETIKA_ZAKLADNI, bSlovnikFonetickehoDoplneni.SlovnikZakladni);
+                bSlovnikFonetickehoDoplneni.NacistSlovnik(MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.CESTA_SLOVNIK_FONETIKA_UZIVATELSKY, bSlovnikFonetickehoDoplneni.PridanaSlova);
+                bSlovnikFonetickehoDoplneni.NacistSlovnik(MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.CESTA_SLOVNIK_FONETIKA_ZAKLADNI, bSlovnikFonetickehoDoplneni.SlovnikZakladni);
 
-                ZobrazitOknoFonetickehoPrepisu(nastaveniAplikace.ZobrazitFonetickyPrepis - 1 > 0);
+                ZobrazitOknoFonetickehoPrepisu(MySetup.Setup.ZobrazitFonetickyPrepis - 1 > 0);
 
                 //databaze mluvcich
                 myDatabazeMluvcich = new MySpeakers();
-                myDatabazeMluvcich = myDatabazeMluvcich.Deserializovat(nastaveniAplikace.CestaDatabazeMluvcich);
+                myDatabazeMluvcich = myDatabazeMluvcich.Deserializovat(MySetup.Setup.CestaDatabazeMluvcich);
 
 
                 //vytvoreni kontext. menu pro oblast s textem
@@ -1331,7 +1331,7 @@ namespace NanoTrans
             try
             {
                 //oWav = new MyWav(new ExampleCallback(ResultCallback), new BufferCallback(ResultCallbackBuffer), 1000000);
-                oWav = new MyWav(nastaveniAplikace.absolutniCestaEXEprogramu);
+                oWav = new MyWav(MySetup.Setup.absolutniCestaEXEprogramu);
                 oWav.HaveData += oWav_HaveData;
                 oWav.HaveFileNumber += oWav_HaveFileNumber;
                 oWav.TemporaryWavesDone += new EventHandler(oWav_TemporaryWavesDone);
@@ -1523,7 +1523,7 @@ namespace NanoTrans
 
             if (e.msCelkovyCas >= oWav.DelkaSouboruMS)
             {
-                if (nastaveniAplikace.jazykRozhranni == MyEnumJazyk.anglictina)
+                if (MySetup.Setup.jazykRozhranni == MyEnumJazyk.anglictina)
                 {
                     ZobrazStavProgramu("Conversion complete!");
                 }
@@ -1599,7 +1599,7 @@ namespace NanoTrans
                     {
                         MyBuffer16 bufferProPrepsani = new MyBuffer16(me.koncovyCasMS - me.pocatecniCasMS);
                         bufferProPrepsani.UlozDataDoBufferu(me.data, me.pocatecniCasMS, me.koncovyCasMS);
-                        bFonetika.SpustFonetickyPrepisHTKAsynchronne(bufferProPrepsani, bFonetika.TextKPrepsani, bSlovnikFonetickehoDoplneni, nastaveniAplikace.fonetickyPrepis, new DelegatePhoneticOut(FonetickyPrepisDokoncen));
+                        bFonetika.SpustFonetickyPrepisHTKAsynchronne(bufferProPrepsani, bFonetika.TextKPrepsani, bSlovnikFonetickehoDoplneni, MySetup.Setup.fonetickyPrepis, new DelegatePhoneticOut(FonetickyPrepisDokoncen));
                     }
                     else
                     {
@@ -1642,8 +1642,8 @@ namespace NanoTrans
         public int PridejTextBox(int index, string aText, MyTag aTag)
         {
 
-            int defaultLeftPositionRichX = nastaveniAplikace.defaultLeftPositionRichX;
-            if (nastaveniAplikace != null && nastaveniAplikace.defaultLeftPositionRichX > 20) defaultLeftPositionRichX = nastaveniAplikace.defaultLeftPositionRichX;
+            int defaultLeftPositionRichX = MySetup.Setup.defaultLeftPositionRichX;
+            if (MySetup.Setup != null && MySetup.Setup.defaultLeftPositionRichX > 20) defaultLeftPositionRichX = MySetup.Setup.defaultLeftPositionRichX;
 
             Grid gridX = new Grid();
 
@@ -1656,7 +1656,7 @@ namespace NanoTrans
 
             gridX.VerticalAlignment = VerticalAlignment.Stretch;
             gridX.HorizontalAlignment = HorizontalAlignment.Stretch;
-            gridX.Background = nastaveniAplikace.BarvaTextBoxuOdstavce;
+            gridX.Background = MySetup.Setup.BarvaTextBoxuOdstavce;
 
 
             //RichTextBox richX = new RichTextBox(aText);
@@ -1668,10 +1668,10 @@ namespace NanoTrans
 
             Canvas cx = new Canvas();
             richX.BGcanvas = cx;
-            cx.Background = nastaveniAplikace.BarvaTextBoxuOdstavce;
+            cx.Background = MySetup.Setup.BarvaTextBoxuOdstavce;
 
             richX.AcceptsReturn = false;
-            richX.FontSize = nastaveniAplikace.SetupTextFontSize;
+            richX.FontSize = MySetup.Setup.SetupTextFontSize;
             
             richX.HorizontalAlignment = HorizontalAlignment.Stretch;
             richX.Tag = new MyTag(aTag.tKapitola, aTag.tSekce, aTag.tOdstavec, richX);
@@ -1712,8 +1712,8 @@ namespace NanoTrans
             imageX.Stretch = Stretch.Uniform;
             imageX.StretchDirection = StretchDirection.DownOnly;
 
-            imageX.MaxWidth = nastaveniAplikace.defaultLeftPositionRichX;
-            imageX.MaxHeight = nastaveniAplikace.Fotografie_VyskaMax;
+            imageX.MaxWidth = MySetup.Setup.defaultLeftPositionRichX;
+            imageX.MaxHeight = MySetup.Setup.Fotografie_VyskaMax;
             stackX.Children.Add(textX);
             stackX.Children.Add(imageX);
 
@@ -2042,7 +2042,7 @@ namespace NanoTrans
         //--------------------------------menu videa---------------------------------------------
         void menuItemVideoPoriditFotku_Click(object sender, RoutedEventArgs e)
         {
-            btPoriditObrazekZVidea_Click(null, new RoutedEventArgs());
+            CommandTakeSpeakerSnapshotFromVideo.Execute(null, this);
         }
 
 
@@ -2055,10 +2055,10 @@ namespace NanoTrans
                 //MyTag mt = ((MyTag)((RichTextBox)((Grid)((ContextMenu)((MenuItem)sender).Parent).Parent).Children[0]).Tag);
                 Grid ss = ((Grid)((ContextMenu)((MenuItem)sender).Parent).Tag);
                 MyTag mT = ((MyTag)((TextBox)ss.Children[0]).Tag);
-                mT = nastaveniAplikace.RichTag;
+                mT = MySetup.Setup.RichTag;
                 //((Button)ss.Children[1]).Visibility = Visibility.Visible;
                 //buttonX_Click(((Button)ss.Children[1]), new RoutedEventArgs());
-                new WinSpeakers(mT, this.nastaveniAplikace, this.myDatabazeMluvcich, myDataSource, null).ShowDialog();
+                new WinSpeakers(mT, MySetup.Setup, this.myDatabazeMluvcich, myDataSource, null).ShowDialog();
 
                 UpdateXMLData();
             }
@@ -2074,7 +2074,7 @@ namespace NanoTrans
             {
                 Grid ss = ((Grid)((ContextMenu)((MenuItem)sender).Parent).Tag);
                 MyTag mT = ((MyTag)((RichTextBox)ss.Children[0]).Tag);
-                mT = nastaveniAplikace.RichTag;
+                mT = MySetup.Setup.RichTag;
                 PridejSekci(mT.tKapitola, "", mT.tSekce, -1, -1, -1);
             }
             catch (Exception ex)
@@ -2089,7 +2089,7 @@ namespace NanoTrans
             {
                 Grid ss = ((Grid)((ContextMenu)((MenuItem)sender).Parent).Tag);
                 MyTag mT = ((MyTag)((RichTextBox)ss.Children[0]).Tag);
-                mT = nastaveniAplikace.RichTag;
+                mT = MySetup.Setup.RichTag;
                 PridejSekci(mT.tKapitola, "", mT.tSekce, mT.tOdstavec, -1, -1);
             }
             catch (Exception ex)
@@ -2103,8 +2103,8 @@ namespace NanoTrans
             try
             {
                 Grid ss = ((Grid)((ContextMenu)((MenuItem)sender).Parent).Tag);
-                MyTag mT = ((MyTag)((RichTextBox)ss.Children[0]).Tag);
-                mT = nastaveniAplikace.RichTag;
+                MyTag mT = ((MyTag)((MyTextBox)ss.Children[0]).Tag);
+                mT = MySetup.Setup.RichTag;
 
                 int pIndex = -1;
                 if (mT != null) pIndex = mT.tKapitola;
@@ -2122,7 +2122,7 @@ namespace NanoTrans
             {
                 Grid ss = ((Grid)((ContextMenu)((MenuItem)sender).Parent).Tag);
                 MyTag mT = ((MyTag)((TextBox)ss.Children[0]).Tag);
-                mT = nastaveniAplikace.RichTag;
+                mT = MySetup.Setup.RichTag;
                 if (mT.JeKapitola) OdstranKapitolu(mT.tKapitola);
                 else if (mT.JeSekce) OdstranSekci(mT.tKapitola, mT.tSekce);
                 else if (mT.JeOdstavec) OdstranOdstavec(mT.tKapitola, mT.tSekce, mT.tOdstavec);
@@ -2138,7 +2138,7 @@ namespace NanoTrans
             try
             {
                 MyTag mT;// = ((MyTag)((RichTextBox)ss.Children[0]).Tag);
-                mT = nastaveniAplikace.RichTag;
+                mT = MySetup.Setup.RichTag;
                 UpravCasZobraz(mT, -1, -2);
             }
             catch (Exception ex)
@@ -2152,7 +2152,7 @@ namespace NanoTrans
             try
             {
                 MyTag mT;// = ((MyTag)((RichTextBox)ss.Children[0]).Tag);
-                mT = nastaveniAplikace.RichTag;
+                mT = MySetup.Setup.RichTag;
                 UpravCasZobraz(mT, -2, -1);
             }
             catch (Exception ex)
@@ -2165,7 +2165,7 @@ namespace NanoTrans
 
         void menuItemX7_Click(object sender, RoutedEventArgs e)
         {
-            MyTag tag = new MyTag(nastaveniAplikace.RichTag);
+            MyTag tag = new MyTag(MySetup.Setup.RichTag);
             MyParagraph par = myDataSource[tag];
             tag.tTypElementu = MyEnumTypElementu.foneticky;
             MyParagraph parf = myDataSource[tag];
@@ -2214,7 +2214,7 @@ namespace NanoTrans
 
 
                 MyTag mt = ((MyTag)((TextBox)((Grid)((sender as Button).Parent as StackPanel).Parent).Children[0]).Tag);
-                new WinSpeakers(mt, this.nastaveniAplikace, this.myDatabazeMluvcich, myDataSource, null).ShowDialog();
+                new WinSpeakers(mt, MySetup.Setup, this.myDatabazeMluvcich, myDataSource, null).ShowDialog();
 
                 UpdateXMLData();
 
@@ -2310,7 +2310,7 @@ namespace NanoTrans
                 if (Keyboard.Modifiers == ModifierKeys.Control && skocitNaPoziciSlovaTextboxu || (!Playing && !pTB.IsReadOnly && Keyboard.Modifiers == ModifierKeys.Control))
                 {
                     skocitNaPoziciSlovaTextboxu = false;
-                    TextBox pTB2 = ((TextBox)nastaveniAplikace.RichTag.tSender);
+                    TextBox pTB2 = ((TextBox)MySetup.Setup.RichTag.tSender);
                     int pPoziceKurzoru = pTB2.CaretIndex;
                     int j = -1;
                     long pTime = -1;
@@ -2422,33 +2422,43 @@ namespace NanoTrans
                     pZiskatNovyIndex = false;
 
                 }
-                nastaveniAplikace.RichFocus = true;
-                MyTag pPuvodniTag = new MyTag(nastaveniAplikace.RichTag);
-                nastaveniAplikace.RichTag = (MyTag)((TextBox)(sender)).Tag;
-                nastaveniAplikace.RichTag.tSender = sender;
+                MySetup.Setup.RichFocus = true;
+                MyTag pPuvodniTag = new MyTag(MySetup.Setup.RichTag);
 
-                if (nastaveniAplikace.RichTag.tOdstavec >= 0)
+                if (pPuvodniTag.tTypElementu != MyEnumTypElementu.foneticky)
+                    foneticshavefocus = false;
+
+
+                MySetup.Setup.RichTag = (MyTag)((TextBox)(sender)).Tag;
+                MySetup.Setup.RichTag.tSender = sender;
+
+                if (MySetup.Setup.RichTag.tOdstavec >= 0)
                 {
-                    MyParagraph pP = myDataSource[nastaveniAplikace.RichTag];
-                    nastaveniAplikace.CasoveZnacky = pP.VratCasoveZnackyTextu;    //casove znacky, ktere jsou nastaveny v odstavci
-                    nastaveniAplikace.CasoveZnackyText = ((TextBox)sender).Text;
+                    MyParagraph pP = myDataSource[MySetup.Setup.RichTag];
+                    MySetup.Setup.CasoveZnacky = pP.VratCasoveZnackyTextu;    //casove znacky, ktere jsou nastaveny v odstavci
+                    MySetup.Setup.CasoveZnackyText = ((TextBox)sender).Text;
 
                 }
 
-                if (sender != tbFonetickyPrepis)//pri prekliku do fonetiky preskok obtezuje
+                MyTag ftag = tbFonetickyPrepis.Tag as MyTag;
+                if (ftag != null && (ftag.tKapitola != MySetup.Setup.RichTag.tKapitola || ftag.tOdstavec != MySetup.Setup.RichTag.tOdstavec || ftag.tSekce != MySetup.Setup.RichTag.tSekce))
+                    foneticshavefocus = false;
+
+
+                if (sender != tbFonetickyPrepis && !foneticshavefocus)//pri prekliku do fonetiky preskok obtezuje
                 {
                     //provede zvyrazneni vyberu ve vlne podle dat
-                    waveform1.CaretPosition = waveform1.SelectionBegin = TimeSpan.FromMilliseconds(myDataSource.VratCasElementuPocatek(nastaveniAplikace.RichTag));
-                    waveform1.SelectionEnd = TimeSpan.FromMilliseconds(myDataSource.VratCasElementuKonec(nastaveniAplikace.RichTag));
+                    waveform1.CaretPosition = waveform1.SelectionBegin = TimeSpan.FromMilliseconds(myDataSource.VratCasElementuPocatek(MySetup.Setup.RichTag));
+                    waveform1.SelectionEnd = TimeSpan.FromMilliseconds(myDataSource.VratCasElementuKonec(MySetup.Setup.RichTag));
 
                     //waveform1.SliderPostion = waveform1.SelectionEnd;
 
                     //nastaveni pozice kurzoru a obsluha prehravani podle nastaveni
-                    if (nastaveniAplikace.SetupSkocitNaPozici && !pNeskakatNaZacatekElementu)
+                    if (MySetup.Setup.SetupSkocitNaPozici && !pNeskakatNaZacatekElementu)
                     {
                         waveform1.CaretPosition = waveform1.SelectionBegin;
                         pIndexBufferuVlnyProPrehrani = (int)waveform1.CaretPosition.TotalMilliseconds;
-                        if (nastaveniAplikace.SetupSkocitZastavit)
+                        if (MySetup.Setup.SetupSkocitZastavit)
                         {
                             if (jeVideo) meVideo.Play();
                             Playing = false;
@@ -2459,34 +2469,36 @@ namespace NanoTrans
 
 
                     if (pNeskakatNaZacatekElementu) pNeskakatNaZacatekElementu = false;
-                    if (nastaveniAplikace.RichTag.JeOdstavec)
+                    if (MySetup.Setup.RichTag.JeOdstavec)
                     {
                         if (!Playing)
                             NastavPoziciKurzoru(waveform1.CaretPosition, true, true);
                     }
                 }
-                ZobrazInformaceElementu(nastaveniAplikace.RichTag);
-                if (nastaveniAplikace.RichTag.tOdstavec > -1)
+
+                
+                ZobrazInformaceElementu(MySetup.Setup.RichTag);
+                if (MySetup.Setup.RichTag.tOdstavec > -1)
                 {
-                    if (nastaveniAplikace.RichTag.tTypElementu == MyEnumTypElementu.normalni)
+                    if (MySetup.Setup.RichTag.tTypElementu == MyEnumTypElementu.normalni)
                     {
-                        ((MyTextBox)sender).BGcanvas.Background = nastaveniAplikace.BarvaTextBoxuOdstavceAktualni;
-                        ((Grid)((TextBox)sender).Parent).Background = nastaveniAplikace.BarvaTextBoxuOdstavceAktualni;
+                        ((MyTextBox)sender).BGcanvas.Background = MySetup.Setup.BarvaTextBoxuOdstavceAktualni;
+                        ((Grid)((TextBox)sender).Parent).Background = MySetup.Setup.BarvaTextBoxuOdstavceAktualni;
                     }
-                    else if (nastaveniAplikace.RichTag.tTypElementu == MyEnumTypElementu.foneticky)
+                    else if (MySetup.Setup.RichTag.tTypElementu == MyEnumTypElementu.foneticky)
                     {
                         if (pPuvodniTag.tTypElementu != MyEnumTypElementu.foneticky)
                         {
-                            ((MyTextBox)pPuvodniTag.tSender).BGcanvas.Background = nastaveniAplikace.BarvaTextBoxuOdstavceAktualni;
-                            ((Grid)((MyTextBox)pPuvodniTag.tSender).Parent).Background = nastaveniAplikace.BarvaTextBoxuOdstavceAktualni;
-                            tbFonetickyPrepis.Background = nastaveniAplikace.BarvaTextBoxuFonetickyAktualni;
+                            ((MyTextBox)pPuvodniTag.tSender).BGcanvas.Background = MySetup.Setup.BarvaTextBoxuOdstavceAktualni;
+                            ((Grid)((MyTextBox)pPuvodniTag.tSender).Parent).Background = MySetup.Setup.BarvaTextBoxuOdstavceAktualni;
+                            tbFonetickyPrepis.Background = MySetup.Setup.BarvaTextBoxuFonetickyAktualni;
                         }
                     }
 
 
                 }
-                ZobrazitFonetickyPrepisOdstavce(nastaveniAplikace.RichTag);
-
+                ZobrazitFonetickyPrepisOdstavce(MySetup.Setup.RichTag);
+                foneticshavefocus = (sender == tbFonetickyPrepis);
             }
             catch (Exception ex)
             {
@@ -2494,29 +2506,30 @@ namespace NanoTrans
             }
         }
 
+        bool foneticshavefocus = false;
         //pri ztrate zamereni textboxu...
         void richX_LostFocus(object sender, RoutedEventArgs e)
         {
             try
             {
-                nastaveniAplikace.RichFocus = false;
-                nastaveniAplikace.BylFocus = true;
+                MySetup.Setup.RichFocus = false;
+                MySetup.Setup.BylFocus = true;
                 ///nastaveniAplikace.RichTag = (MyTag)((RichTextBox)(sender)).Tag;
-                nastaveniAplikace.RichTag = (MyTag)((TextBox)(sender)).Tag;
-                nastaveniAplikace.RichTag.tSender = sender;
-                if (nastaveniAplikace.RichTag.tOdstavec > -1)
+                MySetup.Setup.RichTag = (MyTag)((TextBox)(sender)).Tag;
+                MySetup.Setup.RichTag.tSender = sender;
+                if (MySetup.Setup.RichTag.tOdstavec > -1)
                 {
-                    if (nastaveniAplikace.RichTag.tTypElementu == MyEnumTypElementu.normalni)
+                    if (MySetup.Setup.RichTag.tTypElementu == MyEnumTypElementu.normalni)
                     {
-                        ((MyTextBox)sender).BGcanvas.Background = nastaveniAplikace.BarvaTextBoxuOdstavce;
-                        ((Grid)((TextBox)sender).Parent).Background = nastaveniAplikace.BarvaTextBoxuOdstavce;
+                        ((MyTextBox)sender).BGcanvas.Background = MySetup.Setup.BarvaTextBoxuOdstavce;
+                        ((Grid)((TextBox)sender).Parent).Background = MySetup.Setup.BarvaTextBoxuOdstavce;
                     }
-                    else if (nastaveniAplikace.RichTag.tTypElementu == MyEnumTypElementu.foneticky)
+                    else if (MySetup.Setup.RichTag.tTypElementu == MyEnumTypElementu.foneticky)
                     {
                         object pTb = VratSenderTextboxu(((MyTag)((TextBox)tbFonetickyPrepis).Tag));
-                        ((MyTextBox)pTb).BGcanvas.Background = nastaveniAplikace.BarvaTextBoxuOdstavce;
-                        ((Grid)((TextBox)pTb).Parent).Background = nastaveniAplikace.BarvaTextBoxuOdstavce;
-                        tbFonetickyPrepis.Background = nastaveniAplikace.BarvaTextBoxuFoneticky;
+                        ((MyTextBox)pTb).BGcanvas.Background = MySetup.Setup.BarvaTextBoxuOdstavce;
+                        ((Grid)((TextBox)pTb).Parent).Background = MySetup.Setup.BarvaTextBoxuOdstavce;
+                        tbFonetickyPrepis.Background = MySetup.Setup.BarvaTextBoxuFoneticky;
                     }
 
 
@@ -2606,51 +2619,51 @@ namespace NanoTrans
                     {
                         //jinak je upraven odstavec a jeho casove znacky
 
-                        if (nastaveniAplikace.RichTag.tOdstavec == pTag.tOdstavec)   //dojde k uprave jestli souhlasi vybrany odstavec a odstavec ze ktereho je volana tato funkce
+                        if (MySetup.Setup.RichTag.tOdstavec == pTag.tOdstavec)   //dojde k uprave jestli souhlasi vybrany odstavec a odstavec ze ktereho je volana tato funkce
                         {
                             MyParagraph pP = myDataSource[pTag];
                             int carretpos = (pTb.SelectionLength <= 0) ? pTb.CaretIndex : pTb.SelectionStart;
-                            int pIndexZmeny = MyKONST.VratIndexZmenyStringu(nastaveniAplikace.CasoveZnackyText, tr, carretpos);// pTb.SelectionStart);
+                            int pIndexZmeny = MyKONST.VratIndexZmenyStringu(MySetup.Setup.CasoveZnackyText, tr, carretpos);// pTb.SelectionStart);
                             if (pIndexZmeny >= 0) //doslo ke zmene ve stringu
                             {
                                 //jak se zmenila delka - novy je o kolik delsi - muze byt i zaporny - tzn je ktratsi nez puvodni
-                                int pDelka = tr.Length - nastaveniAplikace.CasoveZnackyText.Length;
+                                int pDelka = tr.Length - MySetup.Setup.CasoveZnackyText.Length;
 
                                 //nalezeni od ktereho indexu dojde k prepoctu
-                                for (int i = 0; i < nastaveniAplikace.CasoveZnacky.Count; i++)
+                                for (int i = 0; i < MySetup.Setup.CasoveZnacky.Count; i++)
                                 {
-                                    if (pIndexZmeny <= nastaveniAplikace.CasoveZnacky[i].Index2) //&& i>0)
+                                    if (pIndexZmeny <= MySetup.Setup.CasoveZnacky[i].Index2) //&& i>0)
                                     {
                                         //smazani indexove casove znacky
-                                        if (pIndexZmeny == nastaveniAplikace.CasoveZnacky[i].Index2 && pDelka < 0)
+                                        if (pIndexZmeny == MySetup.Setup.CasoveZnacky[i].Index2 && pDelka < 0)
                                         {
                                             //mazalo se tesne za indexem -> nebude s timhle se nebude delat nic
                                             //nastaveniAplikace.CasoveZnacky.RemoveAt(i);
                                             //i--; //aby doslo k uprave nasledujici znacky pokud navazuje
 
                                         }
-                                        else if (pIndexZmeny < nastaveniAplikace.CasoveZnacky[i].Index2)// uprava casove znacky-podminka,aby slo psat za prave vlozenou znacku
+                                        else if (pIndexZmeny < MySetup.Setup.CasoveZnacky[i].Index2)// uprava casove znacky-podminka,aby slo psat za prave vlozenou znacku
                                         {
                                             //mazalo se pred indexem, tento se musi posunout
 
-                                            if (nastaveniAplikace.CasoveZnacky[i].Index2 + pDelka < pIndexZmeny)
+                                            if (MySetup.Setup.CasoveZnacky[i].Index2 + pDelka < pIndexZmeny)
                                             {
-                                                nastaveniAplikace.CasoveZnacky.RemoveAt(i);
+                                                MySetup.Setup.CasoveZnacky.RemoveAt(i);
                                                 i--;
                                             }
                                             else
                                             {
-                                                nastaveniAplikace.CasoveZnacky[i].Index1 += pDelka;
-                                                nastaveniAplikace.CasoveZnacky[i].Index2 += pDelka;
+                                                MySetup.Setup.CasoveZnacky[i].Index1 += pDelka;
+                                                MySetup.Setup.CasoveZnacky[i].Index2 += pDelka;
                                             }
                                         }
 
                                     }
 
                                 }
-                                myDataSource.UpravElementOdstavce(pTag, tr, nastaveniAplikace.CasoveZnacky);
+                                myDataSource.UpravElementOdstavce(pTag, tr, MySetup.Setup.CasoveZnacky);
 
-                                nastaveniAplikace.CasoveZnackyText = tr;               //cely text bez koncu - pro pozdejsi porovnani pri zmene
+                                MySetup.Setup.CasoveZnackyText = tr;               //cely text bez koncu - pro pozdejsi porovnani pri zmene
                             }
                         }
                     }
@@ -2739,10 +2752,10 @@ namespace NanoTrans
             {
                 FileInfo fi = new FileInfo(aCestaKorpus);
                 if (fi == null || !fi.Exists || (fi.Extension != ".krp" && fi.Extension != ".txt")) return false;
-                string pCestaXML = nastaveniAplikace.absolutniCestaEXEprogramu + MyKONST.CESTA_KORPUS2XML_DIR + "temp.xml";
+                string pCestaXML = MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.CESTA_KORPUS2XML_DIR + "temp.xml";
 
                 //zavolani scriptu v perlu
-                ProcessStartInfo ps = new ProcessStartInfo("perl.exe", "\"" + nastaveniAplikace.absolutniCestaEXEprogramu + MyKONST.CESTA_KORPUS2XML + "\" -k \"" + aCestaKorpus + "\"" + " -x " + "\"" + pCestaXML + "\"");
+                ProcessStartInfo ps = new ProcessStartInfo("perl.exe", "\"" + MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.CESTA_KORPUS2XML + "\" -k \"" + aCestaKorpus + "\"" + " -x " + "\"" + pCestaXML + "\"");
                 ps.UseShellExecute = false;
                 ps.RedirectStandardOutput = true;
                 ps.RedirectStandardError = true;
@@ -2775,12 +2788,12 @@ namespace NanoTrans
             {
                 FileInfo fi = new FileInfo(aCestaTTA);
                 if (fi == null || !fi.Exists || fi.Extension != ".tta") return false;
-                string pCestaWav = nastaveniAplikace.absolutniCestaEXEprogramu + MyKONST.CESTA_TTASPLIT_TEMP + "temp.wav";
-                string pCestaXML = nastaveniAplikace.absolutniCestaEXEprogramu + MyKONST.CESTA_TTASPLIT_TEMP + "temp.xml";
-                string pCestaTtaSplit = nastaveniAplikace.absolutniCestaEXEprogramu + MyKONST.CESTA_TTASPLIT_EXE;
+                string pCestaWav = MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.CESTA_TTASPLIT_TEMP + "temp.wav";
+                string pCestaXML = MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.CESTA_TTASPLIT_TEMP + "temp.xml";
+                string pCestaTtaSplit = MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.CESTA_TTASPLIT_EXE;
 
                 //zavolani scriptu v perlu
-                ProcessStartInfo ps = new ProcessStartInfo("perl.exe", "\"" + nastaveniAplikace.absolutniCestaEXEprogramu + MyKONST.CESTA_TTA2XML + "\"" + " -e \"" + pCestaTtaSplit + "\"" + " -t \"" + aCestaTTA + "\" -w \"" + pCestaWav + "\"" + " -d " + "\"" + nastaveniAplikace.absolutniCestaEXEprogramu + MyKONST.CESTA_TTA2XML_DIR + "\"" + " -x " + "\"" + pCestaXML + "\"");
+                ProcessStartInfo ps = new ProcessStartInfo("perl.exe", "\"" + MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.CESTA_TTA2XML + "\"" + " -e \"" + pCestaTtaSplit + "\"" + " -t \"" + aCestaTTA + "\" -w \"" + pCestaWav + "\"" + " -d " + "\"" + MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.CESTA_TTA2XML_DIR + "\"" + " -x " + "\"" + pCestaXML + "\"");
                 ps.UseShellExecute = false;
                 ps.RedirectStandardOutput = true;
                 ps.RedirectStandardError = true;
@@ -2815,7 +2828,7 @@ namespace NanoTrans
 
                     fileDialog.Title = "Otevřít soubor s titulky...";
                     //fdlg.InitialDirectory = @"c:\" ;
-                    fileDialog.Filter = "Soubory titulků (*" + nastaveniAplikace.PriponaTitulku + ")|*" + nastaveniAplikace.PriponaTitulku;
+                    fileDialog.Filter = "Soubory titulků (*" + MySetup.Setup.PriponaTitulku + ")|*" + MySetup.Setup.PriponaTitulku;
                     if (MyKONST.VERZE == MyEnumVerze.Interni)
                     {
                         fileDialog.Filter += "|Soubory (*.tta) |*.tta";
@@ -3066,13 +3079,13 @@ namespace NanoTrans
                     Microsoft.Win32.SaveFileDialog fileDialog = new Microsoft.Win32.SaveFileDialog();
 
                     fileDialog.Title = "Uložit soubor s titulky...";
-                    fileDialog.Filter = "Soubory titulků (*" + nastaveniAplikace.PriponaTitulku + ")|*" + nastaveniAplikace.PriponaTitulku + "|Všechny soubory (*.*)|*.*";
+                    fileDialog.Filter = "Soubory titulků (*" + MySetup.Setup.PriponaTitulku + ")|*" + MySetup.Setup.PriponaTitulku + "|Všechny soubory (*.*)|*.*";
                     fileDialog.FilterIndex = 1;
                     fileDialog.OverwritePrompt = true;
                     fileDialog.RestoreDirectory = true;
                     if (fileDialog.ShowDialog() == true)
                     {
-                        if (myDataSource.Serializovat(fileDialog.FileName, myDataSource, nastaveniAplikace.UkladatKompletnihoMluvciho))
+                        if (myDataSource.Serializovat(fileDialog.FileName, myDataSource, MySetup.Setup.UkladatKompletnihoMluvciho))
                         {
                             this.Title = MyKONST.NAZEV_PROGRAMU + " [" + myDataSource.JmenoSouboru + "]";
                             return true;
@@ -3085,7 +3098,7 @@ namespace NanoTrans
                 else
                 {
                     Console.WriteLine(jmenoSouboru);
-                    bool pStav = myDataSource.Serializovat(jmenoSouboru, myDataSource, nastaveniAplikace.UkladatKompletnihoMluvciho);
+                    bool pStav = myDataSource.Serializovat(jmenoSouboru, myDataSource, MySetup.Setup.UkladatKompletnihoMluvciho);
                     if (pStav && lbDavkoveNacteni.Items.Count > 0)
                     {
                         if (myDataSource.JmenoSouboru.ToLower().Contains("_phonetic"))
@@ -3153,7 +3166,7 @@ namespace NanoTrans
                     List<MyTag> pTagy = myDataSource.VratElementDanehoCasu((long)position.TotalMilliseconds, null);
                     for (int i = 0; i < pTagy.Count; i++)
                     {
-                        if (pTagy[i].tKapitola == nastaveniAplikace.RichTag.tKapitola && pTagy[i].tSekce == nastaveniAplikace.RichTag.tSekce && pTagy[i].tOdstavec == nastaveniAplikace.RichTag.tOdstavec)
+                        if (pTagy[i].tKapitola == MySetup.Setup.RichTag.tKapitola && pTagy[i].tSekce == MySetup.Setup.RichTag.tSekce && pTagy[i].tOdstavec == MySetup.Setup.RichTag.tOdstavec)
                         {
                             return;
                         }
@@ -3228,7 +3241,7 @@ namespace NanoTrans
         {
             try
             {
-                MyTag pTag = new MyTag(nastaveniAplikace.RichTag);
+                MyTag pTag = new MyTag(MySetup.Setup.RichTag);
                 pTag.tTypElementu = MyEnumTypElementu.foneticky;
                 
                 List<MyTag> pTagy = myDataSource.VratElementDanehoCasu(aPoziceKurzoru, pTag);
@@ -3242,7 +3255,7 @@ namespace NanoTrans
                 }
 
 
-                if (nastaveniAplikace.RichTag != null)
+                if (MySetup.Setup.RichTag != null)
                 {
                     MyParagraph pP = myDataSource[pTag];
                     List<MyCasovaZnacka> pCasZnacky = null;
@@ -3319,7 +3332,7 @@ namespace NanoTrans
         {
             try
             {
-                MyTag pTag = new MyTag(nastaveniAplikace.RichTag);
+                MyTag pTag = new MyTag(MySetup.Setup.RichTag);
                 List<MyTag> pTagy = myDataSource.VratElementDanehoCasu(aPoziceKurzoru, pTag);
                 if (pTagy != null && pTagy.Count > 0)
                 {
@@ -3331,14 +3344,14 @@ namespace NanoTrans
                 }
 
 
-                if (nastaveniAplikace.RichTag != null)
+                if (MySetup.Setup.RichTag != null)
                 {
-                    MyParagraph pP = myDataSource[nastaveniAplikace.RichTag];
+                    MyParagraph pP = myDataSource[MySetup.Setup.RichTag];
                     List<MyCasovaZnacka> pCasZnacky = null;
                     if (pP != null) pCasZnacky = pP.VratCasoveZnackyTextu;
                     if (pCasZnacky != null && pCasZnacky.Count > 1)
                     {
-                        TextBox pRTB = (TextBox)nastaveniAplikace.RichTag.tSender;
+                        TextBox pRTB = (TextBox)MySetup.Setup.RichTag.tSender;
 
                         if (aPoziceKurzoru >= pP.begin && aPoziceKurzoru <= pP.end)
                         {
@@ -3726,7 +3739,7 @@ namespace NanoTrans
 
                 return false;
             }
-            bool pStav = nastaveniAplikace.SetupSkocitZastavit;
+            bool pStav = MySetup.Setup.SetupSkocitZastavit;
             try
             {
 
@@ -3739,13 +3752,13 @@ namespace NanoTrans
                 waveform1.SelectionBegin = TimeSpan.FromMilliseconds(pPocatekMS);
                 waveform1.SelectionEnd = TimeSpan.FromMilliseconds(pKonecMS);
 
-                if (aTagVyberu.tOdstavec != nastaveniAplikace.RichTag.tOdstavec || aTagVyberu.tSekce != nastaveniAplikace.RichTag.tSekce || aTagVyberu.tKapitola != nastaveniAplikace.RichTag.tKapitola)
+                if (aTagVyberu.tOdstavec != MySetup.Setup.RichTag.tOdstavec || aTagVyberu.tSekce != MySetup.Setup.RichTag.tSekce || aTagVyberu.tKapitola != MySetup.Setup.RichTag.tKapitola)
                 {
 
 
                     pPokracovatVprehravaniPoVyberu = aNezastavovatPrehravani;
                     this.pNeskakatNaZacatekElementu = aNezastavovatPrehravani;
-                    nastaveniAplikace.SetupSkocitZastavit = !aNezastavovatPrehravani;
+                    MySetup.Setup.SetupSkocitZastavit = !aNezastavovatPrehravani;
                     if (aTagVyberu.tSender == null) return false;
                     bool pFonFocus = tbFonetickyPrepis.IsFocused;
                     bool pRet = (aTagVyberu.tSender as TextBox).Focus();
@@ -3761,7 +3774,7 @@ namespace NanoTrans
             finally
             {
                 pPokracovatVprehravaniPoVyberu = false;
-                nastaveniAplikace.SetupSkocitZastavit = pStav;
+                MySetup.Setup.SetupSkocitZastavit = pStav;
             }
 
         }
@@ -3785,7 +3798,7 @@ namespace NanoTrans
                     MWP.Dispose();
                     MWP = null;
                 }
-                MWP = new MyWavePlayer(nastaveniAplikace.audio.VystupniZarizeniIndex, 4800, WOP_ChciData);
+                MWP = new MyWavePlayer(MySetup.Setup.audio.VystupniZarizeniIndex, 4800, WOP_ChciData);
                 return true;
             }
             catch
@@ -3808,7 +3821,7 @@ namespace NanoTrans
                     MWR.Dispose();
                     MWR = null;
                 }
-                MWR = new MyWaveRecorder(nastaveniAplikace.audio.VstupniZarizeniIndex, new WaveFormat(16000, 16, 1), (int)((4800 / nastaveniAplikace.ZpomalenePrehravaniRychlost) * 1.1), 3, new BufferDoneEventHandler(MWR_MamData));
+                MWR = new MyWaveRecorder(MySetup.Setup.audio.VstupniZarizeniIndex, new WaveFormat(16000, 16, 1), (int)((4800 / MySetup.Setup.ZpomalenePrehravaniRychlost) * 1.1), 3, new BufferDoneEventHandler(MWR_MamData));
                 return true;
             }
             catch
@@ -3830,34 +3843,12 @@ namespace NanoTrans
         #region menu Soubor
         private void MSoubor_Novy_Click(object sender, RoutedEventArgs e)
         {
-
-            NoveTitulky();
+            CommandCreateNewTranscription.Execute(null, this);
         }
 
         private void MSoubor_Otevrit_Titulky_Click(object sender, RoutedEventArgs e)
         {
-            OtevritTitulky(true, "", false);
-            //refresh uz vykreslenych textboxu
-            this.Dispatcher.Invoke(new Action(
-                delegate()
-                {
-                    foreach (UIElement element in spSeznam.Children)
-                    {
-                        if (element is Grid)
-                        {
-                            foreach (UIElement subelement in ((Grid)element).Children)
-                            {
-                                if (subelement is MyTextBox)
-                                {
-                                    ((MyTextBox)subelement).RefreshTextMarking();
-                                }
-                            }
-                        }
-                    }
-
-
-                }
-                ));
+            CommandOpenTranscription.Execute(null, this);
         }
 
         private void MSoubor_Otevrit_Video_Click(object sender, RoutedEventArgs e)
@@ -3867,22 +3858,12 @@ namespace NanoTrans
 
         private void MSoubor_Ulozit_Click(object sender, RoutedEventArgs e)
         {
-            if (myDataSource != null)
-            {
-                if (myDataSource.JmenoSouboru != null)
-                {
-                    UlozitTitulky(false, myDataSource.JmenoSouboru);
-                }
-                else
-                {
-                    UlozitTitulky(true, myDataSource.JmenoSouboru);
-                }
-            }
+            CommandSaveTranscription.Execute(null, this);
         }
 
         private void MSoubor_Ulozit_Titulky_Jako_Click(object sender, RoutedEventArgs e)
         {
-            UlozitTitulky(true, "");
+            CommandSaveTranscriptionAs.Execute(null, this);
         }
 
         //Ukonceni aplikace z menu
@@ -3903,9 +3884,9 @@ namespace NanoTrans
         {
             try
             {
-                if (nastaveniAplikace.RichFocus)
+                if (MySetup.Setup.RichFocus)
                 {
-                    new WinSpeakers(nastaveniAplikace.RichTag, this.nastaveniAplikace, this.myDatabazeMluvcich, myDataSource, null).ShowDialog();
+                    new WinSpeakers(MySetup.Setup.RichTag, MySetup.Setup, this.myDatabazeMluvcich, myDataSource, null).ShowDialog();
 
                     UpdateXMLData(false, true, true, false, true);
                 }
@@ -3919,10 +3900,10 @@ namespace NanoTrans
 
         private void MNastroje_Nastaveni_Click(object sender, RoutedEventArgs e)
         {
-            nastaveniAplikace = WinSetup.WinSetupNastavit(nastaveniAplikace, myDatabazeMluvcich);
+            MySetup.Setup = WinSetup.WinSetupNastavit(MySetup.Setup, myDatabazeMluvcich);
             //pokus o ulozeni konfigurace
-            nastaveniAplikace.Serializovat(nastaveniAplikace.absolutniCestaEXEprogramu + MyKONST.KONFIGURACNI_SOUBOR, nastaveniAplikace);
-            waveform1.SmallJump = TimeSpan.FromSeconds(nastaveniAplikace.VlnaMalySkok);
+            MySetup.Setup.Serializovat(MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.KONFIGURACNI_SOUBOR, MySetup.Setup);
+            waveform1.SmallJump = TimeSpan.FromSeconds(MySetup.Setup.VlnaMalySkok);
             InicializaceAudioPrehravace();  //nove nastaveni prehravaciho zarizeni 
 
             UpdateXMLData();    //zobrazeni xml dat v pripade zmeny velikosti pisma
@@ -4062,19 +4043,19 @@ namespace NanoTrans
                     //ulozeni databaze mluvcich - i externi databaze
                     if (myDatabazeMluvcich != null)
                     {
-                        if (myDatabazeMluvcich.JmenoSouboru != null && myDatabazeMluvcich.JmenoSouboru != nastaveniAplikace.CestaDatabazeMluvcich)
+                        if (myDatabazeMluvcich.JmenoSouboru != null && myDatabazeMluvcich.JmenoSouboru != MySetup.Setup.CestaDatabazeMluvcich)
                         {
                             myDatabazeMluvcich.Serializovat(myDatabazeMluvcich.JmenoSouboru, myDatabazeMluvcich);
                         }
                         else
                         {
-                            if (new FileInfo(nastaveniAplikace.CestaDatabazeMluvcich).Exists)
+                            if (new FileInfo(MySetup.Setup.CestaDatabazeMluvcich).Exists)
                             {
-                                myDatabazeMluvcich.Serializovat(nastaveniAplikace.CestaDatabazeMluvcich, myDatabazeMluvcich);
+                                myDatabazeMluvcich.Serializovat(MySetup.Setup.CestaDatabazeMluvcich, myDatabazeMluvcich);
                             }
                             else
                             {
-                                myDatabazeMluvcich.Serializovat(nastaveniAplikace.absolutniCestaEXEprogramu + "\\data\\databazemluvcich.xml", myDatabazeMluvcich);
+                                myDatabazeMluvcich.Serializovat(MySetup.Setup.absolutniCestaEXEprogramu + "\\data\\databazemluvcich.xml", myDatabazeMluvcich);
                             }
                         }
 
@@ -4082,24 +4063,24 @@ namespace NanoTrans
                     //ulozeni fonetickeho uzivatelskeho slovniku
                     if (bSlovnikFonetickehoDoplneni != null)
                     {
-                        bSlovnikFonetickehoDoplneni.UlozitSlovnik(nastaveniAplikace.absolutniCestaEXEprogramu + MyKONST.CESTA_SLOVNIK_FONETIKA_UZIVATELSKY);
+                        bSlovnikFonetickehoDoplneni.UlozitSlovnik(MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.CESTA_SLOVNIK_FONETIKA_UZIVATELSKY);
                     }
 
                     //pokus o ulozeni nastaveni
-                    if (nastaveniAplikace != null)
+                    if (MySetup.Setup != null)
                     {
                         if (this.WindowState == WindowState.Normal)
                         {
                             //nastaveni posledni zname souradnice okna a velikosti okna
-                            nastaveniAplikace.OknoPozice = new Point(this.Left, this.Top);
-                            nastaveniAplikace.OknoVelikost = new Size(this.Width, this.Height);
+                            MySetup.Setup.OknoPozice = new Point(this.Left, this.Top);
+                            MySetup.Setup.OknoVelikost = new Size(this.Width, this.Height);
                         }
                         if (this.WindowState != WindowState.Minimized)
                         {
-                            nastaveniAplikace.OknoStav = this.WindowState;
+                            MySetup.Setup.OknoStav = this.WindowState;
                         }
 
-                        nastaveniAplikace.Serializovat(nastaveniAplikace.absolutniCestaEXEprogramu + MyKONST.KONFIGURACNI_SOUBOR, nastaveniAplikace);
+                        MySetup.Setup.Serializovat(MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.KONFIGURACNI_SOUBOR, MySetup.Setup);
                     }
 
 
@@ -4148,9 +4129,9 @@ namespace NanoTrans
 
         private void button11_Click_1(object sender, RoutedEventArgs e)
         {
-            if (nastaveniAplikace.BylFocus || nastaveniAplikace.RichFocus)
+            if (MySetup.Setup.BylFocus || MySetup.Setup.RichFocus)
             {
-                OdstranSekci(nastaveniAplikace.RichTag.tKapitola, nastaveniAplikace.RichTag.tSekce);
+                OdstranSekci(MySetup.Setup.RichTag.tKapitola, MySetup.Setup.RichTag.tSekce);
 
 
             }
@@ -4159,7 +4140,7 @@ namespace NanoTrans
         #region menu uprava
         private void MUpravy_Nova_Kapitola_Click(object sender, RoutedEventArgs e)
         {
-            MyTag mT = nastaveniAplikace.RichTag;
+            MyTag mT = MySetup.Setup.RichTag;
             int pIndex = -1;
             if (mT != null) pIndex = mT.tKapitola;
             PridejKapitolu(pIndex + 1, "");
@@ -4167,9 +4148,9 @@ namespace NanoTrans
 
         private void MUpravy_Nova_Sekce_Click(object sender, RoutedEventArgs e)
         {
-            if (nastaveniAplikace.RichFocus)
+            if (MySetup.Setup.RichFocus)
             {
-                PridejSekci(nastaveniAplikace.RichTag.tKapitola, "", nastaveniAplikace.RichTag.tSekce, -1, -1, -1);
+                PridejSekci(MySetup.Setup.RichTag.tKapitola, "", MySetup.Setup.RichTag.tSekce, -1, -1, -1);
             }
         }
 
@@ -4177,10 +4158,10 @@ namespace NanoTrans
         {
             try
             {
-                if (nastaveniAplikace.RichFocus)
+                if (MySetup.Setup.RichFocus)
                 {
 
-                    MyTag mT = nastaveniAplikace.RichTag;
+                    MyTag mT = MySetup.Setup.RichTag;
                     int index = spSeznam.Children.IndexOf((Grid)((TextBox)(mT.tSender)).Parent);
                     if (mT.tOdstavec > -1)
                     {
@@ -4227,7 +4208,7 @@ namespace NanoTrans
             Thread t = new Thread(
                 delegate()
                 {
-                    if (MyTextBox.LoadVocabulary(nastaveniAplikace.absolutniCestaEXEprogramu + MyKONST.CESTA_SLOVNIK_SPELLCHECK))
+                    if (MyTextBox.LoadVocabulary(MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.CESTA_SLOVNIK_SPELLCHECK))
                     {
                         this.Dispatcher.Invoke(new Action(
                     delegate()
@@ -4332,23 +4313,7 @@ namespace NanoTrans
 
         private void btDiktat_Click(object sender, RoutedEventArgs e)
         {
-            if (MyKONST.VERZE == MyEnumVerze.Externi) return;
-            if (!btDiktat.IsEnabled) return;
-            if (recording)
-            {
-                if (MWR != null) MWR.Dispose();
-                MWR = null;
-                recording = false;
-                //MessageBox.Show("Zastaveno nahravani");
-                ZmenStavTlacitekRozpoznavace(false, true, false, false);
-            }
-            else
-            {
-                if (SpustRozpoznavaniHlasu())
-                {
-                    ZmenStavTlacitekRozpoznavace(false, true, false, true);
-                }
-            }
+            CommandStartStopDictate.Execute(null,this);
         }
 
         /// <summary>
@@ -4502,8 +4467,8 @@ namespace NanoTrans
                                 pP.UlozTextOdstavce(e.sender.PrepsanyText, e.sender.PrepsanyTextCasoveZnacky);
 
                                 //pridano kvuli upravam rozpoznaneho textu
-                                nastaveniAplikace.CasoveZnacky = pP.VratCasoveZnackyTextu;
-                                nastaveniAplikace.CasoveZnackyText = pP.Text;
+                                MySetup.Setup.CasoveZnacky = pP.VratCasoveZnackyTextu;
+                                MySetup.Setup.CasoveZnackyText = pP.Text;
                             }
                             else
                             {
@@ -4709,7 +4674,7 @@ namespace NanoTrans
                         {
                             if (pPozadovanyStavRozpoznavace == MyKONST.ROZPOZNAVAC_2_HLASOVE_OVLADANI)   //zapise makro
                             {
-                                pSeznamNahranychMaker = MyMakro.DeserializovatSeznamMaker(nastaveniAplikace.absolutniCestaEXEprogramu + MyKONST.CESTA_MAKRA_SOUBOR);
+                                pSeznamNahranychMaker = MyMakro.DeserializovatSeznamMaker(MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.CESTA_MAKRA_SOUBOR);
                                 e.sender.ZapisMakra(pSeznamNahranychMaker);
                             }
 
@@ -4788,25 +4753,7 @@ namespace NanoTrans
 
         private void button10_Click(object sender, RoutedEventArgs e)
         {
-            if (MyKONST.VERZE == MyEnumVerze.Externi) return;
-            if (oPrepisovac != null && oPrepisovac.Rozpoznavani)
-            {
-                if (MessageBox.Show("Opravdu chcete přerušit právě probíhající přepis?", "", MessageBoxButton.YesNoCancel, MessageBoxImage.Question) == MessageBoxResult.Yes)
-                {
-                    if (oPrepisovac.StopHned() == 0)
-                    {
-                        if (pSeznamOdstavcuKRozpoznani != null) pSeznamOdstavcuKRozpoznani.Clear();
-                        //ZmenStavTlacitekRozpoznavace(true, false, false, false);
-                    }
-                }
-            }
-            else
-            {
-                SpustRozpoznavaniVybranehoElementu(nastaveniAplikace.RichTag, -1, -1, false);
-                //{
-                //    ZmenStavTlacitekRozpoznavace(true, false, false, true);
-                //}
-            }
+            CommandGeneratePhoneticTranscription.Execute(null, this);
         }
 
 
@@ -4836,21 +4783,21 @@ namespace NanoTrans
                 //vytvoreni instance prepisovace, pokud neexistuje
                 if (oPrepisovac == null)
                 {
-                    oPrepisovac = new MyPrepisovac(nastaveniAplikace.AbsolutniAdresarRozpoznavace, nastaveniAplikace.rozpoznavac.Mluvci, nastaveniAplikace.rozpoznavac.JazykovyModel, nastaveniAplikace.rozpoznavac.PrepisovaciPravidla, nastaveniAplikace.rozpoznavac.LicencniServer, nastaveniAplikace.rozpoznavac.LicencniSoubor, nastaveniAplikace.rozpoznavac.DelkaInternihoBufferuPrepisovace, nastaveniAplikace.rozpoznavac.KvalitaRozpoznavaniDiktat, new EventHandler(oPrepisovac_HaveDataPrectena));
+                    oPrepisovac = new MyPrepisovac(MySetup.Setup.AbsolutniAdresarRozpoznavace, MySetup.Setup.rozpoznavac.Mluvci, MySetup.Setup.rozpoznavac.JazykovyModel, MySetup.Setup.rozpoznavac.PrepisovaciPravidla, MySetup.Setup.rozpoznavac.LicencniServer, MySetup.Setup.rozpoznavac.LicencniSoubor, MySetup.Setup.rozpoznavac.DelkaInternihoBufferuPrepisovace, MySetup.Setup.rozpoznavac.KvalitaRozpoznavaniDiktat, new EventHandler(oPrepisovac_HaveDataPrectena));
                 }
-                string pMluvci = nastaveniAplikace.rozpoznavac.Mluvci;
-                string pJazykovyModel = nastaveniAplikace.rozpoznavac.JazykovyModel;
-                if (nastaveniAplikace.diktatMluvci != null)
+                string pMluvci = MySetup.Setup.rozpoznavac.Mluvci;
+                string pJazykovyModel = MySetup.Setup.rozpoznavac.JazykovyModel;
+                if (MySetup.Setup.diktatMluvci != null)
                 {
-                    if (nastaveniAplikace.diktatMluvci.RozpoznavacMluvci != null) pMluvci = nastaveniAplikace.rozpoznavac.MluvciRelativniAdresar + "/" + nastaveniAplikace.diktatMluvci.RozpoznavacMluvci;
-                    if (nastaveniAplikace.diktatMluvci.RozpoznavacJazykovyModel != null) pJazykovyModel = nastaveniAplikace.rozpoznavac.JazykovyModelRelativniAdresar + "/" + nastaveniAplikace.diktatMluvci.RozpoznavacJazykovyModel;
+                    if (MySetup.Setup.diktatMluvci.RozpoznavacMluvci != null) pMluvci = MySetup.Setup.rozpoznavac.MluvciRelativniAdresar + "/" + MySetup.Setup.diktatMluvci.RozpoznavacMluvci;
+                    if (MySetup.Setup.diktatMluvci.RozpoznavacJazykovyModel != null) pJazykovyModel = MySetup.Setup.rozpoznavac.JazykovyModelRelativniAdresar + "/" + MySetup.Setup.diktatMluvci.RozpoznavacJazykovyModel;
                 }
-                oPrepisovac.InicializaceRozpoznavace(nastaveniAplikace.AbsolutniAdresarRozpoznavace, nastaveniAplikace.rozpoznavac.LicencniSoubor, pMluvci, pJazykovyModel, nastaveniAplikace.rozpoznavac.PrepisovaciPravidla, nastaveniAplikace.rozpoznavac.DelkaInternihoBufferuPrepisovace.ToString(), nastaveniAplikace.rozpoznavac.KvalitaRozpoznavaniDiktat.ToString());
+                oPrepisovac.InicializaceRozpoznavace(MySetup.Setup.AbsolutniAdresarRozpoznavace, MySetup.Setup.rozpoznavac.LicencniSoubor, pMluvci, pJazykovyModel, MySetup.Setup.rozpoznavac.PrepisovaciPravidla, MySetup.Setup.rozpoznavac.DelkaInternihoBufferuPrepisovace.ToString(), MySetup.Setup.rozpoznavac.KvalitaRozpoznavaniDiktat.ToString());
                 if (timerRozpoznavace != null && timerRozpoznavace.IsEnabled == false)
                 {
                     InitializeTimerRozpoznavace(MyKONST.PERIODA_TIMERU_ROZPOZNAVACE_MS);
                 }
-                oPrepisovac.PrepisovanyElementTag = nastaveniAplikace.RichTag;
+                oPrepisovac.PrepisovanyElementTag = MySetup.Setup.RichTag;
                 //inicializace prepisovace a hlidaciho timeru
 
                 return true;
@@ -5064,17 +5011,17 @@ namespace NanoTrans
 
 
 
-            if (oPrepisovac == null) oPrepisovac = new MyPrepisovac(nastaveniAplikace.AbsolutniAdresarRozpoznavace, nastaveniAplikace.rozpoznavac.Mluvci, nastaveniAplikace.rozpoznavac.JazykovyModel, nastaveniAplikace.rozpoznavac.PrepisovaciPravidla, nastaveniAplikace.rozpoznavac.LicencniServer, nastaveniAplikace.rozpoznavac.LicencniSoubor, nastaveniAplikace.rozpoznavac.DelkaInternihoBufferuPrepisovace, nastaveniAplikace.rozpoznavac.KvalitaRozpoznavaniDiktat, new EventHandler(oPrepisovac_HaveDataPrectena));
+            if (oPrepisovac == null) oPrepisovac = new MyPrepisovac(MySetup.Setup.AbsolutniAdresarRozpoznavace, MySetup.Setup.rozpoznavac.Mluvci, MySetup.Setup.rozpoznavac.JazykovyModel, MySetup.Setup.rozpoznavac.PrepisovaciPravidla, MySetup.Setup.rozpoznavac.LicencniServer, MySetup.Setup.rozpoznavac.LicencniSoubor, MySetup.Setup.rozpoznavac.DelkaInternihoBufferuPrepisovace, MySetup.Setup.rozpoznavac.KvalitaRozpoznavaniDiktat, new EventHandler(oPrepisovac_HaveDataPrectena));
 
-            string pMluvci = nastaveniAplikace.rozpoznavac.Mluvci;
-            string pJazykovyModel = nastaveniAplikace.rozpoznavac.JazykovyModel;
+            string pMluvci = MySetup.Setup.rozpoznavac.Mluvci;
+            string pJazykovyModel = MySetup.Setup.rozpoznavac.JazykovyModel;
             MySpeaker pSpeaker = myDataSource.VratSpeakera(aTag);
             if (pSpeaker != null)
             {
-                if (pSpeaker.RozpoznavacMluvci != null) pMluvci = nastaveniAplikace.rozpoznavac.MluvciRelativniAdresar + "/" + pSpeaker.RozpoznavacMluvci;
-                if (pSpeaker.RozpoznavacJazykovyModel != null) pJazykovyModel = nastaveniAplikace.rozpoznavac.JazykovyModelRelativniAdresar + "/" + pSpeaker.RozpoznavacJazykovyModel;
+                if (pSpeaker.RozpoznavacMluvci != null) pMluvci = MySetup.Setup.rozpoznavac.MluvciRelativniAdresar + "/" + pSpeaker.RozpoznavacMluvci;
+                if (pSpeaker.RozpoznavacJazykovyModel != null) pJazykovyModel = MySetup.Setup.rozpoznavac.JazykovyModelRelativniAdresar + "/" + pSpeaker.RozpoznavacJazykovyModel;
             }
-            oPrepisovac.InicializaceRozpoznavace(nastaveniAplikace.AbsolutniAdresarRozpoznavace, nastaveniAplikace.rozpoznavac.LicencniSoubor, pMluvci, pJazykovyModel, nastaveniAplikace.rozpoznavac.PrepisovaciPravidla, nastaveniAplikace.rozpoznavac.DelkaInternihoBufferuPrepisovace.ToString(), null);
+            oPrepisovac.InicializaceRozpoznavace(MySetup.Setup.AbsolutniAdresarRozpoznavace, MySetup.Setup.rozpoznavac.LicencniSoubor, pMluvci, pJazykovyModel, MySetup.Setup.rozpoznavac.PrepisovaciPravidla, MySetup.Setup.rozpoznavac.DelkaInternihoBufferuPrepisovace.ToString(), null);
 
             //oPrepisovac.InicializaceRozpoznavace();
             //oPrepisovac.HaveDataPrectena += new DataReadyEventHandler(oPrepisovac_HaveDataPrectena);
@@ -5212,20 +5159,20 @@ namespace NanoTrans
                 //vytvoreni instance prepisovace, pokud neexistuje
                 if (oHlasoveOvladani == null)
                 {
-                    oHlasoveOvladani = new MyPrepisovac(nastaveniAplikace.AbsolutniAdresarRozpoznavace, nastaveniAplikace.rozpoznavac.Mluvci, nastaveniAplikace.rozpoznavac.JazykovyModel, nastaveniAplikace.rozpoznavac.PrepisovaciPravidla, nastaveniAplikace.rozpoznavac.LicencniServer, nastaveniAplikace.rozpoznavac.LicencniSoubor, nastaveniAplikace.rozpoznavac.DelkaInternihoBufferuPrepisovace, nastaveniAplikace.rozpoznavac.KvalitaRozpoznavaniOvladani, new EventHandler(oPrepisovac_HaveDataPrectena));
+                    oHlasoveOvladani = new MyPrepisovac(MySetup.Setup.AbsolutniAdresarRozpoznavace, MySetup.Setup.rozpoznavac.Mluvci, MySetup.Setup.rozpoznavac.JazykovyModel, MySetup.Setup.rozpoznavac.PrepisovaciPravidla, MySetup.Setup.rozpoznavac.LicencniServer, MySetup.Setup.rozpoznavac.LicencniSoubor, MySetup.Setup.rozpoznavac.DelkaInternihoBufferuPrepisovace, MySetup.Setup.rozpoznavac.KvalitaRozpoznavaniOvladani, new EventHandler(oPrepisovac_HaveDataPrectena));
                 }
-                string pMluvci = nastaveniAplikace.rozpoznavac.Mluvci;
-                string pJazykovyModel = nastaveniAplikace.rozpoznavac.JazykovyModel;
-                string pPrepisovaciPravidla = nastaveniAplikace.rozpoznavac.PrepisovaciPravidla;
-                if (nastaveniAplikace.diktatMluvci != null)
+                string pMluvci = MySetup.Setup.rozpoznavac.Mluvci;
+                string pJazykovyModel = MySetup.Setup.rozpoznavac.JazykovyModel;
+                string pPrepisovaciPravidla = MySetup.Setup.rozpoznavac.PrepisovaciPravidla;
+                if (MySetup.Setup.diktatMluvci != null)
                 {
-                    if (nastaveniAplikace.hlasoveOvladaniMluvci.RozpoznavacMluvci != null) pMluvci = nastaveniAplikace.rozpoznavac.MluvciRelativniAdresar + "/" + nastaveniAplikace.hlasoveOvladaniMluvci.RozpoznavacMluvci;
-                    if (nastaveniAplikace.hlasoveOvladaniMluvci.RozpoznavacJazykovyModel != null) pJazykovyModel = nastaveniAplikace.rozpoznavac.JazykovyModelRelativniAdresar + "/" + nastaveniAplikace.hlasoveOvladaniMluvci.RozpoznavacJazykovyModel;
-                    if (nastaveniAplikace.hlasoveOvladaniMluvci.RozpoznavacPrepisovaciPravidla != null) pPrepisovaciPravidla = nastaveniAplikace.rozpoznavac.PrepisovaciPravidlaRelativniAdresar + "/" + nastaveniAplikace.hlasoveOvladaniMluvci.RozpoznavacPrepisovaciPravidla;
+                    if (MySetup.Setup.hlasoveOvladaniMluvci.RozpoznavacMluvci != null) pMluvci = MySetup.Setup.rozpoznavac.MluvciRelativniAdresar + "/" + MySetup.Setup.hlasoveOvladaniMluvci.RozpoznavacMluvci;
+                    if (MySetup.Setup.hlasoveOvladaniMluvci.RozpoznavacJazykovyModel != null) pJazykovyModel = MySetup.Setup.rozpoznavac.JazykovyModelRelativniAdresar + "/" + MySetup.Setup.hlasoveOvladaniMluvci.RozpoznavacJazykovyModel;
+                    if (MySetup.Setup.hlasoveOvladaniMluvci.RozpoznavacPrepisovaciPravidla != null) pPrepisovaciPravidla = MySetup.Setup.rozpoznavac.PrepisovaciPravidlaRelativniAdresar + "/" + MySetup.Setup.hlasoveOvladaniMluvci.RozpoznavacPrepisovaciPravidla;
                 }
 
 
-                oHlasoveOvladani.InicializaceRozpoznavace(nastaveniAplikace.AbsolutniAdresarRozpoznavace, nastaveniAplikace.rozpoznavac.LicencniSoubor, pMluvci, pJazykovyModel, pPrepisovaciPravidla, nastaveniAplikace.rozpoznavac.DelkaInternihoBufferuPrepisovace.ToString(), nastaveniAplikace.rozpoznavac.KvalitaRozpoznavaniOvladani.ToString());
+                oHlasoveOvladani.InicializaceRozpoznavace(MySetup.Setup.AbsolutniAdresarRozpoznavace, MySetup.Setup.rozpoznavac.LicencniSoubor, pMluvci, pJazykovyModel, pPrepisovaciPravidla, MySetup.Setup.rozpoznavac.DelkaInternihoBufferuPrepisovace.ToString(), MySetup.Setup.rozpoznavac.KvalitaRozpoznavaniOvladani.ToString());
                 if (timerRozpoznavace != null && timerRozpoznavace.IsEnabled == false)
                 {
                     InitializeTimerRozpoznavace(MyKONST.PERIODA_TIMERU_ROZPOZNAVACE_MS);
@@ -5246,22 +5193,7 @@ namespace NanoTrans
 
         private void btHlasoveOvladani_Click(object sender, RoutedEventArgs e)
         {
-            if (MyKONST.VERZE == MyEnumVerze.Externi) return;
-            if (recording)
-            {
-                if (MWR != null) MWR.Dispose();
-                MWR = null;
-                recording = false;
-                ZmenStavTlacitekRozpoznavace(false, false, true, false);
-            }
-            else
-            {
-                if (SpustHlasoveOvladani())
-                {
-                    ZmenStavTlacitekRozpoznavace(false, false, true, true);
-                }
-            }
-
+            CommandStartStopVoiceControl.Execute(null,this);
 
         }
 
@@ -5273,32 +5205,13 @@ namespace NanoTrans
         /// <param name="e"></param>
         private void btPoriditObrazekZVidea_Click(object sender, RoutedEventArgs e)
         {
-            if (jeVideo)
-            {
-
-                Size dpi = new Size(96, 96);
-
-                RenderTargetBitmap bmp = new RenderTargetBitmap((int)gVideoPouze.ActualWidth, (int)gVideoPouze.ActualHeight + (int)gVideoPouze.Margin.Top, dpi.Width, dpi.Height, PixelFormats.Pbgra32);
-                bmp.Render(gVideoPouze);
-
-
-                BitmapFrame pFrame = BitmapFrame.Create(bmp);
-
-                string pBase = MyKONST.PrevedJPGnaBase64String(pFrame);
-
-
-                WinSpeakers.ZiskejMluvciho(nastaveniAplikace, this.myDatabazeMluvcich, null, pBase);
-            }
-            else
-            {
-                MessageBox.Show("Nelze vytvořit obrázek mluvčího, protože není načteno video", "Upozornění!");
-            }
+            CommandTakeSpeakerSnapshotFromVideo.Execute(null, this);
         }
 
 
         private void menuItemFonetickyPrepis_Click(object sender, RoutedEventArgs e)
         {
-            CommandShowPanelFoneticTranscription.Execute(null, null);
+            CommandShowPanelFoneticTranscription.Execute(null, this);
         }
 
         private void btFonetickyPrepis_Click(object sender, RoutedEventArgs e)
@@ -5306,8 +5219,8 @@ namespace NanoTrans
             //menuItemFonetickyPrepis_Click(null, new RoutedEventArgs());
             try
             {
-                MyFonetic mf = new MyFonetic(nastaveniAplikace.absolutniCestaEXEprogramu);
-                tbFonetickyPrepis.Text = mf.VratFonetickyPrepis(myDataSource[nastaveniAplikace.RichTag].Text);
+                MyFonetic mf = new MyFonetic(MySetup.Setup.absolutniCestaEXEprogramu);
+                tbFonetickyPrepis.Text = mf.VratFonetickyPrepis(myDataSource[MySetup.Setup.RichTag].Text);
             }
             catch
             {
@@ -5355,12 +5268,12 @@ namespace NanoTrans
                 {
                     if (!tbFonetickyPrepis.IsFocused)
                     {
-                        tbFonetickyPrepis.Background = nastaveniAplikace.BarvaTextBoxuFoneticky;
+                        tbFonetickyPrepis.Background = MySetup.Setup.BarvaTextBoxuFoneticky;
                     }
                 }
                 else
                 {
-                    tbFonetickyPrepis.Background = nastaveniAplikace.BarvaTextBoxuFonetickyZakazany;
+                    tbFonetickyPrepis.Background = MySetup.Setup.BarvaTextBoxuFonetickyZakazany;
                 }
                 tbFonetickyPrepis.Tag = pTag; //prirazeni tagu odstavce
                 //return true;
@@ -5383,15 +5296,15 @@ namespace NanoTrans
 
             if (aZobrazit)
             {
-                nastaveniAplikace.ZobrazitFonetickyPrepis = Math.Abs(nastaveniAplikace.ZobrazitFonetickyPrepis);
+                MySetup.Setup.ZobrazitFonetickyPrepis = Math.Abs(MySetup.Setup.ZobrazitFonetickyPrepis);
 
-                d.RowDefinitions[1].Height = new GridLength(nastaveniAplikace.ZobrazitFonetickyPrepis);
+                d.RowDefinitions[1].Height = new GridLength(MySetup.Setup.ZobrazitFonetickyPrepis);
 
                 return true;
             }
             else
             {
-                nastaveniAplikace.ZobrazitFonetickyPrepis = -Math.Abs(nastaveniAplikace.ZobrazitFonetickyPrepis);
+                MySetup.Setup.ZobrazitFonetickyPrepis = -Math.Abs(MySetup.Setup.ZobrazitFonetickyPrepis);
                 d.RowDefinitions[1].Height = new GridLength(0);
                 return false;
             }
@@ -5404,19 +5317,8 @@ namespace NanoTrans
 
         private void gridSplitter2_DragCompleted(object sender, System.Windows.Controls.Primitives.DragCompletedEventArgs e)
         {
-            if (gPrepis.RowDefinitions[1].Height.Value > 40) nastaveniAplikace.ZobrazitFonetickyPrepis = (float)gPrepis.RowDefinitions[1].Height.Value;
+            if (gPrepis.RowDefinitions[1].Height.Value > 40) MySetup.Setup.ZobrazitFonetickyPrepis = (float)gPrepis.RowDefinitions[1].Height.Value;
         }
-
-
-
-
-
-        [System.Runtime.InteropServices.DllImport("user32.dll")]
-        public static extern int GetKeyboardState(byte[] lpKeyState);
-        [System.Runtime.InteropServices.DllImport("user32.dll")]
-        public static extern uint MapVirtualKey(uint uCode, uint uMapType);
-
-
 
 
         private void button1_Click_1(object sender, RoutedEventArgs e)
@@ -5462,7 +5364,7 @@ namespace NanoTrans
                 if (pSeznamKNormalizaci == null || pSeznamKNormalizaci.Count == 0) return -1;
                 if (aIndexNormalizace < 0) aIndexNormalizace = WinNormalizace.ZobrazitVyberNormalizace(-1, this);
                 if (aIndexNormalizace < 0) return -1;
-                MyFonetic pFonetika = new MyFonetic(this.nastaveniAplikace.absolutniCestaEXEprogramu);
+                MyFonetic pFonetika = new MyFonetic(MySetup.Setup.absolutniCestaEXEprogramu);
                 for (int j = 0; j < pSeznamKNormalizaci.Count; j++)
                 {
                     MyParagraph pOdstavec = pSeznamKNormalizaci[j];
@@ -5526,27 +5428,16 @@ namespace NanoTrans
             pDokumentFonetickehoPrepisu.UpravElementOdstavce(pTagFoneticky, pText, pZnacky);
             pDokumentFonetickehoPrepisu.OznacTrenovaciData(bFonetika.TagKPrepsani, true);
 
-            if (bFonetika.TagKPrepsani.tKapitola == nastaveniAplikace.RichTag.tKapitola && bFonetika.TagKPrepsani.tSekce == nastaveniAplikace.RichTag.tSekce && bFonetika.TagKPrepsani.tOdstavec == nastaveniAplikace.RichTag.tOdstavec)
+            if (bFonetika.TagKPrepsani.tKapitola == MySetup.Setup.RichTag.tKapitola && bFonetika.TagKPrepsani.tSekce == MySetup.Setup.RichTag.tSekce && bFonetika.TagKPrepsani.tOdstavec == MySetup.Setup.RichTag.tOdstavec)
             {
                 ZobrazitFonetickyPrepisOdstavce(bFonetika.TagKPrepsani);
-                /*
-                if (pAutomaticky)
-                {
-
-                }
-                else 
-                 */
-                if (nastaveniAplikace.fonetickyPrepis.PrehratAutomatickyRozpoznanyOdstavec)
+                if (MySetup.Setup.fonetickyPrepis.PrehratAutomatickyRozpoznanyOdstavec)
                 {
                     tbFonetickyPrepis.Focus();
                     prehratVyber = true;
-                    //Playing = true;
-                    Audio_PlayPause();
-
-
                 }
             }
-            AllignmentZpracovaniFonetickehoPrepisu(nastaveniAplikace.RichTag, bFonetika.TagKPrepsani);
+            AllignmentZpracovaniFonetickehoPrepisu(MySetup.Setup.RichTag, bFonetika.TagKPrepsani);
 
             //zpracovani dalsich odstavcu na seznamu
             if (this.pSeznamOdstavcuKRozpoznaniFonetika != null && this.pSeznamOdstavcuKRozpoznaniFonetika.Count > 0)
@@ -5804,22 +5695,12 @@ namespace NanoTrans
             aTag.tSender = VratSenderTextboxu(aTag);
 
 
-            if (bFonetika == null) bFonetika = new MyFonetic(nastaveniAplikace.absolutniCestaEXEprogramu);
+            if (bFonetika == null) bFonetika = new MyFonetic(MySetup.Setup.absolutniCestaEXEprogramu);
 
             aTag.tTypElementu = MyEnumTypElementu.normalni;
             MyParagraph pOdstavec = aDokument[aTag];
             //ulozi tag vybraneho odstavce do promenne prepisovace a vymaze pripadna drivejsi data z pomocnych promennych
             bFonetika.TagKPrepsani = aTag;
-
-            //pokus o uzamceni textboxu proti upravam psani
-            try
-            {
-                //((TextBox)bFonetika.TagKPrepsani.tSender).IsReadOnly = true;
-            }
-            catch
-            {
-
-            }
 
             //spusti asynchronni nacteni bufferu
             if (pOdstavec.DelkaMS > 0)
@@ -5837,10 +5718,10 @@ namespace NanoTrans
 
         private void MenuItemFonetickeVarianty_Click(object sender, RoutedEventArgs e)
         {
-            if (nastaveniAplikace.RichFocus && nastaveniAplikace.RichTag.tTypElementu == MyEnumTypElementu.foneticky)
+            if (MySetup.Setup.RichFocus && MySetup.Setup.RichTag.tTypElementu == MyEnumTypElementu.foneticky)
             {
-                MyParagraph pp = myDataSource[nastaveniAplikace.RichTag];
-                MyTag pTag = new MyTag(nastaveniAplikace.RichTag);
+                MyParagraph pp = myDataSource[MySetup.Setup.RichTag];
+                MyTag pTag = new MyTag(MySetup.Setup.RichTag);
                 if (pp == null) return;
                 int pIndexKurzoru = tbFonetickyPrepis.CaretIndex;
                 int pIndexPocatkuSlova = -1;
@@ -5918,8 +5799,7 @@ namespace NanoTrans
 
         private void menuItemNastrojeNormalizovat_Click(object sender, RoutedEventArgs e)
         {
-            MyTag pTag = nastaveniAplikace.RichTag;
-            Normalizovat(myDataSource, pTag, -1);
+            CommandNormalizeParagraph.Execute(null, this);
         }
 
         /// <summary>
@@ -5938,7 +5818,7 @@ namespace NanoTrans
             }
 
 
-            MyTag pTag = new MyTag(nastaveniAplikace.RichTag);
+            MyTag pTag = new MyTag(MySetup.Setup.RichTag);
             Normalizovat(myDataSource, pTag, 1);
 
             SpustFonetickyPrepis(myDataSource, pTag, -1, -1);
@@ -5956,7 +5836,7 @@ namespace NanoTrans
 
         private void menuItemNastrojeAllignment_Click(object sender, RoutedEventArgs e)
         {
-            MyTag pTag = new MyTag(nastaveniAplikace.RichTag);
+            MyTag pTag = new MyTag(MySetup.Setup.RichTag);
             Allignment(myDataSource, pTag);
 
         }
@@ -6233,18 +6113,18 @@ namespace NanoTrans
 
         private void btOdstranitNefonemy_Click(object sender, RoutedEventArgs e)
         {
-            if (bFonetika == null) bFonetika = new MyFonetic(nastaveniAplikace.absolutniCestaEXEprogramu);
+            if (bFonetika == null) bFonetika = new MyFonetic(MySetup.Setup.absolutniCestaEXEprogramu);
 
-            bool pStav = bFonetika.OdstraneniNefonetickychZnakuZPrepisu(myDataSource, nastaveniAplikace.RichTag);
+            bool pStav = bFonetika.OdstraneniNefonetickychZnakuZPrepisu(myDataSource, MySetup.Setup.RichTag);
             if (pStav)
             {
-                MyTag pTag = new MyTag(nastaveniAplikace.RichTag);
+                MyTag pTag = new MyTag(MySetup.Setup.RichTag);
                 pTag.tTypElementu = MyEnumTypElementu.foneticky;
                 MyParagraph pP = myDataSource[pTag];
-                nastaveniAplikace.CasoveZnackyText = pP.Text;
-                nastaveniAplikace.CasoveZnacky = pP.VratCasoveZnackyTextu;
+                MySetup.Setup.CasoveZnackyText = pP.Text;
+                MySetup.Setup.CasoveZnacky = pP.VratCasoveZnackyTextu;
             }
-            ZobrazitFonetickyPrepisOdstavce(nastaveniAplikace.RichTag);
+            ZobrazitFonetickyPrepisOdstavce(MySetup.Setup.RichTag);
 
         }
 
@@ -6326,10 +6206,6 @@ namespace NanoTrans
             {
                 ZobrazitOknoFonetickehoPrepisu(true);
                 tbFonetickyPrepis.Focus();
-                Audio_PlayPause();
-                //prehratVyber = true;
-                //Playing = true;
-
             }
         }
 
@@ -6354,7 +6230,7 @@ namespace NanoTrans
                     {
                         pExport = pExport.Deserializovat(pJmenoSouboruXML);
                         string prozsirit = "";
-                        MyWav pWAV = new MyWav(nastaveniAplikace.absolutniCestaEXEprogramu);
+                        MyWav pWAV = new MyWav(MySetup.Setup.absolutniCestaEXEprogramu);
                         if (pExport.Chapters[0].Sections[0].PhoneticParagraphs.Count > 1)
                         {
                             pWAV.ZacniPrevodSouboruNaDocasneWav(tbDavkovyAdresar.Text + "//" + pExport.audioFileName, "e://", 300000);
@@ -6404,19 +6280,19 @@ namespace NanoTrans
 
         private void cbJazyk_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            nastaveniAplikace.fonetickyPrepis.Jazyk = "";
-            if (cbJazyk.SelectedIndex > 0) nastaveniAplikace.fonetickyPrepis.Jazyk = (cbJazyk.SelectedItem as ComboBoxItem).Content.ToString();
+            MySetup.Setup.fonetickyPrepis.Jazyk = "";
+            if (cbJazyk.SelectedIndex > 0) MySetup.Setup.fonetickyPrepis.Jazyk = (cbJazyk.SelectedItem as ComboBoxItem).Content.ToString();
         }
 
         private void cbPohlavi_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            nastaveniAplikace.fonetickyPrepis.Pohlavi = "";
-            if (cbPohlavi.SelectedIndex > 0) nastaveniAplikace.fonetickyPrepis.Pohlavi = (cbPohlavi.SelectedItem as ComboBoxItem).Content.ToString();
+            MySetup.Setup.fonetickyPrepis.Pohlavi = "";
+            if (cbPohlavi.SelectedIndex > 0) MySetup.Setup.fonetickyPrepis.Pohlavi = (cbPohlavi.SelectedItem as ComboBoxItem).Content.ToString();
         }
 
         private void chbPrehravatRozpoznane_Checked(object sender, RoutedEventArgs e)
         {
-            nastaveniAplikace.fonetickyPrepis.PrehratAutomatickyRozpoznanyOdstavec = (bool)chbPrehravatRozpoznane.IsChecked;
+            MySetup.Setup.fonetickyPrepis.PrehratAutomatickyRozpoznanyOdstavec = (bool)chbPrehravatRozpoznane.IsChecked;
         }
 
 
@@ -6459,9 +6335,9 @@ namespace NanoTrans
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            if (nastaveniAplikace.RichFocus)
+            if (MySetup.Setup.RichFocus)
             {
-                TextBox focused = nastaveniAplikace.RichTag.tSender as TextBox;
+                TextBox focused = MySetup.Setup.RichTag.tSender as TextBox;
                 if (focused != null)
                 {
 
@@ -6499,7 +6375,7 @@ namespace NanoTrans
         private void toolBar1_Loaded(object sender, RoutedEventArgs e)
         {
             int index = 1;
-            foreach (string s in nastaveniAplikace.NerecoveUdalosti)
+            foreach (string s in MySetup.Setup.NerecoveUdalosti)
             {
                 Button b = new Button();
                 b.Content = s;
@@ -6511,8 +6387,8 @@ namespace NanoTrans
                     this.InputBindings.Add(new KeyBinding(new ButtonClickCommand(b), (Key)Enum.Parse(typeof(Key), "D" + index), ModifierKeys.Alt));
                 index++;
             }
-            MyTextBox.suggestions = nastaveniAplikace.NerecoveUdalosti;
-            listboxpopupPopulate(nastaveniAplikace.NerecoveUdalosti);
+            MyTextBox.suggestions = MySetup.Setup.NerecoveUdalosti;
+            listboxpopupPopulate(MySetup.Setup.NerecoveUdalosti);
         }
 
 
@@ -6577,7 +6453,7 @@ namespace NanoTrans
             string value = "[" + listboxPopup.SelectedItem.ToString() + "]";
             if (value != null)
             {
-                MyTextBox box = nastaveniAplikace.RichTag.tSender as MyTextBox;
+                MyTextBox box = MySetup.Setup.RichTag.tSender as MyTextBox;
                 if (box != null)
                 {
                     string beg;
@@ -6609,7 +6485,7 @@ namespace NanoTrans
             popup_filter += s.ToLower();
             listboxPopup.Items.Clear();
             List<string> strings = new List<string>();
-            foreach (string st in nastaveniAplikace.NerecoveUdalosti)
+            foreach (string st in MySetup.Setup.NerecoveUdalosti)
             {
                 if (st.StartsWith(popup_filter))
                     strings.Add(st);
@@ -6618,7 +6494,7 @@ namespace NanoTrans
             if (strings.Count == 0)
             {
                 popup.IsOpen = false;
-                listboxpopupPopulate(nastaveniAplikace.NerecoveUdalosti);
+                listboxpopupPopulate(MySetup.Setup.NerecoveUdalosti);
                 popup_filter = "";
             }
             else if (strings.Count == 1)
@@ -6628,7 +6504,7 @@ namespace NanoTrans
                 listboxPopup.SelectedIndex = 0;
                 ListBox_MouseDoubleClick(null, null);
 
-                listboxpopupPopulate(nastaveniAplikace.NerecoveUdalosti);
+                listboxpopupPopulate(MySetup.Setup.NerecoveUdalosti);
                 popup_filter = "";
 
                 e.Handled = true;
@@ -6797,7 +6673,7 @@ namespace NanoTrans
         private void waveform1_ParagraphDoubleClick(object sender, Waveform.MyTagEventArgs e)
         {
             VyberElement(e.Value, false);
-            new WinSpeakers(e.Value, this.nastaveniAplikace, this.myDatabazeMluvcich, myDataSource, null).ShowDialog();
+            new WinSpeakers(e.Value, MySetup.Setup, this.myDatabazeMluvcich, myDataSource, null).ShowDialog();
             UpdateXMLData(false, true, true, false, true);
         }
 
@@ -6813,12 +6689,17 @@ namespace NanoTrans
         private void waveform1_ElementChanged(object sender, Waveform.MyTagEventArgs e)
         {
             UpdateXMLData(false, true, false, false, true);
-            ZobrazInformaceElementu(nastaveniAplikace.RichTag);
+            ZobrazInformaceElementu(MySetup.Setup.RichTag);
         }
 
         private void waveform1_SelectionChanged(object sender, EventArgs e)
         {
             ZobrazInformaceVyberu();
+        }
+
+        private void waveform1_PlayPauseClick(object sender, RoutedEventArgs e)
+        {
+            CommandPlayPause.Execute(null, this);
         }
 
 

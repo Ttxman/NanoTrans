@@ -139,6 +139,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Element.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="ExceptionCatchWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -208,6 +212,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ButtonClickCommand.cs" />
+    <Compile Include="Element.xaml.cs">
+      <DependentUpon>Element.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ExceptionCatchWindow.xaml.cs">
       <DependentUpon>ExceptionCatchWindow.xaml</DependentUpon>
     </Compile>

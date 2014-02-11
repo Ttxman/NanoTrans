@@ -342,7 +342,6 @@ namespace NanoTrans
                 while (true)
                 {
                     Thread.Sleep(20);
-
                     if (invalidate_waveform)
                     {
                         this.Dispatcher.Invoke(new Action(iInvalidateWaveform));

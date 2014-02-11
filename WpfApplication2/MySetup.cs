@@ -213,11 +213,76 @@ namespace NanoTrans
 
     }
 
+
+        public class SingletonRefresher : System.ComponentModel.INotifyPropertyChanged
+        {
+            private MySetup m_setup;
+            public MySetup Setup
+            {
+                get { return m_setup; }
+                set
+                {
+                    m_setup = value;
+                    if (PropertyChanged != null)
+                        PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs("Setup"));
+                }
+            }
+
+            //je to na setupu lepsi refreshnout vsechny bindingy.. stejne se vklada najedou
+            public void Refresher()
+            {
+                if (PropertyChanged != null)
+                    PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs("Setup"));
+            }
+
+            #region INotifyPropertyChanged Members
+
+            public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+
+            #endregion
+        }
+
+
     [XmlInclude(typeof(MySetupFonetickyPrepis))]
     [XmlInclude(typeof(MySetupRozpoznavac))]
     [XmlInclude(typeof(MySpeaker))]
-    public class MySetup
+    public class MySetup : System.ComponentModel.INotifyPropertyChanged
     {
+
+        #region INotifyPropertyChanged Members
+
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+
+        #endregion
+
+        static MySetup()
+        {
+            m_setup = new MySetup();
+            m_refresher = new SingletonRefresher() {Setup = m_setup };
+        }
+        private static MySetup m_setup;
+        public static MySetup Setup
+        {
+            set 
+            {
+                m_setup = value;
+                m_refresher.Setup = value;
+            }
+            get { return m_setup; }
+        }
+
+
+        static SingletonRefresher m_refresher = null;
+        //hack protoze tahle trida nebyla vytvarena jako singleton a objekt v Setup se muze menit
+        public static SingletonRefresher Refresher
+        {
+            get
+            {
+                return m_refresher;
+            }
+        }
+
+
         /// <summary>
         /// absolutni cesta k exe programu po spusteni
         /// </summary>
@@ -246,8 +311,19 @@ namespace NanoTrans
             }
         }
 
+
+        Brush m_BarvaTextBoxuOdstavce;
         [XmlIgnore]
-        public Brush BarvaTextBoxuOdstavce { get; set; }                    //udava barvu textboxu
+        public Brush BarvaTextBoxuOdstavce //udava barvu textboxu
+        {
+            get { return m_BarvaTextBoxuOdstavce; }
+            set 
+            { 
+                m_BarvaTextBoxuOdstavce = value;
+                if (PropertyChanged != null)
+                    m_refresher.Refresher();
+            }
+        }                    
         [XmlIgnore]
         public Brush BarvaTextBoxuOdstavceAktualni { get; set; }            //udava barvu vybraneho textboxu
         /// <summary>
@@ -281,25 +357,17 @@ namespace NanoTrans
         [XmlIgnore]
         public string CasoveZnackyText { get; set; } //uchovava informace o samotnem! textu ulozenem v textboxu-bez koncu/r/n...
 
+
+
         public double ZpomalenePrehravaniRychlost { get; set; } //rychlost zpomaleneho prehravani
         public double VlnaMalySkok { get; set; } //delka maleho skoku na vlne
-
-
         public string[] NerecoveUdalosti { get; set; }
-
-
-
+        
         public bool SetupSkocitNaPozici { get; set; }  //pri kliknuti na textbox, v pripade casove znacky skoci na pozici
         public bool SetupSkocitZastavit { get; set; }  //pri kliknuti na textbox, v pripade casove znacky skoci na pozici a pozastavi pripadne prehravani
-
-        public double SetupTextFontSize { get; set; }       //udava velikost pisma v textboxech
-
-
-        
-                
+        public double SetupTextFontSize { get; set; }       //udava velikost pisma v textboxech   
         public string PriponaTitulku { get; set; } //property pripona titulku
         public string PriponaDatabazeMluvcich { get; set; }
-
         public string CestaDatabazeMluvcich { get; set; }
 
         /// <summary>
