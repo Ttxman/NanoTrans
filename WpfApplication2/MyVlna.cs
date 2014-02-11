@@ -41,15 +41,6 @@ namespace NanoTrans
                 {
                     _mSekundyVlnyZac = value;
                 }
-
-                System.Diagnostics.StackTrace st = new StackTrace(true);
-                string trace = "";
-                foreach (var frame in st.GetFrames())
-                {
-                    trace += frame.GetMethod().Name + frame.GetFileLineNumber() + ">";
-                }
-
-                Debug.WriteLine("" + value + "_" + trace);
             }
         }
         

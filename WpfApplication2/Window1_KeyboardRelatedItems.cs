@@ -945,31 +945,29 @@ namespace NanoTrans
                             if (leftCtrl)
                             {
                                 prehratVyber = true;
-                                if (waveform1.CaretPosition >= TimeSpan.Zero)
+                                oldms = TimeSpan.Zero;
+                                //if (waveform1.CaretPosition >= waveform1.SelectionBegin && waveform1.CaretPosition <= waveform1.SelectionEnd)
+
+                                if ((waveform1.SelectionBegin - waveform1.SelectionEnd).Duration() > TimeSpan.FromMilliseconds(100))
                                 {
-
-                                    long timems;
-                                    if (waveform1.CaretPosition >= waveform1.SelectionBegin && waveform1.CaretPosition <= waveform1.SelectionEnd)
-                                    {
-                                        timems = (long)waveform1.CaretPosition.TotalMilliseconds;
-                                        oldms = TimeSpan.Zero;
-                                        List<MyTag> elementy = myDataSource.VratElementDanehoCasu(timems, null);
-                                        NastavPoziciKurzoru(waveform1.SelectionBegin, true, false);
-                                    }
-                                    else
-                                    {
-                                        oldms = TimeSpan.Zero;
-                                        int lastc = myDataSource.Chapters.Count - 1;
-                                        int lasts = myDataSource.Chapters[lastc].Sections.Count - 1;
-                                        int lastp = myDataSource.Chapters[lastc].Sections[lasts].Paragraphs.Count - 1;
-
-
-                                        long konec = myDataSource.VratCasElementuPocatek(new MyTag(lastc, lasts, lastp)) + 5;
-                                        NastavPoziciKurzoru(TimeSpan.FromMilliseconds(konec), true, true);
-                                        waveform1.SelectionBegin = TimeSpan.FromMilliseconds(konec);
-                                        waveform1.SelectionEnd = TimeSpan.FromMilliseconds(konec + 120000);
-                                    }
+                                    NastavPoziciKurzoru(waveform1.SelectionBegin, true, false);
                                 }
+                                else
+                                {
+                                    MyParagraph par = myDataSource[nastaveniAplikace.RichTag];
+
+                                    //oldms = TimeSpan.Zero;
+                                    //int lastc = myDataSource.Chapters.Count - 1;
+                                    //int lasts = myDataSource.Chapters[lastc].Sections.Count - 1;
+                                    //int lastp = myDataSource.Chapters[lastc].Sections[lasts].Paragraphs.Count - 1;
+
+
+                                    long konec = myDataSource.VratCasElementuPocatek(nastaveniAplikace.RichTag) + 5;
+                                    NastavPoziciKurzoru(TimeSpan.FromMilliseconds(konec), true, true);
+                                    waveform1.SelectionBegin = TimeSpan.FromMilliseconds(konec);
+                                    waveform1.SelectionEnd = TimeSpan.FromMilliseconds(konec + 120000);
+                                }
+
                             }
                             if (jeVideo) meVideo.Play();
                             //spusteni prehravani pomoci tlacitka-kvuli nacteni primeho prehravani

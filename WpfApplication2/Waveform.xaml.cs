@@ -105,6 +105,16 @@ namespace NanoTrans
                 InvalidateCarret();
                 InvalidateSelection();
 
+                System.Diagnostics.StackTrace st = new StackTrace(true);
+                string trace = "";
+                foreach (var frame in st.GetFrames())
+                {
+                    trace += frame.GetMethod().Name + frame.GetFileLineNumber() + ">";
+                }
+
+                Debug.WriteLine("" + value + "_" + trace);
+
+
                 if (CarretPostionChanged != null)
                     CarretPostionChanged(this, new TimeSpanEventArgs(value));
             }

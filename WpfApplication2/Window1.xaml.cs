@@ -145,9 +145,10 @@ namespace NanoTrans
             get { return _playing; }
             set
             {
-                
+
                 _playing = value;
                 waveform1.Playing = value;
+                pIndexBufferuVlnyProPrehrani = (int)waveform1.CaretPosition.TotalMilliseconds;
                 oldms = TimeSpan.Zero;
 
                 if (value)
@@ -170,7 +171,7 @@ namespace NanoTrans
                         meVideo.Play();
                     else
                         meVideo.Stop();
-                } 
+                }
             }
         }
 
@@ -182,7 +183,7 @@ namespace NanoTrans
         /// <summary>
         /// informace zda je nahravan zvuk
         /// </summary>
-   
+
         private bool recording = false;
 
 
@@ -442,10 +443,10 @@ namespace NanoTrans
                         TextBlock pTextBlock = ((TextBlock)((StackPanel)pBt.Content).Children[0]);
                         Image pImage = ((Image)((StackPanel)pBt.Content).Children[1]);
                         FrameworkElement pEl = ((Grid)spSeznam.Children[i]).Children[2] as FrameworkElement;
-                       // if (((Grid)spSeznam.Children[i]).Children[2] is Ellipse)
-                       //     pEl = ((Grid)spSeznam.Children[i]).Children[2] as Ellipse;
-                       // else
-                       //     pEl = new Ellipse();
+                        // if (((Grid)spSeznam.Children[i]).Children[2] is Ellipse)
+                        //     pEl = ((Grid)spSeznam.Children[i]).Children[2] as Ellipse;
+                        // else
+                        //     pEl = new Ellipse();
 
                         Label pLbBegin = ((Label)(((Grid)spSeznam.Children[i]).Children[1] as StackPanel).Children[1]);
                         Label pLbEnd = ((Label)(((Grid)spSeznam.Children[i]).Children[1] as StackPanel).Children[2]);
@@ -610,7 +611,7 @@ namespace NanoTrans
                             }
                             if (aTag.tOdstavec == 0)
                             {
-                                 ((Button)(((Grid)spSeznam.Children[i]).Children[1] as StackPanel).Children[0]).Visibility = Visibility.Visible;
+                                ((Button)(((Grid)spSeznam.Children[i]).Children[1] as StackPanel).Children[0]).Visibility = Visibility.Visible;
                             }
                             else
                             {
@@ -662,7 +663,7 @@ namespace NanoTrans
                         waveform1.InvalidateSpeakers();
                     }
 
-                    
+
 
 
 
@@ -1154,7 +1155,7 @@ namespace NanoTrans
             }
         }
 
-        #endregion 
+        #endregion
 
         public Window1()
         {
@@ -1323,7 +1324,7 @@ namespace NanoTrans
                 oWav = new MyWav(nastaveniAplikace.absolutniCestaEXEprogramu);
                 oWav.HaveData += oWav_HaveData;
                 oWav.HaveFileNumber += oWav_HaveFileNumber;
-                oWav.TemporaryWavesDone+=new EventHandler(oWav_TemporaryWavesDone);
+                oWav.TemporaryWavesDone += new EventHandler(oWav_TemporaryWavesDone);
 
                 string pCesta = null;
                 if (App.Startup_ARGS != null && App.Startup_ARGS.Length > 0)
@@ -1369,10 +1370,10 @@ namespace NanoTrans
                             pOmezeniMS = (long)waveform1.SelectionEnd.TotalMilliseconds;
                         }
 
-                        short[] bfr = waveform1.GetAudioData(TimeSpan.FromMilliseconds(pIndexBufferuVlnyProPrehrani), TimeSpan.FromMilliseconds(150),TimeSpan.FromMilliseconds(pOmezeniMS));
+                        short[] bfr = waveform1.GetAudioData(TimeSpan.FromMilliseconds(pIndexBufferuVlnyProPrehrani), TimeSpan.FromMilliseconds(150), TimeSpan.FromMilliseconds(pOmezeniMS));
                         zacatekbufferums = pIndexBufferuVlnyProPrehrani;
                         pIndexBufferuVlnyProPrehrani += 150;
-                        
+
                         if (pIndexBufferuVlnyProPrehrani > oWav.DelkaSouboruMS)
                         {
                             if (!prehratVyber)
@@ -1399,12 +1400,12 @@ namespace NanoTrans
                     }
                 }
 
-                
+
             }
             catch (Exception ex)
             {
                 MyLog.LogujChybu(ex);
-               
+
             }
             return new short[0];
 
@@ -1496,7 +1497,7 @@ namespace NanoTrans
             {
                 waveform1.AutomaticProgressHighlight = true;
             }));
-            
+
         }
 
         /// <summary>
@@ -1551,7 +1552,7 @@ namespace NanoTrans
                 MyEventArgs me = (MyEventArgs)e;
                 if (me.IDBufferu == MyKONST.ID_ZOBRAZOVACIHO_BUFFERU_VLNY)
                 {
-                    waveform1.SetAudioData(me.data,TimeSpan.FromMilliseconds(me.pocatecniCasMS),TimeSpan.FromMilliseconds(me.koncovyCasMS));
+                    waveform1.SetAudioData(me.data, TimeSpan.FromMilliseconds(me.pocatecniCasMS), TimeSpan.FromMilliseconds(me.koncovyCasMS));
                     if (me.pocatecniCasMS == 0)
                     {
                         if (!timer1.IsEnabled) InitializeTimer();
@@ -1562,7 +1563,7 @@ namespace NanoTrans
                         if (pNacitaniAudiaDavka && oWav.Nacteno)
                         {
                             MyTag pTag0 = new MyTag(0, 0, 0);
-                            if (myDataSource.VratCasElementuKonec(pTag0) < 0) 
+                            if (myDataSource.VratCasElementuKonec(pTag0) < 0)
                                 myDataSource.UpravCasElementu(pTag0, -2, oWav.DelkaSouboruMS);
                             UpdateXMLData();
                             //spSeznam.UpdateLayout();
@@ -1672,6 +1673,9 @@ namespace NanoTrans
             richX.LostFocus += new RoutedEventHandler(richX_LostFocus);
             richX.GotFocus += new RoutedEventHandler(richX_GotFocus);
 
+            richX.PreviewMouseUp += new MouseButtonEventHandler(richX_PreviewMouseUp);
+            richX.PreviewMouseDown += new MouseButtonEventHandler(richX_PreviewMouseDown);
+
             richX.SelectionChanged += new RoutedEventHandler(richX_SelectionChanged);
             richX.MouseDown += new MouseButtonEventHandler(richX_MouseDown);
             richX.CaretPositionJump += new EventHandler<MyTextBox.IntEventArgs>(richX_CaretPositionJump);
@@ -1762,10 +1766,10 @@ namespace NanoTrans
             buttonX.HorizontalAlignment = HorizontalAlignment.Left;
             buttonX.Click += new RoutedEventHandler(buttonX_Click);
 
-            
-            
-            
-            
+
+
+
+
             //richX.OnTextChanged(null);
 
             gridX.Children.Add(richX);
@@ -1780,28 +1784,28 @@ namespace NanoTrans
             //circleStartX.Fill = nastaveniAplikace.BarvaStartTime;
 
             //circleStartX.HorizontalAlignment = HorizontalAlignment.Left;
-         //   if (myDataSource.VratCasElementuPocatek(aTag) > 0)
-         //   {
-                //circleStartX.Visibility = Visibility.Visible;
-                //attrs.Visibility = Visibility.Visible;
-         //   }
-         //   else if (myDataSource.VratCasElementuKonec(aTag) > 0)
-         //   {
-                //circleStartX.Visibility = Visibility.Visible;
-                //attrs.Visibility = Visibility.Visible;
-          //  }
-          //  else
-          //  {
-                //circleStartX.Visibility = Visibility.Hidden;
-                //attrs.Visibility = Visibility.Hidden;
-          //  }
+            //   if (myDataSource.VratCasElementuPocatek(aTag) > 0)
+            //   {
+            //circleStartX.Visibility = Visibility.Visible;
+            //attrs.Visibility = Visibility.Visible;
+            //   }
+            //   else if (myDataSource.VratCasElementuKonec(aTag) > 0)
+            //   {
+            //circleStartX.Visibility = Visibility.Visible;
+            //attrs.Visibility = Visibility.Visible;
+            //  }
+            //  else
+            //  {
+            //circleStartX.Visibility = Visibility.Hidden;
+            //attrs.Visibility = Visibility.Hidden;
+            //  }
 
             richX.Padding = new Thickness(3, 0, 18, 0);
 
             if (aTag.tOdstavec < 0 && aTag.tSekce < 0)
             {
                 richX.Background = Brushes.LightPink;
-                richX.Margin = new Thickness(defaultLeftPositionRichX+8, 0, 0, 0);
+                richX.Margin = new Thickness(defaultLeftPositionRichX + 8, 0, 0, 0);
                 //attrs.Margin = new Thickness(defaultLeftPositionRichX - 15, 0, 0, 0);
                 //circleStartX.Margin = new Thickness(defaultLeftPositionRichX - 15, 0, 0, 0);
                 buttonX.Visibility = Visibility.Collapsed;
@@ -1809,17 +1813,17 @@ namespace NanoTrans
             else if (aTag.tOdstavec < 0 && aTag.tSekce > -1)
             {
                 richX.Background = Brushes.LightGreen;
-                richX.Margin = new Thickness(defaultLeftPositionRichX + 15+8, 0, 0, 0);
-               // circleStartX.Margin = new Thickness(defaultLeftPositionRichX + 2, 0, 0, 0);
+                richX.Margin = new Thickness(defaultLeftPositionRichX + 15 + 8, 0, 0, 0);
+                // circleStartX.Margin = new Thickness(defaultLeftPositionRichX + 2, 0, 0, 0);
                 //attrs.Margin = new Thickness(defaultLeftPositionRichX + 2, 0, 0, 0);
 
                 buttonX.Visibility = Visibility.Visible;
             }
             else
             {
-                richX.Margin = new Thickness(defaultLeftPositionRichX + 35+8, 0, 0, 0);
-               // circleStartX.Margin = new Thickness(defaultLeftPositionRichX + 25, 0, 0, 0);
-               // attrs.Margin = new Thickness(defaultLeftPositionRichX + 25, 0, 0, 0);
+                richX.Margin = new Thickness(defaultLeftPositionRichX + 35 + 8, 0, 0, 0);
+                // circleStartX.Margin = new Thickness(defaultLeftPositionRichX + 25, 0, 0, 0);
+                // attrs.Margin = new Thickness(defaultLeftPositionRichX + 25, 0, 0, 0);
                 buttonX.Visibility = Visibility.Visible;
 
             }
@@ -1884,9 +1888,9 @@ namespace NanoTrans
             if (aTag.JeOdstavec)
                 gridX.Children.Add(attrs);
             else
-                gridX.Children.Add(new Ellipse() { Width = 10, Height = 10, Visibility = System.Windows.Visibility.Hidden});
+                gridX.Children.Add(new Ellipse() { Width = 10, Height = 10, Visibility = System.Windows.Visibility.Hidden });
 
-            
+
             gridX.Children.Add(checkX);
             gridX.Children.Add(cx);
             Grid.SetZIndex(cx, -1);
@@ -1906,20 +1910,36 @@ namespace NanoTrans
 
         }
 
+        void richX_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            
+        }
+
+        bool blockfocus = false;
+        void richX_PreviewMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (!blockfocus)
+            {  
+                return;
+            }
+            blockfocus = false;
+            e.Handled = true;
+        }
+
         void richX_CaretPositionJump(object sender, MyTextBox.IntEventArgs e)
         {
             MyTag tag = (MyTag)(sender as MyTextBox).Tag;
 
-            
+
         }
 
         Brush GetRectangleBgColor(MyEnumParagraphAttributes param)
-        { 
-             return Brushes.White;
+        {
+            return Brushes.White;
         }
 
         Brush GetRectangleInnenrColor(MyEnumParagraphAttributes param)
-        { 
+        {
             switch (param)
             {
                 default:
@@ -1938,11 +1958,11 @@ namespace NanoTrans
 
         void richX_attributes_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            int i= ((sender as Rectangle).Parent as StackPanel).Children.IndexOf(sender as UIElement)+1;
-            MyEnumParagraphAttributes[] attrs = (MyEnumParagraphAttributes[]) Enum.GetValues(typeof(MyEnumParagraphAttributes));
-            
+            int i = ((sender as Rectangle).Parent as StackPanel).Children.IndexOf(sender as UIElement) + 1;
+            MyEnumParagraphAttributes[] attrs = (MyEnumParagraphAttributes[])Enum.GetValues(typeof(MyEnumParagraphAttributes));
+
             MyTag tag = (MyTag)(sender as Rectangle).Tag;
-            MyParagraph par =  myDataSource[tag];
+            MyParagraph par = myDataSource[tag];
 
             par.DataAttributes ^= attrs[i];
             if ((par.DataAttributes & attrs[i]) != 0)
@@ -2107,7 +2127,7 @@ namespace NanoTrans
         void menuItemX5_Smaz_Click(object sender, RoutedEventArgs e)
         {
             try
-            {             
+            {
                 MyTag mT;// = ((MyTag)((RichTextBox)ss.Children[0]).Tag);
                 mT = nastaveniAplikace.RichTag;
                 UpravCasZobraz(mT, -1, -2);
@@ -2143,7 +2163,7 @@ namespace NanoTrans
             oWav.RamecSynchronne = true;
             bool nacteno = oWav.NactiRamecBufferu(par.begin, par.DelkaMS, MyKONST.ID_BUFFERU_PREPISOVANEHO_ELEMENTU_FONETICKY_PREPIS);//)this.bPozadovanyPocatekRamce, this.bPozadovanaDelkaRamceMS, this.bIDBufferu);        
             oWav.RamecSynchronne = false;
-            
+
             Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
             dlg.DefaultExt = ".wav";
             dlg.Filter = "wav soubory (.wav)|*.wav";
@@ -2160,10 +2180,10 @@ namespace NanoTrans
                 filename = filename.Substring(0, filename.Length - ext.Length);
                 string textf = filename + ".txt";
 
-                File.WriteAllBytes(textf,win1250.GetBytes(par.Text));
+                File.WriteAllBytes(textf, win1250.GetBytes(par.Text));
 
 
-                if (parf != null && ! string.IsNullOrEmpty(parf.Text))
+                if (parf != null && !string.IsNullOrEmpty(parf.Text))
                 {
                     textf = filename + ".phn";
                     File.WriteAllBytes(textf, win1250.GetBytes(parf.Text));
@@ -2207,7 +2227,6 @@ namespace NanoTrans
                 TextBox pTB = ((TextBox)sender);
 
                 pPocatecniIndexVyberu = spSeznam.Children.IndexOf((Grid)((TextBox)(sender)).Parent);
-                ///int index = spSeznam.Children.IndexOf(((TextBox)(sender)).Parent);
 
             }
             catch (Exception ex)
@@ -2408,7 +2427,7 @@ namespace NanoTrans
 
                 //provede zvyrazneni vyberu ve vlne podle dat
                 waveform1.CaretPosition = waveform1.SelectionBegin = TimeSpan.FromMilliseconds(myDataSource.VratCasElementuPocatek(nastaveniAplikace.RichTag));
-                waveform1.SelectionEnd =  TimeSpan.FromMilliseconds(myDataSource.VratCasElementuKonec(nastaveniAplikace.RichTag));
+                waveform1.SelectionEnd = TimeSpan.FromMilliseconds(myDataSource.VratCasElementuKonec(nastaveniAplikace.RichTag));
 
                 //waveform1.SliderPostion = waveform1.SelectionEnd;
 
@@ -2426,7 +2445,7 @@ namespace NanoTrans
                 if (pNeskakatNaZacatekElementu) pNeskakatNaZacatekElementu = false;
                 if (nastaveniAplikace.RichTag.JeOdstavec)
                 {
-                    if (!Playing) 
+                    if (!Playing)
                         NastavPoziciKurzoru(waveform1.CaretPosition, true, true);
                 }
                 ZobrazInformaceElementu(nastaveniAplikace.RichTag);
@@ -2575,7 +2594,7 @@ namespace NanoTrans
                         if (nastaveniAplikace.RichTag.tOdstavec == pTag.tOdstavec)   //dojde k uprave jestli souhlasi vybrany odstavec a odstavec ze ktereho je volana tato funkce
                         {
                             MyParagraph pP = myDataSource[pTag];
-                            int carretpos = (pTb.SelectionLength<=0)?pTb.CaretIndex:pTb.SelectionStart;
+                            int carretpos = (pTb.SelectionLength <= 0) ? pTb.CaretIndex : pTb.SelectionStart;
                             int pIndexZmeny = MyKONST.VratIndexZmenyStringu(nastaveniAplikace.CasoveZnackyText, tr, carretpos);// pTb.SelectionStart);
                             if (pIndexZmeny >= 0) //doslo ke zmene ve stringu
                             {
@@ -2791,6 +2810,8 @@ namespace NanoTrans
                     fileDialog.Filter += "|Všechny soubory (*.*)|*.*";
                     fileDialog.FilterIndex = 1;
                     fileDialog.RestoreDirectory = true;
+
+                    blockfocus = true;
                     if (fileDialog.ShowDialog() == true)
                     {
                         if (myDataSource != null && !myDataSource.Ulozeno)
@@ -2834,7 +2855,7 @@ namespace NanoTrans
                             string pCestaXML = null;
                             if (this.PrevedKorpus(fileDialog.FileName, ref pCestaXML))
                             {
-                                if (pCestaXML != null) 
+                                if (pCestaXML != null)
                                     fileDialog.FileName = pCestaXML;
 
                             }
@@ -2910,8 +2931,10 @@ namespace NanoTrans
                         this.Title = MyKONST.NAZEV_PROGRAMU + " [" + myDataSource.JmenoSouboru + "]";
                         return true;
                     }
-                    else return false;
-
+                    else
+                    {
+                        return false;
+                    }
                 }
                 else
                 {
@@ -3088,30 +3111,30 @@ namespace NanoTrans
         {
 
 
-               StackTrace st = new StackTrace(true);
-     string trace = "";
-     foreach(var frame in  st.GetFrames())
-     {
-         trace+=frame.GetMethod().Name+frame.GetFileLineNumber()+">";
-     }
+            StackTrace st = new StackTrace(true);
+            string trace = "";
+            foreach (var frame in st.GetFrames())
+            {
+                trace += frame.GetMethod().Name + frame.GetFileLineNumber() + ">";
+            }
 
-     //Debug.WriteLine(position);
+            //Debug.WriteLine(position);
 
-     if (position < oldms && Playing)
-     {
-         Debug.WriteLine("skok");
+            if (position < oldms && Playing)
+            {
+                Debug.WriteLine("skok");
 
-         position = oldms;
-         Debug.WriteLine(position);
-         Debug.WriteLine(laststack);
-         Debug.WriteLine(trace);
-     }
-     else
-     {
-         oldms = TimeSpan.Zero;
-     }
-     laststack = trace;
-     oldms = position;
+                position = oldms;
+                Debug.WriteLine(position);
+                Debug.WriteLine(laststack);
+                Debug.WriteLine(trace);
+            }
+            else
+            {
+                oldms = TimeSpan.Zero;
+            }
+            laststack = trace;
+            oldms = position;
 
 
             try
@@ -3119,8 +3142,9 @@ namespace NanoTrans
 
                 if (position < TimeSpan.Zero) return;
                 waveform1.CaretPosition = position;
-                
-                
+                if (!Playing)
+                    oldms = TimeSpan.Zero;
+
                 if (!Playing && jeVideo && Math.Abs(meVideo.Position.TotalMilliseconds) > 200)
                 {
                     meVideo.Position = waveform1.CaretPosition;
@@ -3139,10 +3163,10 @@ namespace NanoTrans
                         }
                     }
 
-                    if (pTagy.Count > 0) // nechceme kazdy pruchod chybu...
-                    {
-                        VyberElement(pTagy[0], aNeskakatNaZacatekElementu);
-                    }
+                    //if (pTagy.Count > 0) // nechceme kazdy pruchod chybu...
+                    //{
+                    //    VyberElement(pTagy[0], aNeskakatNaZacatekElementu);
+                    //}
                 }
             }
             catch (Exception ex)
@@ -3214,10 +3238,10 @@ namespace NanoTrans
                 {
                     pTag = pTagy[0];
                 }
-                if (pTag != null)
-                {
-                    VyberElement(pTag, true);
-                }
+                //if (pTag != null)
+                //{
+                //    VyberElement(pTag, true);
+                //}
 
 
                 if (nastaveniAplikace.RichTag != null)
@@ -3335,14 +3359,15 @@ namespace NanoTrans
 
                     if (prehratVyber && playpos >= waveform1.SelectionEnd && waveform1.SelectionEnd >= TimeSpan.Zero)
                     {
-                        
-                        if (MWP != null)
-                            MWP.Pause();
+
+                        Playing = false;
 
                         oldms = TimeSpan.Zero;
                         NastavPoziciKurzoru(waveform1.SelectionBegin, true, true);
 
                         playpos = waveform1.CaretPosition;
+
+                        Playing = true;
                         if (MWP != null)
                             MWP.Play(MWP.PlaySpeed);
 
@@ -3365,10 +3390,10 @@ namespace NanoTrans
                     {
                         long pKonec = celkMilisekundy - (long)waveform1.WaveLengthDelta.TotalMilliseconds + rozdil;
                         long pPocatekMS = pKonec - rozdil;
-                        if (pKonec > waveform1.WaveEnd.TotalMilliseconds) 
+                        if (pKonec > waveform1.WaveEnd.TotalMilliseconds)
                             pPocatekMS = (long)waveform1.CaretPosition.TotalMilliseconds - rozdil / 2;
 
-                        if (pPocatekMS < 0) 
+                        if (pPocatekMS < 0)
                             pPocatekMS = 0;
                         pKonec = pPocatekMS + rozdil;
                         mSekundyKonec = pKonec;
@@ -3409,7 +3434,7 @@ namespace NanoTrans
                         }
                     }
                 }
-                else if (oWav.Nacteno && (waveform1.AudioBufferBegin > TimeSpan.Zero && celkMilisekundy < waveform1.AudioBufferBegin.TotalMilliseconds+ (waveform1.AudioBufferEnd - waveform1.AudioBufferBegin).TotalMilliseconds * 0.2) || pPozadovanyPocatekVlny < waveform1.AudioBufferBegin.TotalMilliseconds)
+                else if (oWav.Nacteno && (waveform1.AudioBufferBegin > TimeSpan.Zero && celkMilisekundy < waveform1.AudioBufferBegin.TotalMilliseconds + (waveform1.AudioBufferEnd - waveform1.AudioBufferBegin).TotalMilliseconds * 0.2) || pPozadovanyPocatekVlny < waveform1.AudioBufferBegin.TotalMilliseconds)
                 {
                     if (!oWav.NacitaniBufferu && !nahled) //pokud jiz neni nacitano vlakno,dojde k inicializaci threadu
                     {
@@ -3480,7 +3505,7 @@ namespace NanoTrans
                         Playing = false;
 
                         waveform1.CaretPosition = TimeSpan.Zero;
-                      //  pIndexBufferuVlnyProPrehrani = 0;
+                        //  pIndexBufferuVlnyProPrehrani = 0;
 
 
                         pbPrevodAudio.Value = 0;
@@ -3610,7 +3635,7 @@ namespace NanoTrans
         {
             if (this.Dispatcher.Thread != System.Threading.Thread.CurrentThread)
             {
-                this.Dispatcher.Invoke(new DelegatVyberElementu(VyberElement), aTagVyberu, aNezastavovatPrehravani );
+                this.Dispatcher.Invoke(new DelegatVyberElementu(VyberElement), aTagVyberu, aNezastavovatPrehravani);
 
                 return false;
             }
@@ -3673,7 +3698,7 @@ namespace NanoTrans
                     MWP.Dispose();
                     MWP = null;
                 }
-                MWP = new MyWavePlayer(nastaveniAplikace.audio.VystupniZarizeniIndex,4800, WOP_ChciData);
+                MWP = new MyWavePlayer(nastaveniAplikace.audio.VystupniZarizeniIndex, 4800, WOP_ChciData);
                 return true;
             }
             catch
@@ -3709,7 +3734,7 @@ namespace NanoTrans
         private void button3_Click(object sender, RoutedEventArgs e)
         {
             mediaElement1.Stop();
-            
+
             Playing = false;
             waveform1.CaretPosition = TimeSpan.Zero;
         }
@@ -3850,8 +3875,8 @@ namespace NanoTrans
                 TimeSpan pDelka = TimeSpan.FromMilliseconds(long.Parse(pButton.Tag.ToString()));
                 TimeSpan pPocatek = waveform1.WaveBegin;
                 TimeSpan pKonec = waveform1.WaveBegin + pDelka;
-                if (pKonec < waveform1.WaveBegin) 
-                    pPocatek = waveform1.CaretPosition - TimeSpan.FromTicks( pDelka.Ticks / 2);
+                if (pKonec < waveform1.WaveBegin)
+                    pPocatek = waveform1.CaretPosition - TimeSpan.FromTicks(pDelka.Ticks / 2);
 
                 if (pPocatek < TimeSpan.Zero) pPocatek = TimeSpan.Zero;
                 pKonec = pPocatek + pDelka;
@@ -3892,7 +3917,7 @@ namespace NanoTrans
                             }
                         }
 
-                        if (oknoNapovedy!=null && !oknoNapovedy.IsLoaded)
+                        if (oknoNapovedy != null && !oknoNapovedy.IsLoaded)
                         {
                             oknoNapovedy.Close();
                         }
@@ -3907,7 +3932,7 @@ namespace NanoTrans
 
 
                 }
-                else if (oknoNapovedy!=null && oknoNapovedy.IsLoaded)
+                else if (oknoNapovedy != null && oknoNapovedy.IsLoaded)
                 {
                     oknoNapovedy.Close();
                 }
@@ -4005,7 +4030,7 @@ namespace NanoTrans
             catch (Exception ex)
             {
                 MyLog.LogujChybu(ex);
-                
+
             }
         }
 
@@ -4128,10 +4153,10 @@ namespace NanoTrans
                     }
                 }
                 );
-            t.Start();  
-          
-            
-                //refresh uz vykreslenych textboxu
+            t.Start();
+
+
+            //refresh uz vykreslenych textboxu
             HidInit();
             try
             {
@@ -4145,14 +4170,14 @@ namespace NanoTrans
             }
 
             string foldername = System.IO.Path.GetRandomFileName();
-            string temppath = System.IO.Path.GetTempPath()+"NanoTrans\\";
+            string temppath = System.IO.Path.GetTempPath() + "NanoTrans\\";
 
             Directory.CreateDirectory(temppath);
             DeleteUnusedTempFolders(temppath);
             temppath = temppath + foldername;
             Directory.CreateDirectory(temppath);
             TempCheckMutex = new Mutex(true, "NanoTransMutex_" + foldername);
-            MyKONST.CESTA_DOCASNYCH_SOUBORU_ZVUKU = temppath+"\\";
+            MyKONST.CESTA_DOCASNYCH_SOUBORU_ZVUKU = temppath + "\\";
         }
         private static Mutex TempCheckMutex;
 
@@ -4168,7 +4193,7 @@ namespace NanoTrans
                 {
                     //ziskal sem nezaregistrovany pristup ke slozce.. smazat
                     bool isnew;
-                    using (Mutex m = new Mutex(true, "NanoTransMutex_" + dir.Name,out isnew))
+                    using (Mutex m = new Mutex(true, "NanoTransMutex_" + dir.Name, out isnew))
                     {
                         if (isnew)
                         {
@@ -4179,15 +4204,15 @@ namespace NanoTrans
 
                             dir.Delete();
                         }
-                    
+
                     }
                 }
                 catch
                 { }
-            
+
             }
 
-            
+
         }
 
 
@@ -4631,7 +4656,7 @@ namespace NanoTrans
             if (this.Dispatcher.Thread != System.Threading.Thread.CurrentThread)
             {
                 //do invoke stuff here
-                this.Dispatcher.Invoke(new Action<string>(ZobrazStavProgramu),  aZprava );
+                this.Dispatcher.Invoke(new Action<string>(ZobrazStavProgramu), aZprava);
                 return;
             }
             tbStavProgramu.Text = aZprava;
@@ -5793,7 +5818,7 @@ namespace NanoTrans
             if (this.Dispatcher.Thread != System.Threading.Thread.CurrentThread)
             {
                 //do invoke stuff here
-                
+
                 this.Dispatcher.Invoke(new RoutedEventHandler(menuItemNastrojeFonetickyPrepis_Click), new object[] { sender, e });
                 return;
             }
@@ -6174,7 +6199,7 @@ namespace NanoTrans
         {
             if (this.Dispatcher.Thread != System.Threading.Thread.CurrentThread)
             {
-                this.Dispatcher.Invoke(new Action<int>(NactiPolozkuDavkovehoZpracovani),  aIndexPolozky);
+                this.Dispatcher.Invoke(new Action<int>(NactiPolozkuDavkovehoZpracovani), aIndexPolozky);
                 return;
             }
             if (lbDavkoveNacteni.Items.Count == 0) return;
@@ -6246,7 +6271,7 @@ namespace NanoTrans
                                     {
                                         MyBuffer16 pBuffer = new MyBuffer16(pp.DelkaMS);
                                         pBuffer.UlozDataDoBufferu(pWAV.NacitanyBufferSynchronne.data, pWAV.NacitanyBufferSynchronne.pocatecniCasMS, pWAV.NacitanyBufferSynchronne.koncovyCasMS);
-                                        MyWav.VytvorWavSoubor(pBuffer,pJmenoSouboruWAV.Replace(".wav", "_phonetic" + prozsirit + ".wav"));
+                                        MyWav.VytvorWavSoubor(pBuffer, pJmenoSouboruWAV.Replace(".wav", "_phonetic" + prozsirit + ".wav"));
                                     }
 
                                 }
@@ -6357,7 +6382,7 @@ namespace NanoTrans
         }
 
         #region nerecove znacky
-       
+
         private void toolBar1_Loaded(object sender, RoutedEventArgs e)
         {
             int index = 1;
@@ -6646,6 +6671,7 @@ namespace NanoTrans
             if (!Playing)
             {
                 pIndexBufferuVlnyProPrehrani = (int)e.Value.TotalMilliseconds;
+                oldms = TimeSpan.Zero;
             }
         }
 
