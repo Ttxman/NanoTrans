@@ -152,6 +152,7 @@ namespace NanoTrans
                 {
 
                     MyTag x = (MyTag)((TextBox)(sender)).Tag;
+                    MyTag xfon = new MyTag(x) {tTypElementu = MyEnumTypElementu.foneticky };
                     MyParagraph para = myDataSource[x];
                     MyTag next = myDataSource.VratOdstavecNasledujiciTag(x);
 
@@ -166,6 +167,7 @@ namespace NanoTrans
                         MenuItemFonetickeVarianty_Click(null, new RoutedEventArgs());
                         return;
                     }
+
                     if ((x.tOdstavec > -1))
                     {
                         if (!e.IsRepeat)
@@ -180,30 +182,50 @@ namespace NanoTrans
 
                             this.pUpravitOdstavec = false; //odstavec je upraven jiz zde, a nebude dale upravovan v udalosti text change
 
-
-
-                            //text budouciho odstavce
-                            ///FlowDocument flowDoc = ((RichTextBox)(sender)).Document;
-                            ///TextPointer zac = ((RichTextBox)(sender)).Selection.Start;
-                            ///TextPointer kon = flowDoc.ContentEnd.GetPositionAtOffset(-1);
-                            ///TextRange trDalsi = new TextRange(zac, kon);    //textrange budouciho odstavce
                             string trDalsi = "";
                             if (((TextBox)sender).Text.Length > ((TextBox)sender).SelectionStart) trDalsi = ((TextBox)sender).Text.Substring(((TextBox)sender).SelectionStart);
+
+
+
+                            
                             //casove znacky budouciho odstavce
                             List<MyCasovaZnacka> pNoveZnacky = myDataSource[x].VratCasoveZnackyTextu;
 
+                            
+                            bool fonetic = true;
+                            MyParagraph puvodnifon =  myDataSource[xfon];
+                            if(puvodnifon == null)
+                                fonetic = false;
+                            List<MyCasovaZnacka> pNoveZnackyFon = myDataSource[xfon].VratCasoveZnackyTextu;
 
+                            if(pNoveZnackyFon == null || pNoveZnackyFon.Count == 0)
+                                fonetic = false;
 
                             //smazani casovych znacek,ktere patri puvodnimu textboxu
                             int pDelkaTextu = pPuvodniOdstavec.Text.Length;
                             while (pNoveZnacky.Count > 0 && pNoveZnacky[0].Index2 < pDelkaTextu - trDalsi.Length)
                             {
                                 pNoveZnacky.RemoveAt(0);
+                                if(fonetic)
+                                    pNoveZnackyFon.RemoveAt(0);
+                            }
+
+                            string trdalsifon = "";
+                            string trAktualniFon = "";
+                            if (fonetic)
+                            {
+                                trdalsifon = myDataSource[xfon].Text.Substring(pNoveZnackyFon[0].Index1);
+                                trAktualniFon = myDataSource[xfon].Text.Substring(0,pNoveZnackyFon[0].Index1);
                             }
                             for (int i = 0; i < pNoveZnacky.Count; i++) //odecteni indexu casovych znacek
                             {
                                 pNoveZnacky[i].Index1 = pNoveZnacky[i].Index1 - (pDelkaTextu - trDalsi.Length);
                                 pNoveZnacky[i].Index2 = pNoveZnacky[i].Index2 - (pDelkaTextu - trDalsi.Length);
+                                if(fonetic)
+                                {
+                                    pNoveZnackyFon[i].Index1 = pNoveZnackyFon[i].Index1 - (pDelkaTextu - trDalsi.Length);
+                                    pNoveZnackyFon[i].Index2 = pNoveZnackyFon[i].Index2 - (pDelkaTextu - trDalsi.Length);
+                                }
                             }
 
 
@@ -223,8 +245,24 @@ namespace NanoTrans
                                 if (!leftCtrl) pSpeaker = myDataSource.VratSpeakera(x);
                                 //
 
-                                PridejOdstavec(x.tKapitola, x.tSekce, trDalsi, pNoveZnacky, x.tOdstavec, pomPoc, pomKon, pSpeaker);
+                                MyTag newparagraph = PridejOdstavec(x.tKapitola, x.tSekce, trDalsi, pNoveZnacky, x.tOdstavec, pomPoc, pomKon, pSpeaker);
 
+                                MyTag newparfon = new MyTag(newparagraph) { tTypElementu = MyEnumTypElementu.foneticky };
+
+                                MyParagraph mp= myDataSource[newparfon];
+                                
+                                if(fonetic)
+                                {
+
+                                    for (int i = 0; i < puvodnifon.Phrases.Count; i++)
+                                    {
+                                        if (puvodnifon.Phrases[i].begin >= pNoveZnackyFon[0].Time)
+                                        {
+                                            mp.Phrases.Add(puvodnifon.Phrases[i]);
+                                        }
+                                    }
+
+                                }
                                 //pokud nema dalsi odstavec text, musi se nastavit aby byl pozdeji odstavec upravovan
                                 if (trDalsi == null || trDalsi == "")
                                 {
@@ -247,8 +285,11 @@ namespace NanoTrans
                             //myDataSource.UpravElementOdstavce(x.tKapitola, x.tSekce, x.tOdstavec, trAktualni.Text, nastaveniAplikace.CasoveZnacky);
                             MyTag x2 = new MyTag(x);
                             x.tTypElementu = MyEnumTypElementu.normalni;
-                            myDataSource.UpravElementOdstavce(x2, trAktualni, myDataSource[x].VratCasoveZnackyTextu);
 
+                            xfon = new MyTag(x){tTypElementu = MyEnumTypElementu.foneticky};
+                            myDataSource.UpravElementOdstavce(x2, trAktualni, myDataSource[x].VratCasoveZnackyTextu);
+                            if(fonetic)
+                               myDataSource.UpravElementOdstavce(new MyTag(xfon), trAktualniFon, myDataSource[xfon].VratCasoveZnackyTextu);
                             ///flowDoc = VytvorFlowDocumentOdstavce(myDataSource[x));
                             //nastaveni aktualnich dat textboxu odstavce,aby nedochazelo ke zmenam
                             nastaveniAplikace.CasoveZnacky = myDataSource[x].VratCasoveZnackyTextu;
@@ -257,10 +298,12 @@ namespace NanoTrans
 
 
 
-
                             ///((RichTextBox)(sender)).Document = flowDoc;
                             ((TextBox)sender).Text = myDataSource[x].Text;
-
+                            
+                            if(fonetic)
+                                tbFonetickyPrepis.Text = myDataSource[xfon].Text;
+                            
                             if ((x.tOdstavec > -1) || (x.tSekce > -1))
                             {
                                 spSeznam.UpdateLayout();

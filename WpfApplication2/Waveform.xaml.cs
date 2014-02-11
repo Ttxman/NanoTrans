@@ -94,8 +94,10 @@ namespace NanoTrans
 
                 if (ts < WaveBegin || ts > WaveEnd)
                 {
+                    BeginUpdate();
                     SliderPostion = ts;
-                    return;
+                    EndUpdate();
+                    //return;
 
                 }
 
@@ -104,15 +106,6 @@ namespace NanoTrans
 
                 InvalidateCarret();
                 InvalidateSelection();
-
-                System.Diagnostics.StackTrace st = new StackTrace(true);
-                string trace = "";
-                foreach (var frame in st.GetFrames())
-                {
-                    trace += frame.GetMethod().Name + frame.GetFileLineNumber() + ">";
-                }
-
-                Debug.WriteLine("" + value + "_" + trace);
 
 
                 if (CarretPostionChanged != null)
@@ -1248,8 +1241,10 @@ namespace NanoTrans
             }
 
 
-
-            BeginUpdate();
+            bool updating = m_updating;
+            
+            if(!updating)
+                BeginUpdate();
 
 
 
@@ -1275,12 +1270,12 @@ namespace NanoTrans
 
             CaretPosition = TimeSpan.FromMilliseconds(e.NewValue);
 
-            if (CarretPostionChangedByUser != null)
+            if (CarretPostionChangedByUser != null && !updating)
                 CarretPostionChangedByUser(this, new TimeSpanEventArgs(this.CaretPosition));
             InvalidateWaveform();
 
-
-            EndUpdate();
+            if (!updating)
+                EndUpdate();
         }
 
 

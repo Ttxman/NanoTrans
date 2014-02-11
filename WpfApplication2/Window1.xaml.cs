@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 //using System.Linq;
-using System.Text;
+using System.Text;  
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -137,7 +137,26 @@ namespace NanoTrans
         /// trida pro prehravani audio dat
         /// </summary>
         private MyWavePlayer MWP = null;
-        private int pIndexBufferuVlnyProPrehrani = 0;
+
+        private int m_pIndexBufferuVlnyProPrehrani = 0;
+        private int pIndexBufferuVlnyProPrehrani
+        {
+            get { return m_pIndexBufferuVlnyProPrehrani; }
+            set 
+            {
+                m_pIndexBufferuVlnyProPrehrani = value;
+                System.Diagnostics.StackTrace st = new StackTrace(true);
+                string trace = "";
+                foreach (var frame in st.GetFrames())
+                {
+                    trace += frame.GetMethod().Name + frame.GetFileLineNumber() + ">";
+                }
+
+                Debug.WriteLine("" + value + "_" + trace);
+            }
+
+        
+        }
         private bool pZacloPrehravani = false;
         private bool _playing = false;
         private bool Playing
@@ -1373,7 +1392,7 @@ namespace NanoTrans
                         short[] bfr = waveform1.GetAudioData(TimeSpan.FromMilliseconds(pIndexBufferuVlnyProPrehrani), TimeSpan.FromMilliseconds(150), TimeSpan.FromMilliseconds(pOmezeniMS));
                         zacatekbufferums = pIndexBufferuVlnyProPrehrani;
                         pIndexBufferuVlnyProPrehrani += 150;
-
+                        
                         if (pIndexBufferuVlnyProPrehrani > oWav.DelkaSouboruMS)
                         {
                             if (!prehratVyber)
@@ -2504,8 +2523,6 @@ namespace NanoTrans
 
 
                 }
-
-                //if (((TextBox)sender).SelectionLength > 0) e.Handled = true;
             }
             catch (Exception ex)
             {
@@ -3104,7 +3121,6 @@ namespace NanoTrans
 
 
         TimeSpan oldms = TimeSpan.Zero;
-        string laststack = "";
 
         //TODO: spatna zla a oskiliva metoda
         public void NastavPoziciKurzoru(TimeSpan position, bool nastavitMedia, bool aNeskakatNaZacatekElementu)
@@ -3117,24 +3133,6 @@ namespace NanoTrans
             {
                 trace += frame.GetMethod().Name + frame.GetFileLineNumber() + ">";
             }
-
-            //Debug.WriteLine(position);
-
-            if (position < oldms && Playing)
-            {
-                Debug.WriteLine("skok");
-
-                position = oldms;
-                Debug.WriteLine(position);
-                Debug.WriteLine(laststack);
-                Debug.WriteLine(trace);
-            }
-            else
-            {
-                oldms = TimeSpan.Zero;
-            }
-            laststack = trace;
-            oldms = position;
 
 
             try
@@ -3163,10 +3161,10 @@ namespace NanoTrans
                         }
                     }
 
-                    //if (pTagy.Count > 0) // nechceme kazdy pruchod chybu...
-                    //{
-                    //    VyberElement(pTagy[0], aNeskakatNaZacatekElementu);
-                    //}
+                    if (pTagy.Count > 0 && !prehratVyber) // nechceme kazdy pruchod chybu...
+                    {
+                        VyberElement(pTagy[0], aNeskakatNaZacatekElementu);
+                    }
                 }
             }
             catch (Exception ex)
@@ -3228,6 +3226,97 @@ namespace NanoTrans
             }
         }
 
+        private void VyberFonetikuMeziCasovymiZnackami(long aPoziceKurzoru)
+        {
+            try
+            {
+                MyTag pTag = new MyTag(nastaveniAplikace.RichTag);
+                pTag.tTypElementu = MyEnumTypElementu.foneticky;
+                
+                List<MyTag> pTagy = myDataSource.VratElementDanehoCasu(aPoziceKurzoru, pTag);
+                if (pTagy != null && pTagy.Count > 0)
+                {
+                    pTag = pTagy[0];
+                }
+                if (pTag != null && !prehratVyber)
+                {
+                    VyberElement(pTag, true);
+                }
+
+
+                if (nastaveniAplikace.RichTag != null)
+                {
+                    MyParagraph pP = myDataSource[pTag];
+                    List<MyCasovaZnacka> pCasZnacky = null;
+                    if (pP != null) pCasZnacky = pP.VratCasoveZnackyTextu;
+                    if (pCasZnacky != null && pCasZnacky.Count > 1)
+                    {
+                        TextBox pRTB = tbFonetickyPrepis;
+
+                        if (aPoziceKurzoru >= pP.begin && aPoziceKurzoru <= pP.end)
+                        {
+                            int aIndex1 = -1;
+                            int aIndex2 = -1;
+                            int i1 = -1;
+                            int i2 = -1;
+
+                            for (int i = 0; i < pCasZnacky.Count; i++)
+                            {
+                                if (pCasZnacky[i].Time <= aPoziceKurzoru)
+                                {
+                                    aIndex1 = pCasZnacky[i].Index2;
+                                    i1 = i;
+                                }
+                                if (pCasZnacky[i].Time <= aPoziceKurzoru)
+                                {
+                                    if (aIndex1 >= 0)
+                                    {
+                                        aIndex2 = pCasZnacky[i].Index2;
+                                        i2 = i;
+                                    }
+                                }
+                                else
+                                {
+                                    if (aIndex1 >= 0 && aIndex2 >= 0 && pCasZnacky[i2].Time - pCasZnacky[i1].Time == 0)
+                                    {
+                                        i2 += 1;
+                                        if (i2 >= pCasZnacky.Count) i2 = pCasZnacky.Count - 1;
+                                    }
+                                    break;
+                                }
+                            }
+                            if (aIndex1 >= 0 && aIndex2 >= 0)
+                            {
+                                ///aIndex1+=2;
+                                aIndex2 = pCasZnacky[i2].Index2;// +2;
+
+
+
+
+                                ///pRTB.Selection.Select(pRTB.Document.ContentStart.GetPositionAtOffset(aIndex1), pRTB.Document.ContentStart.GetPositionAtOffset(aIndex2));
+                                pRTB.Select(aIndex1, aIndex2 - aIndex1);
+
+                            }
+                            else
+                            {
+                                aIndex1 = 0;
+                                aIndex2 = pCasZnacky[0].Index2;
+                                pRTB.Select(aIndex1, aIndex2 - aIndex1);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MyLog.LogujChybu(ex);
+            }
+
+
+        }
+
+
+
         private void VyberTextMeziCasovymiZnackami(long aPoziceKurzoru)
         {
             try
@@ -3238,10 +3327,10 @@ namespace NanoTrans
                 {
                     pTag = pTagy[0];
                 }
-                //if (pTag != null)
-                //{
-                //    VyberElement(pTag, true);
-                //}
+                if (pTag != null && !prehratVyber)
+                {
+                    VyberElement(pTag, true);
+                }
 
 
                 if (nastaveniAplikace.RichTag != null)
@@ -3312,6 +3401,8 @@ namespace NanoTrans
                 MyLog.LogujChybu(ex);
             }
 
+            VyberFonetikuMeziCasovymiZnackami(aPoziceKurzoru);
+
 
         }
 
@@ -3351,8 +3442,6 @@ namespace NanoTrans
                         {
                             meVideo.Pause();
                         }
-
-
                     }
 
 
@@ -4155,7 +4244,13 @@ namespace NanoTrans
                 );
             t.Start();
 
+            // foneticky prepis musi dostat oznaceni jinak pak nejsou videt zmeny kdyz neam focus (pri prehravani)
+            tbFonetickyPrepis.LostFocus += new RoutedEventHandler(tbFonetickyPrepis_LostFocus);
 
+            tbFonetickyPrepis.Text = " ";
+            tbFonetickyPrepis.Focus();
+            tbFonetickyPrepis.SelectionStart = 0;
+            tbFonetickyPrepis.SelectionLength = 1;
             //refresh uz vykreslenych textboxu
             HidInit();
             try
@@ -4178,6 +4273,11 @@ namespace NanoTrans
             Directory.CreateDirectory(temppath);
             TempCheckMutex = new Mutex(true, "NanoTransMutex_" + foldername);
             MyKONST.CESTA_DOCASNYCH_SOUBORU_ZVUKU = temppath + "\\";
+        }
+
+        void tbFonetickyPrepis_LostFocus(object sender, RoutedEventArgs e)
+        {
+           e.Handled = true;
         }
         private static Mutex TempCheckMutex;
 
@@ -6626,15 +6726,12 @@ namespace NanoTrans
 
         private void waveform1_SliderPositionChanged(object sender, Waveform.TimeSpanEventArgs e)
         {
-            if (Playing)
+            if (!Playing)
             {
-                if (jeVideo) meVideo.Pause();
-                Playing = false;
+                TimeSpan ts = e.Value;
+                pIndexBufferuVlnyProPrehrani = (int)ts.TotalMilliseconds;
+                if (jeVideo) meVideo.Position = ts;
             }
-
-            TimeSpan ts = e.Value;
-            pIndexBufferuVlnyProPrehrani = (int)ts.TotalMilliseconds;
-            if (jeVideo) meVideo.Position = ts;
         }
 
         private void waveform1_UpdateBegin(object sender, EventArgs e)
