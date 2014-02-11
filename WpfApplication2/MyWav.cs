@@ -796,11 +796,19 @@ namespace NanoTrans
                                     this._NacitaniBufferu = false;
                                     return false;
                                 }
-                                pfi = new FileInfo(docasneZvukoveSoubory[pIndexDocasneho]);
-                                pPocetVzorkuDocasneho = (pfi.Length - 44) / 2;
-                                pPocatecniIndexVSouboru = 44;
-                                pNacistDat = (int)(pPocetVzorkuDocasneho - pPocatecniIndexVSouboru);
 
+                                if (pIndexDocasneho < docasneZvukoveSoubory.Count)
+                                {
+                                    pfi = new FileInfo(docasneZvukoveSoubory[pIndexDocasneho]);
+                                    pPocetVzorkuDocasneho = (pfi.Length - 44) / 2;
+                                    pPocatecniIndexVSouboru = 44;
+                                    pNacistDat = (int)(pPocetVzorkuDocasneho - pPocatecniIndexVSouboru);
+                                }
+                                else
+                                {
+                                    hotovo = true;
+                                    
+                                }
 
 
                             }

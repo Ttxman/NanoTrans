@@ -4339,6 +4339,7 @@ namespace NanoTrans
 
                     if (prehratVyber && celkMilisekundy >= oVlna.KurzorVyberKonecMS && oVlna.KurzorVyberKonecMS > -1)
                     {
+                        oldms = 0;
                         NastavPoziciKurzoru(oVlna.KurzorVyberPocatekMS, true, true);
                         celkMilisekundy = oVlna.KurzorPoziceMS;
                     }
@@ -4687,7 +4688,7 @@ namespace NanoTrans
                     TimeSpan ts = new TimeSpan((long)(pPocatekPrvniZnacky_S * 1000 + i * 1000) * 10000);
 
                     Label lX = new Label();
-                    lX.Content = ts.Minutes.ToString("D2") + "m : " + ts.Seconds.ToString("D2") + "s";
+                    lX.Content = Math.Floor(ts.TotalMinutes).ToString() + "m : " + ts.Seconds.ToString("D2") + "s";
                     lX.Margin = new Thickness(pozice - 32, 0, 0, 0);
                     double d = lX.ActualWidth;
                     Rectangle r1 = new Rectangle();
@@ -7801,10 +7802,12 @@ namespace NanoTrans
                                 prehratVyber = true;
                                 if (oVlna.KurzorVyberPocatekMS > -1)
                                 {
+                                    
                                     long timems;
                                     if (oVlna.KurzorPoziceMS >= oVlna.KurzorVyberPocatekMS && oVlna.KurzorPoziceMS <= oVlna.KurzorVyberKonecMS)
                                     {
                                         timems = oVlna.KurzorVyberPocatekMS;
+                                        oldms = 0;
                                         List<MyTag> elementy = myDataSource.VratElementDanehoCasu(timems, null);
                                         NastavPoziciKurzoru(oVlna.KurzorVyberPocatekMS, true, false);
                                     }
