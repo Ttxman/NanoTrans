@@ -63,6 +63,15 @@ namespace NanoTrans
             set
             {
                 oVlna.KurzorVyberPocatekMS = (long)value.TotalMilliseconds;
+
+                StackTrace st = new StackTrace(true);
+                string trace = "";
+                foreach (var frame in st.GetFrames())
+                {
+                    trace += frame.GetMethod().Name + frame.GetFileLineNumber() + ">";
+                }
+                System.Diagnostics.Debug.WriteLine(trace);
+
                 InvalidateSelection();
             }
         }
@@ -602,7 +611,11 @@ namespace NanoTrans
             long zacatek = oVlna.KurzorVyberPocatekMS;
             long konec = oVlna.KurzorVyberKonecMS;
             if (konec < zacatek)
+            {
+                long bf = konec;
                 konec = zacatek;
+                zacatek = konec;
+            }
             long kurzor = oVlna.KurzorPoziceMS;
 
             if ((zacatek != -1 && konec != -1) || (zacatek != -1))
@@ -1210,7 +1223,6 @@ namespace NanoTrans
 
                 TimeSpan ts1 = TimeSpan.FromTicks((long)((WaveEnd - WaveBegin).Ticks * relative + WaveBegin.Ticks));
                 TimeSpan ts2 = downtime;
-                System.Diagnostics.Debug.WriteLine("pos " + ts1 + " ... " + ts2);
                 if (ts1 < ts2)
                 {
                     SelectionBegin = ts1;
@@ -1350,7 +1362,7 @@ namespace NanoTrans
             if (r2drag)
             {
                 p = e.GetPosition(myImage);
-                TimeSpan x = new TimeSpan((long)(p.X / myImage.ActualWidth * (WaveEnd - WaveBegin).Ticks));
+                TimeSpan x = new TimeSpan((long)(p.X / myImage.ActualWidth * (WaveEnd - WaveBegin).Ticks + WaveBegin.Ticks));
 
 
                 if (r2dragLeft)

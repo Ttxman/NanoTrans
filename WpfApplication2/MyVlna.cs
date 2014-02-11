@@ -80,7 +80,18 @@ namespace NanoTrans
         public long KurzorVyberPocatekMS
         {
             get { return _KurzorVyberPocatekMS; }
-            set { _KurzorVyberPocatekMS = value; }
+            set 
+            { 
+                _KurzorVyberPocatekMS = value;
+                StackTrace st = new StackTrace(true);
+                string trace = "";
+                foreach (var frame in st.GetFrames())
+                {
+                    trace += frame.GetMethod().Name + frame.GetFileLineNumber() + ">";
+                }
+                System.Diagnostics.Debug.WriteLine(trace);
+            
+            }
         }
         public long KurzorVyberKonecMS { get; set; }     //pozice kurzoru vyberu v ms
         
