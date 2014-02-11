@@ -111,8 +111,6 @@ namespace NanoTrans
 
         static long mSekundyKonec = 0;   //informace o pozici konce vykreslene vlny...
         short pocetTikuTimeru = 0;    //pomocna pro deleni tiku timeru
-        bool leftCtrl = false;
-        bool leftShift = false;
         bool skocitNaPoziciSlovaTextboxu = false;
         private bool pSkocitNahoru = false;
         private bool pSkocitDolu = false;
@@ -1673,9 +1671,8 @@ namespace NanoTrans
             cx.Background = nastaveniAplikace.BarvaTextBoxuOdstavce;
 
             richX.AcceptsReturn = false;
-            richX.AcceptsTab = true;
             richX.FontSize = nastaveniAplikace.SetupTextFontSize;
-
+            
             richX.HorizontalAlignment = HorizontalAlignment.Stretch;
             richX.Tag = new MyTag(aTag.tKapitola, aTag.tSekce, aTag.tOdstavec, richX);
             richX.TextChanged += new TextChangedEventHandler(RichText_TextChanged);
@@ -2310,7 +2307,7 @@ namespace NanoTrans
 
 
                 #region slinkovani se zvukem
-                if (leftCtrl && skocitNaPoziciSlovaTextboxu || (!Playing && !pTB.IsReadOnly && leftCtrl))
+                if (Keyboard.Modifiers == ModifierKeys.Control && skocitNaPoziciSlovaTextboxu || (!Playing && !pTB.IsReadOnly && Keyboard.Modifiers == ModifierKeys.Control))
                 {
                     skocitNaPoziciSlovaTextboxu = false;
                     TextBox pTB2 = ((TextBox)nastaveniAplikace.RichTag.tSender);
@@ -2362,11 +2359,11 @@ namespace NanoTrans
                     {
                         TextBox pTBPredchozi = (TextBox)((Grid)spSeznam.Children[index - 1]).Children[0];
                         pTBPredchozi.Focus();
-                        if (leftShift)
+                        if (Keyboard.Modifiers == ModifierKeys.Shift)
                         {
                             if (pPocatecniIndexVyberu > index - 1) pPocatecniIndexVyberu = index - 1; else pKoncovyIndexVyberu = index - 1;
                         }
-                        if (leftShift && pTBPredchozi.SelectionLength == 0)
+                        if (Keyboard.Modifiers == ModifierKeys.Shift && pTBPredchozi.SelectionLength == 0)
                         {
                             pTBPredchozi.CaretIndex = pTBPredchozi.Text.Length;
 
@@ -2379,12 +2376,12 @@ namespace NanoTrans
                     e.Handled = true;
                     TextBox pTBDalsi = (TextBox)((Grid)spSeznam.Children[index + 1]).Children[0];
                     pTBDalsi.Focus();
-                    if (leftShift && pTBDalsi.SelectionLength == 0)
+                    if (Keyboard.Modifiers == ModifierKeys.Shift && pTBDalsi.SelectionLength == 0)
                     {
                         pTBDalsi.CaretIndex = 0;
 
                     }
-                    if (leftShift)
+                    if (Keyboard.Modifiers == ModifierKeys.Shift)
                     {
                         if (pKoncovyIndexVyberu <= index + 1)
                         {
@@ -2414,6 +2411,7 @@ namespace NanoTrans
         void richX_GotFocus(object sender, RoutedEventArgs e)
         {
             popup.IsOpen = false;
+            searchtextoffset = 0;
             try
             {
                 if (pZiskatNovyIndex)
@@ -2437,28 +2435,35 @@ namespace NanoTrans
 
                 }
 
-                //provede zvyrazneni vyberu ve vlne podle dat
-                waveform1.CaretPosition = waveform1.SelectionBegin = TimeSpan.FromMilliseconds(myDataSource.VratCasElementuPocatek(nastaveniAplikace.RichTag));
-                waveform1.SelectionEnd = TimeSpan.FromMilliseconds(myDataSource.VratCasElementuKonec(nastaveniAplikace.RichTag));
-
-                //waveform1.SliderPostion = waveform1.SelectionEnd;
-
-                //nastaveni pozice kurzoru a obsluha prehravani podle nastaveni
-                if (nastaveniAplikace.SetupSkocitNaPozici && !pNeskakatNaZacatekElementu)
+                if (sender != tbFonetickyPrepis)//pri prekliku do fonetiky preskok obtezuje
                 {
-                    waveform1.CaretPosition = waveform1.SelectionBegin;
-                    pIndexBufferuVlnyProPrehrani = (int)waveform1.CaretPosition.TotalMilliseconds;
-                    if (nastaveniAplikace.SetupSkocitZastavit)
+                    //provede zvyrazneni vyberu ve vlne podle dat
+                    waveform1.CaretPosition = waveform1.SelectionBegin = TimeSpan.FromMilliseconds(myDataSource.VratCasElementuPocatek(nastaveniAplikace.RichTag));
+                    waveform1.SelectionEnd = TimeSpan.FromMilliseconds(myDataSource.VratCasElementuKonec(nastaveniAplikace.RichTag));
+
+                    //waveform1.SliderPostion = waveform1.SelectionEnd;
+
+                    //nastaveni pozice kurzoru a obsluha prehravani podle nastaveni
+                    if (nastaveniAplikace.SetupSkocitNaPozici && !pNeskakatNaZacatekElementu)
                     {
-                        if (jeVideo) meVideo.Play();
-                        Playing = false;
+                        waveform1.CaretPosition = waveform1.SelectionBegin;
+                        pIndexBufferuVlnyProPrehrani = (int)waveform1.CaretPosition.TotalMilliseconds;
+                        if (nastaveniAplikace.SetupSkocitZastavit)
+                        {
+                            if (jeVideo) meVideo.Play();
+                            Playing = false;
+                        }
                     }
-                }
-                if (pNeskakatNaZacatekElementu) pNeskakatNaZacatekElementu = false;
-                if (nastaveniAplikace.RichTag.JeOdstavec)
-                {
-                    if (!Playing)
-                        NastavPoziciKurzoru(waveform1.CaretPosition, true, true);
+
+
+
+
+                    if (pNeskakatNaZacatekElementu) pNeskakatNaZacatekElementu = false;
+                    if (nastaveniAplikace.RichTag.JeOdstavec)
+                    {
+                        if (!Playing)
+                            NastavPoziciKurzoru(waveform1.CaretPosition, true, true);
+                    }
                 }
                 ZobrazInformaceElementu(nastaveniAplikace.RichTag);
                 if (nastaveniAplikace.RichTag.tOdstavec > -1)
@@ -4215,6 +4220,7 @@ namespace NanoTrans
 
             InitCommands();
             m_findDialog = new FindDialog(this);
+            AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
 
             //inicializuje (asynchronni) nacitani slovniku
 
@@ -4276,6 +4282,11 @@ namespace NanoTrans
             Directory.CreateDirectory(temppath);
             TempCheckMutex = new Mutex(true, "NanoTransMutex_" + foldername);
             MyKONST.CESTA_DOCASNYCH_SOUBORU_ZVUKU = temppath + "\\";
+        }
+
+        void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            ExceptionCatchWindow w = new ExceptionCatchWindow(this,e.ExceptionObject as Exception);
         }
 
         void tbFonetickyPrepis_LostFocus(object sender, RoutedEventArgs e)
@@ -5287,7 +5298,7 @@ namespace NanoTrans
 
         private void menuItemFonetickyPrepis_Click(object sender, RoutedEventArgs e)
         {
-            ZobrazitOknoFonetickehoPrepisu(true);
+            CommandShowPanelFoneticTranscription.Execute(null, null);
         }
 
         private void btFonetickyPrepis_Click(object sender, RoutedEventArgs e)
@@ -5928,7 +5939,6 @@ namespace NanoTrans
 
 
             MyTag pTag = new MyTag(nastaveniAplikace.RichTag);
-            //btNormalizovat_Click(null, new RoutedEventArgs());
             Normalizovat(myDataSource, pTag, 1);
 
             SpustFonetickyPrepis(myDataSource, pTag, -1, -1);
@@ -6810,5 +6820,7 @@ namespace NanoTrans
         {
             ZobrazInformaceVyberu();
         }
+
+
     }
 }

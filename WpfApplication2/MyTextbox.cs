@@ -104,6 +104,7 @@ namespace NanoTrans
             m_stroredTCEvent = null;
         }
 
+        
         protected override void OnTextChanged(TextChangedEventArgs e)
         {
             if (!m_supressTextChangedEvent)

@@ -15,7 +15,7 @@ namespace NanoTrans
             b = but;
             
         }
-
+        
         #region ICommand Members
 
         public bool CanExecute(object parameter)

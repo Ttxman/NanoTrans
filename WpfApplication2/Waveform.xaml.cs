@@ -1108,8 +1108,6 @@ namespace NanoTrans
             }
 
 
-            bool leftShift = (Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift;
-            bool leftCtrl = (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control;
             Point position;
             if (sender.GetType() == grid1.GetType())
             {
@@ -1148,37 +1146,38 @@ namespace NanoTrans
 
                 if (pAktualni != null)
                 {
-                    if (r2dragLeft && pPredchozi != null && (!leftShift || sekcepred != sekce))
+                    bool leftshift = Keyboard.Modifiers == ModifierKeys.Shift;
+                    if (r2dragLeft && pPredchozi != null && (leftshift || sekcepred != sekce))
                     {
                         bool rozhrani = false;
                         if (sekcepred != sekce) //rozhrani sekci
                         {
                             rozhrani = true;
-                            leftShift = false;
+                            leftshift = false;
                         }
                         //upraveni predchoziho elementu
                         if ((pPredchozi.end == pAktualni.begin && !rozhrani) || pPredchozi.end > oVlna.KurzorVyberPocatekMS)
                         {
-                            m_subtitlesData.UpravCasZobraz(pPredchoziTag, -2, oVlna.KurzorVyberPocatekMS, !leftShift);
+                            m_subtitlesData.UpravCasZobraz(pPredchoziTag, -2, oVlna.KurzorVyberPocatekMS, !leftshift);
                             if (ElementChanged != null)
                                 ElementChanged(this, new MyTagEventArgs(pPredchoziTag));
 
                         }
                     }
-                    if (!r2dragLeft && pNasledujici != null && (!leftShift || sekceza != sekce))
+                    if (!r2dragLeft && pNasledujici != null && (!leftshift || sekceza != sekce))
                     {
                         bool rozhrani = false;
                         if (sekceza != sekce)//rozhrani sekci
                         {
                             rozhrani = true;
-                            leftShift = false;
+                            leftshift = false;
                         }
 
                         //upraveni nasl. elementu
                         if ((pNasledujici.begin == pAktualni.end && !rozhrani) || pNasledujici.begin < oVlna.KurzorVyberKonecMS)
                         {
 
-                            m_subtitlesData.UpravCasZobraz(pNasledujiciTag, oVlna.KurzorVyberKonecMS, -2, !leftShift);
+                            m_subtitlesData.UpravCasZobraz(pNasledujiciTag, oVlna.KurzorVyberKonecMS, -2, !leftshift);
                             if (ElementChanged != null)
                                 ElementChanged(this, new MyTagEventArgs(pNasledujiciTag));
                         }
@@ -1187,7 +1186,7 @@ namespace NanoTrans
 
                     long pNovyPocatek = oVlna.KurzorVyberPocatekMS;
                     long pNovyKonec = oVlna.KurzorVyberKonecMS;
-                    if (leftShift)
+                    if (Keyboard.Modifiers == ModifierKeys.Shift)
                     {
                         if (!r2dragLeft)
                             pNovyPocatek = -2;
@@ -1195,7 +1194,7 @@ namespace NanoTrans
                             pNovyKonec = -2;
                     }
 
-                    bool aStav = m_subtitlesData.UpravCasZobraz(atag, pNovyPocatek, pNovyKonec, !leftShift) != null;
+                    bool aStav = m_subtitlesData.UpravCasZobraz(atag, pNovyPocatek, pNovyKonec, !leftshift) != null;
 
 
                     if (ElementChanged != null)
@@ -1440,7 +1439,7 @@ namespace NanoTrans
                 MyParagraph pAktualni = m_subtitlesData[r2dragelement];
                 MyTag pNasledujiciTag = m_subtitlesData.VratOdstavecNasledujiciTag(r2dragelement);
                 MyParagraph pNasledujici = m_subtitlesData[pNasledujiciTag];
-                bool leftShift = Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift);
+                bool shift = Keyboard.Modifiers == ModifierKeys.Shift;
                 int sekce = r2dragelement.tSekce;
                 int sekcepred = -1;
                 if (pPredchoziTag != null)
@@ -1456,7 +1455,7 @@ namespace NanoTrans
                     long actuale = m_subtitlesData.VratCasElementuKonec(r2dragelement);
                     long pNovyPocatek = oVlna.KurzorVyberPocatekMS;
                     long pNovyKonec = oVlna.KurzorVyberKonecMS;
-                    if (leftShift)
+                    if (Keyboard.Modifiers == ModifierKeys.Shift)
                     {
                         if (!r2dragLeft)
                             pNovyPocatek = -2;
@@ -1464,7 +1463,7 @@ namespace NanoTrans
                             pNovyKonec = -2;
                     }
 
-                    m_subtitlesData.UpravCasZobraz(r2dragelement, pNovyPocatek, pNovyKonec, leftShift);
+                    m_subtitlesData.UpravCasZobraz(r2dragelement, pNovyPocatek, pNovyKonec, Keyboard.Modifiers == ModifierKeys.Shift);
 
                     //musi to tu byt dvakrat ta funkce si vnitne meni hodnoty...
                     oVlna.KurzorVyberPocatekMS = m_subtitlesData.VratCasElementuPocatek(r2dragelement);
@@ -1482,15 +1481,15 @@ namespace NanoTrans
                     if (r2dragLeft && pPredchozi != null)
                     {
                         if (pPredchozi.end > pAktualni.begin)
-                            leftShift = true;
+                            shift = true;
                     }
                     else if (!r2dragLeft && pNasledujici != null)
                     {
                         if (pAktualni.end > pNasledujici.begin)
-                            leftShift = true;
+                            shift = true;
                     }
 
-                    if (leftShift)
+                    if (Keyboard.Modifiers == ModifierKeys.Shift)
                     {
                         if (!r2dragLeft)
                             pNovyPocatek = -2;
@@ -1498,34 +1497,34 @@ namespace NanoTrans
                             pNovyKonec = -2;
                     }
 
-                    if (r2dragLeft && pPredchozi != null && (!leftShift || sekcepred != sekce))
+                    if (r2dragLeft && pPredchozi != null && (!shift || sekcepred != sekce))
                     {
                         bool rozhrani = false;
                         if (sekcepred != sekce) //rozhrani sekci
                         {
-                            leftShift = false;
+                            shift = false;
                             rozhrani = true;
                         }
 
                         if ((pPredchozi.end == actualb && !rozhrani) || pNasledujici.begin < oVlna.KurzorVyberKonecMS)
                         {
-                            m_subtitlesData.UpravCasZobraz(pPredchoziTag, -2, pNovyPocatek, leftShift);
+                            m_subtitlesData.UpravCasZobraz(pPredchoziTag, -2, pNovyPocatek, Keyboard.Modifiers == ModifierKeys.Shift);
                         }
 
                     }
-                    if (!r2dragLeft && pNasledujici != null && (!leftShift || sekceza != sekce))
+                    if (!r2dragLeft && pNasledujici != null && (!shift || sekceza != sekce))
                     {
                         bool rozhrani = false;
                         if (sekceza != sekce)//rozhrani sekci
                         {
                             rozhrani = true;
-                            leftShift = false;
+                            shift = false;
                         }
 
                         //upraveni nasl. elementu
                         if ((pNasledujici.begin == actuale && !rozhrani) || pNasledujici.begin < oVlna.KurzorVyberKonecMS)
                         {
-                            m_subtitlesData.UpravCasZobraz(pNasledujiciTag, pNovyKonec, -2, leftShift);
+                            m_subtitlesData.UpravCasZobraz(pNasledujiciTag, pNovyKonec, -2, Keyboard.Modifiers == ModifierKeys.Shift);
                         }
                     }
 

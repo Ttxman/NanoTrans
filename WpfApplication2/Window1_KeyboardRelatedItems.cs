@@ -33,23 +33,42 @@ namespace NanoTrans
     public partial class Window1 : Window
     {
         #region WPF commandy...
-        public static RoutedCommand CFindDialog = new RoutedCommand();
-
+        public static RoutedCommand CommandFindDialog = new RoutedCommand();
+        public static RoutedCommand CommandPlayPause = new RoutedCommand();
+        public static RoutedCommand CommandScrollUp = new RoutedCommand();
+        public static RoutedCommand CommandScrollDown = new RoutedCommand();
+        public static RoutedCommand CommandSmallJumpRight = new RoutedCommand();
+        public static RoutedCommand CommandSmallJumpLeft = new RoutedCommand();
+        public static RoutedCommand CommandMaximizeMinimize = new RoutedCommand();
+        public static RoutedCommand CommandAutomaticFoneticTranscription = new RoutedCommand();
+        public static RoutedCommand CommandShowPanelFoneticTranscription = new RoutedCommand();
 
         public void InitCommands()
         {
-            CFindDialog.InputGestures.Add(new KeyGesture(Key.F, ModifierKeys.Control));
-            CFindDialog.InputGestures.Add(new KeyGesture(Key.F3));
+            this.CommandBindings.Add(new CommandBinding(CommandFindDialog, CFindDialogExecute));
+            this.CommandBindings.Add(new CommandBinding(CommandPlayPause, CPlayPauseExecute));
+            this.CommandBindings.Add(new CommandBinding(CommandScrollUp, CScrollUP));
+            this.CommandBindings.Add(new CommandBinding(CommandScrollDown, CScrollDown));
+            this.CommandBindings.Add(new CommandBinding(CommandSmallJumpRight, CSmallJumpRight));
+            this.CommandBindings.Add(new CommandBinding(CommandSmallJumpLeft, CSmallJumpLeft));
+            this.CommandBindings.Add(new CommandBinding(CommandMaximizeMinimize, CMaximizeMinimize));
+            this.CommandBindings.Add(new CommandBinding(CommandAutomaticFoneticTranscription, CAutomaticFoneticTranscription));
+            this.CommandBindings.Add(new CommandBinding(CommandShowPanelFoneticTranscription, CShowPanelFoneticTranscription));
 
-            CommandBinding cb = new CommandBinding(CFindDialog, CFindDialogExecute, CFindDialogCanExecute);
-            this.CommandBindings.Add(cb);
-        }
 
 
+            CommandFindDialog.InputGestures.Add(new KeyGesture(Key.F, ModifierKeys.Control));
+            CommandFindDialog.InputGestures.Add(new KeyGesture(Key.F3));
+            CommandPlayPause.InputGestures.Add(new KeyGesture(Key.Tab));
+            CommandPlayPause.InputGestures.Add(new KeyGesture(Key.Tab, ModifierKeys.Control));
+            CommandScrollDown.InputGestures.Add(new KeyGesture(Key.PageDown));
+            CommandScrollUp.InputGestures.Add(new KeyGesture(Key.PageUp));
+            CommandSmallJumpRight.InputGestures.Add(new KeyGesture(Key.Right,ModifierKeys.Alt));
+            CommandSmallJumpLeft.InputGestures.Add(new KeyGesture(Key.Left, ModifierKeys.Alt));
+            CommandMaximizeMinimize.InputGestures.Add(new KeyGesture(Key.Return, ModifierKeys.Alt));
+            CommandAutomaticFoneticTranscription.InputGestures.Add(new KeyGesture(Key.F10, ModifierKeys.Alt));
 
-        private void CFindDialogCanExecute(object sender, CanExecuteRoutedEventArgs e)
-        {
-            e.CanExecute = true;
+
         }
 
         private void CFindDialogExecute(object sender, ExecutedRoutedEventArgs e)
@@ -66,11 +85,200 @@ namespace NanoTrans
             }
         }
 
+        private void CPlayPauseExecute(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (_playing)
+            {
+                if (jeVideo) meVideo.Pause();
+                prehratVyber = false;
+                Playing = false;
+                if (MWP != null)
+                {
+
+                    //TODO: proc enjsou tyhle 3 veci na jednom miste?
+                    waveform1.CaretPosition = MWP.PausedAt;
+                    //pIndexBufferuVlnyProPrehrani = (int)MWP.PausedAt.TotalMilliseconds;
+                }
+            }
+            else
+            {
+
+                bool adjustspeed = false;
+                if (Keyboard.Modifiers == ModifierKeys.Shift || ToolBar2BtnSlow.IsChecked == true)
+                {
+                    adjustspeed = true;
+                    meVideo.SpeedRatio = nastaveniAplikace.ZpomalenePrehravaniRychlost;
+                }
+                else
+                {
+                    meVideo.SpeedRatio = 1.0;
+                }
+
+                if (Keyboard.Modifiers == ModifierKeys.Control)
+                {
+                    prehratVyber = true;
+                    oldms = TimeSpan.Zero;
+                    //if (waveform1.CaretPosition >= waveform1.SelectionBegin && waveform1.CaretPosition <= waveform1.SelectionEnd)
+
+                    if ((waveform1.SelectionBegin - waveform1.SelectionEnd).Duration() > TimeSpan.FromMilliseconds(100))
+                    {
+                        NastavPoziciKurzoru(waveform1.SelectionBegin, true, false);
+                    }
+                    else
+                    {
+                        MyParagraph par = myDataSource[nastaveniAplikace.RichTag];
+                        long konec = myDataSource.VratCasElementuPocatek(nastaveniAplikace.RichTag) + 5;
+                        NastavPoziciKurzoru(TimeSpan.FromMilliseconds(konec), true, true);
+                        waveform1.SelectionBegin = TimeSpan.FromMilliseconds(konec);
+                        waveform1.SelectionEnd = TimeSpan.FromMilliseconds(konec + 120000);
+                    }
+
+                }
+                if (jeVideo) meVideo.Play();
+                //spusteni prehravani pomoci tlacitka-kvuli nacteni primeho prehravani
+
+                Playing = true;
+
+                if (adjustspeed)
+                    MWP.Play(nastaveniAplikace.ZpomalenePrehravaniRychlost);
+                else
+                    MWP.Play();
+
+            }
+        }
+
+        private void CScrollDown(object sender, ExecutedRoutedEventArgs e)
+        {
+            double pOffset = svDokument.VerticalOffset;
+            svDokument.ScrollToVerticalOffset(svDokument.VerticalOffset + svDokument.ViewportHeight * 0.8);
+            svDokument.UpdateLayout();
+            if (pOffset == svDokument.VerticalOffset)
+            {
+                (spSeznam.Children[spSeznam.Children.Count - 1] as Grid).Children[0].Focus();
+                return;
+            }
+            // position of your visual inside the scrollviewer    
+            Grid pGNalezen = null;
+            for (int i = 0; i < spSeznam.Children.Count; i++)
+            {
+                Grid pG = (spSeznam.Children[i] as Grid);
+                GeneralTransform childTransform = pG.TransformToAncestor(svDokument);
+                Rect rectangle = childTransform.TransformBounds(new Rect(new Point(0, 0), pG.RenderSize));
+                //Check if the elements Rect intersects with that of the scrollviewer's
+                Rect result = Rect.Intersect(new Rect(new Point(0, 0), svDokument.RenderSize), rectangle);
+                //if result is Empty then the element is not in view
+                if (result == Rect.Empty)
+                {
+                    if (pGNalezen != null)
+                    {
+                        pGNalezen.Children[0].Focus();
+                    }
+                }
+                else
+                {
+                    if (pGNalezen == null)
+                    {
+                        pGNalezen = pG;
+                    }
+                    else
+                    {
+                        pG.Children[0].Focus();
+                        break;
+                    }
+                    //obj is partially Or completely visible
+                }
+            }
+
+
+        }
+
+        private void CScrollUP(object sender, ExecutedRoutedEventArgs e)
+        {
+            e.Handled = true;
+            double pOffset = svDokument.VerticalOffset;
+            svDokument.ScrollToVerticalOffset(svDokument.VerticalOffset - svDokument.ViewportHeight * 0.8);
+            svDokument.UpdateLayout();
+            if (pOffset == svDokument.VerticalOffset)
+            {
+                (spSeznam.Children[0] as Grid).Children[0].Focus();
+                return;
+            }
+            // position of your visual inside the scrollviewer    
+            Grid pGNalezen = null;
+            for (int i = 0; i < spSeznam.Children.Count; i++)
+            {
+                Grid pG = (spSeznam.Children[i] as Grid);
+                GeneralTransform childTransform = pG.TransformToAncestor(svDokument);
+                Rect rectangle = childTransform.TransformBounds(new Rect(new Point(0, 0), pG.RenderSize));
+                //Check if the elements Rect intersects with that of the scrollviewer's
+                Rect result = Rect.Intersect(new Rect(new Point(0, 0), svDokument.RenderSize), rectangle);
+                //if result is Empty then the element is not in view
+                if (result == Rect.Empty)
+                {
+                    if (pGNalezen != null)
+                    {
+                        pGNalezen.Children[0].Focus();
+                    }
+                }
+                else
+                {
+                    if (pGNalezen == null)
+                    {
+                        pGNalezen = pG;
+                    }
+                    else
+                    {
+                        pG.Children[0].Focus();
+                        break;
+                    }
+                    //obj is partially Or completely visible
+                }
+            }
+
+
+        }
+
+        private void CSmallJumpRight(object sender, ExecutedRoutedEventArgs e)
+        {
+           NastavPoziciKurzoru(waveform1.CaretPosition + waveform1.SmallJump, true, true);
+        }
+
+        private void CSmallJumpLeft(object sender, ExecutedRoutedEventArgs e)
+        {
+            NastavPoziciKurzoru(waveform1.CaretPosition - waveform1.SmallJump, true, true);
+        }
+
+        private void CMaximizeMinimize(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (this.WindowState == WindowState.Normal)
+            {
+                this.WindowState = WindowState.Maximized;
+            }
+            else if (this.WindowState == WindowState.Maximized)
+            {
+                this.WindowState = WindowState.Normal;
+            }
+        }
+
+        private void CAutomaticFoneticTranscription(object sender, ExecutedRoutedEventArgs e)
+        {
+            menuItemNastrojeFonetickyPrepis_Click(null, new RoutedEventArgs());
+            menuItemFonetickyPrepis_Click(null, new RoutedEventArgs());
+        }
+
+        private void CShowPanelFoneticTranscription(object sender, ExecutedRoutedEventArgs e)
+        {
+            ZobrazitOknoFonetickehoPrepisu(true);
+        }
+
+
+
+
 
         int searchtextoffset = 0;
         public void FindNext(string pattern, bool isregex, bool CaseSensitive)
-        { 
-            if(nastaveniAplikace.RichTag == null)
+        {
+            if (nastaveniAplikace.RichTag == null)
                 return;
             MyTag tag = nastaveniAplikace.RichTag;
 
@@ -105,19 +313,19 @@ namespace NanoTrans
                                 tb.Select(searchtextoffset - pattern.Length, pattern.Length);
                                 return;
                             }
-                        
+
                         }
-                    
+
                     }
-                
-                
-                
+
+
+
                 }
 
 
 
 
-            
+
             }
         }
 
@@ -213,6 +421,20 @@ namespace NanoTrans
                 popup.IsOpen = false;
             }
 
+            if (e.Key == Key.PageUp || e.Key == Key.PageDown) // klavesy, ktere textbox krade, posleme rucne parentu...
+            {
+                e.Handled = true;
+                KeyEventArgs kea = new KeyEventArgs((KeyboardDevice)e.Device, PresentationSource.FromVisual(this), e.Timestamp, e.Key) { RoutedEvent = Window1.PreviewKeyDownEvent };
+                RaiseEvent(kea);
+                if (!kea.Handled)
+                {
+                    kea.RoutedEvent = Window1.KeyDownEvent;
+                    RaiseEvent(kea);
+                }
+
+
+                return;
+            }
 
             try
             {
@@ -220,8 +442,6 @@ namespace NanoTrans
                 MyTag mT = (MyTag)((TextBox)(sender)).Tag;
                 TextBox pTB = ((TextBox)sender);
 
-                if (e.KeyboardDevice.Modifiers == ModifierKeys.Shift) leftShift = true; else leftShift = false;
-                if (e.KeyboardDevice.Modifiers == ModifierKeys.Control) leftCtrl = true; else leftCtrl = false;
                 KeyConverter kc = new KeyConverter();
 
 
@@ -245,12 +465,9 @@ namespace NanoTrans
                 {
 
                     MyTag x = (MyTag)((TextBox)(sender)).Tag;
-                    MyTag xfon = new MyTag(x) {tTypElementu = MyEnumTypElementu.foneticky };
+                    MyTag xfon = new MyTag(x) { tTypElementu = MyEnumTypElementu.foneticky };
                     MyParagraph para = myDataSource[x];
                     MyTag next = myDataSource.VratOdstavecNasledujiciTag(x);
-
-                    //if (next != null)
-                    //    return;
 
 
                     //prida do seznamu richtextboxu novou komponentu
@@ -280,18 +497,18 @@ namespace NanoTrans
 
 
 
-                            
+
                             //casove znacky budouciho odstavce
                             List<MyCasovaZnacka> pNoveZnacky = myDataSource[x].VratCasoveZnackyTextu;
 
-                            
+
                             bool fonetic = true;
-                            MyParagraph puvodnifon =  myDataSource[xfon];
-                            if(puvodnifon == null)
+                            MyParagraph puvodnifon = myDataSource[xfon];
+                            if (puvodnifon == null)
                                 fonetic = false;
                             List<MyCasovaZnacka> pNoveZnackyFon = myDataSource[xfon].VratCasoveZnackyTextu;
 
-                            if(pNoveZnackyFon == null || pNoveZnackyFon.Count == 0)
+                            if (pNoveZnackyFon == null || pNoveZnackyFon.Count == 0)
                                 fonetic = false;
 
                             //smazani casovych znacek,ktere patri puvodnimu textboxu
@@ -299,7 +516,7 @@ namespace NanoTrans
                             while (pNoveZnacky.Count > 0 && pNoveZnacky[0].Index2 < pDelkaTextu - trDalsi.Length)
                             {
                                 pNoveZnacky.RemoveAt(0);
-                                if(fonetic)
+                                if (fonetic)
                                     pNoveZnackyFon.RemoveAt(0);
                             }
 
@@ -308,13 +525,13 @@ namespace NanoTrans
                             if (fonetic)
                             {
                                 trdalsifon = myDataSource[xfon].Text.Substring(pNoveZnackyFon[0].Index1);
-                                trAktualniFon = myDataSource[xfon].Text.Substring(0,pNoveZnackyFon[0].Index1);
+                                trAktualniFon = myDataSource[xfon].Text.Substring(0, pNoveZnackyFon[0].Index1);
                             }
                             for (int i = 0; i < pNoveZnacky.Count; i++) //odecteni indexu casovych znacek
                             {
                                 pNoveZnacky[i].Index1 = pNoveZnacky[i].Index1 - (pDelkaTextu - trDalsi.Length);
                                 pNoveZnacky[i].Index2 = pNoveZnacky[i].Index2 - (pDelkaTextu - trDalsi.Length);
-                                if(fonetic)
+                                if (fonetic)
                                 {
                                     pNoveZnackyFon[i].Index1 = pNoveZnackyFon[i].Index1 - (pDelkaTextu - trDalsi.Length);
                                     pNoveZnackyFon[i].Index2 = pNoveZnackyFon[i].Index2 - (pDelkaTextu - trDalsi.Length);
@@ -326,7 +543,7 @@ namespace NanoTrans
                             //vytvoreni noveho odstavce, jeho textboxu a jeho zobrazeni
                             long pomKon = myDataSource.VratCasElementuKonec(x); //pokud mel puvodni element index konce,je prirazen novemu elementu
 
-                            if (UpravCasZobraz(x, -2,(long) waveform1.CaretPosition.TotalMilliseconds))
+                            if (UpravCasZobraz(x, -2, (long)waveform1.CaretPosition.TotalMilliseconds))
                             {
 
 
@@ -335,16 +552,17 @@ namespace NanoTrans
 
                                 //pokud je stisknut ctrl, je vytvoren novy mluvci
                                 MySpeaker pSpeaker = new MySpeaker();
-                                if (!leftCtrl) pSpeaker = myDataSource.VratSpeakera(x);
+                                if (Keyboard.Modifiers != ModifierKeys.Control)
+                                    pSpeaker = myDataSource.VratSpeakera(x);
                                 //
 
                                 MyTag newparagraph = PridejOdstavec(x.tKapitola, x.tSekce, trDalsi, pNoveZnacky, x.tOdstavec, pomPoc, pomKon, pSpeaker);
 
                                 MyTag newparfon = new MyTag(newparagraph) { tTypElementu = MyEnumTypElementu.foneticky };
 
-                                MyParagraph mp= myDataSource[newparfon];
-                                
-                                if(fonetic)
+                                MyParagraph mp = myDataSource[newparfon];
+
+                                if (fonetic)
                                 {
 
                                     for (int i = 0; i < puvodnifon.Phrases.Count; i++)
@@ -379,10 +597,10 @@ namespace NanoTrans
                             MyTag x2 = new MyTag(x);
                             x.tTypElementu = MyEnumTypElementu.normalni;
 
-                            xfon = new MyTag(x){tTypElementu = MyEnumTypElementu.foneticky};
+                            xfon = new MyTag(x) { tTypElementu = MyEnumTypElementu.foneticky };
                             myDataSource.UpravElementOdstavce(x2, trAktualni, myDataSource[x].VratCasoveZnackyTextu);
-                            if(fonetic)
-                               myDataSource.UpravElementOdstavce(new MyTag(xfon), trAktualniFon, myDataSource[xfon].VratCasoveZnackyTextu);
+                            if (fonetic)
+                                myDataSource.UpravElementOdstavce(new MyTag(xfon), trAktualniFon, myDataSource[xfon].VratCasoveZnackyTextu);
                             ///flowDoc = VytvorFlowDocumentOdstavce(myDataSource[x));
                             //nastaveni aktualnich dat textboxu odstavce,aby nedochazelo ke zmenam
                             nastaveniAplikace.CasoveZnacky = myDataSource[x].VratCasoveZnackyTextu;
@@ -393,10 +611,10 @@ namespace NanoTrans
 
                             ///((RichTextBox)(sender)).Document = flowDoc;
                             ((TextBox)sender).Text = myDataSource[x].Text;
-                            
-                            if(fonetic)
+
+                            if (fonetic)
                                 tbFonetickyPrepis.Text = myDataSource[xfon].Text;
-                            
+
                             if ((x.tOdstavec > -1) || (x.tSekce > -1))
                             {
                                 spSeznam.UpdateLayout();
@@ -413,7 +631,7 @@ namespace NanoTrans
                         if (waveform1.CaretPosition < TimeSpan.Zero)
                             return;
 
-                        MyTag pMT = PridejOdstavec(x.tKapitola, x.tSekce, "", null, -2,(long) waveform1.CaretPosition.TotalMilliseconds, -1, new MySpeaker());
+                        MyTag pMT = PridejOdstavec(x.tKapitola, x.tSekce, "", null, -2, (long)waveform1.CaretPosition.TotalMilliseconds, -1, new MySpeaker());
                         try
                         {
                             ((TextBox)pMT.tSender).Focus();
@@ -438,92 +656,7 @@ namespace NanoTrans
                     UpdateXMLData();    //update mluvcich...
                     return;
                 }
-                else if (e.Key == Key.PageDown)
-                {
-                    e.Handled = true;
-                    double pOffset = svDokument.VerticalOffset;
-                    svDokument.ScrollToVerticalOffset(svDokument.VerticalOffset + svDokument.ViewportHeight * 0.8);
-                    svDokument.UpdateLayout();
-                    if (pOffset == svDokument.VerticalOffset)
-                    {
-                        (spSeznam.Children[spSeznam.Children.Count - 1] as Grid).Children[0].Focus();
-                        return;
-                    }
-                    // position of your visual inside the scrollviewer    
-                    Grid pGNalezen = null;
-                    for (int i = 0; i < spSeznam.Children.Count; i++)
-                    {
-                        Grid pG = (spSeznam.Children[i] as Grid);
-                        GeneralTransform childTransform = pG.TransformToAncestor(svDokument);
-                        Rect rectangle = childTransform.TransformBounds(new Rect(new Point(0, 0), pG.RenderSize));
-                        //Check if the elements Rect intersects with that of the scrollviewer's
-                        Rect result = Rect.Intersect(new Rect(new Point(0, 0), svDokument.RenderSize), rectangle);
-                        //if result is Empty then the element is not in view
-                        if (result == Rect.Empty)
-                        {
-                            if (pGNalezen != null)
-                            {
-                                pGNalezen.Children[0].Focus();
-                            }
-                        }
-                        else
-                        {
-                            if (pGNalezen == null)
-                            {
-                                pGNalezen = pG;
-                            }
-                            else
-                            {
-                                pG.Children[0].Focus();
-                                break;
-                            }
-                            //obj is partially Or completely visible
-                        }
-                    }
-                }
-                else if (e.Key == Key.PageUp)
-                {
-                    e.Handled = true;
-                    double pOffset = svDokument.VerticalOffset;
-                    svDokument.ScrollToVerticalOffset(svDokument.VerticalOffset - svDokument.ViewportHeight * 0.8);
-                    svDokument.UpdateLayout();
-                    if (pOffset == svDokument.VerticalOffset)
-                    {
-                        (spSeznam.Children[0] as Grid).Children[0].Focus();
-                        return;
-                    }
-                    // position of your visual inside the scrollviewer    
-                    Grid pGNalezen = null;
-                    for (int i = 0; i < spSeznam.Children.Count; i++)
-                    {
-                        Grid pG = (spSeznam.Children[i] as Grid);
-                        GeneralTransform childTransform = pG.TransformToAncestor(svDokument);
-                        Rect rectangle = childTransform.TransformBounds(new Rect(new Point(0, 0), pG.RenderSize));
-                        //Check if the elements Rect intersects with that of the scrollviewer's
-                        Rect result = Rect.Intersect(new Rect(new Point(0, 0), svDokument.RenderSize), rectangle);
-                        //if result is Empty then the element is not in view
-                        if (result == Rect.Empty)
-                        {
-                            if (pGNalezen != null)
-                            {
-                                pGNalezen.Children[0].Focus();
-                            }
-                        }
-                        else
-                        {
-                            if (pGNalezen == null)
-                            {
-                                pGNalezen = pG;
-                            }
-                            else
-                            {
-                                pG.Children[0].Focus();
-                                break;
-                            }
-                            //obj is partially Or completely visible
-                        }
-                    }
-                }
+
                 else if (e.Key == Key.F2 && !e.IsRepeat)
                 {
                     e.Handled = true;
@@ -544,7 +677,7 @@ namespace NanoTrans
                     //TODO: nevim jestli (mluvci sekce) to enkdo nekdy pouzival, ale F3 potrebuju
                     e.Handled = true;
                     MyTag pomTag = null;
-                    //  if (leftShift)
+                    //  if (Keyboard.Modifiers == ModifierKeys.Shift)
                     //  {
                     pomTag = PridejSekci(mT.tKapitola, "", mT.tSekce, mT.tOdstavec, -1, -1);
                     //  }
@@ -565,7 +698,7 @@ namespace NanoTrans
 
                 }
 
-                else if (e.Key == Key.Delete && leftShift && !e.IsRepeat)
+                else if (e.Key == Key.Delete && Keyboard.Modifiers == ModifierKeys.Shift && !e.IsRepeat)
                 {
                     e.Handled = true;
 
@@ -589,52 +722,51 @@ namespace NanoTrans
                     {
                         OdstranKapitolu(mT.tKapitola);
                     }
-                    //leftCtrl = false;
+                    //Keyboard.Modifiers == ModifierKeys.Control = false;
                 }
-                else if (e.Key == Key.Delete && leftCtrl && !e.IsRepeat)        //smazani pocatecniho casoveho indexu
+                else if (e.Key == Key.Delete && Keyboard.Modifiers == ModifierKeys.Control && !e.IsRepeat)        //smazani pocatecniho casoveho indexu
                 {
                     e.Handled = true;
                     menuItemX5_Smaz_Click(null, new RoutedEventArgs());
                 }
-                else if (e.Key == Key.Home && leftCtrl && !e.IsRepeat) //nastavi index pocatku elementu podle pozice kurzoru
+                else if (e.Key == Key.Home && Keyboard.Modifiers == ModifierKeys.Control && !e.IsRepeat) //nastavi index pocatku elementu podle pozice kurzoru
                 {
                     e.Handled = true;
                     menuItemVlna1_prirad_zacatek_Click(null, new RoutedEventArgs());
-                    //leftCtrl = false;
+                    //Keyboard.Modifiers == ModifierKeys.Control = false;
 
                 }
-                else if (e.Key == Key.End && leftCtrl && !e.IsRepeat) //nastavi index konce elementu podle pozice kurzoru
+                else if (e.Key == Key.End && Keyboard.Modifiers == ModifierKeys.Control && !e.IsRepeat) //nastavi index konce elementu podle pozice kurzoru
                 {
                     e.Handled = true;
                     menuItemVlna1_prirad_konec_Click(null, new RoutedEventArgs());
-                    //leftCtrl = false;
+                    //Keyboard.Modifiers == ModifierKeys.Control = false;
                 }
-                else if (leftCtrl && e.Key == Key.Space)    //ctrl+mezernik = prida casovou znacku do textu
+                else if (Keyboard.Modifiers == ModifierKeys.Control && e.Key == Key.Space)    //ctrl+mezernik = prida casovou znacku do textu
                 {
                     menuItemVlna1_prirad_casovou_znacku_Click(null, new RoutedEventArgs());
                     e.Handled = true;
                 }
-            /*    else if (e.Key == Key.F && leftCtrl && !e.IsRepeat)
-                {
-                    e.Handled = true;
-                    MenuItemFonetickeVarianty_Click(null, new RoutedEventArgs());
-                    leftCtrl = false;
+                /*    else if (e.Key == Key.F && Keyboard.Modifiers == ModifierKeys.Control && !e.IsRepeat)
+                    {
+                        e.Handled = true;
+                        MenuItemFonetickeVarianty_Click(null, new RoutedEventArgs());
+                        Keyboard.Modifiers == ModifierKeys.Control = false;
 
-                }*/
+                    }*/
                 else if (e.Key == Key.M)
                 {
-                    if (leftCtrl && !e.IsRepeat)  //prehrani nebo pausnuti prehravani
+                    if (Keyboard.Modifiers == ModifierKeys.Control && !e.IsRepeat)  //prehrani nebo pausnuti prehravani
                     {
                         e.Handled = true;
                         buttonX_Click(((Button)(((Grid)((TextBox)sender).Parent).Children[1] as StackPanel).Children[0]), new RoutedEventArgs());
-                        leftCtrl = false;
                     }
                 }
                 else if ((e.Key == Key.Up))
                 {
                     if (mT.tTypElementu == MyEnumTypElementu.foneticky)
                         return;
-                    if (!leftShift)
+                    if (Keyboard.Modifiers != ModifierKeys.Shift)
                     {
                         this.SmazatVyberyTextboxu(pPocatecniIndexVyberu, pKoncovyIndexVyberu, -1);
                         pZiskatNovyIndex = true;
@@ -650,14 +782,10 @@ namespace NanoTrans
                         //int pPoziceCursoruNaRadku = pTB.CaretIndex - pTB.GetCharacterIndexFromLineIndex(pTB.GetLineIndexFromCharacterIndex(pTB.CaretIndex));
                         int pPoziceCursoruNaRadku = (pTB.SelectionStart) - pTB.GetCharacterIndexFromLineIndex(pTB.GetLineIndexFromCharacterIndex(pTB.SelectionStart));
                         //pPoziceCursoruNaRadku = pTB.GetCharacterIndexFromPoint(new Point(pTB.GetRectFromCharacterIndex(pTB.CaretIndex).X, pTB.GetRectFromCharacterIndex(pTB.CaretIndex).Y), true);
-                        if (leftShift)
+                        if (Keyboard.Modifiers == ModifierKeys.Shift)
                         {
                             int pPozice = pTB.SelectionStart;
                             int pDelka = pTB.SelectionLength;
-                            //pTB.SelectionStart = 0;
-                            //pTB.SelectionLength = pPozice + pDelka;
-
-                            //pSkocitNahoru = true;
                         }
                         else
                         {
@@ -665,12 +793,11 @@ namespace NanoTrans
                             pTB.Select(0, 0);
                             pTBPredchozi.Focus();
                             pTBPredchozi.CaretIndex = pTBPredchozi.GetCharacterIndexFromLineIndex(pTBPredchozi.LineCount - 1) + pPoziceCursoruNaRadku;
-                            if (leftShift)
+                            if (Keyboard.Modifiers == ModifierKeys.Shift)
                             {
                                 //pTBPredchozi.CaretIndex = pTBPredchozi.Text.Length;
                             }
                             e.Handled = true;
-
                         }
                     }
 
@@ -688,7 +815,7 @@ namespace NanoTrans
                         if (TP == ((TextBox)sender).LineCount - 1)
                         ///if (TP.GetOffsetToPosition(TP.DocumentEnd) == ((RichTextBox)sender).Selection.Start.GetOffsetToPosition(((RichTextBox)sender).Selection.Start.DocumentEnd))
                         {
-                            if (!leftShift)
+                            if (Keyboard.Modifiers != ModifierKeys.Shift)
                             {
                                 this.SmazatVyberyTextboxu(pPocatecniIndexVyberu, pKoncovyIndexVyberu, -1);
                                 pZiskatNovyIndex = true;
@@ -697,35 +824,11 @@ namespace NanoTrans
                             //int pPoziceCursoruNaRadku = pTB.CaretIndex - pTB.GetCharacterIndexFromLineIndex(pTB.GetLineIndexFromCharacterIndex(pTB.CaretIndex));
                             int pPoziceCursoruNaRadku = (pTB.SelectionStart + pTB.SelectionLength) - pTB.GetCharacterIndexFromLineIndex(pTB.GetLineIndexFromCharacterIndex(pTB.SelectionStart + pTB.SelectionLength));
                             TextBox pTBDalsi = (TextBox)((Grid)spSeznam.Children[index + 1]).Children[0];
-                            if (leftShift)
-                            {
-                                /*
-                                pSkocitDolu = true;
-                                
-                                int pPozice = pTB.SelectionStart;
-                                int pDelka = pTB.SelectionLength;
-                                if (pTBDalsi.SelectionLength == 0)
-                                {
-                                    
-                                    pTB.Select(pTB.SelectionStart, pTB.Text.Length - pTB.SelectionStart);
-                                    pSkocitDolu = false;
-                                    pTBDalsi.Focus();
-                                    pTBDalsi.Select(0, pPoziceCursoruNaRadku);
-                                    e.Handled = true;
-                                    //pKoncovyIndexVyberu = index + 1;
-                                }
-                                 */
-                            }
-                            else
-                            {
 
                                 pTB.CaretIndex = 0;
                                 pTBDalsi.Focus();
                                 pTBDalsi.CaretIndex = pPoziceCursoruNaRadku;
                                 e.Handled = true;
-
-                            }
-
                         }
 
                     }
@@ -738,7 +841,7 @@ namespace NanoTrans
                     {
 
                         TextBox pTBDalsi = (TextBox)((Grid)spSeznam.Children[index + 1]).Children[0];
-                        if (!leftShift && pTB.CaretIndex == pTB.Text.Length)
+                        if (Keyboard.Modifiers != ModifierKeys.Shift && pTB.CaretIndex == pTB.Text.Length)
                         {
                             pTB.SelectionLength = 0;
                             pTBDalsi.Focus();
@@ -756,7 +859,7 @@ namespace NanoTrans
                     {
 
                         TextBox pTBPredchozi = (TextBox)((Grid)spSeznam.Children[index - 1]).Children[0];
-                        if (!leftShift && pTB.CaretIndex == 0)
+                        if (Keyboard.Modifiers != ModifierKeys.Shift && pTB.CaretIndex == 0)
                         {
                             pTB.SelectionLength = 0;
                             pTBPredchozi.Focus();
@@ -911,7 +1014,7 @@ namespace NanoTrans
                                 List<MyCasovaZnacka> pCasoveZnackyNasledujiciho = myDataSource[pTagNasledujicihoOdstavce].VratCasoveZnackyTextu;
 
                                 myDataSource.UpravCasElementu(mT, -2, myDataSource.VratCasElementuKonec(pTagNasledujicihoOdstavce));    //koncovy cas elementu je nastaven podle nasledujiciho
-                                
+
                                 waveform1.SelectionBegin = TimeSpan.FromMilliseconds(myDataSource.VratCasElementuPocatek(mT));
                                 waveform1.SelectionEnd = TimeSpan.FromMilliseconds(myDataSource.VratCasElementuKonec(mT));
 
@@ -958,9 +1061,7 @@ namespace NanoTrans
 
         private void waveform1_PlayPauseClick(object sender, RoutedEventArgs e)
         {
-            //simulace klavesy, kdyz je obsluha v klavese
-            HIDkey = Key.Tab;
-            this.Dispatcher.Invoke(new KeyEventHandler(Window_PreviewKeyDown), null, null);
+            CommandPlayPause.Execute(null, waveform1);
         }
 
 
@@ -971,8 +1072,6 @@ namespace NanoTrans
         /// <param name="e"></param>
         private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            leftShift = Keyboard.IsKeyDown(Key.LeftShift);
-            leftCtrl = Keyboard.IsKeyDown(Key.LeftCtrl);
 
             Key syskey;
             Key key;
@@ -990,43 +1089,6 @@ namespace NanoTrans
                 key = e.Key;
                 repeat = e.IsRepeat;
             }
-
-            //systemove klavesy se stisklym alt
-            switch (syskey)
-            {
-                case Key.Left:
-                    NastavPoziciKurzoru(waveform1.CaretPosition - waveform1.SmallJump, true, true);
-                    if (e != null)
-                        e.Handled = true;
-                    break;
-                case Key.Right:
-                    NastavPoziciKurzoru(waveform1.CaretPosition - waveform1.SmallJump, true, true);
-                    if (e != null)
-                        e.Handled = true;
-                    break;
-                case Key.Return: //alt+enter = maximalizovat
-                    if (this.WindowState == WindowState.Normal)
-                    {
-                        this.WindowState = WindowState.Maximized;
-                    }
-                    else if (this.WindowState == WindowState.Maximized)
-                    {
-                        this.WindowState = WindowState.Normal;
-                    }
-                    if (e != null)
-                        e.Handled = true;
-                    break;
-                case Key.F10:       //automaticky foneticky prepis
-                    menuItemNastrojeFonetickyPrepis_Click(null, new RoutedEventArgs());
-                    menuItemFonetickyPrepis_Click(null, new RoutedEventArgs());
-                    if (e != null)
-                        e.Handled = true;
-                    break;
-
-            }
-
-
-
 
             switch (key)
             {
@@ -1050,117 +1112,36 @@ namespace NanoTrans
                 case Key.F12:       //porizeni fotografie z videa a vyvolani spravce mluvcich
                     menuItemVideoPoriditFotku_Click(null, new RoutedEventArgs());
                     break;
-                case Key.Tab:       //prehravani nebo pausnuti audia/videa
-                    if (!repeat)
-                    {
-                        if (_playing)
-                        {
-                            if (jeVideo) meVideo.Pause();
-                            prehratVyber = false;
-                            Playing = false;
-                            if (MWP != null)
-                            {
 
-                                //TODO: proc enjsou tyhle 3 veci na jednom miste?
-                                waveform1.CaretPosition = MWP.PausedAt;
-                                pIndexBufferuVlnyProPrehrani = (int)MWP.PausedAt.TotalMilliseconds;
-                            }
-                        }
-                        else
-                        {
-
-                            bool adjustspeed = false;
-                            if (leftShift || ToolBar2BtnSlow.IsChecked == true)
-                            {
-                                adjustspeed = true;
-                                meVideo.SpeedRatio = nastaveniAplikace.ZpomalenePrehravaniRychlost;
-                            }
-                            else
-                            {
-                                meVideo.SpeedRatio = 1.0;
-                            }
-
-                            if (leftCtrl)
-                            {
-                                prehratVyber = true;
-                                oldms = TimeSpan.Zero;
-                                //if (waveform1.CaretPosition >= waveform1.SelectionBegin && waveform1.CaretPosition <= waveform1.SelectionEnd)
-
-                                if ((waveform1.SelectionBegin - waveform1.SelectionEnd).Duration() > TimeSpan.FromMilliseconds(100))
-                                {
-                                    NastavPoziciKurzoru(waveform1.SelectionBegin, true, false);
-                                }
-                                else
-                                {
-                                    MyParagraph par = myDataSource[nastaveniAplikace.RichTag];
-
-                                    //oldms = TimeSpan.Zero;
-                                    //int lastc = myDataSource.Chapters.Count - 1;
-                                    //int lasts = myDataSource.Chapters[lastc].Sections.Count - 1;
-                                    //int lastp = myDataSource.Chapters[lastc].Sections[lasts].Paragraphs.Count - 1;
-
-
-                                    long konec = myDataSource.VratCasElementuPocatek(nastaveniAplikace.RichTag) + 5;
-                                    NastavPoziciKurzoru(TimeSpan.FromMilliseconds(konec), true, true);
-                                    waveform1.SelectionBegin = TimeSpan.FromMilliseconds(konec);
-                                    waveform1.SelectionEnd = TimeSpan.FromMilliseconds(konec + 120000);
-                                }
-
-                            }
-                            if (jeVideo) meVideo.Play();
-                            //spusteni prehravani pomoci tlacitka-kvuli nacteni primeho prehravani
-
-                            Playing = true;
-
-                            if (adjustspeed)
-                                MWP.Play(nastaveniAplikace.ZpomalenePrehravaniRychlost);
-                            else
-                                MWP.Play();
-
-                        }
-
-                    }
-                    if (e != null)
-                        e.Handled = true;
-
-                    break;
-                case Key.LeftCtrl:
-                    leftCtrl = true;
-                    break;
-                case Key.LeftShift:
-                    leftShift = true;
-                    break;
                 case Key.N:
-                    if (!e.IsRepeat && leftCtrl)
+                    if (!e.IsRepeat && Keyboard.Modifiers == ModifierKeys.Control)
                     {
                         if (e != null)
                             e.Handled = true;
-                        leftCtrl = false;
+
                         MSoubor_Novy_Click(null, new RoutedEventArgs());
                     }
                     break;
                 case Key.O:
-                    if (!e.IsRepeat && leftCtrl)
+                    if (!e.IsRepeat && Keyboard.Modifiers == ModifierKeys.Control)
                     {
                         if (e != null)
                             e.Handled = true;
-                        leftCtrl = false;
                         MSoubor_Otevrit_Titulky_Click(null, new RoutedEventArgs());
                     }
                     break;
                 case Key.S:
-                    if (!e.IsRepeat && leftCtrl)
+                    if (!e.IsRepeat && Keyboard.Modifiers == ModifierKeys.Control)
                     {
                         if (e != null)
                             e.Handled = true;
-                        leftCtrl = false;
                         MSoubor_Ulozit_Click(null, new RoutedEventArgs());
                     }
                     break;
                 case Key.F1:
                     if (!e.IsRepeat)
                     {
-                        if (leftCtrl) MNapoveda_O_Programu_Click(null, new RoutedEventArgs());
+                        if (Keyboard.Modifiers == ModifierKeys.Control) MNapoveda_O_Programu_Click(null, new RoutedEventArgs());
                         else
                             MNapoveda_Popis_Programu_Click(null, new RoutedEventArgs());
                         if (e != null)
@@ -1197,14 +1178,6 @@ namespace NanoTrans
         {
             switch (e.Key)
             {
-                case Key.LeftShift:
-                    leftShift = false;
-                    break;
-                case Key.LeftCtrl:
-                    leftCtrl = false;
-                    //posouvatL = false;
-                    //posouvatP = false;
-                    break;
                 case Key.F10:
                     if (e != null)
                         e.Handled = true;
@@ -1216,12 +1189,12 @@ namespace NanoTrans
 
         private void tbFonetickyPrepis_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-                if (e.Key == Key.Escape)
-                {
-                    TextBox pTb = (TextBox)VratSenderTextboxu(((MyTag)((TextBox)tbFonetickyPrepis).Tag));
-                    pTb.Focus();
-                    return;
-                }
+            if (e.Key == Key.Escape)
+            {
+                TextBox pTb = (TextBox)VratSenderTextboxu(((MyTag)((TextBox)tbFonetickyPrepis).Tag));
+                pTb.Focus();
+                return;
+            }
         }
 
 
@@ -1411,5 +1384,5 @@ namespace NanoTrans
 
     }
 
-    
+
 }

@@ -125,7 +125,7 @@ namespace NanoTrans
         private long bPozadovanaDelkaRamceMS;
         private int bIDBufferu;
 
-        private List<string> docasneZvukoveSoubory = null;
+        private List<string> docasneZvukoveSoubory = new List<string>();
         private long delkaDocasnehoWav = 0;
         private long delkaDocasnehoWavMS = 0;
 
@@ -504,7 +504,7 @@ namespace NanoTrans
             try
             {
                 //nulovani promennych
-                this.docasneZvukoveSoubory = null;
+                this.docasneZvukoveSoubory.Clear();
                 this._PrevedenoDatMS = 0;
                 
                 this._DelkaSouboruMS = this.VratDelkuSouboruMS(aCesta);
@@ -706,7 +706,7 @@ namespace NanoTrans
                     output = null;
                 }
                 this._Prevedeno = true; //i pres spadnuti je nacteni ok, doresit preteceni indexu!!!!!!
-                if (TemporaryWavesDone != null)
+                if (TemporaryWavesDone != null && !(ex is ThreadAbortException))
                     TemporaryWavesDone(this,new EventArgs());
                 //MessageBox.Show("Načítání a převod audio souboru se nezdařily..."+ ex.Message);
                 MyLog.LogujChybu(ex);
@@ -922,7 +922,7 @@ namespace NanoTrans
                 this._Nacteno = false;
                 ///this._dataProVykresleniNahleduVlny = null;
                 this._PrevedenoDatMS = 0;
-                this.docasneZvukoveSoubory = null;
+                this.docasneZvukoveSoubory.Clear();
 
 
 
