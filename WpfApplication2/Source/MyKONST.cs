@@ -68,7 +68,7 @@ namespace NanoTrans
         /// <param name="aCestaTMP"></param>
         /// <param name="aBMP"></param>
         /// <returns></returns>
-        public static string PrevedJPGnaBase64String(BitmapFrame aBMP)
+        public static string JpgToBase64(BitmapFrame aBMP)
         {
             try
             {

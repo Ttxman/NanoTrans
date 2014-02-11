@@ -249,7 +249,6 @@
     </Compile>
     <Compile Include="Source\ImportExportInterfaces.cs" />
     <Compile Include="Source\MyEnumParagraphAttributes.cs" />
-    <Compile Include="Source\MyPrepisovac.cs" />
     <Compile Include="Source\Plugin.cs" />
     <Compile Include="UI\ReplaceSpeakerWindow.xaml.cs">
       <DependentUpon>ReplaceSpeakerWindow.xaml</DependentUpon>

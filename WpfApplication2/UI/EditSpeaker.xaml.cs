@@ -19,15 +19,15 @@ namespace NanoTrans
     /// </summary>
     public partial class EditSpeakerWindow : Window
     {
-        public MySpeaker Speaker
+        public Speaker Speaker
         {
             get { return bSpeaker; }
         }
-        MySpeaker bSpeaker;
-        MySubtitlesData myDataSource;
+        Speaker bSpeaker;
+        Transcription myDataSource;
         string bStringBase64FotoExterni;
         string bStringBase64FotoInterni;
-        public EditSpeakerWindow(MySubtitlesData subtitles, MySpeaker speaker)
+        public EditSpeakerWindow(Transcription subtitles, Speaker speaker)
         {
             bSpeaker = speaker;
             myDataSource = subtitles;
@@ -50,10 +50,10 @@ namespace NanoTrans
             if (cbJazykovyModel.SelectedIndex > 0) pJazykovyModel = cbJazykovyModel.SelectedItem.ToString();
             if (cbPrepisovaciPravidla.SelectedIndex > 0) pPrepisovaciPravidla = cbPrepisovaciPravidla.SelectedItem.ToString();
 
-            MySpeaker.Sexes pPohlavi = (MySpeaker.Sexes)cbPohlavi.SelectedItem;
-            if (cbPohlavi.SelectedIndex <= 0) pPohlavi = MySpeaker.Sexes.X;
+            Speaker.Sexes pPohlavi = (Speaker.Sexes)cbPohlavi.SelectedItem;
+            if (cbPohlavi.SelectedIndex <= 0) pPohlavi = Speaker.Sexes.X;
 
-            bSpeaker = new MySpeaker(tbJmeno.Text, tbPrijmeni.Text, pPohlavi, pMluvci, pJazykovyModel, pPrepisovaciPravidla, this.bStringBase64FotoInterni, tbVek.Text);
+            bSpeaker = new Speaker(tbJmeno.Text, tbPrijmeni.Text, pPohlavi, pMluvci, pJazykovyModel, pPrepisovaciPravidla, this.bStringBase64FotoInterni, tbVek.Text);
 
             Close();
         }
@@ -71,7 +71,7 @@ namespace NanoTrans
                 {
                     BitmapFrame pFrame = BitmapFrame.Create(new Uri(fileDialog.FileName));
 
-                    this.bStringBase64FotoExterni = MyKONST.PrevedJPGnaBase64String(pFrame);
+                    this.bStringBase64FotoExterni = MyKONST.JpgToBase64(pFrame);
                     this.bStringBase64FotoInterni = this.bStringBase64FotoExterni;
 
                     imFotka.Source = pFrame;

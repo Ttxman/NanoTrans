@@ -11,15 +11,14 @@ using System.Windows;
 namespace NanoTrans
 {
 
-    public struct Audio
+    public struct AudioDevices
     {
 
-        public int VystupniZarizeniIndex;
+        public int OutputDeviceIndex;
 
-        public int VstupniZarizeniIndex;
+        public int InputDeviceIndex;
 
     }
-
 
     public class SingletonRefresher : System.ComponentModel.INotifyPropertyChanged
     {
@@ -49,7 +48,7 @@ namespace NanoTrans
         #endregion
     }
 
-    [XmlInclude(typeof(MySpeaker))]
+    [XmlInclude(typeof(Speaker))]
     public class MySetup : System.ComponentModel.INotifyPropertyChanged
     {
 
@@ -109,7 +108,7 @@ namespace NanoTrans
 
 
         [XmlIgnore]
-        public Brush BarvaTextBoxuSekce { get; set; }
+        public Brush SectionBackground { get; set; }
 
         [XmlIgnore]
         public Brush BarvaTextBoxuKapitoly { get; set; }
@@ -202,7 +201,7 @@ namespace NanoTrans
         public WindowState OknoStav;
 
 
-        public Audio audio;
+        public AudioDevices audio;
 
         /// <summary>
         /// info zda jsou zobrazeny fotografie mluvcich v prepisu
@@ -225,8 +224,8 @@ namespace NanoTrans
         {
             jazykRozhranni = MyEnumJazyk.anglictina;
 
-            audio.VystupniZarizeniIndex = 0;
-            audio.VstupniZarizeniIndex = 0;
+            audio.OutputDeviceIndex = 0;
+            audio.InputDeviceIndex = 0;
 
             CestaDatabazeMluvcich = "Data\\DatabazeMluvcich.xml";
 
@@ -259,7 +258,7 @@ namespace NanoTrans
             BarvaTextBoxuOdstavceAktualni = Brushes.AntiqueWhite;
             BarvaTextBoxuFoneticky = Brushes.AliceBlue;
             BarvaTextBoxuFonetickyZakazany = Brushes.LightGray;
-            BarvaTextBoxuSekce = Brushes.LightGreen;
+            SectionBackground = Brushes.LightGreen;
             BarvaTextBoxuKapitoly = Brushes.LightPink;
         }
 

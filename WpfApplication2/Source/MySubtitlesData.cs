@@ -17,7 +17,7 @@ using System.Collections.Specialized;
 namespace NanoTrans
 {
     //mluvci
-    public class MySpeaker
+    public class Speaker
     {
         //Dovymyslet co se bude ukladat o mluvcim -- jmeno, pohlavi, obrazek, popis, atd...
         public int ID;
@@ -64,10 +64,10 @@ namespace NanoTrans
 
 
 
-        public MySpeaker()
+        public Speaker()
         {
 
-            ID = MySpeaker.DefaultID;
+            ID = Speaker.DefaultID;
             FirstName = null;
             Surname = null;
             Sex = Sexes.X;
@@ -80,7 +80,7 @@ namespace NanoTrans
         #region serializace nova
         private Dictionary<string, string> elements = new Dictionary<string, string>();
         private static readonly XAttribute EmptyAttribute = new XAttribute("empty", "");
-        public MySpeaker(XElement s, bool isStrict)
+        public Speaker(XElement s, bool isStrict)
         {
             ID = int.Parse(s.Attribute("id").Value);
             Surname = s.Attribute("surname").Value;
@@ -129,10 +129,10 @@ namespace NanoTrans
         /// kopie
         /// </summary>
         /// <param name="aSpeaker"></param>
-        public MySpeaker(MySpeaker aSpeaker)
+        public Speaker(Speaker aSpeaker)
         {
 
-            if (aSpeaker == null) aSpeaker = new MySpeaker();
+            if (aSpeaker == null) aSpeaker = new Speaker();
             ID = aSpeaker.ID;
             FirstName = aSpeaker.FirstName;
             Surname = aSpeaker.Surname;
@@ -144,7 +144,7 @@ namespace NanoTrans
             Comment = aSpeaker.Comment;
         }
 
-        public MySpeaker(string aSpeakerFirstname, string aSpeakerSurname, Sexes aPohlavi, string aRozpoznavacMluvci, string aRozpoznavacJazykovyModel, string aRozpoznavacPrepisovaciPravidla, string aSpeakerFotoBase64, string aPoznamka) //constructor ktery vytvori speakera
+        public Speaker(string aSpeakerFirstname, string aSpeakerSurname, Sexes aPohlavi, string aRozpoznavacMluvci, string aRozpoznavacJazykovyModel, string aRozpoznavacPrepisovaciPravidla, string aSpeakerFotoBase64, string aPoznamka) //constructor ktery vytvori speakera
         {
             ID = -1;
             FirstName = aSpeakerFirstname;
@@ -524,7 +524,7 @@ namespace NanoTrans
     }
 
     //nejmensi textovy usek - muze byt veta, vice slov nebo samotne slovo
-    public sealed class MyPhrase : TranscriptionElement
+    public sealed class TranscriptionPhrase : TranscriptionElement
     {
         private string m_text = "";//slovo/a ktere obsahuji i mezery na konci
 
@@ -553,7 +553,7 @@ namespace NanoTrans
         #region serializace nova
         private Dictionary<string, string> elements = new Dictionary<string, string>();
         private static readonly XAttribute EmptyAttribute = new XAttribute("empty", "");
-        public MyPhrase(XElement e, bool isStrict)
+        public TranscriptionPhrase(XElement e, bool isStrict)
         {
             elements = e.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
             elements.Remove(isStrict?"begin":"b");
@@ -608,7 +608,7 @@ namespace NanoTrans
         #endregion
 
 
-        public MyPhrase(MyPhrase kopie)
+        public TranscriptionPhrase(TranscriptionPhrase kopie)
         {
             this.m_begin = kopie.m_begin;
             this.m_end = kopie.m_end;
@@ -617,13 +617,13 @@ namespace NanoTrans
             this.height = kopie.height;
         }
 
-        public MyPhrase()
+        public TranscriptionPhrase()
             : base()
         {
 
         }
 
-        public MyPhrase(TimeSpan begin, TimeSpan end, string aWords)
+        public TranscriptionPhrase(TimeSpan begin, TimeSpan end, string aWords)
             : this()
         {
             this.Begin = begin;
@@ -631,10 +631,10 @@ namespace NanoTrans
             this.Text = aWords;
         }
 
-        public MyPhrase(TimeSpan begin, TimeSpan end, string aWords, MyEnumTypElementu aElementType)
+        public TranscriptionPhrase(TimeSpan begin, TimeSpan end, string aWords, ElementType aElementType)
             : this(begin, end, aWords)
         {
-            if (aElementType == MyEnumTypElementu.foneticky)
+            if (aElementType == ElementType.Phonetic)
             {
                 Regex re = new Regex("{.*?}");
                 MatchCollection mc = re.Matches(aWords);
@@ -839,7 +839,7 @@ namespace NanoTrans
         #endregion
     }
 
-    public class MyParagraph : TranscriptionElement
+    public class TranscriptionParagraph : TranscriptionElement
     {
 
         public override bool IsParagraph
@@ -849,7 +849,7 @@ namespace NanoTrans
                 return true;
             }
         }
-        public VirtualTypeList<MyPhrase> Phrases; //nejmensi textovy usek
+        public VirtualTypeList<TranscriptionPhrase> Phrases; //nejmensi textovy usek
         /// <summary>
         /// GET, text bloku dat,ktery se bude zobrazovat v jenom textboxu - jedna se o text ze vsech podrazenych textovych jednotek (Phrases)
         /// </summary>
@@ -893,22 +893,22 @@ namespace NanoTrans
             set { }
         }
 
-        public MyEnumParagraphAttributes DataAttributes = MyEnumParagraphAttributes.None;
+        public ParagraphAttributes DataAttributes = ParagraphAttributes.None;
 
 
         public string Attributes
         {
             get
             {
-                MyEnumParagraphAttributes[] attrs = (MyEnumParagraphAttributes[])Enum.GetValues(typeof(MyEnumParagraphAttributes));
+                ParagraphAttributes[] attrs = (ParagraphAttributes[])Enum.GetValues(typeof(ParagraphAttributes));
                 string s = "";
                 foreach (var attr in attrs)
                 {
-                    if (attr != MyEnumParagraphAttributes.None)
+                    if (attr != ParagraphAttributes.None)
                     {
                         if ((DataAttributes & attr) != 0)
                         {
-                            string val = Enum.GetName(typeof(MyEnumParagraphAttributes), attr);
+                            string val = Enum.GetName(typeof(ParagraphAttributes), attr);
                             if (s.Length > 0)
                             {
                                 s += "|";
@@ -921,7 +921,7 @@ namespace NanoTrans
 
                 if (s.Length == 0)
                 {
-                    return Enum.GetName(typeof(MyEnumParagraphAttributes), MyEnumParagraphAttributes.None);
+                    return Enum.GetName(typeof(ParagraphAttributes), ParagraphAttributes.None);
                 }
                 else
                 {
@@ -933,14 +933,14 @@ namespace NanoTrans
             {
                 if (string.IsNullOrWhiteSpace(value))
                 {
-                    DataAttributes = MyEnumParagraphAttributes.None;
+                    DataAttributes = ParagraphAttributes.None;
                     return;
                 }
                 string[] vals = value.Split('|');
-                MyEnumParagraphAttributes attrs = MyEnumParagraphAttributes.None;
+                ParagraphAttributes attrs = ParagraphAttributes.None;
                 foreach (string val in vals)
                 {
-                    attrs |= (MyEnumParagraphAttributes)Enum.Parse(typeof(MyEnumParagraphAttributes), val);
+                    attrs |= (ParagraphAttributes)Enum.Parse(typeof(ParagraphAttributes), val);
                 }
                 this.DataAttributes = attrs;
             }
@@ -953,7 +953,7 @@ namespace NanoTrans
             EndUpdate();
         }
 
-        public int speakerID = MySpeaker.DefaultID;
+        public int speakerID = Speaker.DefaultID;
 
         /// <summary>
         /// informace zda je dany element zahrnut pro trenovani dat 
@@ -979,9 +979,9 @@ namespace NanoTrans
         #region serializace nova
         private Dictionary<string, string> elements = new Dictionary<string, string>();
         private static readonly XAttribute EmptyAttribute = new XAttribute("empty", "");
-        public MyParagraph(XElement e,bool isStrict)
+        public TranscriptionParagraph(XElement e,bool isStrict)
         {
-            Phrases = new VirtualTypeList<MyPhrase>(this);
+            Phrases = new VirtualTypeList<TranscriptionPhrase>(this);
             speakerID = int.Parse(e.Attribute(isStrict?"speakerid":"s").Value);
             Attributes = (e.Attribute(isStrict?"speakerid":"s") ?? EmptyAttribute).Value;
 
@@ -992,7 +992,7 @@ namespace NanoTrans
             elements.Remove(isStrict?"speakerid":"s");
 
 
-            e.Elements(isStrict ? "phrase" : "p").Select(p => (TranscriptionElement)new MyPhrase(p, isStrict)).ToList().ForEach(p => Add(p)); ;
+            e.Elements(isStrict ? "phrase" : "p").Select(p => (TranscriptionElement)new TranscriptionPhrase(p, isStrict)).ToList().ForEach(p => Add(p)); ;
 
             if (e.Attribute(isStrict ? "attributes" : "a") != null)
             {
@@ -1053,7 +1053,7 @@ namespace NanoTrans
         /// kopie objektu
         /// </summary>
         /// <param name="aKopie"></param>
-        public MyParagraph(MyParagraph aKopie)
+        public TranscriptionParagraph(TranscriptionParagraph aKopie)
             : this()
         {
             this.Begin = aKopie.Begin;
@@ -1062,16 +1062,16 @@ namespace NanoTrans
             this.DataAttributes = aKopie.DataAttributes;
             if (aKopie.Phrases != null)
             {
-                this.Phrases = new VirtualTypeList<MyPhrase>(this);
+                this.Phrases = new VirtualTypeList<TranscriptionPhrase>(this);
                 for (int i = 0; i < aKopie.Phrases.Count; i++)
                 {
-                    this.Phrases.Add(new MyPhrase(aKopie.Phrases[i]));
+                    this.Phrases.Add(new TranscriptionPhrase(aKopie.Phrases[i]));
                 }
             }
             this.speakerID = aKopie.speakerID;
         }
 
-        public MyParagraph(List<MyPhrase> phrases)
+        public TranscriptionParagraph(List<TranscriptionPhrase> phrases)
             : this()
         {
             foreach (var p in phrases)
@@ -1083,14 +1083,14 @@ namespace NanoTrans
             }
         }
 
-        public MyParagraph()
+        public TranscriptionParagraph()
             : base()
         {
-            Phrases = new VirtualTypeList<MyPhrase>(this);
+            Phrases = new VirtualTypeList<TranscriptionPhrase>(this);
             this.Begin = new TimeSpan(-1);
             this.End = new TimeSpan(-1);
             this.trainingElement = false;
-            this.speakerID = MySpeaker.DefaultID;
+            this.speakerID = Speaker.DefaultID;
         }
 
         //when phraze is removed...
@@ -1101,7 +1101,7 @@ namespace NanoTrans
     }
 
     //sekce textu nadrazena odstavci
-    public class MySection : TranscriptionElement
+    public class TranscriptionSection : TranscriptionElement
     {
         public override bool IsSection
         {
@@ -1136,7 +1136,7 @@ namespace NanoTrans
 
         public string name = string.Empty;
 
-        public VirtualTypeList<MyParagraph> Paragraphs;
+        public VirtualTypeList<TranscriptionParagraph> Paragraphs;
 
         public int Speaker;
 
@@ -1146,13 +1146,13 @@ namespace NanoTrans
         #region serializace nova
         private Dictionary<string, string> elements = new Dictionary<string, string>();
         private static readonly XAttribute EmptyAttribute = new XAttribute("empty", "");
-        public MySection(XElement e, bool isStrict)
+        public TranscriptionSection(XElement e, bool isStrict)
         {
-            this.Paragraphs = new VirtualTypeList<MyParagraph>(this);
+            this.Paragraphs = new VirtualTypeList<TranscriptionParagraph>(this);
             name = e.Attribute("name").Value;
             elements = e.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
             elements.Remove("name");
-            e.Elements(isStrict ? "paragraph" : "pa").Select(p => (TranscriptionElement)new MyParagraph(p, isStrict)).ToList().ForEach(p => Add(p));
+            e.Elements(isStrict ? "paragraph" : "pa").Select(p => (TranscriptionElement)new TranscriptionParagraph(p, isStrict)).ToList().ForEach(p => Add(p));
 
         }
 
@@ -1172,7 +1172,7 @@ namespace NanoTrans
         /// kopie objektu
         /// </summary>
         /// <param name="aKopie"></param>
-        public MySection(MySection aKopie)
+        public TranscriptionSection(TranscriptionSection aKopie)
             : this()
         {
             this.Begin = aKopie.Begin;
@@ -1180,26 +1180,26 @@ namespace NanoTrans
             this.name = aKopie.name;
             if (aKopie.Paragraphs != null)
             {
-                this.Paragraphs = new VirtualTypeList<MyParagraph>(this);
+                this.Paragraphs = new VirtualTypeList<TranscriptionParagraph>(this);
                 for (int i = 0; i < aKopie.Paragraphs.Count; i++)
                 {
-                    this.Paragraphs.Add(new MyParagraph(aKopie.Paragraphs[i]));
+                    this.Paragraphs.Add(new TranscriptionParagraph(aKopie.Paragraphs[i]));
                 }
             }
         }
 
-        public MySection()
+        public TranscriptionSection()
         {
-            Paragraphs = new VirtualTypeList<MyParagraph>(this);
+            Paragraphs = new VirtualTypeList<TranscriptionParagraph>(this);
             Begin = new TimeSpan(-1);
             End = new TimeSpan(-1);
         }
 
-        public MySection(String aName)
+        public TranscriptionSection(String aName)
             : this(aName, new TimeSpan(-1), new TimeSpan(-1))
         {
         }
-        public MySection(String aName, TimeSpan aBegin, TimeSpan aEnd)
+        public TranscriptionSection(String aName, TimeSpan aBegin, TimeSpan aEnd)
             : this()
         {
             this.name = aName;
@@ -1214,7 +1214,7 @@ namespace NanoTrans
     }
 
     //kapitola
-    public class MyChapter : TranscriptionElement
+    public class TranscriptionChapter : TranscriptionElement
     {
         public override bool IsChapter
         {
@@ -1248,19 +1248,19 @@ namespace NanoTrans
 
         public string name = string.Empty;
 
-        public VirtualTypeList<MySection> Sections;
+        public VirtualTypeList<TranscriptionSection> Sections;
 
 
         #region serializace nova
         private Dictionary<string, string> elements = new Dictionary<string, string>();
         private static readonly XAttribute EmptyAttribute = new XAttribute("empty", "");
-        public MyChapter(XElement c, bool isStrict)
+        public TranscriptionChapter(XElement c, bool isStrict)
         {
-            Sections = new VirtualTypeList<MySection>(this);
+            Sections = new VirtualTypeList<TranscriptionSection>(this);
             name = c.Attribute("name").Value;
             elements = c.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
             elements.Remove("name");
-            c.Elements(isStrict ? "section" : "se").Select(s => (TranscriptionElement)new MySection(s, isStrict)).ToList().ForEach(s => Add(s));
+            c.Elements(isStrict ? "section" : "se").Select(s => (TranscriptionElement)new TranscriptionSection(s, isStrict)).ToList().ForEach(s => Add(s));
 
         }
 
@@ -1280,7 +1280,7 @@ namespace NanoTrans
         /// kopie objektu
         /// </summary>
         /// <param name="aKopie"></param>
-        public MyChapter(MyChapter aKopie)
+        public TranscriptionChapter(TranscriptionChapter aKopie)
             : this()
         {
             this.Begin = aKopie.Begin;
@@ -1288,30 +1288,30 @@ namespace NanoTrans
             this.name = aKopie.name;
             if (aKopie.Sections != null)
             {
-                this.Sections = new VirtualTypeList<MySection>(this);
+                this.Sections = new VirtualTypeList<TranscriptionSection>(this);
                 for (int i = 0; i < aKopie.Sections.Count; i++)
                 {
-                    this.Sections.Add(new MySection(aKopie.Sections[i]));
+                    this.Sections.Add(new TranscriptionSection(aKopie.Sections[i]));
                 }
             }
         }
 
-        public MyChapter()
+        public TranscriptionChapter()
             : base()
         {
-            Sections = new VirtualTypeList<MySection>(this);
+            Sections = new VirtualTypeList<TranscriptionSection>(this);
             Begin = new TimeSpan(-1);
             End = new TimeSpan(-1);
         }
 
-        public MyChapter(String aName)
+        public TranscriptionChapter(String aName)
             : this(aName, new TimeSpan(-1), new TimeSpan(-1))
         {
 
         }
-        public MyChapter(String aName, TimeSpan aBegin, TimeSpan aEnd)
+        public TranscriptionChapter(String aName, TimeSpan aBegin, TimeSpan aEnd)
         {
-            Sections = new VirtualTypeList<MySection>(this);
+            Sections = new VirtualTypeList<TranscriptionSection>(this);
             this.name = aName;
             this.Begin = aBegin;
             this.End = aEnd;
@@ -1321,7 +1321,7 @@ namespace NanoTrans
 
 
     //hlavni trida s titulky a se vsemi potrebnymi metodami pro serializaci
-    public class MySubtitlesData : TranscriptionElement, IList<TranscriptionElement>, INotifyCollectionChanged
+    public class Transcription : TranscriptionElement, IList<TranscriptionElement>, INotifyCollectionChanged
     {
         public double TotalHeigth;
         public bool FindNext(ref TranscriptionElement paragraph, ref int TextOffset, out int length, string pattern, bool isregex, bool CaseSensitive, bool searchinspeakers)
@@ -1337,7 +1337,7 @@ namespace NanoTrans
 
                 while (prs != null)
                 {
-                    MyParagraph pr = prs as MyParagraph;
+                    TranscriptionParagraph pr = prs as TranscriptionParagraph;
                     if (pr != null && GetSpeaker(pr.speakerID).FullName.ToLower().Contains(pattern.ToLower()))
                     {
                         paragraph = pr;
@@ -1428,7 +1428,7 @@ namespace NanoTrans
         /// <summary>
         /// vsechny kapitoly streamu
         /// </summary>
-        public VirtualTypeList<MyChapter> Chapters;    //vsechny kapitoly streamu
+        public VirtualTypeList<TranscriptionChapter> Chapters;    //vsechny kapitoly streamu
 
         [XmlElement("SpeakersDatabase")]
         public MySpeakers m_SeznamMluvcich = new MySpeakers();
@@ -1442,12 +1442,12 @@ namespace NanoTrans
 
 
 
-        public MySubtitlesData()
+        public Transcription()
         {
             JmenoSouboru = null;
             Ulozeno = false;
 
-            Chapters = new VirtualTypeList<MyChapter>(this);
+            Chapters = new VirtualTypeList<TranscriptionChapter>(this);
             //constructor  
         }
 
@@ -1457,7 +1457,7 @@ namespace NanoTrans
         /// vytvori kopii objektu
         /// </summary>
         /// <param name="aKopie"></param>
-        public MySubtitlesData(MySubtitlesData aKopie)
+        public Transcription(Transcription aKopie)
         {
             this.dateTime = aKopie.dateTime;
             this.source = aKopie.source;
@@ -1466,10 +1466,10 @@ namespace NanoTrans
             this.type = aKopie.type;
             if (aKopie.Chapters != null)
             {
-                this.Chapters = new VirtualTypeList<MyChapter>(this);
+                this.Chapters = new VirtualTypeList<TranscriptionChapter>(this);
                 for (int i = 0; i < aKopie.Chapters.Count; i++)
                 {
-                    this.Chapters.Add(new MyChapter(aKopie.Chapters[i]));
+                    this.Chapters.Add(new TranscriptionChapter(aKopie.Chapters[i]));
                 }
             }
             this.JmenoSouboru = aKopie.JmenoSouboru;
@@ -1477,35 +1477,40 @@ namespace NanoTrans
             this.Ulozeno = aKopie.Ulozeno;
         }
 
+        public Transcription(FileInfo f)
+        {
+            Deserialize(f.FullName);
+        }
+
         /// <summary>
         /// vrati vsechny vyhovujici elementy casu
         /// </summary>
         /// <param name="aPoziceKurzoru"></param>
         /// <returns></returns>
-        public List<MyParagraph> VratElementDanehoCasu(TimeSpan cas)
+        public List<TranscriptionParagraph> VratElementDanehoCasu(TimeSpan cas)
         {
-            List<MyParagraph> toret = new List<MyParagraph>();
+            List<TranscriptionParagraph> toret = new List<TranscriptionParagraph>();
             foreach (var el in this)
             {
                 if (el.IsParagraph && el.Begin <= cas && el.End > cas)
                 {
-                    toret.Add((MyParagraph)el);
+                    toret.Add((TranscriptionParagraph)el);
                 }
             }
             return toret;
         }
 
-        public MyParagraph VratElementKonciciPred(TimeSpan cas)
+        public TranscriptionParagraph VratElementKonciciPred(TimeSpan cas)
         {
-            List<MyParagraph> toret = new List<MyParagraph>();
-            MyParagraph par = null;
+            List<TranscriptionParagraph> toret = new List<TranscriptionParagraph>();
+            TranscriptionParagraph par = null;
             foreach (var el in this)
             {
                 if (el.End < cas)
                 {
                     if (el.IsParagraph)
                     {
-                        par = (MyParagraph)el;
+                        par = (TranscriptionParagraph)el;
                     }
                 }
                 else
@@ -1515,17 +1520,17 @@ namespace NanoTrans
         }
 
 
-        public MyParagraph VratElementZacinajiciPred(TimeSpan cas)
+        public TranscriptionParagraph VratElementZacinajiciPred(TimeSpan cas)
         {
-            List<MyParagraph> toret = new List<MyParagraph>();
-            MyParagraph par = null;
+            List<TranscriptionParagraph> toret = new List<TranscriptionParagraph>();
+            TranscriptionParagraph par = null;
             foreach (var el in this)
             {
                 if (el.Begin < cas)
                 {
                     if (el.IsParagraph)
                     {
-                        par = (MyParagraph)el;
+                        par = (TranscriptionParagraph)el;
                     }
                 }
                 else
@@ -1536,7 +1541,7 @@ namespace NanoTrans
         }
 
         //smazani speakera ze seznamu speakeru a odstraneni speakera v pouzitych odstavcich
-        public bool OdstranSpeakera(MySpeaker aSpeaker)
+        public bool OdstranSpeakera(Speaker aSpeaker)
         {
             try
             {
@@ -1547,13 +1552,13 @@ namespace NanoTrans
                         Ulozeno = false;
                         for (int k = 0; k < Chapters.Count; k++)
                         {
-                            for (int l = 0; l < ((MyChapter)Chapters[k]).Sections.Count; l++)
+                            for (int l = 0; l < ((TranscriptionChapter)Chapters[k]).Sections.Count; l++)
                             {
-                                for (int m = 0; m < ((MySection)((MyChapter)Chapters[k]).Sections[l]).Paragraphs.Count; m++)
+                                for (int m = 0; m < ((TranscriptionSection)((TranscriptionChapter)Chapters[k]).Sections[l]).Paragraphs.Count; m++)
                                 {
                                     if (Chapters[k].Sections[l].Paragraphs[m].speakerID == aSpeaker.ID)
                                     {
-                                        Chapters[k].Sections[l].Paragraphs[m].speakerID = new MySpeaker().ID;
+                                        Chapters[k].Sections[l].Paragraphs[m].speakerID = new Speaker().ID;
                                     }
                                 }
 
@@ -1580,16 +1585,16 @@ namespace NanoTrans
         /// </summary>
         /// <param name="aSpeaker"></param>
         /// <returns></returns>
-        public int NovySpeaker(MySpeaker aSpeaker)
+        public int NovySpeaker(Speaker aSpeaker)
         {
             int i = this.m_SeznamMluvcich.NovySpeaker(aSpeaker);
-            if (i != MySpeaker.DefaultID)
+            if (i != Speaker.DefaultID)
                 this.Ulozeno = false;
             return i;
         }
 
 
-        public MySpeaker VratSpeakera(int aIDSpeakera)
+        public Speaker VratSpeakera(int aIDSpeakera)
         {
             return this.m_SeznamMluvcich.VratSpeakera(aIDSpeakera);
         }
@@ -1609,7 +1614,7 @@ namespace NanoTrans
         /// </summary>
         /// <param name="aJmeno"></param>
         /// <returns></returns>
-        public MySpeaker GetSpeaker(int id)
+        public Speaker GetSpeaker(int id)
         {
             return this.m_SeznamMluvcich.VratSpeakera(id);
         }
@@ -1643,7 +1648,7 @@ namespace NanoTrans
         }
 
 
-        public bool SerializeV1(Stream datastream, MySubtitlesData co, bool aUkladatKompletMluvci)
+        public bool SerializeV1(Stream datastream, Transcription co, bool aUkladatKompletMluvci)
         {
             try
             {
@@ -1659,7 +1664,7 @@ namespace NanoTrans
                     }
                 }
 
-                MySubtitlesData pCopy = new MySubtitlesData(co);
+                Transcription pCopy = new Transcription(co);
 
                 System.Xml.XmlTextWriter writer = new XmlTextWriter(datastream, Encoding.UTF8);
                 writer.Formatting = Formatting.Indented;
@@ -1673,7 +1678,7 @@ namespace NanoTrans
                 writer.WriteStartElement("Chapters");
 
 
-                foreach (MyChapter c in pCopy.Chapters)
+                foreach (TranscriptionChapter c in pCopy.Chapters)
                 {
                     writer.WriteStartElement("Chapter");
                     writer.WriteAttributeString("name", c.name);
@@ -1682,7 +1687,7 @@ namespace NanoTrans
 
                     writer.WriteStartElement("Sections");
 
-                    foreach (MySection s in c.Sections)
+                    foreach (TranscriptionSection s in c.Sections)
                     {
                         writer.WriteStartElement("Section");
                         writer.WriteAttributeString("name", s.name);
@@ -1691,7 +1696,7 @@ namespace NanoTrans
 
                         writer.WriteStartElement("Paragraphs");
 
-                        foreach (MyParagraph p in s.Paragraphs)
+                        foreach (TranscriptionParagraph p in s.Paragraphs)
                         {
                             writer.WriteStartElement("Paragraph");
                             writer.WriteAttributeString("begin", XmlConvert.ToString(p.Begin));
@@ -1701,7 +1706,7 @@ namespace NanoTrans
 
                             writer.WriteStartElement("Phrases");
 
-                            foreach (MyPhrase ph in p.Phrases)
+                            foreach (TranscriptionPhrase ph in p.Phrases)
                             {
                                 writer.WriteStartElement("Phrase");
                                 writer.WriteAttributeString("begin", XmlConvert.ToString(ph.Begin));
@@ -1722,7 +1727,7 @@ namespace NanoTrans
 
 
                         writer.WriteStartElement("PhoneticParagraphs");
-                        foreach (MyParagraph p in s.Paragraphs)
+                        foreach (TranscriptionParagraph p in s.Paragraphs)
                         {
                             writer.WriteStartElement("Paragraph");
                             writer.WriteAttributeString("begin", XmlConvert.ToString(p.Begin));
@@ -1732,7 +1737,7 @@ namespace NanoTrans
 
                             writer.WriteStartElement("Phrases");
 
-                            foreach (MyPhrase ph in p.Phrases)
+                            foreach (TranscriptionPhrase ph in p.Phrases)
                             {
                                 writer.WriteStartElement("Phrase");
                                 writer.WriteAttributeString("begin", XmlConvert.ToString(ph.Begin));
@@ -1766,13 +1771,13 @@ namespace NanoTrans
 
 
 
-                foreach (MySpeaker sp in pCopy.m_SeznamMluvcich.Speakers)
+                foreach (Speaker sp in pCopy.m_SeznamMluvcich.Speakers)
                 {
                     writer.WriteStartElement("Speaker");
                     writer.WriteElementString("ID", XmlConvert.ToString(sp.ID));
                     writer.WriteElementString("Firstname", sp.FirstName);
                     writer.WriteElementString("Surname", sp.Surname);
-                    writer.WriteElementString("Sex", (sp.Sex==MySpeaker.Sexes.Female)?"female":(sp.Sex==MySpeaker.Sexes.Male)?"male":"-");
+                    writer.WriteElementString("Sex", (sp.Sex==Speaker.Sexes.Female)?"female":(sp.Sex==Speaker.Sexes.Male)?"male":"-");
                     writer.WriteElementString("Comment", sp.Comment);
 
                     writer.WriteEndElement();//speaker
@@ -1825,10 +1830,10 @@ namespace NanoTrans
         }
 
         //Deserializuje soubor             
-        public static MySubtitlesData Deserialize(string filename)
+        public static Transcription Deserialize(string filename)
         {
             Stream s = File.Open(filename, FileMode.Open);
-            MySubtitlesData dta = Deserialize(s);
+            Transcription dta = Deserialize(s);
 
             try
             {
@@ -1847,7 +1852,7 @@ namespace NanoTrans
         }
 
         //Deserializuje soubor             
-        public static MySubtitlesData Deserialize(Stream datastream)
+        public static Transcription Deserialize(Stream datastream)
         {
             XmlTextReader reader = new XmlTextReader(datastream);
             if (reader.Read())
@@ -1870,13 +1875,13 @@ namespace NanoTrans
             return null;
         }
 
-        private XElement Meta = EmptyMeta;
+        public XElement Meta = EmptyMeta;
         private static readonly XElement EmptyMeta = new XElement("Meta");
         private Dictionary<string, string> elements = new Dictionary<string, string>();
-        private static MySubtitlesData DeserializeV2_0(XmlTextReader reader)
+        private static Transcription DeserializeV2_0(XmlTextReader reader)
         {
 
-            MySubtitlesData data = new MySubtitlesData();
+            Transcription data = new Transcription();
             data.BeginUpdate();
             var document = XDocument.Load(reader);
             var transcription = document.Elements().First();
@@ -1895,21 +1900,21 @@ namespace NanoTrans
             data.elements.Remove("mediaURI");
             data.elements.Remove("version");
 
-            chapters.Select(c => (TranscriptionElement)new MyChapter(c,isStrict)).ToList().ForEach(c=>data.Add(c));
+            chapters.Select(c => (TranscriptionElement)new TranscriptionChapter(c,isStrict)).ToList().ForEach(c=>data.Add(c));
 
             var speakers = transcription.Element(isStrict?"speakers":"sp");
-            data.Speakers.Speakers = new List<MySpeaker>(speakers.Elements(isStrict?"speaker":"s").Select(s => new MySpeaker(s,isStrict)));
+            data.Speakers.Speakers = new List<Speaker>(speakers.Elements(isStrict?"speaker":"s").Select(s => new Speaker(s,isStrict)));
             data.EndUpdate();
 
             return data;
         }
 
 
-        public static MySubtitlesData DeserializeV1(XmlTextReader reader)
+        public static Transcription DeserializeV1(XmlTextReader reader)
         {
             try
             {
-                MySubtitlesData data = new MySubtitlesData();
+                Transcription data = new Transcription();
                 reader.WhitespaceHandling = WhitespaceHandling.Significant;
 
                 reader.Read(); //<?xml version ...
@@ -1928,7 +1933,7 @@ namespace NanoTrans
                 //reader.ReadStartElement("Chapter");
                 while (reader.Name == "Chapter")
                 {
-                    MyChapter c = new MyChapter();
+                    TranscriptionChapter c = new TranscriptionChapter();
                     c.name = reader.GetAttribute("name");
 
                     val = reader.GetAttribute("begin");
@@ -1957,7 +1962,7 @@ namespace NanoTrans
                     while (reader.Name == "Section")
                     {
 
-                        MySection s = new MySection();
+                        TranscriptionSection s = new TranscriptionSection();
                         s.name = reader.GetAttribute("name");
 
                         val = reader.GetAttribute("begin");
@@ -1983,7 +1988,7 @@ namespace NanoTrans
 
                         while (reader.Name == "Paragraph")
                         {
-                            MyParagraph p = new MyParagraph();
+                            TranscriptionParagraph p = new TranscriptionParagraph();
                             val = reader.GetAttribute("begin");
                             if (int.TryParse(val, out result))
                                 if (result < 0)
@@ -2014,7 +2019,7 @@ namespace NanoTrans
 
                             while (reader.Name == "Phrase")
                             {
-                                MyPhrase ph = new MyPhrase();
+                                TranscriptionPhrase ph = new TranscriptionPhrase();
                                 val = reader.GetAttribute("begin");
                                 if (int.TryParse(val, out result))
                                     if (result < 0)
@@ -2068,7 +2073,7 @@ namespace NanoTrans
 
                             p.speakerID = XmlConvert.ToInt32(reader.ReadElementString());
                             if (p.speakerID == -1)
-                                p.speakerID = MySpeaker.DefaultID;
+                                p.speakerID = Speaker.DefaultID;
 
                             reader.ReadEndElement();//paragraph
                             s.Paragraphs.Add(p);
@@ -2083,7 +2088,7 @@ namespace NanoTrans
 
                         while (reader.Name == "Paragraph")
                         {
-                            MyParagraph p = new MyParagraph();
+                            TranscriptionParagraph p = new TranscriptionParagraph();
                             val = reader.GetAttribute("begin");
                             if (int.TryParse(val, out result))
                                 if (result < 0)
@@ -2115,7 +2120,7 @@ namespace NanoTrans
 
                             while (reader.Name == "Phrase")
                             {
-                                MyPhrase ph = new MyPhrase();
+                                TranscriptionPhrase ph = new TranscriptionPhrase();
                                 val = reader.GetAttribute("begin");
                                 if (int.TryParse(val, out result))
                                     if (result < 0)
@@ -2158,14 +2163,14 @@ namespace NanoTrans
 
                             p.speakerID = XmlConvert.ToInt32(reader.ReadElementString());
                             if (p.speakerID == -1)
-                                p.speakerID = MySpeaker.DefaultID;
+                                p.speakerID = Speaker.DefaultID;
 
                             reader.ReadEndElement();//paragraph
 
                             //zarovnani fonetiky k textu
 
 
-                            MyParagraph bestpar = null;
+                            TranscriptionParagraph bestpar = null;
                             TimeSpan timeinboth = TimeSpan.Zero;
 
                             if (p.Phrases.Count == 0)
@@ -2174,7 +2179,7 @@ namespace NanoTrans
 
                             TimeSpan minusone = new TimeSpan(-1);
 
-                            foreach (MyParagraph v in s.Paragraphs)
+                            foreach (TranscriptionParagraph v in s.Paragraphs)
                             {
                                 if (v.End < p.Begin && v.End != minusone && p.Begin != minusone)
                                     continue;
@@ -2236,8 +2241,8 @@ namespace NanoTrans
                                     TimeSpan actual = p.Phrases[i].Begin;
                                     while (i < p.Phrases.Count && j < bestpar.Phrases.Count)
                                     {
-                                        MyPhrase to = p.Phrases[i];
-                                        MyPhrase from = bestpar.Phrases[j];
+                                        TranscriptionPhrase to = p.Phrases[i];
+                                        TranscriptionPhrase from = bestpar.Phrases[j];
                                         if (true)
                                         {
 
@@ -2259,7 +2264,7 @@ namespace NanoTrans
                                 reader.Read();
 
                             int spkr = XmlConvert.ToInt32(reader.ReadElementString("speaker"));
-                            s.Speaker = (spkr < 0) ? MySpeaker.DefaultID : spkr;
+                            s.Speaker = (spkr < 0) ? Speaker.DefaultID : spkr;
 
                         }
                         c.Sections.Add(s);
@@ -2281,7 +2286,7 @@ namespace NanoTrans
                 {
                     bool end = false;
 
-                    MySpeaker sp = new MySpeaker();
+                    Speaker sp = new Speaker();
                     reader.ReadStartElement("Speaker");
                     while (!end)
                     {
@@ -2306,14 +2311,14 @@ namespace NanoTrans
 
                                     if (new[] { "male", "m", "muž" }.Contains(ss.ToLower()))
                                     {
-                                        sp.Sex = MySpeaker.Sexes.Male;
+                                        sp.Sex = Speaker.Sexes.Male;
                                     }
                                     else if (new[] { "female", "f", "žena" }.Contains(ss.ToLower()))
                                     {
-                                        sp.Sex = MySpeaker.Sexes.Female;
+                                        sp.Sex = Speaker.Sexes.Female;
                                     }
                                     else
-                                        sp.Sex = MySpeaker.Sexes.X;
+                                        sp.Sex = Speaker.Sexes.X;
 
                                 }
                                 break;
@@ -2386,14 +2391,14 @@ namespace NanoTrans
             get
             {
                 int i = 0;
-                foreach (MyChapter c in Chapters)
+                foreach (TranscriptionChapter c in Chapters)
                 {
                     if (i == index)
                         return c;
                     i++;
                     if (index < i + c.GetTotalChildrenCount())
                     {
-                        foreach (MySection s in c.Sections)
+                        foreach (TranscriptionSection s in c.Sections)
                         {
                             if (i == index)
                                 return s;
@@ -2424,16 +2429,16 @@ namespace NanoTrans
 
         public override void Add(TranscriptionElement item)
         {
-            if (item is MyChapter)
+            if (item is TranscriptionChapter)
             {
                 base.Add(item);
                 this.ChildrenCountChanged(NotifyCollectionChangedAction.Add);
             }
-            else if (item is MySection)
+            else if (item is TranscriptionSection)
             {
                 m_children[m_children.Count - 1].Add(item);
             }
-            else if (item is MyParagraph)
+            else if (item is TranscriptionParagraph)
             {
                 m_children[m_children.Count - 1].Children[m_children[m_children.Count - 1].Children.Count - 1].Add(item);
             }
@@ -2466,7 +2471,7 @@ namespace NanoTrans
 
         public override bool Remove(TranscriptionElement item)
         {
-            if (item is MyChapter)
+            if (item is TranscriptionChapter)
             {
                 return base.Remove(item);
             }
@@ -2488,15 +2493,15 @@ namespace NanoTrans
 
         public IEnumerator<TranscriptionElement> GetEnumerator()
         {
-            foreach (MyChapter c in this.Chapters)
+            foreach (TranscriptionChapter c in this.Chapters)
             {
                 yield return c;
 
-                foreach (MySection s in c.Sections)
+                foreach (TranscriptionSection s in c.Sections)
                 {
                     yield return s;
 
-                    foreach (MyParagraph p in s.Paragraphs)
+                    foreach (TranscriptionParagraph p in s.Paragraphs)
                     {
                         yield return p;
                     }

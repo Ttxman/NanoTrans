@@ -3,7 +3,7 @@
 namespace NanoTrans
 {
     [Flags]
-    public enum MyEnumParagraphAttributes : int
+    public enum ParagraphAttributes : int
     {
         None = 0x0,
         Narrowband = 0x1,

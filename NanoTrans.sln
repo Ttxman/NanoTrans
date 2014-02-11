@@ -1,13 +1,9 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NanoTrans", "WpfApplication2\NanoTrans.csproj", "{D7836B04-9AB2-44B6-B976-73C2E4420A0B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EA1E78C1-A15A-46B3-8837-B3B2D27F1784}"
-	ProjectSection(SolutionItems) = preProject
-		Performance1.psess = Performance1.psess
-		Performance2.psess = Performance2.psess
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SVNVersioning", "SVNVersioning\SVNVersioning.csproj", "{C70B3BB5-998F-4BA5-903F-C4C94A25F141}"
 EndProject
@@ -20,6 +16,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrsxV1Plugin", "TrsxV1Plugin\TrsxV1Plugin.csproj", "{34699257-4E91-48A8-B952-489E67B6C4E9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExePlugin", "ExePlugin\ExePlugin.csproj", "{7C825F64-161C-404F-AB90-66881368A664}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "search", "search\search.csproj", "{175F93A1-BBA5-4521-A4D5-AA5CDAD14E59}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NvxPlugin", "NvxPlugin\NvxPlugin.csproj", "{56190F63-F32A-40D3-8EC6-DE5F0972959A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -102,6 +102,26 @@ Global
 		{7C825F64-161C-404F-AB90-66881368A664}.Release|Mixed Platforms.Build.0 = Release|x86
 		{7C825F64-161C-404F-AB90-66881368A664}.Release|x86.ActiveCfg = Release|x86
 		{7C825F64-161C-404F-AB90-66881368A664}.Release|x86.Build.0 = Release|x86
+		{175F93A1-BBA5-4521-A4D5-AA5CDAD14E59}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{175F93A1-BBA5-4521-A4D5-AA5CDAD14E59}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{175F93A1-BBA5-4521-A4D5-AA5CDAD14E59}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{175F93A1-BBA5-4521-A4D5-AA5CDAD14E59}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{175F93A1-BBA5-4521-A4D5-AA5CDAD14E59}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{175F93A1-BBA5-4521-A4D5-AA5CDAD14E59}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{175F93A1-BBA5-4521-A4D5-AA5CDAD14E59}.Release|Any CPU.Build.0 = Release|Any CPU
+		{175F93A1-BBA5-4521-A4D5-AA5CDAD14E59}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{175F93A1-BBA5-4521-A4D5-AA5CDAD14E59}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{175F93A1-BBA5-4521-A4D5-AA5CDAD14E59}.Release|x86.ActiveCfg = Release|Any CPU
+		{56190F63-F32A-40D3-8EC6-DE5F0972959A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56190F63-F32A-40D3-8EC6-DE5F0972959A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56190F63-F32A-40D3-8EC6-DE5F0972959A}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{56190F63-F32A-40D3-8EC6-DE5F0972959A}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{56190F63-F32A-40D3-8EC6-DE5F0972959A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{56190F63-F32A-40D3-8EC6-DE5F0972959A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56190F63-F32A-40D3-8EC6-DE5F0972959A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{56190F63-F32A-40D3-8EC6-DE5F0972959A}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{56190F63-F32A-40D3-8EC6-DE5F0972959A}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{56190F63-F32A-40D3-8EC6-DE5F0972959A}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

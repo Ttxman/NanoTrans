@@ -18,24 +18,24 @@ namespace NanoTrans
     /// </summary>
     public partial class ReplaceSpeakerWindow : Window
     {
-        public MySpeaker From
+        public Speaker From
         {
-            get { return (MySpeaker)comboboxReplaced.SelectedItem; }
+            get { return (Speaker)comboboxReplaced.SelectedItem; }
         }
 
-        public MySpeaker To
+        public Speaker To
         {
-            get { return (MySpeaker)comboBoxReplacer.SelectedItem; }
+            get { return (Speaker)comboBoxReplacer.SelectedItem; }
         }
 
         public ReplaceSpeakerWindow(MySpeakers speakers)
         {
             InitializeComponent();
 
-            List<MySpeaker> from = new List<MySpeaker>(speakers.Speakers);
-            from.Add(new MySpeaker() { ID = MySpeaker.DefaultID, Surname = "Neidentifikovaný mluvčí" });
+            List<Speaker> from = new List<Speaker>(speakers.Speakers);
+            from.Add(new Speaker() { ID = Speaker.DefaultID, Surname = "Neidentifikovaný mluvčí" });
             comboboxReplaced.ItemsSource = from;
-            comboBoxReplacer.ItemsSource = new List<MySpeaker>(speakers.Speakers);
+            comboBoxReplacer.ItemsSource = new List<Speaker>(speakers.Speakers);
         }
 
         private void buttonOK_Click(object sender, RoutedEventArgs e)

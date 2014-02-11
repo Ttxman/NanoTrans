@@ -26,7 +26,7 @@ using System.Security;
 using System.Xml.Linq;
 using System.Reflection;
 using Microsoft.Win32;
-
+using NanoTrans.Audio;
 
 namespace NanoTrans
 {
@@ -40,8 +40,8 @@ namespace NanoTrans
         private DispatcherTimer timer1 = new DispatcherTimer();
         private DispatcherTimer timerRozpoznavace = new DispatcherTimer();
 
-        private MySubtitlesData m_mydatasource;
-        public MySubtitlesData myDataSource
+        private Transcription m_mydatasource;
+        public Transcription myDataSource
         {
             get { return m_mydatasource; }
             set
@@ -74,12 +74,8 @@ namespace NanoTrans
         /// <summary>
         /// trida starajici se o prevod multimedialnich souboru a nacitani bufferu pro zobrazeni a rozpoznani
         /// </summary>
-        private MyWav oWav = null;
+        private WavReader oWav = null;
 
-        /// <summary>
-        /// trida starajici se o beh automatickeho prepisovace
-        /// </summary>
-        private MyPrepisovac oPrepisovac = null;
 
 
         bool jeVideo = false;
@@ -447,7 +443,7 @@ namespace NanoTrans
             try
             {
                 //oWav = new MyWav(new ExampleCallback(ResultCallback), new BufferCallback(ResultCallbackBuffer), 1000000);
-                oWav = new MyWav();
+                oWav = new WavReader();
                 oWav.HaveData += oWav_HaveData;
                 oWav.HaveFileNumber += oWav_HaveFileNumber;
                 oWav.TemporaryWavesDone += new EventHandler(oWav_TemporaryWavesDone);
@@ -523,7 +519,7 @@ namespace NanoTrans
             zacatekbufferums = -1;
             if (MWP != null)
             {
-                if (_playing && oWav != null && oWav.Nacteno)
+                if (_playing && oWav != null && oWav.Loaded)
                 {
                     TimeSpan pOmezeniMS = new TimeSpan(-1);
                     if (prehratVyber)
@@ -535,7 +531,7 @@ namespace NanoTrans
                     zacatekbufferums = pIndexBufferuVlnyProPrehrani;
                     pIndexBufferuVlnyProPrehrani += 150;
 
-                    if (pIndexBufferuVlnyProPrehrani > oWav.DelkaSouboruMS)
+                    if (pIndexBufferuVlnyProPrehrani > oWav.FileLengthMS)
                     {
                         if (!prehratVyber)
                         {
@@ -570,8 +566,8 @@ namespace NanoTrans
         /// <param name="e"></param>
         private void oWav_HaveFileNumber(object sender, EventArgs e)
         {
-            MyEventArgs2 e2 = (MyEventArgs2)e;
-            this.Dispatcher.Invoke(DispatcherPriority.Normal, new Action<MyEventArgs2>(ZobrazProgressPrevoduSouboru), e2);
+            AudioBufferEventArgs2 e2 = (AudioBufferEventArgs2)e;
+            this.Dispatcher.Invoke(DispatcherPriority.Normal, new Action<AudioBufferEventArgs2>(ZobrazProgressPrevoduSouboru), e2);
         }
 
         private void oWav_TemporaryWavesDone(object sender, EventArgs e)
@@ -587,14 +583,14 @@ namespace NanoTrans
         /// zobrazi progress nacitani
         /// </summary>
         /// <param name="e"></param>
-        private void ZobrazProgressPrevoduSouboru(MyEventArgs2 e)
+        private void ZobrazProgressPrevoduSouboru(AudioBufferEventArgs2 e)
         {
-            pbPrevodAudio.Value = e.souborCislo;
+            pbPrevodAudio.Value = e.FileNumber;
             waveform1.ProgressHighlightBegin = TimeSpan.Zero;
-            waveform1.ProgressHighlightEnd = TimeSpan.FromMilliseconds(e.msCelkovyCas);
+            waveform1.ProgressHighlightEnd = TimeSpan.FromMilliseconds(e.LengthMS);
 
 
-            if (e.msCelkovyCas >= oWav.DelkaSouboruMS)
+            if (e.LengthMS >= oWav.FileLengthMS)
             {
                 if (MySetup.Setup.jazykRozhranni == MyEnumJazyk.anglictina)
                 {
@@ -623,11 +619,11 @@ namespace NanoTrans
         void oWav_HaveData(object sender, EventArgs e)
         {
 
-            MyEventArgs me = (MyEventArgs)e;
-            if (me.IDBufferu == MyKONST.ID_ZOBRAZOVACIHO_BUFFERU_VLNY)
+            AudioBufferEventArgs me = (AudioBufferEventArgs)e;
+            if (me.BufferID == MyKONST.ID_ZOBRAZOVACIHO_BUFFERU_VLNY)
             {
-                waveform1.SetAudioData(me.data, TimeSpan.FromMilliseconds(me.pocatecniCasMS), TimeSpan.FromMilliseconds(me.koncovyCasMS));
-                if (me.pocatecniCasMS == 0)
+                waveform1.SetAudioData(me.data, TimeSpan.FromMilliseconds(me.StartMS), TimeSpan.FromMilliseconds(me.EndMS));
+                if (me.StartMS == 0)
                 {
                     if (!timer1.IsEnabled) InitializeTimer();
                     if (waveform1.WaveLength < TimeSpan.FromSeconds(30))
@@ -642,12 +638,7 @@ namespace NanoTrans
 
                 }
             }
-            else if (me.IDBufferu == MyKONST.ID_BUFFERU_PREPISOVANEHO_ELEMENTU)
-            {
-                oPrepisovac.bufferProPrepsani = new MyBuffer16(me.koncovyCasMS - me.pocatecniCasMS);
-                oPrepisovac.bufferProPrepsani.UlozDataDoBufferu(me.data, me.pocatecniCasMS, me.koncovyCasMS);
-            }
-            else if (me.IDBufferu == MyKONST.ID_BUFFERU_PREPISOVANEHO_ELEMENTU_FONETICKY_PREPIS)
+            else if (me.BufferID == MyKONST.ID_BUFFERU_PREPISOVANEHO_ELEMENTU_FONETICKY_PREPIS)
             {
                 throw new NotImplementedException();
             }
@@ -668,25 +659,25 @@ namespace NanoTrans
             e.Handled = true;
         }
 
-        Brush GetRectangleBgColor(MyEnumParagraphAttributes param)
+        Brush GetRectangleBgColor(ParagraphAttributes param)
         {
             return Brushes.White;
         }
 
-        Brush GetRectangleInnenrColor(MyEnumParagraphAttributes param)
+        Brush GetRectangleInnenrColor(ParagraphAttributes param)
         {
             switch (param)
             {
                 default:
-                case MyEnumParagraphAttributes.None:
+                case ParagraphAttributes.None:
                     return Brushes.White;
-                case MyEnumParagraphAttributes.Background_noise:
+                case ParagraphAttributes.Background_noise:
                     return Brushes.DodgerBlue;
-                case MyEnumParagraphAttributes.Background_speech:
+                case ParagraphAttributes.Background_speech:
                     return Brushes.Chocolate;
-                case MyEnumParagraphAttributes.Junk:
+                case ParagraphAttributes.Junk:
                     return Brushes.Crimson;
-                case MyEnumParagraphAttributes.Narrowband:
+                case ParagraphAttributes.Narrowband:
                     return Brushes.Olive;
             }
         }
@@ -766,16 +757,16 @@ namespace NanoTrans
                                 if (!UlozitTitulky(true, myDataSource.JmenoSouboru)) return false;
                             }
                         }
-                        myDataSource = new MySubtitlesData();
+                        myDataSource = new Transcription();
 
                         this.Title = MyKONST.NAZEV_PROGRAMU + " [novy]";
 
-                        var c = new MyChapter();
-                        var s = new MySection();
-                        var p = new MyParagraph();
+                        var c = new TranscriptionChapter();
+                        var s = new TranscriptionSection();
+                        var p = new TranscriptionParagraph();
                         c.Add(s);
                         s.Add(p);
-                        p.Phrases.Add(new MyPhrase());
+                        p.Phrases.Add(new TranscriptionPhrase());
 
                         myDataSource.Add(c);
 
@@ -787,12 +778,12 @@ namespace NanoTrans
                 }
                 else
                 {
-                    var source = new MySubtitlesData();
+                    var source = new Transcription();
                     this.Title = MyKONST.NAZEV_PROGRAMU + " [novy]";
-                    var c = new MyChapter("Kapitola 0");
-                    var s = new MySection("Sekce 0");
-                    var p = new MyParagraph();
-                    p.Add(new MyPhrase());
+                    var c = new TranscriptionChapter("Kapitola 0");
+                    var s = new TranscriptionSection("Sekce 0");
+                    var p = new TranscriptionParagraph();
+                    p.Add(new TranscriptionPhrase());
                     c.Add(s);
                     s.Add(p);
                     source.Add(c);
@@ -841,7 +832,7 @@ namespace NanoTrans
                 }
 
 
-                if (myDataSource == null) myDataSource = new MySubtitlesData();
+                if (myDataSource == null) myDataSource = new Transcription();
                 if (pouzitOpenDialog)
                 {
                     Microsoft.Win32.OpenFileDialog fileDialog = new Microsoft.Win32.OpenFileDialog();
@@ -884,8 +875,8 @@ namespace NanoTrans
                             }
                         }
 
-                        MySubtitlesData pDataSource = null;
-                        pDataSource = MySubtitlesData.Deserialize(fileDialog.FileName);
+                        Transcription pDataSource = null;
+                        pDataSource = Transcription.Deserialize(fileDialog.FileName);
 
 
                         if (pDataSource == null)
@@ -939,9 +930,9 @@ namespace NanoTrans
                             //synchronizace mluvcich podle vnitrni databaze
                             try
                             {
-                                foreach (MySpeaker i in myDataSource.Speakers.Speakers)
+                                foreach (Speaker i in myDataSource.Speakers.Speakers)
                                 {
-                                    MySpeaker pSp = myDatabazeMluvcich.NajdiSpeakeraSpeaker(i.FullName);
+                                    Speaker pSp = myDatabazeMluvcich.NajdiSpeakeraSpeaker(i.FullName);
                                     if (i.FullName == pSp.FullName && i.FotoJPGBase64 == null)
                                     {
                                         i.FotoJPGBase64 = pSp.FotoJPGBase64;
@@ -968,7 +959,7 @@ namespace NanoTrans
                     {
                         try
                         {
-                            MySubtitlesData pDataSource = null;
+                            Transcription pDataSource = null;
                             FileInfo fi = new FileInfo(jmenoSouboru);
                             if (fi != null && fi.Exists)
                             {
@@ -977,22 +968,22 @@ namespace NanoTrans
                                 {
                                     if (files[i].Name.ToUpper() == fi.Name.ToUpper().Replace(".TXT", "_PHONETIC.XML"))
                                     {
-                                        pDataSource = MySubtitlesData.Deserialize(files[i].FullName);
+                                        pDataSource = Transcription.Deserialize(files[i].FullName);
                                         break;
                                     }
                                 }
                                 if (pDataSource == null)
                                 {
-                                    pDataSource = new MySubtitlesData();
+                                    pDataSource = new Transcription();
                                     FileStream fs = new FileStream(fi.FullName, FileMode.Open);
                                     StreamReader sr = new StreamReader(fs, Encoding.GetEncoding("windows-1250"));
                                     string pText = sr.ReadToEnd();
                                     sr.Close();
                                     fs.Close();
 
-                                    var c = new MyChapter("");
-                                    var s = new MySection("");
-                                    var p = new MyParagraph() { Begin = TimeSpan.Zero };
+                                    var c = new TranscriptionChapter("");
+                                    var s = new TranscriptionSection("");
+                                    var p = new TranscriptionParagraph() { Begin = TimeSpan.Zero };
                                     c.Add(s);
                                     s.Add(p);
                                     pDataSource.Add(c);
@@ -1015,7 +1006,7 @@ namespace NanoTrans
                     }
                     else
                     {
-                        myDataSource = MySubtitlesData.Deserialize(jmenoSouboru);
+                        myDataSource = Transcription.Deserialize(jmenoSouboru);
                     }
                     if (myDataSource != null)
                     {
@@ -1038,7 +1029,7 @@ namespace NanoTrans
                             {
 
                                 FileInfo fi2 = new FileInfo(pAudioFile);
-                                if (fi2.Exists && (!oWav.Nacteno || oWav.CestaSouboru.ToUpper() != pAudioFile.ToUpper()))
+                                if (fi2.Exists && (!oWav.Loaded || oWav.FilePath.ToUpper() != pAudioFile.ToUpper()))
                                 {
                                     NactiAudio(pAudioFile);
                                 }
@@ -1131,35 +1122,6 @@ namespace NanoTrans
                     meVideo.Position = waveform1.CaretPosition;
                 }
                 _pozicenastav = false;
-            }
-        }
-
-        public void InitializeTimerRozpoznavace(long aIntervalMS)
-        {
-
-            timerRozpoznavace.Interval = new TimeSpan(0, 0, 0, 0, (int)aIntervalMS);
-            timerRozpoznavace.Tick += new EventHandler(timerRozpoznavace_Tick);
-            timerRozpoznavace.IsEnabled = true;
-
-        }
-
-        void timerRozpoznavace_Tick(object sender, EventArgs e)
-        {
-            try
-            {
-
-
-                if (oPrepisovac != null && oPrepisovac.Inicializovano)
-                {
-                    oPrepisovac.GetText();
-                    oPrepisovac.GetDelay();
-                    oPrepisovac.AsynchronniRead();
-                }
-
-            }
-            catch
-            {
-
             }
         }
 
@@ -1383,7 +1345,7 @@ namespace NanoTrans
                     }
                     tabControl1.SelectedIndex = 0;
 
-                    if (oWav != null && oWav.CestaSouboru != null && oWav.CestaSouboru != "")
+                    if (oWav != null && oWav.FilePath != null && oWav.FilePath != "")
                     {
                         if (!pOtevrit && MessageBox.Show("Chcete použít jako zdroj audia načítaný video soubor?", "Otázka:", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                         {
@@ -1409,7 +1371,6 @@ namespace NanoTrans
 
         }
 
-        delegate bool DelegatVyberElementu(TranscriptionElement aTag, bool aNezastavovatPrehravani);
 
         private void button6_Click(object sender, RoutedEventArgs e)
         {
@@ -1429,7 +1390,7 @@ namespace NanoTrans
                     MWP.Dispose();
                     MWP = null;
                 }
-                MWP = new MyWavePlayer(MySetup.Setup.audio.VystupniZarizeniIndex, 4800, WOP_ChciData);
+                MWP = new MyWavePlayer(MySetup.Setup.audio.OutputDeviceIndex, 4800, WOP_ChciData);
                 return true;
             }
             catch
@@ -1490,7 +1451,7 @@ namespace NanoTrans
         #region menu Nastroje
         private void MNastroje_Nastav_Mluvciho_Click(object sender, RoutedEventArgs e)
         {
-            new WinSpeakers((MyParagraph)VirtualizingListBox.ActiveTransctiption, MySetup.Setup, this.myDatabazeMluvcich, myDataSource, null).ShowDialog();
+            new WinSpeakers((TranscriptionParagraph)VirtualizingListBox.ActiveTransctiption, MySetup.Setup, this.myDatabazeMluvcich, myDataSource, null).ShowDialog();
         }
 
         private void MNastroje_Nastaveni_Click(object sender, RoutedEventArgs e)
@@ -1594,12 +1555,6 @@ namespace NanoTrans
                 {
                     MWP.Dispose();
                     MWP = null;
-                }
-
-                if (oPrepisovac != null)
-                {
-                    oPrepisovac.Dispose();
-                    oPrepisovac = null;
                 }
 
                 if (oWav != null)
@@ -1783,7 +1738,7 @@ namespace NanoTrans
             p.ExecuteExport(myDataSource);
         }
 
-        private void LoadSubtitlesData(MySubtitlesData data)
+        private void LoadSubtitlesData(Transcription data)
         {
             if (data == null)
                 return;
@@ -1830,7 +1785,7 @@ namespace NanoTrans
         {
 
             Plugin p = (Plugin)((MenuItem)sender).Tag;
-            MySubtitlesData data = p.ExecuteImport();
+            Transcription data = p.ExecuteImport();
             LoadSubtitlesData(data);
         }
 
@@ -2396,7 +2351,7 @@ namespace NanoTrans
             try
             {
                 MemoryStream ms = new MemoryStream(state);
-                myDataSource = MySubtitlesData.Deserialize(ms);
+                myDataSource = Transcription.Deserialize(ms);
                 if (myDataSource != null)
                 {
                     this.Title = MyKONST.NAZEV_PROGRAMU + " [" + myDataSource.JmenoSouboru + "]";
@@ -2415,7 +2370,7 @@ namespace NanoTrans
                             pAudioFile = fi.Directory.FullName + "\\" + myDataSource.mediaURI;
                         }
                         FileInfo fi2 = new FileInfo(pAudioFile);
-                        if (fi2.Exists && (!oWav.Nacteno || oWav.CestaSouboru.ToUpper() != pAudioFile.ToUpper()))
+                        if (fi2.Exists && (!oWav.Loaded || oWav.FilePath.ToUpper() != pAudioFile.ToUpper()))
                         {
                             NactiAudio(pAudioFile);
                         }
@@ -2503,7 +2458,7 @@ namespace NanoTrans
             }
 
             pIndexBufferuVlnyProPrehrani = (int)waveform1.CaretPosition.TotalMilliseconds;
-            List<MyParagraph> pl = myDataSource.VratElementDanehoCasu(waveform1.CaretPosition);
+            List<TranscriptionParagraph> pl = myDataSource.VratElementDanehoCasu(waveform1.CaretPosition);
 
             _pozicenastav = true;
             var list = m_mydatasource.VratElementDanehoCasu(e.Value);
@@ -2527,7 +2482,7 @@ namespace NanoTrans
         private void waveform1_ParagraphDoubleClick(object sender, Waveform.MyTranscriptionElementEventArgs e)
         {
             VirtualizingListBox.ActiveTransctiption = e.Value;
-            new WinSpeakers((MyParagraph)e.Value, MySetup.Setup, this.myDatabazeMluvcich, myDataSource, null).ShowDialog();
+            new WinSpeakers((TranscriptionParagraph)e.Value, MySetup.Setup, this.myDatabazeMluvcich, myDataSource, null).ShowDialog();
             VirtualizingListBox.SpeakerChanged();
         }
 
@@ -2617,7 +2572,7 @@ namespace NanoTrans
                     Assembly a = Assembly.LoadFrom(System.IO.Path.Combine(path, imp.Attribute("File").Value));
                     Type ptype = a.GetType(imp.Attribute("Class").Value);
                     MethodInfo mi = ptype.GetMethod("Import", BindingFlags.Static | BindingFlags.Public);
-                    Func<Stream, MySubtitlesData> act = (Func<Stream, MySubtitlesData>)Delegate.CreateDelegate(typeof(Func<Stream, MySubtitlesData>), mi);
+                    Func<Stream, Transcription> act = (Func<Stream, Transcription>)Delegate.CreateDelegate(typeof(Func<Stream, Transcription>), mi);
 
                     m_ImportPlugins.Add(new Plugin(true, true, imp.Attribute("Mask").Value, null, imp.Attribute("Name").Value, act, null, null));
                 }
@@ -2633,7 +2588,7 @@ namespace NanoTrans
                     Assembly a = Assembly.LoadFrom(System.IO.Path.Combine(path, exp.Attribute("File").Value));
                     Type ptype = a.GetType(exp.Attribute("Class").Value);
                     MethodInfo mi = ptype.GetMethod("Export", BindingFlags.Static | BindingFlags.Public);
-                    Func<MySubtitlesData, Stream, bool> act = (Func<MySubtitlesData, Stream, bool>)Delegate.CreateDelegate(typeof(Func<MySubtitlesData, Stream, bool>), mi);
+                    Func<Transcription, Stream, bool> act = (Func<Transcription, Stream, bool>)Delegate.CreateDelegate(typeof(Func<Transcription, Stream, bool>), mi);
 
                     m_ExportPlugins.Add(new Plugin(true, true, exp.Attribute("Mask").Value, null, exp.Attribute("Name").Value, null, act, null));
                 }
@@ -2655,7 +2610,7 @@ namespace NanoTrans
             {
                 try
                 {
-                    MyParagraph p = myDataSource.Chapters[0].Sections[0].Paragraphs[0];
+                    TranscriptionParagraph p = myDataSource.Chapters[0].Sections[0].Paragraphs[0];
                     while (p != null)
                     {
                         for (int i = p.Phrases.Count - 1; i >= 0; i--)
@@ -2686,7 +2641,7 @@ namespace NanoTrans
                                 }
                             }
                         }
-                        p = (MyParagraph)p.NextSibling();
+                        p = (TranscriptionParagraph)p.NextSibling();
                     }
 
 

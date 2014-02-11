@@ -28,14 +28,14 @@ namespace NanoTrans
     public partial class SubtitlesVizualizer : UserControl
     {
         public static readonly DependencyProperty SubtitlesProperty =
-        DependencyProperty.Register("Subtitles", typeof(MySubtitlesData), typeof(SubtitlesVizualizer), new FrameworkPropertyMetadata(OnSubtitlesChanged));
+        DependencyProperty.Register("Subtitles", typeof(Transcription), typeof(SubtitlesVizualizer), new FrameworkPropertyMetadata(OnSubtitlesChanged));
 
         public static void OnSubtitlesChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            MySubtitlesData data = (MySubtitlesData)e.NewValue;
+            Transcription data = (Transcription)e.NewValue;
             SubtitlesVizualizer vis = (SubtitlesVizualizer)d;
 
-            MySubtitlesData olddata = e.OldValue as MySubtitlesData;
+            Transcription olddata = e.OldValue as Transcription;
             //if (olddata != null)
             //{
             //    olddata.SubtitlesChanged -= vis.SubtitlesContentChanged;
@@ -46,11 +46,11 @@ namespace NanoTrans
             //}
         }
 
-        public MySubtitlesData Subtitles
+        public Transcription Subtitles
         {
             get
             {
-                return (MySubtitlesData)GetValue(SubtitlesProperty);
+                return (Transcription)GetValue(SubtitlesProperty);
             }
             set
             {
@@ -76,9 +76,9 @@ namespace NanoTrans
         void l_NewRequest(object sender, EventArgs e)
         {
             Element el = (Element)sender;
-            MyParagraph p = new MyParagraph();
-            p.Add(new MyPhrase());
-            if (el.ValueElement is MyParagraph)
+            TranscriptionParagraph p = new TranscriptionParagraph();
+            p.Add(new TranscriptionPhrase());
+            if (el.ValueElement is TranscriptionParagraph)
             {
                 TimeSpan pos;
                 RequestTimePosition(out pos);
@@ -95,14 +95,14 @@ namespace NanoTrans
                 p.Begin = el.ValueElement.Parent.End;
 
 
-                p.speakerID = ((MyParagraph)el.ValueElement).speakerID;
+                p.speakerID = ((TranscriptionParagraph)el.ValueElement).speakerID;
                 el.ValueElement.Parent.Insert(el.ValueElement.ParentIndex + 1, p);
             }
-            else if (el.ValueElement is MySection)
+            else if (el.ValueElement is TranscriptionSection)
             {
                 el.ValueElement.Parent.Insert(0, p);
             }
-            else if (el.ValueElement is MyChapter)
+            else if (el.ValueElement is TranscriptionChapter)
             {
                 el.ValueElement.Children[0].Insert(0, p);
             }
@@ -230,7 +230,7 @@ namespace NanoTrans
             TranscriptionElement p = el.ValueElement.Previous();
 
             int len =  p.Text.Length;
-            if (t is MyParagraph && p is MyParagraph)
+            if (t is TranscriptionParagraph && p is TranscriptionParagraph)
             {
                 if (!(t.Children.Count == 1 && string.IsNullOrEmpty(t.Children[0].Text)))
                 {
@@ -260,7 +260,7 @@ namespace NanoTrans
             TranscriptionElement t = el.ValueElement;
             TranscriptionElement n = el.ValueElement.Next();
             int len = t.Text.Length;
-            if (t is MyParagraph && n is MyParagraph)
+            if (t is TranscriptionParagraph && n is TranscriptionParagraph)
             {
                 t.End = n.End;
                 n.Children.ForEach(x => t.Children.Add(x));
@@ -288,13 +288,13 @@ namespace NanoTrans
             try
             {
                 Element el = (Element)sender;
-                if (el.ValueElement is MyParagraph)
+                if (el.ValueElement is TranscriptionParagraph)
                 {
 
-                    MyParagraph par = (MyParagraph)el.ValueElement;
+                    TranscriptionParagraph par = (TranscriptionParagraph)el.ValueElement;
                     TimeSpan end = par.End;
-                    MyParagraph par2 = new MyParagraph();
-                    MyParagraph par1 = new MyParagraph();
+                    TranscriptionParagraph par2 = new TranscriptionParagraph();
+                    TranscriptionParagraph par1 = new TranscriptionParagraph();
 
                     par1.speakerID = par2.speakerID = par.speakerID;
 
@@ -304,15 +304,15 @@ namespace NanoTrans
                     int sum = 0;
                     for (int i = 0; i < par.Phrases.Count; i++)
                     {
-                        MyPhrase p = par.Phrases[i];
+                        TranscriptionPhrase p = par.Phrases[i];
 
                         if (sum + p.Text.Length <= where) //patri do prvniho
                         {
-                            par1.Add(new MyPhrase(p));
+                            par1.Add(new TranscriptionPhrase(p));
                         }
                         else if (sum >= where)
                         {
-                            par2.Add(new MyPhrase(p));
+                            par2.Add(new TranscriptionPhrase(p));
                         }
                         else if (sum <= where && sum + p.Text.Length > where) //uvnitr fraze
                         {
@@ -323,7 +323,7 @@ namespace NanoTrans
                             TimeSpan length = p.End - p.Begin;
                             TimeSpan l1 = new TimeSpan((long)(ratio * length.Ticks));
 
-                            MyPhrase p1 = new MyPhrase();
+                            TranscriptionPhrase p1 = new TranscriptionPhrase();
                             p1.Text = p.Text.Substring(0, offs);
 
                             p1.Begin = p.Begin;
@@ -333,7 +333,7 @@ namespace NanoTrans
                             int idx = i;
                             par1.Add(p1);
 
-                            MyPhrase p2 = new MyPhrase();
+                            TranscriptionPhrase p2 = new TranscriptionPhrase();
                             p2.Text = p.Text.Substring(offs);
                             p2.Begin = p1.End;
                             p2.End = p.End;
@@ -507,9 +507,9 @@ namespace NanoTrans
                 }
                 else
                 {
-                    if (elem.ValueElement is MySection)
-                        elem.Background = MySetup.Setup.BarvaTextBoxuSekce;
-                    else if (elem.ValueElement is MyChapter)
+                    if (elem.ValueElement is TranscriptionSection)
+                        elem.Background = MySetup.Setup.SectionBackground;
+                    else if (elem.ValueElement is TranscriptionChapter)
                         elem.Background = MySetup.Setup.BarvaTextBoxuKapitoly;
                     else
                         elem.Background = null;

@@ -4,9 +4,9 @@ namespace NanoTrans
     /// <summary>
     /// typy elementu dat - foneticky, normalni, atd.
     /// </summary>
-    public enum MyEnumTypElementu
+    public enum ElementType
     {
-        normalni,
-        foneticky
+        Orthographic,
+        Phonetic
     }
 }

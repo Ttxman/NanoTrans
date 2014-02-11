@@ -48,7 +48,7 @@ namespace NanoTrans
                         cbVystupniAudioZarizeni.Items.Add(s);
                     }
                 }
-                if (bNastaveni.audio.VystupniZarizeniIndex < cbVystupniAudioZarizeni.Items.Count) cbVystupniAudioZarizeni.SelectedIndex = bNastaveni.audio.VystupniZarizeniIndex;
+                if (bNastaveni.audio.OutputDeviceIndex < cbVystupniAudioZarizeni.Items.Count) cbVystupniAudioZarizeni.SelectedIndex = bNastaveni.audio.OutputDeviceIndex;
 
                 cbVstupniAudioZarizeni.Items.Clear();
                 if (pZarizeni != null)
@@ -58,7 +58,7 @@ namespace NanoTrans
                         cbVstupniAudioZarizeni.Items.Add(s);
                     }
                 }
-                if (bNastaveni.audio.VstupniZarizeniIndex < cbVstupniAudioZarizeni.Items.Count) cbVstupniAudioZarizeni.SelectedIndex = bNastaveni.audio.VstupniZarizeniIndex;
+                if (bNastaveni.audio.InputDeviceIndex < cbVstupniAudioZarizeni.Items.Count) cbVstupniAudioZarizeni.SelectedIndex = bNastaveni.audio.InputDeviceIndex;
 
                 //databaze mluvcich
 
@@ -99,7 +99,7 @@ namespace NanoTrans
             }
         }
 
-        private void VyplnTextHlasovehoOvladani(TextBox aTbMluvciHlasovehoOvladani, MySpeaker aSpeaker)
+        private void VyplnTextHlasovehoOvladani(TextBox aTbMluvciHlasovehoOvladani, Speaker aSpeaker)
         {
             if (aSpeaker == null || aSpeaker.FullName == null)
             {
@@ -160,11 +160,11 @@ namespace NanoTrans
             //ulozit vse do promenne!
 
             //audio
-            bNastaveni.audio.VystupniZarizeniIndex = cbVystupniAudioZarizeni.SelectedIndex;
-            if (bNastaveni.audio.VystupniZarizeniIndex < 0) bNastaveni.audio.VystupniZarizeniIndex = 0;
+            bNastaveni.audio.OutputDeviceIndex = cbVystupniAudioZarizeni.SelectedIndex;
+            if (bNastaveni.audio.OutputDeviceIndex < 0) bNastaveni.audio.OutputDeviceIndex = 0;
 
-            bNastaveni.audio.VstupniZarizeniIndex = cbVstupniAudioZarizeni.SelectedIndex;
-            if (bNastaveni.audio.VstupniZarizeniIndex < 0) bNastaveni.audio.VstupniZarizeniIndex = 0;
+            bNastaveni.audio.InputDeviceIndex = cbVstupniAudioZarizeni.SelectedIndex;
+            if (bNastaveni.audio.InputDeviceIndex < 0) bNastaveni.audio.InputDeviceIndex = 0;
 
 
             //databaze mluvcich

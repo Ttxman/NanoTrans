@@ -10,7 +10,7 @@ using System.Xml.Linq;
 
 namespace NanoTrans
 {
-    [XmlInclude(typeof(MySpeaker))]
+    [XmlInclude(typeof(Speaker))]
     public class MySpeakers
     {
         private bool _Ulozeno = false;
@@ -23,9 +23,9 @@ namespace NanoTrans
             get { return _JmenoSouboru; }
         }
 
-        private List<MySpeaker> m_Speakers = new List<MySpeaker>();    //vsichni mluvci ve streamu
+        private List<Speaker> m_Speakers = new List<Speaker>();    //vsichni mluvci ve streamu
 
-        public List<MySpeaker> Speakers
+        public List<Speaker> Speakers
         {
             get { return m_Speakers; }
             set { m_Speakers = value; }
@@ -36,7 +36,12 @@ namespace NanoTrans
         public MySpeakers(XElement e, bool isStrict)
         {
             elements = e.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
-            m_Speakers = e.Elements(isStrict ? "speaker" : "s").Select(s => new MySpeaker(s, isStrict)).ToList();
+            m_Speakers = e.Elements(isStrict ? "speaker" : "s").Select(s => new Speaker(s, isStrict)).ToList();
+        }
+
+        public MySpeakers(IEnumerable<Speaker> speakers)
+        {
+            m_Speakers = speakers.ToList();
         }
 
         //copy constructor
@@ -49,10 +54,10 @@ namespace NanoTrans
                 this.speakersIndexCounter = aSpeakers.speakersIndexCounter;
                 if (aSpeakers.m_Speakers != null)
                 {
-                    this.m_Speakers = new List<MySpeaker>();
+                    this.m_Speakers = new List<Speaker>();
                     for (int i = 0; i < aSpeakers.m_Speakers.Count; i++)
                     {
-                        this.m_Speakers.Add(new MySpeaker(aSpeakers.m_Speakers[i]));
+                        this.m_Speakers.Add(new Speaker(aSpeakers.m_Speakers[i]));
                     }
                 }
             }
@@ -69,7 +74,7 @@ namespace NanoTrans
         /// </summary>
         /// <param name="aSpeaker"></param>
         /// <returns></returns>
-        public int NovySpeaker(MySpeaker aSpeaker)
+        public int NovySpeaker(Speaker aSpeaker)
         {
             try
             {
@@ -77,7 +82,7 @@ namespace NanoTrans
                 {
                     for (int i = 0; i < m_Speakers.Count; i++)
                     {
-                        if (((MySpeaker)m_Speakers[i]).FullName == aSpeaker.FullName)
+                        if (((Speaker)m_Speakers[i]).FullName == aSpeaker.FullName)
                         {
                             MessageBox.Show("Mluvčí s tímto jménem již existuje!", "Upozornění:", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                             return int.MinValue;
@@ -86,7 +91,7 @@ namespace NanoTrans
                     }
                     this.speakersIndexCounter = m_Speakers.Count > 0 ? m_Speakers.Max(s => s.ID) + 1:1;
                     aSpeaker.ID = speakersIndexCounter;
-                    this.m_Speakers.Add(new MySpeaker(aSpeaker));
+                    this.m_Speakers.Add(new Speaker(aSpeaker));
                     return speakersIndexCounter;
 
 
@@ -104,20 +109,20 @@ namespace NanoTrans
         /// </summary>
         /// <param name="aIDSpeakera"></param>
         /// <returns></returns>
-        public MySpeaker VratSpeakera(int aIDSpeakera)
+        public Speaker VratSpeakera(int aIDSpeakera)
         {
             try
             {
-                foreach (MySpeaker msp in this.m_Speakers)
+                foreach (Speaker msp in this.m_Speakers)
                 {
                     if (msp.ID == aIDSpeakera) return msp;
                 }
-                return new MySpeaker();
+                return new Speaker();
 
             }
             catch// (Exception ex)
             {
-                return new MySpeaker();
+                return new Speaker();
             }
 
         }
@@ -127,7 +132,7 @@ namespace NanoTrans
         /// </summary>
         /// <param name="aSpeaker"></param>
         /// <returns></returns>
-        public bool OdstranSpeakera(MySpeaker aSpeaker)
+        public bool OdstranSpeakera(Speaker aSpeaker)
         {
             try
             {
@@ -164,12 +169,12 @@ namespace NanoTrans
         {
             try
             {
-                MySpeaker aSpeaker = new MySpeaker();
+                Speaker aSpeaker = new Speaker();
                 for (int i = 0; i < this.m_Speakers.Count; i++)
                 {
-                    if (((MySpeaker)m_Speakers[i]).FullName == aJmeno)
+                    if (((Speaker)m_Speakers[i]).FullName == aJmeno)
                     {
-                        aSpeaker = ((MySpeaker)m_Speakers[i]);
+                        aSpeaker = ((Speaker)m_Speakers[i]);
                         break;
                     }
                 }
@@ -178,7 +183,7 @@ namespace NanoTrans
             }
             catch// (Exception ex)
             {
-                return new MySpeaker().ID;
+                return new Speaker().ID;
             }
         }
 
@@ -187,16 +192,16 @@ namespace NanoTrans
         /// </summary>
         /// <param name="aJmeno"></param>
         /// <returns></returns>
-        public MySpeaker NajdiSpeakeraSpeaker(string aJmeno)
+        public Speaker NajdiSpeakeraSpeaker(string aJmeno)
         {
             try
             {
-                MySpeaker aSpeaker = new MySpeaker();
+                Speaker aSpeaker = new Speaker();
                 for (int i = 0; i < this.m_Speakers.Count; i++)
                 {
-                    if (((MySpeaker)m_Speakers[i]).FullName == aJmeno)
+                    if (((Speaker)m_Speakers[i]).FullName == aJmeno)
                     {
-                        aSpeaker = ((MySpeaker)m_Speakers[i]);
+                        aSpeaker = ((Speaker)m_Speakers[i]);
                         break;
                     }
                 }
@@ -205,19 +210,19 @@ namespace NanoTrans
             }
             catch// (Exception ex)
             {
-                return new MySpeaker();
+                return new Speaker();
             }
 
         }
 
-        public bool UpdatujSpeakera(string aJmeno, MySpeaker aSpeaker)
+        public bool UpdatujSpeakera(string aJmeno, Speaker aSpeaker)
         {
             try
             {
                 
                 for (int i = 0; i < m_Speakers.Count; i++)
                 {
-                    if (((MySpeaker)m_Speakers[i]).FullName == aSpeaker.FullName)
+                    if (((Speaker)m_Speakers[i]).FullName == aSpeaker.FullName)
                     {
                         //return false;
                     }
@@ -230,14 +235,14 @@ namespace NanoTrans
                     MessageBox.Show("Mluvčí s tímto jménem již existuje!", "Upozornění:", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                     return false; //mluvci s timto jmenem jiz existuje
                 }
-                MySpeaker pSpeaker;
+                Speaker pSpeaker;
                 for (int i = 0; i < this.m_Speakers.Count; i++)
                 {
-                    if (((MySpeaker)m_Speakers[i]).FullName == aJmeno)
+                    if (((Speaker)m_Speakers[i]).FullName == aJmeno)
                     {
-                        pSpeaker = ((MySpeaker)m_Speakers[i]);
+                        pSpeaker = ((Speaker)m_Speakers[i]);
                         aSpeaker.ID = pSpeaker.ID;
-                        m_Speakers[i] = new MySpeaker(aSpeaker);
+                        m_Speakers[i] = new Speaker(aSpeaker);
                         
                         
 

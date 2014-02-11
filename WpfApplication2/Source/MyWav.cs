@@ -8,37 +8,37 @@ using System.Windows;
 using System.Diagnostics;
 using System.Threading;
 
-namespace NanoTrans
+namespace NanoTrans.Audio
 {
 
-    public class MyEventArgs : EventArgs            //upravene eventargs pro predani dat dale
+    public class AudioBufferEventArgs : EventArgs            //upravene eventargs pro predani dat dale
     {
-        public MyEventArgs(short[] data, int size, long pocatekMS, long konecMS, int aIDBufferu)
+        public AudioBufferEventArgs(short[] data, int size, long startMS, long endMS, int bufferID)
         {
             this.data = data;
             this.size = size;
-            this.pocatecniCasMS = pocatekMS;
-            this.koncovyCasMS = konecMS;
-            this.IDBufferu = aIDBufferu;
+            this.StartMS = startMS;
+            this.EndMS = endMS;
+            this.BufferID = bufferID;
         }
         public short[] data;
         public int size;
-        public long pocatecniCasMS; //pocatecni cas ramce v milisekundach
-        public long koncovyCasMS;   //koncovy cas ramce v milisekundach
-        public int IDBufferu;
+        public long StartMS; //pocatecni cas ramce v milisekundach
+        public long EndMS;   //koncovy cas ramce v milisekundach
+        public int BufferID;
 
     }
 
-    public class MyEventArgs2 : EventArgs            //upravene eventargs pro predani cisla souboru dale
+    public class AudioBufferEventArgs2 : EventArgs            //upravene eventargs pro predani cisla souboru dale
     {
-        public MyEventArgs2(int souborCislo, long msCelkovyCas)
+        public AudioBufferEventArgs2(int fileNumber, long lengthMS)
         {
-            this.souborCislo = souborCislo;
-            this.msCelkovyCas = msCelkovyCas;
+            this.FileNumber = fileNumber;
+            this.LengthMS = lengthMS;
         }
 
-        public int souborCislo;
-        public long msCelkovyCas;
+        public int FileNumber;
+        public long LengthMS;
 
     }
 
@@ -47,40 +47,40 @@ namespace NanoTrans
     /// <summary>
     /// trida starajici se o prevod souboru do docasnych wav a nacitani bufferu s daty pro rozpoznavani a prevod nahledovych dat vlny 
     /// </summary>
-    public class MyWav : IDisposable
+    public class WavReader : IDisposable
     {
         public event EventHandler HaveData;    //metoda have data je udalost,kterou objekt podporuje-datovy ramec zvuku
         public event EventHandler HaveFileNumber; //metoda podporujici objekt
         public event EventHandler TemporaryWavesDone;
 
-        private bool _Nacteno;
+        private bool _Loaded;
         /// <summary>
         /// property s informaci zda je nacten souboru
         /// </summary>
-        public bool Nacteno { get { return _Nacteno; } }
-        private bool _Prevedeno;
+        public bool Loaded { get { return _Loaded; } }
+        private bool _Converted;
         /// <summary>
         /// info o dokoncenem prevodu souboru a moznosti jeho nacitani do bufferu
         /// </summary>
-        public bool Prevedeno { get { return this._Prevedeno; } }
-        private long _DelkaSouboruMS;
+        public bool Converted { get { return this._Converted; } }
+        private long _FileLengthMS;
 
         /// <summary>
         /// delka prevedeneho souboru v MS
         /// </summary>
-        public long DelkaSouboruMS { get { return _DelkaSouboruMS; } }
-        public MyEventArgs NacitanyBufferSynchronne = null;
+        public long FileLengthMS { get { return _FileLengthMS; } }
+        public AudioBufferEventArgs SyncBufferLoad = null;
 
 
-        private bool _NacitaniBufferu;
+        private bool _BufferuIsLoading;
         /// <summary>
         /// informace zda dochazi k nacitani bufferu pro zobrazeni
         /// </summary>
-        public bool NacitaniBufferu
+        public bool BufferuIsLoading
         {
             get
             {
-                if (_NacitaniBufferu)
+                if (_BufferuIsLoading)
                 {
                     if (this.tNacitaniBufferu1 == null || this.tNacitaniBufferu1.ThreadState != System.Threading.ThreadState.Running)
                     {
@@ -88,26 +88,26 @@ namespace NanoTrans
                     }
 
                 }
-                return _NacitaniBufferu;
+                return _BufferuIsLoading;
             }
         }
-        public UInt32 pFrekvence { get; set; }
-        public UInt16 pVelikostVzorku { get; set; }
-        public long pPocetVzorku { get; set; }
-        public UInt16 pPocetKanalu { get; set; }
+        public UInt32 Frequency { get; set; }
+        public UInt16 SampleSize { get; set; }
+        public long SampleCount { get; set; }
+        public UInt16 ChannelCount { get; set; }
 
 
-        private Int16[] pDataNacitana;                  //po nacteni do zalozniho bufferu,jsou data poslana ven z tridy pomoci udalosti
+        private Int16[] _LoadedData;                  //po nacteni do zalozniho bufferu,jsou data poslana ven z tridy pomoci udalosti
 
-        private string _CestaSouboru;
+        private string _FilePath;
         /// <summary>
         /// cesta multimedialniho souboru, ze ktereho jsou prevedeny jednotlive wavy
         /// </summary>
-        public string CestaSouboru { get { return _CestaSouboru; } }
+        public string FilePath { get { return _FilePath; } }
         /// <summary>
         /// adresar prekonvertovanych wav souboru
         /// </summary>
-        private string CestaDocasnychWAV { get; set; }
+        private string TemporaryWAVsPath { get; set; }
         //public long VelikostZobrazovacihoBufferu { get; set; }   //jak velika cast wav souboru se nacita do pameti
 
 
@@ -137,15 +137,15 @@ namespace NanoTrans
         /// <summary>
         /// konstruktor
         /// </summary>
-        public MyWav()
+        public WavReader()
         {
-            pFrekvence = 16000;
-            pVelikostVzorku = 2;
-            pPocetKanalu = 1;
-            _Nacteno = false;
-            _Prevedeno = false;
-            _CestaSouboru = null;
-            pPocetVzorku = 0;
+            Frequency = 16000;
+            SampleSize = 2;
+            ChannelCount = 1;
+            _Loaded = false;
+            _Converted = false;
+            _FilePath = null;
+            SampleCount = 0;
             ///_dataProVykresleniNahleduVlny = null;
         }
 
@@ -167,7 +167,7 @@ namespace NanoTrans
             this.bPozadovanyPocatekRamce = aCasMS;
             this.bPozadovanaDelkaRamceMS = aDelkaMS;
             this.bIDBufferu = aIDBufferu;
-            this._NacitaniBufferu = true;
+            this._BufferuIsLoading = true;
         }
         /// <summary>
         /// vytvori thread, ktery nasledne zacne snacitanim do bufferu, aIDBufferu-aby bylo venku videt,pro ktery buffer jsou tato data
@@ -198,7 +198,7 @@ namespace NanoTrans
 
         private void AsynchronniPrevodMultimedialnihoSouboruNaDocasne()
         {
-            this.ZacniPrevodSouboruNaDocasneWav(_CestaSouboru, FilePaths.TempDirectory, MyKONST.DELKA_DOCASNEHO_SOUBORU_ZVUKU_MS);    //nastaveni bufferu
+            this.ZacniPrevodSouboruNaDocasneWav(_FilePath, FilePaths.TempDirectory, MyKONST.DELKA_DOCASNEHO_SOUBORU_ZVUKU_MS);    //nastaveni bufferu
         }
 
         /// <summary>
@@ -206,9 +206,9 @@ namespace NanoTrans
         /// </summary>
         public void AsynchronniPrevodMultimedialnihoSouboruNaDocasne2(string aCestaSouboru)
         {
-            this._CestaSouboru = aCestaSouboru;
-            this._Nacteno = false;
-            this._Prevedeno = false;
+            this._FilePath = aCestaSouboru;
+            this._Loaded = false;
+            this._Converted = false;
             this.tPrevodNaDocasneSoubory = new Thread(AsynchronniPrevodMultimedialnihoSouboruNaDocasne) { Name = "AsynchronniPrevodMultimedialnihoSouboruNaDocasne2" };
             this.tPrevodNaDocasneSoubory.Start(); //spusteni
 
@@ -493,13 +493,13 @@ namespace NanoTrans
                 //nulovani promennych
                 this.docasneZvukoveSoubory.Clear();
 
-                this._DelkaSouboruMS = this.VratDelkuSouboruMS(aCesta);
-                if (aCesta == null || aCestaDocasnychWAV == null || DelkaSouboruMS <= 0) return false; //chybne nastaveni nebo delka souboru k prevodu
+                this._FileLengthMS = this.VratDelkuSouboruMS(aCesta);
+                if (aCesta == null || aCestaDocasnychWAV == null || FileLengthMS <= 0) return false; //chybne nastaveni nebo delka souboru k prevodu
 
-                this.CestaDocasnychWAV = aCestaDocasnychWAV;
+                this.TemporaryWAVsPath = aCestaDocasnychWAV;
                 this.docasneZvukoveSoubory = new List<string>();
 
-                delkaDocasnehoWav = (aDelkaJednohoSouboruMS / 1000) * this.pFrekvence;  //pocet vzorku v 1 docasnem souboru
+                delkaDocasnehoWav = (aDelkaJednohoSouboruMS / 1000) * this.Frequency;  //pocet vzorku v 1 docasnem souboru
                 this.delkaDocasnehoWavMS = aDelkaJednohoSouboruMS;
                 int pIndexDocasneho = -1;
 
@@ -527,20 +527,20 @@ namespace NanoTrans
                 byte[] buffer2 = new byte[4096];
                 short[] buffer2s = new short[buffer2.Length / 2];
 
-                pPocetKanalu = 1;
+                ChannelCount = 1;
 
-                this.pFrekvence = 16000;
+                this.Frequency = 16000;
 
-                this.pVelikostVzorku = 2;
+                this.SampleSize = 2;
 
                 //pPocetVzorku = this.VelikostZobrazovacihoBufferu;   //pozor!! skutecna delka souboru je jina!!!!je nastavena az po prevodu
                 ///pPocetVzorku = MyKONST.DELKA_VYCHOZIHO_ZOBRAZOVACIHO_BUFFERU_MS * (this.pFrekvence / 1000);
-                long pPocetVzorku2Delta = MyKONST.DELKA_PRVNIHO_RAMCE_ZOBRAZOVACIHO_BUFFERU_MS * (this.pFrekvence / 1000);
-                pPocetVzorku = pPocetVzorku2Delta;
-                long pPocetVzorku2 = MyKONST.DELKA_VYCHOZIHO_ZOBRAZOVACIHO_BUFFERU_MS * (this.pFrekvence / 1000);
+                long pPocetVzorku2Delta = MyKONST.DELKA_PRVNIHO_RAMCE_ZOBRAZOVACIHO_BUFFERU_MS * (this.Frequency / 1000);
+                SampleCount = pPocetVzorku2Delta;
+                long pPocetVzorku2 = MyKONST.DELKA_VYCHOZIHO_ZOBRAZOVACIHO_BUFFERU_MS * (this.Frequency / 1000);
 
                 //nacitani jednotlivych dat
-                this.pDataNacitana = new Int16[pPocetVzorku2];
+                this._LoadedData = new Int16[pPocetVzorku2];
 
                 int i = 0;
 
@@ -550,7 +550,7 @@ namespace NanoTrans
 
                 //prvni docasny wav soubor tmp
                 pIndexDocasneho = 0;
-                docasneZvukoveSoubory.Add(CestaDocasnychWAV + pIndexDocasneho.ToString() + ".wav");
+                docasneZvukoveSoubory.Add(TemporaryWAVsPath + pIndexDocasneho.ToString() + ".wav");
 
                 output = new BinaryWriter(new FileStream(docasneZvukoveSoubory[pIndexDocasneho], FileMode.Create));
                 Stream outputbase = output.BaseStream;
@@ -580,22 +580,22 @@ namespace NanoTrans
                         dato = buffer2s[k];
                         pPocetNactenychVzorkuCelkem++;
 
-                        if (i == pPocetVzorku) //nacten ramec prvni ramec
+                        if (i == SampleCount) //nacten ramec prvni ramec
                         {
                             //poslani zpravy s daty bufferu
-                            MyEventArgs e = new MyEventArgs(this.pDataNacitana, this.pDataNacitana.Length, 0, pPocetVzorku / this.pFrekvence * 1000, MyKONST.ID_ZOBRAZOVACIHO_BUFFERU_VLNY);
+                            AudioBufferEventArgs e = new AudioBufferEventArgs(this._LoadedData, this._LoadedData.Length, 0, SampleCount / this.Frequency * 1000, MyKONST.ID_ZOBRAZOVACIHO_BUFFERU_VLNY);
                             if (HaveData != null)
                                 HaveData(this, e); // nacten ramec k zobrazeni a poslani tohoto ramce ven z tridy pomoci e
-                            this._Nacteno = true;
-                            if (pPocetVzorku + pPocetVzorku2Delta <= pPocetVzorku2 - 1)
+                            this._Loaded = true;
+                            if (SampleCount + pPocetVzorku2Delta <= pPocetVzorku2 - 1)
                             {
-                                pPocetVzorku += pPocetVzorku2Delta;
+                                SampleCount += pPocetVzorku2Delta;
                             }
                         }
 
-                        if (i < pPocetVzorku)
+                        if (i < SampleCount)
                         {
-                            pDataNacitana[i] = dato;
+                            _LoadedData[i] = dato;
                         }
 
 
@@ -615,9 +615,9 @@ namespace NanoTrans
                             output.Close();
                             output = null;
                             pIndexDocasneho++;
-                            docasneZvukoveSoubory.Add(CestaDocasnychWAV + pIndexDocasneho.ToString() + ".wav");
+                            docasneZvukoveSoubory.Add(TemporaryWAVsPath + pIndexDocasneho.ToString() + ".wav");
 
-                            MyEventArgs2 e2 = new MyEventArgs2(pIndexDocasneho, (pIndexDocasneho + 1) * this.delkaDocasnehoWavMS);
+                            AudioBufferEventArgs2 e2 = new AudioBufferEventArgs2(pIndexDocasneho, (pIndexDocasneho + 1) * this.delkaDocasnehoWavMS);
                             if (HaveFileNumber != null)
                                 HaveFileNumber(this, e2);
                             output = new BinaryWriter(new FileStream(docasneZvukoveSoubory[pIndexDocasneho], FileMode.Create));
@@ -641,7 +641,7 @@ namespace NanoTrans
 
                 prPrevod.Close();
                 prPrevod = null;
-                this._DelkaSouboruMS = (long)((float)(pPocetNactenychVzorkuCelkem) / (this.pFrekvence / 1000));
+                this._FileLengthMS = (long)((float)(pPocetNactenychVzorkuCelkem) / (this.Frequency / 1000));
                 if (output != null)
                 {
                     //zapsani skutecne hlavicky WAV
@@ -650,33 +650,33 @@ namespace NanoTrans
 
                     output.Close();   //zavreni souboru pro zapis dat
                     output = null;
-                    MyEventArgs2 e2 = new MyEventArgs2(pIndexDocasneho, this.DelkaSouboruMS);
+                    AudioBufferEventArgs2 e2 = new AudioBufferEventArgs2(pIndexDocasneho, this.FileLengthMS);
                     if (HaveFileNumber != null)
                         HaveFileNumber(this, e2);
                 }
 
-                this._Nacteno = true;
-                this._Prevedeno = true;  //dokoncen prevod audio souboru
-                this._CestaSouboru = aCesta;
+                this._Loaded = true;
+                this._Converted = true;  //dokoncen prevod audio souboru
+                this._FilePath = aCesta;
 
-                if (i < pPocetVzorku)  //soubor je kratsi nez zobrazovaci buffer
+                if (i < SampleCount)  //soubor je kratsi nez zobrazovaci buffer
                 {
                     short[] pPole = new short[i];
                     for (int k = 0; k < i - 1; k++)
                     {
-                        pPole[k] = this.pDataNacitana[k];
+                        pPole[k] = this._LoadedData[k];
                     }
-                    MyEventArgs e = new MyEventArgs(pPole, pPole.Length, 0, (long)(((double)i * 1000) / this.pFrekvence), MyKONST.ID_ZOBRAZOVACIHO_BUFFERU_VLNY);
+                    AudioBufferEventArgs e = new AudioBufferEventArgs(pPole, pPole.Length, 0, (long)(((double)i * 1000) / this.Frequency), MyKONST.ID_ZOBRAZOVACIHO_BUFFERU_VLNY);
 
                     //pokusne pridano
-                    this.pPocetVzorku = i;
+                    this.SampleCount = i;
 
 
 
                     if (HaveData != null)
                         HaveData(this, e); // nacten ramec k zobrazeni a poslani tohoto ramce ven z tridy pomoci e
                 }
-                this.pPocetVzorku = i;
+                this.SampleCount = i;
 
                 if (TemporaryWavesDone != null)
                 {
@@ -691,7 +691,7 @@ namespace NanoTrans
                     output.Close();
                     output = null;
                 }
-                this._Prevedeno = true; //i pres spadnuti je nacteni ok, doresit preteceni indexu!!!!!!
+                this._Converted = true; //i pres spadnuti je nacteni ok, doresit preteceni indexu!!!!!!
                 if (TemporaryWavesDone != null && !(ex is ThreadAbortException))
                     TemporaryWavesDone(this, new EventArgs());
                 //MessageBox.Show("Načítání a převod audio souboru se nezdařily..."+ ex.Message);
@@ -719,38 +719,38 @@ namespace NanoTrans
                 TimeSpan bufferstart = TimeSpan.FromMilliseconds(aPocatekMS);
                 TimeSpan bufferLen = TimeSpan.FromMilliseconds(aDelkaMS);
 
-                this._NacitaniBufferu = true;
-                if (this.Nacteno)
+                this._BufferuIsLoading = true;
+                if (this.Loaded)
                 {
-                    if (aPocatekMS > this.DelkaSouboruMS) return false; //pozadavek o vraceni dat mimo soubor
-                    if (aPocatekMS + aDelkaMS > this.DelkaSouboruMS)
+                    if (aPocatekMS > this.FileLengthMS) return false; //pozadavek o vraceni dat mimo soubor
+                    if (aPocatekMS + aDelkaMS > this.FileLengthMS)
                     {
-                        aDelkaMS = this.DelkaSouboruMS - aPocatekMS;
+                        aDelkaMS = this.FileLengthMS - aPocatekMS;
                     }
 
                     this.bIDBufferu = aIDBufferu;
                     int j = 0;  //index pro vystupni data
-                    int delkadocasnehoMS = (int)(this.delkaDocasnehoWav / this.pFrekvence) * 1000;
+                    int delkadocasnehoMS = (int)(this.delkaDocasnehoWav / this.Frequency) * 1000;
 
                     int pIndexDocasneho = (int)aPocatekMS / delkadocasnehoMS;
 
-                    if ((pIndexDocasneho >= 0) && (pIndexDocasneho < this.docasneZvukoveSoubory.Count - 1 || (pIndexDocasneho < this.docasneZvukoveSoubory.Count && this.Prevedeno)))
+                    if ((pIndexDocasneho >= 0) && (pIndexDocasneho < this.docasneZvukoveSoubory.Count - 1 || (pIndexDocasneho < this.docasneZvukoveSoubory.Count && this.Converted)))
                     {
-                        if (pIndexDocasneho >= docasneZvukoveSoubory.Count - 1 && !this.Prevedeno)
+                        if (pIndexDocasneho >= docasneZvukoveSoubory.Count - 1 && !this.Converted)
                         {
                             //pokus o cteni souboru dalsich nez jsou prevedeny
-                            this._NacitaniBufferu = false;
+                            this._BufferuIsLoading = false;
                             return false;
 
                         }
                         FileInfo pfi = new FileInfo(docasneZvukoveSoubory[pIndexDocasneho]);
                         //long pPocetVzorkuDocasneho = this.delkaDocasnehoWav / 1000 * this.pFrekvence;   //pocet vzorku v docasnem souboru
                         long pPocetVzorkuDocasneho = (pfi.Length - 44) / 2;
-                        long pPocetVzorkuNacist = aDelkaMS * (pFrekvence / 1000);
-                        int pPocatecniIndexVSouboru = (int)((aPocatekMS - pIndexDocasneho * ((double)delkaDocasnehoWav / this.pFrekvence * 1000)) * (pFrekvence / 1000)) * this.pVelikostVzorku + 44;
-                        int pNacistDat = (int)(pPocetVzorkuDocasneho - pPocatecniIndexVSouboru / this.pVelikostVzorku) + 22;
+                        long pPocetVzorkuNacist = aDelkaMS * (Frequency / 1000);
+                        int pPocatecniIndexVSouboru = (int)((aPocatekMS - pIndexDocasneho * ((double)delkaDocasnehoWav / this.Frequency * 1000)) * (Frequency / 1000)) * this.SampleSize + 44;
+                        int pNacistDat = (int)(pPocetVzorkuDocasneho - pPocatecniIndexVSouboru / this.SampleSize) + 22;
                         bool hotovo = false;
-                        this.pDataNacitana = new short[pPocetVzorkuNacist];  //nove pole nacitanych obektu
+                        this._LoadedData = new short[pPocetVzorkuNacist];  //nove pole nacitanych obektu
 
 
                         long pPocetNactenych = 0;
@@ -762,7 +762,7 @@ namespace NanoTrans
                             {
 
                                 pIndexDocasneho++;
-                                int pCount = (int)(pNacistDat) * this.pVelikostVzorku;
+                                int pCount = (int)(pNacistDat) * this.SampleSize;
 
                                 byte[] pBuffer = new byte[pCount];
                                 input.BaseStream.Seek(pPocatecniIndexVSouboru, SeekOrigin.Begin);
@@ -777,7 +777,7 @@ namespace NanoTrans
 
                                 for (int i = 0; i < pCount / 2; i++)
                                 {
-                                    this.pDataNacitana[j] = BitConverter.ToInt16(pBuffer, i * this.pVelikostVzorku);
+                                    this._LoadedData[j] = BitConverter.ToInt16(pBuffer, i * this.SampleSize);
                                     j++;
                                     if (j >= pPocetVzorkuNacist)
                                     {
@@ -787,10 +787,10 @@ namespace NanoTrans
                                     }
                                 }
 
-                                if (pIndexDocasneho >= docasneZvukoveSoubory.Count - 1 && !this.Prevedeno)
+                                if (pIndexDocasneho >= docasneZvukoveSoubory.Count - 1 && !this.Converted)
                                 {
                                     //pokus o nacteni pozuzivaneho souboru behem prevodu
-                                    this._NacitaniBufferu = false;
+                                    this._BufferuIsLoading = false;
                                     return false;
                                 }
 
@@ -815,7 +815,7 @@ namespace NanoTrans
 
 
 
-                        MyEventArgs e = new MyEventArgs(this.pDataNacitana, this.pDataNacitana.Length, aPocatekMS, aPocatekMS + aDelkaMS, aIDBufferu);
+                        AudioBufferEventArgs e = new AudioBufferEventArgs(this._LoadedData, this._LoadedData.Length, aPocatekMS, aPocatekMS + aDelkaMS, aIDBufferu);
                         if (HaveData != null && RamecSynchronne == false)
                         {
                             /*BinaryWriter bw = new BinaryWriter(new FileStream("C:\\buffer.pcm", FileMode.Create));
@@ -826,15 +826,15 @@ namespace NanoTrans
                         }
                         else
                         {
-                            NacitanyBufferSynchronne = e;
+                            SyncBufferLoad = e;
                             RamecSynchronne = false;
                         }
-                        this._NacitaniBufferu = false;   //nacitani bufferu bylo dokonceno
+                        this._BufferuIsLoading = false;   //nacitani bufferu bylo dokonceno
                         return true;
                     }
 
                 }
-                this._NacitaniBufferu = false;
+                this._BufferuIsLoading = false;
                 return false;
             }
             catch //(Exception ex)
@@ -846,7 +846,7 @@ namespace NanoTrans
                 }
 
                 //MessageBox.Show("Chyba pri nacitani dalsich ramcu: " + ex.Message);
-                this._NacitaniBufferu = false;
+                this._BufferuIsLoading = false;
                 return false;
             }
 
@@ -862,35 +862,35 @@ namespace NanoTrans
                 TimeSpan bufferLen = end - begin;
                 long aPocatekMS = (long)begin.TotalMilliseconds;
                 long aDelkaMS = (long)bufferLen.TotalMilliseconds;
-                this._NacitaniBufferu = true;
-                if (this.Nacteno)
+                this._BufferuIsLoading = true;
+                if (this.Loaded)
                 {
-                    if (aPocatekMS > this.DelkaSouboruMS) return null; //pozadavek o vraceni dat mimo soubor
-                    if (aPocatekMS + aDelkaMS > this.DelkaSouboruMS)
+                    if (aPocatekMS > this.FileLengthMS) return null; //pozadavek o vraceni dat mimo soubor
+                    if (aPocatekMS + aDelkaMS > this.FileLengthMS)
                     {
-                        aDelkaMS = this.DelkaSouboruMS - aPocatekMS;
+                        aDelkaMS = this.FileLengthMS - aPocatekMS;
                     }
 
                     int j = 0;  //index pro vystupni data
-                    int delkadocasnehoMS = (int)(this.delkaDocasnehoWav / this.pFrekvence) * 1000;
+                    int delkadocasnehoMS = (int)(this.delkaDocasnehoWav / this.Frequency) * 1000;
 
                     int pIndexDocasneho = (int)aPocatekMS / delkadocasnehoMS;
 
-                    if ((pIndexDocasneho >= 0) && (pIndexDocasneho < this.docasneZvukoveSoubory.Count - 1 || (pIndexDocasneho < this.docasneZvukoveSoubory.Count && this.Prevedeno)))
+                    if ((pIndexDocasneho >= 0) && (pIndexDocasneho < this.docasneZvukoveSoubory.Count - 1 || (pIndexDocasneho < this.docasneZvukoveSoubory.Count && this.Converted)))
                     {
-                        if (pIndexDocasneho >= docasneZvukoveSoubory.Count - 1 && !this.Prevedeno)
+                        if (pIndexDocasneho >= docasneZvukoveSoubory.Count - 1 && !this.Converted)
                         {
                             //pokus o cteni souboru dalsich nez jsou prevedeny
-                            this._NacitaniBufferu = false;
+                            this._BufferuIsLoading = false;
                             return null;
 
                         }
                         FileInfo pfi = new FileInfo(docasneZvukoveSoubory[pIndexDocasneho]);
                         //long pPocetVzorkuDocasneho = this.delkaDocasnehoWav / 1000 * this.pFrekvence;   //pocet vzorku v docasnem souboru
                         long pPocetVzorkuDocasneho = (pfi.Length - 44) / 2;
-                        long pPocetVzorkuNacist = aDelkaMS * (pFrekvence / 1000);
-                        int pPocatecniIndexVSouboru = (int)((aPocatekMS - pIndexDocasneho * ((double)delkaDocasnehoWav / this.pFrekvence * 1000)) * (pFrekvence / 1000)) * this.pVelikostVzorku + 44;
-                        int pNacistDat = (int)(pPocetVzorkuDocasneho - pPocatecniIndexVSouboru / this.pVelikostVzorku) + 22;
+                        long pPocetVzorkuNacist = aDelkaMS * (Frequency / 1000);
+                        int pPocatecniIndexVSouboru = (int)((aPocatekMS - pIndexDocasneho * ((double)delkaDocasnehoWav / this.Frequency * 1000)) * (Frequency / 1000)) * this.SampleSize + 44;
+                        int pNacistDat = (int)(pPocetVzorkuDocasneho - pPocatecniIndexVSouboru / this.SampleSize) + 22;
                         bool hotovo = false;
                         data = new short[pPocetVzorkuNacist];  //nove pole nacitanych obektu
 
@@ -902,7 +902,7 @@ namespace NanoTrans
                             {
 
                                 pIndexDocasneho++;
-                                int pCount = (int)(pNacistDat) * this.pVelikostVzorku;
+                                int pCount = (int)(pNacistDat) * this.SampleSize;
 
                                 byte[] pBuffer = new byte[pCount];
 
@@ -923,10 +923,10 @@ namespace NanoTrans
                                     break;
                                 }
 
-                                if (pIndexDocasneho >= docasneZvukoveSoubory.Count - 1 && !this.Prevedeno)
+                                if (pIndexDocasneho >= docasneZvukoveSoubory.Count - 1 && !this.Converted)
                                 {
                                     //pokus o nacteni pozuzivaneho souboru behem prevodu
-                                    this._NacitaniBufferu = false;
+                                    this._BufferuIsLoading = false;
                                     return null;
                                 }
 
@@ -947,7 +947,7 @@ namespace NanoTrans
                     }
 
                 }
-                this._NacitaniBufferu = false;
+                this._BufferuIsLoading = false;
             }
             catch
             { 
@@ -955,7 +955,7 @@ namespace NanoTrans
             }
             finally 
             { 
-                this._NacitaniBufferu = false;
+                this._BufferuIsLoading = false;
             }
             return data;
         }
@@ -1009,8 +1009,8 @@ namespace NanoTrans
                 }
 
                 //uvodni nastaveni promennych
-                this._Prevedeno = false;
-                this._Nacteno = false;
+                this._Converted = false;
+                this._Loaded = false;
                 ///this._dataProVykresleniNahleduVlny = null;
                 this.docasneZvukoveSoubory.Clear();
             }

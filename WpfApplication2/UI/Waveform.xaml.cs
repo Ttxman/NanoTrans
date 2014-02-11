@@ -265,16 +265,16 @@ namespace NanoTrans
             }
         }
 
-        private MySubtitlesData m_subtitlesData;
+        private Transcription m_subtitlesData;
 
 
-        public static readonly DependencyProperty SubtitlesProperty = DependencyProperty.Register("Subtitles", typeof(MySubtitlesData), typeof(Waveform), new FrameworkPropertyMetadata(OnSubtitlesChanged));
+        public static readonly DependencyProperty SubtitlesProperty = DependencyProperty.Register("Subtitles", typeof(Transcription), typeof(Waveform), new FrameworkPropertyMetadata(OnSubtitlesChanged));
 
         public static void OnSubtitlesChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
 
-            ((Waveform)d).m_subtitlesData = (MySubtitlesData)e.NewValue;
-            MySubtitlesData value = (MySubtitlesData)e.NewValue;
+            ((Waveform)d).m_subtitlesData = (Transcription)e.NewValue;
+            Transcription value = (Transcription)e.NewValue;
             if (value.Count > 0)
             {
                 TranscriptionElement last = value.Last();
@@ -288,11 +288,11 @@ namespace NanoTrans
         }
 
 
-        public MySubtitlesData Subtitles
+        public Transcription Subtitles
         {
             get
             {
-                return (MySubtitlesData)GetValue(SubtitlesProperty);
+                return (Transcription)GetValue(SubtitlesProperty);
             }
             set
             {
@@ -845,7 +845,7 @@ namespace NanoTrans
         {
             try
             {
-                MySubtitlesData aDokument = m_subtitlesData;
+                Transcription aDokument = m_subtitlesData;
                 MyVlna aZobrazenaVlna = oVlna;
 
                 if (aDokument == null) return;
@@ -859,13 +859,13 @@ namespace NanoTrans
 
                 for (int i = 0; i < aDokument.Chapters.Count; i++)
                 {
-                    MyChapter pChapter = aDokument.Chapters[i];
+                    TranscriptionChapter pChapter = aDokument.Chapters[i];
                     for (int j = 0; j < pChapter.Sections.Count; j++)
                     {
-                        MySection pSection = pChapter.Sections[j];
+                        TranscriptionSection pSection = pChapter.Sections[j];
                         for (int k = 0; k < pSection.Paragraphs.Count; k++)
                         {
-                            MyParagraph pParagraph = pSection.Paragraphs[k];
+                            TranscriptionParagraph pParagraph = pSection.Paragraphs[k];
                             long pBegin = (long)pParagraph.Begin.TotalMilliseconds;
                             long pEnd = (long)pParagraph.End.TotalMilliseconds;
 
@@ -904,7 +904,7 @@ namespace NanoTrans
                                     pMluvci.Width = gCasovaOsa.ActualWidth - aLeft - aRight;
 
                                     pMluvci.Background = Brushes.LightPink;
-                                    MySpeaker pSpeaker = aDokument.Speakers.VratSpeakera(pParagraph.speakerID);
+                                    Speaker pSpeaker = aDokument.Speakers.VratSpeakera(pParagraph.speakerID);
                                     string pText = "";
                                     if (pSpeaker != null) pText = pSpeaker.FullName;
                                     //pMluvci.Content = pText;
@@ -969,15 +969,15 @@ namespace NanoTrans
                     }
                 }
 
-                MyParagraph pPredchozi = null;
-                MyParagraph pNasledujici = null;
+                TranscriptionParagraph pPredchozi = null;
+                TranscriptionParagraph pNasledujici = null;
                 for (int i = 0; i < this.bObelnikyMluvcich.Count; i++)
                 {
                     Button pMluvci = this.bObelnikyMluvcich[i];
-                    MyParagraph pPar = pMluvci.Tag as MyParagraph;
+                    TranscriptionParagraph pPar = pMluvci.Tag as TranscriptionParagraph;
                     if (i < this.bObelnikyMluvcich.Count - 1)
                     {
-                        pNasledujici = this.bObelnikyMluvcich[i + 1].Tag as MyParagraph;
+                        pNasledujici = this.bObelnikyMluvcich[i + 1].Tag as TranscriptionParagraph;
                     }
                     if (pPredchozi != null && pPredchozi.End > pPar.Begin && bObelnikyMluvcich[i - 1].Margin.Top < 5)
                     {
@@ -1023,7 +1023,7 @@ namespace NanoTrans
 
         void pMluvci_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            MyParagraph pTag = (sender as Button).Tag as MyParagraph;
+            TranscriptionParagraph pTag = (sender as Button).Tag as TranscriptionParagraph;
             if (ParagraphDoubleClick != null)
                 ParagraphDoubleClick(this, new MyTranscriptionElementEventArgs(pTag));
 
@@ -1050,7 +1050,7 @@ namespace NanoTrans
         void pMluvci_Click(object sender, RoutedEventArgs e)
         {
 
-            MyParagraph pTag = (sender as Button).Tag as MyParagraph;
+            TranscriptionParagraph pTag = (sender as Button).Tag as TranscriptionParagraph;
             if (ParagraphClick != null)
                 ParagraphClick(this, new MyTranscriptionElementEventArgs(pTag));
 

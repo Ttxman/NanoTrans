@@ -8,6 +8,7 @@
 <Plugins>
 	<Import>
 		<Plugin Name="Import Trsx V1" Mask="trsx v1 soubory - assembly (*.trsx, *.xml)|*.trsx;*.xml" IsAssembly="true" File="TrsxV1Plugin.dll" Class="TrsxV1Plugin.TrsxV1" />
+    <Plugin Name="Import Nvx" Mask="trsx v1 soubory - assembly (*.nvx)|*.nvx;" IsAssembly="true" File="NvxPlugin.dll" Class="NvxPlugin.NanoVoicePlugin" />
 		<Plugin Name="Import res" Mask="res soubory - assembly (*.res)|*.res;" IsAssembly="true" File="TrsxV1Plugin.dll" Class="TrsxV1Plugin.LoadRes" />
 	</Import>
 	<Export>

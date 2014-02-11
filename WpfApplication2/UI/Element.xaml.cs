@@ -38,13 +38,13 @@ namespace NanoTrans
 
         public void RefreshSpeakerButton()
         {
-            Element.RefreshSpeakerButton(this, this.ValueElement as MyParagraph);
+            Element.RefreshSpeakerButton(this, this.ValueElement as TranscriptionParagraph);
             var be = BindingOperations.GetBindingExpressionBase(button1, Button.ContentProperty);
             if (be != null)
                 be.UpdateTarget();
         }
 
-        private static void RefreshSpeakerButton(Element el, MyParagraph val)
+        private static void RefreshSpeakerButton(Element el, TranscriptionParagraph val)
         {
             if (val == null)
                 return;
@@ -52,9 +52,9 @@ namespace NanoTrans
             el.button1.Visibility = Visibility.Visible;
             if (val.PreviousSibling() != null)
             {
-                if (val is MyParagraph)
+                if (val is TranscriptionParagraph)
                 {
-                    if (val.PreviousSibling() is MyParagraph && ((MyParagraph)val).speakerID == ((MyParagraph)val.PreviousSibling()).speakerID)
+                    if (val.PreviousSibling() is TranscriptionParagraph && ((TranscriptionParagraph)val).speakerID == ((TranscriptionParagraph)val.PreviousSibling()).speakerID)
                     {
                         el.button1.Visibility = Visibility.Collapsed;
                     }
@@ -98,30 +98,30 @@ namespace NanoTrans
             }
 
 
-            if (t == typeof(MyParagraph))
+            if (t == typeof(TranscriptionParagraph))
             {
-                MyParagraph p = (MyParagraph)val;
+                TranscriptionParagraph p = (TranscriptionParagraph)val;
                 el.textbegin.Visibility = Visibility.Visible;
                 el.textend.Visibility = Visibility.Visible;
                 el.stackPanel1.Visibility = Visibility.Visible;
                 el.Background = MySetup.Setup.BarvaTextBoxuOdstavce;
                 Element.RefreshSpeakerButton(el, p);
                 el.checkBox1.Visibility = Visibility.Visible;
-                el.checkBox1.IsChecked = ((MyParagraph)val).trainingElement;
+                el.checkBox1.IsChecked = ((TranscriptionParagraph)val).trainingElement;
             }
-            else if (t == typeof(MySection))
+            else if (t == typeof(TranscriptionSection))
             {
-                MySection s = (MySection)val;
+                TranscriptionSection s = (TranscriptionSection)val;
                 el.textbegin.Visibility = Visibility.Collapsed;
                 el.textend.Visibility = Visibility.Collapsed;
                 el.stackPanel1.Visibility = Visibility.Collapsed;
-                el.Background = MySetup.Setup.BarvaTextBoxuSekce;
+                el.Background = MySetup.Setup.SectionBackground;
                 el.button1.Visibility = Visibility.Collapsed;
                 el.checkBox1.Visibility = Visibility.Collapsed;
             }
-            else if (t == typeof(MyChapter))
+            else if (t == typeof(TranscriptionChapter))
             {
-                MyChapter c = (MyChapter)val;
+                TranscriptionChapter c = (TranscriptionChapter)val;
                 el.textbegin.Visibility = Visibility.Collapsed;
                 el.textend.Visibility = Visibility.Collapsed;
                 el.stackPanel1.Visibility = Visibility.Collapsed;
@@ -180,29 +180,29 @@ namespace NanoTrans
             }
         }
 
-        static Brush GetRectangleBgColor(MyEnumParagraphAttributes param)
+        static Brush GetRectangleBgColor(ParagraphAttributes param)
         {
             return Brushes.White;
         }
 
-        static Brush GetRectangleInnenrColor(MyEnumParagraphAttributes param)
+        static Brush GetRectangleInnenrColor(ParagraphAttributes param)
         {
             switch (param)
             {
                 default:
-                case MyEnumParagraphAttributes.None:
+                case ParagraphAttributes.None:
                     return Brushes.White;
-                case MyEnumParagraphAttributes.Background_noise:
+                case ParagraphAttributes.Background_noise:
                     return Brushes.DodgerBlue;
-                case MyEnumParagraphAttributes.Background_speech:
+                case ParagraphAttributes.Background_speech:
                     return Brushes.Chocolate;
-                case MyEnumParagraphAttributes.Junk:
+                case ParagraphAttributes.Junk:
                     return Brushes.Crimson;
-                case MyEnumParagraphAttributes.Narrowband:
+                case ParagraphAttributes.Narrowband:
                     return Brushes.Olive;
             }
         }
-        static MyEnumParagraphAttributes[] all = (MyEnumParagraphAttributes[])Enum.GetValues(typeof(MyEnumParagraphAttributes));
+        static ParagraphAttributes[] all = (ParagraphAttributes[])Enum.GetValues(typeof(ParagraphAttributes));
 
         private void RepaintAttributes()
         {
@@ -211,11 +211,11 @@ namespace NanoTrans
             if (this.stackPanel1.Children.Count != all.Length)
             {
                 this.stackPanel1.Children.Clear();
-                foreach (MyEnumParagraphAttributes at in all)
+                foreach (ParagraphAttributes at in all)
                 {
-                    if (at != MyEnumParagraphAttributes.None)
+                    if (at != ParagraphAttributes.None)
                     {
-                        string nam = Enum.GetName(typeof(MyEnumParagraphAttributes), at);
+                        string nam = Enum.GetName(typeof(ParagraphAttributes), at);
 
                         Rectangle r = new Rectangle();
                         r.Stroke = Brushes.Green;
@@ -224,7 +224,7 @@ namespace NanoTrans
                         r.ToolTip = nam;
                         r.Margin = new Thickness(0, 0, 0, 1);
 
-                        MyParagraph par = ValueElement as MyParagraph;
+                        TranscriptionParagraph par = ValueElement as TranscriptionParagraph;
                         if (par != null && (par.DataAttributes & at) != 0)
                             r.Fill = GetRectangleInnenrColor(at);
                         else
@@ -240,16 +240,16 @@ namespace NanoTrans
         void attributes_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             //int i = ((sender as Rectangle).Parent as StackPanel).Children.IndexOf(sender as UIElement) + 1;
-            MyParagraph par = ValueElement as MyParagraph;
+            TranscriptionParagraph par = ValueElement as TranscriptionParagraph;
             if (par != null)
             {
-                MyEnumParagraphAttributes attr = (MyEnumParagraphAttributes)(sender as Rectangle).Tag;
+                ParagraphAttributes attr = (ParagraphAttributes)(sender as Rectangle).Tag;
 
                 par.DataAttributes ^= attr;
 
                 foreach (Rectangle r in ((sender as Rectangle).Parent as StackPanel).Children)
                 {
-                    attr = (MyEnumParagraphAttributes)r.Tag;
+                    attr = (ParagraphAttributes)r.Tag;
                     if ((par.DataAttributes & attr) != 0)
                     {
                         r.Fill = GetRectangleInnenrColor(attr);
@@ -419,7 +419,7 @@ namespace NanoTrans
                 int pos = editor.Document.GetLineByNumber(t.Value.Line).Offset + t.Value.Column;
                 if (t.HasValue && ValueElement != null && ValueElement.IsParagraph)
                 {
-                    MyParagraph p = (MyParagraph)ValueElement;
+                    TranscriptionParagraph p = (TranscriptionParagraph)ValueElement;
                     int ps = 0;
                     foreach (var ph in p.Phrases)
                     {
@@ -682,17 +682,17 @@ namespace NanoTrans
 
         private void checkBox1_Checked(object sender, RoutedEventArgs e)
         {
-            if (ValueElement is MyParagraph)
+            if (ValueElement is TranscriptionParagraph)
             {
-                ((MyParagraph)ValueElement).trainingElement = true;
+                ((TranscriptionParagraph)ValueElement).trainingElement = true;
             }
         }
 
         private void checkBox1_Unchecked(object sender, RoutedEventArgs e)
         {
-            if (ValueElement is MyParagraph)
+            if (ValueElement is TranscriptionParagraph)
             {
-                ((MyParagraph)ValueElement).trainingElement = false;
+                ((TranscriptionParagraph)ValueElement).trainingElement = false;
             }
         }
 
@@ -717,7 +717,7 @@ namespace NanoTrans
                 return;
 
 
-            MyParagraph par = ValueElement as MyParagraph;
+            TranscriptionParagraph par = ValueElement as TranscriptionParagraph;
 
 
             if ((Keyboard.Modifiers & ModifierKeys.Control) != 0 && completionWindow == null) //TODO: vyhodit korekce ven
@@ -876,13 +876,13 @@ namespace NanoTrans
             if (ContentChanged != null)
                 ContentChanged(this, null);
 
-            if (!(ValueElement is MyParagraph))
+            if (!(ValueElement is TranscriptionParagraph))
             {
                 ValueElement.Text = editor.Text;
                 return;
             }
 
-            MyParagraph par = ValueElement as MyParagraph;
+            TranscriptionParagraph par = ValueElement as TranscriptionParagraph;
             string text = editor.Text;
             int offset = e.Offset;
             int removedl = e.RemovalLength;
@@ -890,9 +890,9 @@ namespace NanoTrans
 
             if (removedl > 0)
             {
-                List<MyPhrase> todelete = new List<MyPhrase>();
+                List<TranscriptionPhrase> todelete = new List<TranscriptionPhrase>();
                 int pos = 0;
-                foreach (MyPhrase p in par.Phrases)
+                foreach (TranscriptionPhrase p in par.Phrases)
                 {
 
                     string etext = (EditPhonetics ? p.Phonetics : p.Text);
@@ -966,7 +966,7 @@ namespace NanoTrans
                 int pos = 0;
                 if (par.Phrases.Count > 0)
                 {
-                    foreach (MyPhrase p in par.Phrases)
+                    foreach (TranscriptionPhrase p in par.Phrases)
                     {
                         if (offset <= pos + (EditPhonetics ? p.Phonetics.Length : p.Text.Length)) //vlozeni
                         {
@@ -982,7 +982,7 @@ namespace NanoTrans
                 }
                 else
                 {
-                    var phr = new MyPhrase() { Text = text };
+                    var phr = new TranscriptionPhrase() { Text = text };
                     par.BeginUpdate();
                     par.Phrases.Add(phr);
                     par.SilentEndUpdate();
@@ -1074,9 +1074,9 @@ namespace NanoTrans
                 BackgroundHiglighter = null;
                 if (value < TimeSpan.Zero || ValueElement == null || !ValueElement.IsParagraph || value < ValueElement.Begin || value > ValueElement.End)
                     return;
-                MyParagraph p = (MyParagraph)ValueElement;
+                TranscriptionParagraph p = (TranscriptionParagraph)ValueElement;
                 int pos = 0;
-                foreach (MyPhrase ph in p.Phrases)
+                foreach (TranscriptionPhrase ph in p.Phrases)
                 {
                     if (ph.Begin <= value && ph.End > value)
                     {
@@ -1266,30 +1266,30 @@ namespace NanoTrans
     [ValueConversion(typeof(TranscriptionElement), typeof(string))]
     public class SpeakerConverter : IValueConverter
     {
-        public static MySpeaker GetSpeaker(TranscriptionElement te)
+        public static Speaker GetSpeaker(TranscriptionElement te)
         {
             TranscriptionElement x = te;
             Type t = x.GetType();
 
-            while (x.Parent != null && t != typeof(MySubtitlesData))
+            while (x.Parent != null && t != typeof(Transcription))
             {
                 x = x.Parent;
                 t = x.GetType();
             }
 
-            MySubtitlesData sd = x as MySubtitlesData;
+            Transcription sd = x as Transcription;
             int id = int.MinValue;
             if (sd != null)
             {
 
-                if (te.GetType() == typeof(MyParagraph))
+                if (te.GetType() == typeof(TranscriptionParagraph))
                 {
-                    MyParagraph par = (MyParagraph)te;
+                    TranscriptionParagraph par = (TranscriptionParagraph)te;
                     id = par.speakerID;
                 }
-                else if (te.GetType() == typeof(MySection))
+                else if (te.GetType() == typeof(TranscriptionSection))
                 {
-                    MySection sec = (MySection)te;
+                    TranscriptionSection sec = (TranscriptionSection)te;
                     id = sec.Speaker;
                 }
             }

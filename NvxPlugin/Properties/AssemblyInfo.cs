@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("TrsxV1Plugin")]
+[assembly: AssemblyTitle("NvxPlugin")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Speechlab TUL")]
-[assembly: AssemblyProduct("TrsxV1Plugin")]
-[assembly: AssemblyCopyright("Copyright © Speechlab TUL 2012")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("NvxPlugin")]
+[assembly: AssemblyCopyright("Copyright ©  2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("bc6b924a-a79d-45e0-a464-0ab997e5ced6")]
+[assembly: Guid("bedd0a28-88a2-4784-8f93-0b2ce2d6e7d2")]
 
 // Version information for an assembly consists of the following four values:
 //

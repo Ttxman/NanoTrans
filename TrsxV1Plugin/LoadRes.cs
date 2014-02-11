@@ -13,10 +13,10 @@ namespace TrsxV1Plugin
     public static class LoadRes
     {
 
-        public static MySubtitlesData Import(Stream input)
+        public static Transcription Import(Stream input)
         {
             
-            MySubtitlesData data = new MySubtitlesData();
+            Transcription data = new Transcription();
             StreamReader reader = new StreamReader(input);
             string s = reader.ReadToEnd();
             string[] lines = s.Split('\n').Select(l => l.Trim().Trim(new char[]{'\uFEFF'})).ToArray();
@@ -40,11 +40,11 @@ namespace TrsxV1Plugin
                 var ends = bucket.First(l => l.StartsWith("STOP:")).Substring(6).Split('|').Select(t => TimeSpan.FromSeconds(double.Parse(t, CultureInfo.InvariantCulture) * time)).ToArray();
                 var pron = bucket.First(l => l.StartsWith("PRON:")).Substring(6).Split('|').ToArray();
                 
-                List<MyPhrase> phrazes = new List<MyPhrase>();
+                List<TranscriptionPhrase> phrazes = new List<TranscriptionPhrase>();
 
                 for (int i = 0; i < orto.Length; i++)
                 {
-                    MyPhrase ph = new MyPhrase();
+                    TranscriptionPhrase ph = new TranscriptionPhrase();
                     ph.Text = orto[i]+" ";
                     ph.Phonetics = pron[i];
                     ph.Begin = starts[i];
@@ -52,12 +52,12 @@ namespace TrsxV1Plugin
                     phrazes.Add(ph);
                 }
 
-                MyChapter c = new MyChapter();
-                MySection sec = new MySection();
+                TranscriptionChapter c = new TranscriptionChapter();
+                TranscriptionSection sec = new TranscriptionSection();
 
                 var second  = TimeSpan.FromSeconds(0.5);
-                MyParagraph pah = new MyParagraph();
-                List<MyPhrase> silence = new List<MyPhrase>();
+                TranscriptionParagraph pah = new TranscriptionParagraph();
+                List<TranscriptionPhrase> silence = new List<TranscriptionPhrase>();
                 TimeSpan sec20 = TimeSpan.FromSeconds(20);
                 while (phrazes.Count > 0)
                 {
@@ -77,7 +77,7 @@ namespace TrsxV1Plugin
                                  pah.Begin = pah.Phrases.First().Begin;
                                  pah.End = pah.Phrases.Last().End;
                                  sec.Paragraphs.Add(pah);
-                                 pah  = new MyParagraph();
+                                 pah  = new TranscriptionParagraph();
                             }
                         }
 
@@ -91,7 +91,7 @@ namespace TrsxV1Plugin
                                 pah.Begin = pah.Phrases.First().Begin;
                                 pah.End = pah.Phrases.Last().End;
                                 sec.Paragraphs.Add(pah);
-                                pah  = new MyParagraph();
+                                pah  = new TranscriptionParagraph();
                             }
 
 
@@ -103,7 +103,7 @@ namespace TrsxV1Plugin
                             pah.Begin = pah.Phrases.First().Begin;
                             pah.End = pah.Phrases.Last().End;
                             sec.Paragraphs.Add(pah);
-                            pah = new MyParagraph();
+                            pah = new TranscriptionParagraph();
 
 
                             pah.Phrases.Add(phrazes[0]);
@@ -150,7 +150,7 @@ namespace TrsxV1Plugin
                         {
                             if (ortotp[i] == "")
                                 continue;
-                            MyPhrase ph = new MyPhrase();
+                            TranscriptionPhrase ph = new TranscriptionPhrase();
                             ph.Text = ortotp[i] + " ";
                             ph.Phonetics = pron[i];
                             ph.Begin = starts[i];
@@ -166,12 +166,12 @@ namespace TrsxV1Plugin
                     }
                     else
                     {
-                        MyPhrase ph = (MyPhrase)sec[0][0];
+                        TranscriptionPhrase ph = (TranscriptionPhrase)sec[0][0];
                         while (ph!=null)
                         {
                             var parent = ph.Parent;
                             
-                            var ph2 = (MyPhrase)ph.NextSibling();
+                            var ph2 = (TranscriptionPhrase)ph.NextSibling();
                          
                             string t = ph.Text.Trim();
                             if(t.StartsWith("[") && t.EndsWith("]"))

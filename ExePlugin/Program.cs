@@ -56,9 +56,9 @@ namespace ExePlugin
         public void ExportovatDokument(string vstup, string vystup, bool times)
         {
 
-            MySubtitlesData data = null;
+            Transcription data = null;
             using (var file = File.OpenRead(vstup))
-                data = MySubtitlesData.Deserialize(file);
+                data = Transcription.Deserialize(file);
 
 
             if (times)
@@ -82,12 +82,12 @@ namespace ExePlugin
                     {
                         for (int k = 0; k < data.Chapters[i].Sections[j].Paragraphs.Count; k++)
                         {
-                            MyParagraph pP = data.Chapters[i].Sections[j].Paragraphs[k];
+                            TranscriptionParagraph pP = data.Chapters[i].Sections[j].Paragraphs[k];
                             //zapsani jednotlivych odstavcu
                             string pRadek = "<" + (pP.speakerID - 1).ToString() + "> ";
                             for (int l = 0; l < pP.Phrases.Count; l++)
                             {
-                                MyPhrase pFraze = pP.Phrases[l];
+                                TranscriptionPhrase pFraze = pP.Phrases[l];
                                 pRadek += "[" + (pFraze.Begin).ToString() + "]" + pFraze.Text;
                             }
                             sw.WriteLine(pRadek);

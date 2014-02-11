@@ -8,12 +8,12 @@ namespace TrsxV1Plugin
 {
     public class TrsxV1
     {
-        public static MySubtitlesData Import(Stream input)
+        public static Transcription Import(Stream input)
         {
-            return MySubtitlesData.Deserialize(input);
+            return Transcription.Deserialize(input);
         }
 
-        public static bool Export(MySubtitlesData data, Stream output)
+        public static bool Export(Transcription data, Stream output)
         {
             return data.SerializeV1(output, data, false);
         }

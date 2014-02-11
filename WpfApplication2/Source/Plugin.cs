@@ -48,16 +48,16 @@ namespace NanoTrans
             set { m_parameters = value; }
         }
 
-        Func<Stream, MySubtitlesData> m_importDelegate;
+        Func<Stream, Transcription> m_importDelegate;
 
-        public Func<Stream, MySubtitlesData> ImportDelegate
+        public Func<Stream, Transcription> ImportDelegate
         {
             get { return m_importDelegate; }
             set { m_importDelegate = value; }
         }
-        Func<MySubtitlesData, Stream, bool> m_exportDelegate;
+        Func<Transcription, Stream, bool> m_exportDelegate;
 
-        public Func<MySubtitlesData, Stream, bool> ExportDelegate
+        public Func<Transcription, Stream, bool> ExportDelegate
         {
             get { return m_exportDelegate; }
             set { m_exportDelegate = value; }
@@ -72,7 +72,7 @@ namespace NanoTrans
             set { m_name = value; }
         }
 
-        public Plugin(bool input, bool isassembly, string mask, string parameters, string name, Func<Stream, MySubtitlesData> importDelegate, Func<MySubtitlesData, Stream, bool> exportDelegate, string filename)
+        public Plugin(bool input, bool isassembly, string mask, string parameters, string name, Func<Stream, Transcription> importDelegate, Func<Transcription, Stream, bool> exportDelegate, string filename)
         {
             m_input = input;
             m_isassembly = isassembly;
@@ -85,7 +85,7 @@ namespace NanoTrans
         }
 
 
-        public MySubtitlesData ExecuteImport(string sourcefile = null)
+        public Transcription ExecuteImport(string sourcefile = null)
         {
             if (sourcefile == null)
             {
@@ -106,7 +106,7 @@ namespace NanoTrans
                     {
                         using (var f = File.OpenRead(sourcefile))
                         {
-                            MySubtitlesData imp = m_importDelegate.Invoke(f);
+                            Transcription imp = m_importDelegate.Invoke(f);
                             imp.JmenoSouboru = sourcefile;
                             return imp;
                         }
@@ -128,7 +128,7 @@ namespace NanoTrans
                         p.Start();
                         p.WaitForExit();
 
-                        var data = MySubtitlesData.Deserialize(tempFile);
+                        var data = Transcription.Deserialize(tempFile);
 
                         return data;
 
@@ -147,7 +147,7 @@ namespace NanoTrans
             return m_name;
         }
 
-        public void ExecuteExport(MySubtitlesData data, string destfile = null)
+        public void ExecuteExport(Transcription data, string destfile = null)
         {
             if (destfile == null)
             {

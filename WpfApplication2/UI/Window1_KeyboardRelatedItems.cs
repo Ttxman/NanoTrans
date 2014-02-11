@@ -294,9 +294,9 @@ namespace NanoTrans
 
         private void CNewSection(object sender, ExecutedRoutedEventArgs e)
         {
-            MySection s = new MySection("Sekce");
-            MyParagraph p = new MyParagraph();
-            p.Add(new MyPhrase());
+            TranscriptionSection s = new TranscriptionSection("Sekce");
+            TranscriptionParagraph p = new TranscriptionParagraph();
+            p.Add(new TranscriptionPhrase());
             s.Add(p);
             myDataSource.Add(s);
             VirtualizingListBox.ActiveTransctiption = s;
@@ -307,10 +307,10 @@ namespace NanoTrans
             {
                 if (VirtualizingListBox.ActiveTransctiption.IsParagraph)
                 {
-                    MyParagraph p = (MyParagraph)VirtualizingListBox.ActiveTransctiption;
+                    TranscriptionParagraph p = (TranscriptionParagraph)VirtualizingListBox.ActiveTransctiption;
                     int idx = p.ParentIndex;
-                    MySection sec = (MySection)p.Parent;
-                    MySection s = new MySection("Sekce");
+                    TranscriptionSection sec = (TranscriptionSection)p.Parent;
+                    TranscriptionSection s = new TranscriptionSection("Sekce");
                     for (int i = idx; i < sec.Children.Count; i++)
                         s.Add(sec[i]);
 
@@ -321,7 +321,7 @@ namespace NanoTrans
                 }
                 else if (VirtualizingListBox.ActiveTransctiption.IsSection)
                 {
-                    var s = new MySection("Sekce");
+                    var s = new TranscriptionSection("Sekce");
                     s.Children.AddRange(VirtualizingListBox.ActiveTransctiption.Children);
                     VirtualizingListBox.ActiveTransctiption.Children.Clear();
                     VirtualizingListBox.ActiveTransctiption.Parent.Insert(VirtualizingListBox.ActiveTransctiption.ParentIndex, s);
@@ -329,7 +329,7 @@ namespace NanoTrans
                 }
                 else if (VirtualizingListBox.ActiveTransctiption.IsChapter)
                 {
-                    var s = new MySection("Sekce");
+                    var s = new TranscriptionSection("Sekce");
                     VirtualizingListBox.ActiveTransctiption.Insert(0, s);
 
                     VirtualizingListBox.ActiveTransctiption = s;
@@ -338,10 +338,10 @@ namespace NanoTrans
         }
         private void CNewChapter(object sender, ExecutedRoutedEventArgs e)
         {
-            MyChapter c = new MyChapter("Kapitola");
-            MySection s = new MySection("Sekce");
-            MyParagraph p = new MyParagraph();
-            p.Add(new MyPhrase());
+            TranscriptionChapter c = new TranscriptionChapter("Kapitola");
+            TranscriptionSection s = new TranscriptionSection("Sekce");
+            TranscriptionParagraph p = new TranscriptionParagraph();
+            p.Add(new TranscriptionPhrase());
             s.Add(p);
             c.Add(s);
             myDataSource.Add(c);
@@ -359,13 +359,13 @@ namespace NanoTrans
             if (VirtualizingListBox.ActiveTransctiption == null || !VirtualizingListBox.ActiveTransctiption.IsParagraph)
                 return;
 
-            new WinSpeakers(VirtualizingListBox.ActiveTransctiption as MyParagraph, MySetup.Setup, this.myDatabazeMluvcich, myDataSource, null).ShowDialog();
+            new WinSpeakers(VirtualizingListBox.ActiveTransctiption as TranscriptionParagraph, MySetup.Setup, this.myDatabazeMluvcich, myDataSource, null).ShowDialog();
             VirtualizingListBox.SpeakerChanged(VirtualizingListBox.ActiveElement);
         }
 
         private void CExportElement(object sender, ExecutedRoutedEventArgs e)
         {
-            MyParagraph par = VirtualizingListBox.ActiveTransctiption as MyParagraph;
+            TranscriptionParagraph par = VirtualizingListBox.ActiveTransctiption as TranscriptionParagraph;
             oWav.RamecSynchronne = true;
             bool nacteno = oWav.NactiRamecBufferu((long)par.Begin.TotalMilliseconds, (long)par.Delka.TotalMilliseconds, MyKONST.ID_BUFFERU_PREPISOVANEHO_ELEMENTU_FONETICKY_PREPIS);//)this.bPozadovanyPocatekRamce, this.bPozadovanaDelkaRamceMS, this.bIDBufferu);        
             oWav.RamecSynchronne = false;
@@ -377,10 +377,10 @@ namespace NanoTrans
             {
                 string filename = dlg.FileName;
                 //BinaryWriter bw = new BinaryWriter(new FileStream(filename, FileMode.Create));
-                MyBuffer16 bf = new MyBuffer16(oWav.NacitanyBufferSynchronne.data.Length);
+                MyBuffer16 bf = new MyBuffer16(oWav.SyncBufferLoad.data.Length);
 
-                bf.data = oWav.NacitanyBufferSynchronne.data;
-                MyWav.VytvorWavSoubor(bf, filename);
+                bf.data = oWav.SyncBufferLoad.data;
+                NanoTrans.Audio.WavReader.VytvorWavSoubor(bf, filename);
 
 
                 string ext = System.IO.Path.GetExtension(filename);
@@ -602,7 +602,7 @@ namespace NanoTrans
 
                 BitmapFrame pFrame = BitmapFrame.Create(bmp);
 
-                string pBase = MyKONST.PrevedJPGnaBase64String(pFrame);
+                string pBase = MyKONST.JpgToBase64(pFrame);
 
 
                 WinSpeakers.ZiskejMluvciho(this.myDatabazeMluvcich, null, pBase);
