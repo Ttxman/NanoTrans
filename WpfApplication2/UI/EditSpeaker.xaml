@@ -38,7 +38,7 @@
             <Label FontWeight="Normal" Height="24.276" HorizontalAlignment="Left" Margin="-2,0,0,40" Name="label2" VerticalAlignment="Bottom" Width="55">Přep. pr:</Label>
             <ComboBox FontWeight="Normal" Height="23" HorizontalAlignment="Left" Margin="59,0,0,40" Name="cbPrepisovaciPravidla" TabIndex="40" VerticalAlignment="Bottom" Width="216" />
             <Label FontWeight="Normal" Margin="212,30.001,0,0" Name="label7" VerticalAlignment="Top" Height="23.277" HorizontalAlignment="Left" Width="63.21">Poznámka:</Label>
-            <TextBox Margin="281,30.001,4,40" Name="tbVek" TabIndex="42" TextWrapping="Wrap" FontWeight="Normal" />
+            <TextBox Margin="281,30.001,4,40" x:Name="tbRemark" TabIndex="42" TextWrapping="Wrap" FontWeight="Normal" />
             <TextBox Height="23" Margin="281,2,4,0" Name="tbPrijmeni" TabIndex="31" VerticalAlignment="Top" />
             <Label FontWeight="Normal" Height="24.276" HorizontalAlignment="Left" Margin="0,30.001,0,0" Name="label8" VerticalAlignment="Top" Width="55">Pohlaví:</Label>
             <ComboBox FontWeight="Normal" Height="23" HorizontalAlignment="Left" Margin="59,30.001,0,0" Name="cbPohlavi" TabIndex="33" VerticalAlignment="Top" Width="114" SelectedIndex="0">
@@ -47,7 +47,6 @@
                 <ComboBoxItem>Žena</ComboBoxItem>
             </ComboBox>
             <Label Content="Příjmení:" Height="25.723" HorizontalAlignment="Left" Margin="222,-1,0,0" Name="label9" VerticalAlignment="Top" Width="68" />
-
            <Image Name="imFotka" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center" MinHeight="64" MinWidth="64" Grid.Column="1" />
         </Grid>
     </GroupBox>

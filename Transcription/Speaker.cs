@@ -68,7 +68,9 @@ namespace NanoTrans.Core
             Comment = null;
         }
         #region serializace nova
-        private Dictionary<string, string> elements = new Dictionary<string, string>();
+
+        [XmlIgnore]
+        public Dictionary<string, string> Elements = new Dictionary<string, string>();
         private static readonly XAttribute EmptyAttribute = new XAttribute("empty", "");
         public Speaker(XElement s, bool isStrict)
         {
@@ -89,19 +91,26 @@ namespace NanoTrans.Core
                     break;
             }
 
+            Elements = s.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
 
-            elements = s.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
-            elements.Remove("id");
-            elements.Remove("firstname");
-            elements.Remove("surname");
-            elements.Remove("sex");
+            string rem;
+            if (Elements.TryGetValue("comment", out rem))
+            {
+                this.Comment = rem;
+            }
+
+            Elements.Remove("id");
+            Elements.Remove("firstname");
+            Elements.Remove("surname");
+            Elements.Remove("sex");
+            Elements.Remove("comment");
 
         }
 
         public XElement Serialize(bool strict)
         {
             XElement elm = new XElement(strict ? "speaker" : "s",
-                elements.Select(e =>
+                Elements.Select(e =>
                     new XAttribute(e.Key, e.Value))
                     .Union(new[]{ 
                     new XAttribute("id", ID.ToString()),
@@ -110,6 +119,12 @@ namespace NanoTrans.Core
                     new XAttribute("sex",(Sex==Sexes.Male)?"M":(Sex==Sexes.Female)?"F":"X")
                     })
             );
+
+
+            if (!string.IsNullOrWhiteSpace(Comment))
+            { 
+                elm.Add( new XAttribute("comment",Comment));
+            }
 
             return elm;
         }

@@ -269,6 +269,19 @@ namespace NanoTrans.Core
 
         }
 
+        public IEnumerable<TranscriptionElement> EnumerateNext()
+        {
+            var n = Next();
+            yield return n;
+            while (n != null)
+            {
+                n = n.Next();
+                yield return n;
+            }
+           
+        }
+
+
         public TranscriptionElement NextSibling()
         {
 
@@ -285,6 +298,19 @@ namespace NanoTrans.Core
             else
             {
                 return m_Parent.m_children[m_ParentIndex + 1];
+            }
+
+        }
+
+
+        public IEnumerable<TranscriptionElement> EnumerateNextSiblings()
+        {
+            var n = NextSibling();
+            yield return n;
+            while (n != null)
+            {
+                n = n.NextSibling();
+                yield return n;
             }
 
         }
@@ -309,6 +335,19 @@ namespace NanoTrans.Core
 
         }
 
+
+        public IEnumerable<TranscriptionElement> EnumeratePreviousSibling()
+        {
+            var n = PreviousSibling();
+            yield return n;
+            while (n != null)
+            {
+                n = n.PreviousSibling();
+                yield return n;
+            }
+
+        }
+
         public TranscriptionElement Previous()
         {
 
@@ -323,6 +362,18 @@ namespace NanoTrans.Core
             else
             {
                 return m_Parent.m_children[m_ParentIndex - 1];
+            }
+
+        }
+
+        public IEnumerable<TranscriptionElement> EnumeratePrevious()
+        {
+            var n = Previous();
+            yield return n;
+            while (n != null)
+            {
+                n = n.Previous();
+                yield return n;
             }
 
         }
