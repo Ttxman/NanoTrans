@@ -36,7 +36,7 @@ namespace NanoTrans
             tbJmeno.Text = bSpeaker.FirstName;
             tbPrijmeni.Text = bSpeaker.Surname;
             imFotka.Source = MyKONST.PrevedBase64StringNaJPG(bSpeaker.FotoJPGBase64);
-            cbPohlavi.SelectedItem = bSpeaker.Sex;
+            cbPohlavi.SelectedIndex = (int)bSpeaker.Sex;
 
         }
 
@@ -50,8 +50,8 @@ namespace NanoTrans
             if (cbJazykovyModel.SelectedIndex > 0) pJazykovyModel = cbJazykovyModel.SelectedItem.ToString();
             if (cbPrepisovaciPravidla.SelectedIndex > 0) pPrepisovaciPravidla = cbPrepisovaciPravidla.SelectedItem.ToString();
 
-            string pPohlavi = cbPohlavi.Text;
-            if (cbPohlavi.SelectedIndex <= 0) pPohlavi = null;
+            MySpeaker.Sexes pPohlavi = (MySpeaker.Sexes)cbPohlavi.SelectedItem;
+            if (cbPohlavi.SelectedIndex <= 0) pPohlavi = MySpeaker.Sexes.X;
 
             bSpeaker = new MySpeaker(tbJmeno.Text, tbPrijmeni.Text, pPohlavi, pMluvci, pJazykovyModel, pPrepisovaciPravidla, this.bStringBase64FotoInterni, tbVek.Text);
 

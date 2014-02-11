@@ -1377,6 +1377,8 @@ namespace NanoTrans
             }
             p = e.GetPosition(grid1);
 
+            if (p.X > grid1.ActualWidth || p.X<0)
+                return;
 
             int ix = bObelnikyMluvcich.IndexOf(b);
 
@@ -1395,6 +1397,7 @@ namespace NanoTrans
             {
                 if (btndragleft)
                 {
+                   
                     double bwi = b.Width + (b.Margin.Left - p.X);
                     double bmarginl = p.X;
 

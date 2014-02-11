@@ -104,9 +104,12 @@ namespace NanoTrans
                 {
                     if (Isassembly)
                     {
-                        MySubtitlesData imp = m_importDelegate.Invoke(File.OpenRead(sourcefile));
-                        imp.JmenoSouboru = sourcefile;
-                        return imp;
+                        using (var f = File.OpenRead(sourcefile))
+                        {
+                            MySubtitlesData imp = m_importDelegate.Invoke(f);
+                            imp.JmenoSouboru = sourcefile;
+                            return imp;
+                        }
                     }
                     else
                     {
@@ -125,7 +128,7 @@ namespace NanoTrans
                         p.Start();
                         p.WaitForExit();
 
-                        var data =  MySubtitlesData.Deserialize(tempFile);
+                        var data = MySubtitlesData.Deserialize(tempFile);
 
                         return data;
 
@@ -177,7 +180,7 @@ namespace NanoTrans
                     ProcessStartInfo psi = new ProcessStartInfo();
 
                     psi.FileName = Path.Combine(FilePaths.GetReadPath(FilePaths.PluginsPath), m_fileName);
-                    psi.Arguments = string.Format(m_parameters, "\"" + inputfile+"\"", "\"" + tempFile+"\"", "\"" + tempFolder+"\"");
+                    psi.Arguments = string.Format(m_parameters, "\"" + inputfile + "\"", "\"" + tempFile + "\"", "\"" + tempFolder + "\"");
 
                     Process p = new Process();
                     p.StartInfo = psi;

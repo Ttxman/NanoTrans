@@ -44,9 +44,18 @@ namespace NanoTrans
                 return pJmeno;
             }
         }
+
+        public enum Sexes : byte
+        {
+            X = 0,
+            Male = 1,
+            Female = 2
+
+        }
+
         public string FirstName;
         public string Surname;
-        public string Sex;
+        public Sexes Sex;
         public string RozpoznavacMluvci;
         public string RozpoznavacJazykovyModel;
         public string RozpoznavacPrepisovaciPravidla;
@@ -61,7 +70,7 @@ namespace NanoTrans
             ID = MySpeaker.DefaultID;
             FirstName = null;
             Surname = null;
-            Sex = null;
+            Sex = Sexes.X;
             RozpoznavacMluvci = null;
             RozpoznavacJazykovyModel = null;
             RozpoznavacPrepisovaciPravidla = null;
@@ -80,13 +89,13 @@ namespace NanoTrans
             switch ((s.Attribute("sex") ?? EmptyAttribute).Value)
             {
                 case "M":
-                    Sex = "male";
+                    Sex = Sexes.Male;
                     break;
                 case "F":
-                    Sex = "female";
+                    Sex = Sexes.Female;
                     break;
                 default:
-                    Sex = "-";
+                    Sex = Sexes.X;
                     break;
             }
 
@@ -108,7 +117,7 @@ namespace NanoTrans
                     new XAttribute("id", ID.ToString()),
                     new XAttribute("surname",Surname),
                     new XAttribute("firstname",FirstName),
-                    new XAttribute("sex",(Sex=="male")?"M":(Sex=="female")?"F":"X")
+                    new XAttribute("sex",(Sex==Sexes.Male)?"M":(Sex==Sexes.Female)?"F":"X")
                     })
             );
 
@@ -135,7 +144,7 @@ namespace NanoTrans
             Comment = aSpeaker.Comment;
         }
 
-        public MySpeaker(string aSpeakerFirstname, string aSpeakerSurname, string aPohlavi, string aRozpoznavacMluvci, string aRozpoznavacJazykovyModel, string aRozpoznavacPrepisovaciPravidla, string aSpeakerFotoBase64, string aPoznamka) //constructor ktery vytvori speakera
+        public MySpeaker(string aSpeakerFirstname, string aSpeakerSurname, Sexes aPohlavi, string aRozpoznavacMluvci, string aRozpoznavacJazykovyModel, string aRozpoznavacPrepisovaciPravidla, string aSpeakerFotoBase64, string aPoznamka) //constructor ktery vytvori speakera
         {
             ID = -1;
             FirstName = aSpeakerFirstname;
@@ -1083,6 +1092,12 @@ namespace NanoTrans
             this.trainingElement = false;
             this.speakerID = MySpeaker.DefaultID;
         }
+
+        //when phraze is removed...
+        public override void ElementRemoved(TranscriptionElement element, int index)
+        {
+            base.ElementChanged(this);
+        }
     }
 
     //sekce textu nadrazena odstavci
@@ -1757,7 +1772,7 @@ namespace NanoTrans
                     writer.WriteElementString("ID", XmlConvert.ToString(sp.ID));
                     writer.WriteElementString("Firstname", sp.FirstName);
                     writer.WriteElementString("Surname", sp.Surname);
-                    writer.WriteElementString("Sex", sp.Sex);
+                    writer.WriteElementString("Sex", (sp.Sex==MySpeaker.Sexes.Female)?"female":(sp.Sex==MySpeaker.Sexes.Male)?"male":"-");
                     writer.WriteElementString("Comment", sp.Comment);
 
                     writer.WriteEndElement();//speaker
@@ -1883,7 +1898,7 @@ namespace NanoTrans
             chapters.Select(c => (TranscriptionElement)new MyChapter(c,isStrict)).ToList().ForEach(c=>data.Add(c));
 
             var speakers = transcription.Element(isStrict?"speakers":"sp");
-            data.Speakers.Speakers = new List<MySpeaker>(speakers.Elements("speaker").Select(s => new MySpeaker(s,isStrict)));
+            data.Speakers.Speakers = new List<MySpeaker>(speakers.Elements(isStrict?"speaker":"s").Select(s => new MySpeaker(s,isStrict)));
             data.EndUpdate();
 
             return data;
@@ -2286,7 +2301,21 @@ namespace NanoTrans
                                 sp.FirstName = reader.ReadElementString("FirstName");
                                 break;
                             case "Sex":
-                                sp.Sex = reader.ReadElementString("Sex");
+                                {
+                                    string ss = reader.ReadElementString("Sex");
+
+                                    if (new[] { "male", "m", "muž" }.Contains(ss.ToLower()))
+                                    {
+                                        sp.Sex = MySpeaker.Sexes.Male;
+                                    }
+                                    else if (new[] { "female", "f", "žena" }.Contains(ss.ToLower()))
+                                    {
+                                        sp.Sex = MySpeaker.Sexes.Female;
+                                    }
+                                    else
+                                        sp.Sex = MySpeaker.Sexes.X;
+
+                                }
                                 break;
                             case "Comment":
                                 sp.Comment = reader.ReadElementString("Comment");

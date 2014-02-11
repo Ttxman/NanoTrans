@@ -2528,6 +2528,7 @@ namespace NanoTrans
         {
             VirtualizingListBox.ActiveTransctiption = e.Value;
             new WinSpeakers((MyParagraph)e.Value, MySetup.Setup, this.myDatabazeMluvcich, myDataSource, null).ShowDialog();
+            VirtualizingListBox.SpeakerChanged();
         }
 
 
@@ -2663,9 +2664,33 @@ namespace NanoTrans
                             {
                                 p.RemoveAt(i);
                             }
+                            else 
+                            {
+                                var ms = Element.ignoredGroup.Matches(p.Phrases[i].Text).Cast<Match>().ToArray();
+                                if(ms.Length >0)
+                                {
+                                    int from = 0;
+                                    string s = "";
+                                    foreach (var m in ms)
+                                    {
+                                        int copy = m.Index - from;
+                                        if (copy > 0)
+                                            s += p.Phrases[i].Text.Substring(from, copy);
+                                        from = m.Index + m.Length;
+                                    }
+
+                                    if (from < p.Phrases[i].Text.Length)
+                                        s += p.Phrases[i].Text.Substring(from);
+
+                                    p.Phrases[i].Text = s;
+                                }
+                            }
                         }
                         p = (MyParagraph)p.NextSibling();
                     }
+
+
+                    VirtualizingListBox.Reset();
 
                 }
                 catch (Exception ex)

@@ -208,6 +208,11 @@ namespace NanoTrans
                 {
                     LoadSubtitlesData( m_ImportPlugins[opf.FilterIndex - 2].ExecuteImport(opf.FileName));
                 }
+
+                if (myDataSource != null)
+                {
+                    myDataSource.JmenoSouboru += ".trsx";
+                }
             }
         }
 

@@ -1060,9 +1060,7 @@ namespace NanoTrans
             if (ChangeSpeakerRequest != null)
                 ChangeSpeakerRequest(this, new EventArgs());
 
-            var be = BindingOperations.GetBindingExpressionBase(button1, Button.ContentProperty);
-            if (be != null)
-                be.UpdateTarget();
+            RefreshSpeakerButton();
         }
 
         private TimeSpan m_higlightedPosition = new TimeSpan(-1);

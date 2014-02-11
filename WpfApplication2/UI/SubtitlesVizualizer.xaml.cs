@@ -555,7 +555,7 @@ namespace NanoTrans
         }
 
 
-        public void SpeakerChanged(Element e)
+        public void SpeakerChanged(Element e = null)
         {
             foreach (Element ee in listbox.VisualFindChildren<Element>())
             {
@@ -565,7 +565,10 @@ namespace NanoTrans
 
         public void Reset()
         {
-            listbox.ItemsSource = listbox.ItemsSource;
+            var bf = listbox.ItemsSource;
+            listbox.ItemsSource = null;
+
+            listbox.ItemsSource = bf;
         }
 
         public event EventHandler SelectedElementChanged;

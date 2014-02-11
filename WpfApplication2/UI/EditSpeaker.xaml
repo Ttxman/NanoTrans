@@ -41,10 +41,10 @@
             <TextBox Margin="281,30.001,4,40" Name="tbVek" TabIndex="42" TextWrapping="Wrap" FontWeight="Normal" />
             <TextBox Height="23" Margin="281,2,4,0" Name="tbPrijmeni" TabIndex="31" VerticalAlignment="Top" />
             <Label FontWeight="Normal" Height="24.276" HorizontalAlignment="Left" Margin="0,30.001,0,0" Name="label8" VerticalAlignment="Top" Width="55">Pohlaví:</Label>
-            <ComboBox FontWeight="Normal" Height="23" HorizontalAlignment="Left" Margin="59,30.001,0,0" Name="cbPohlavi" TabIndex="33" VerticalAlignment="Top" Width="114">
+            <ComboBox FontWeight="Normal" Height="23" HorizontalAlignment="Left" Margin="59,30.001,0,0" Name="cbPohlavi" TabIndex="33" VerticalAlignment="Top" Width="114" SelectedIndex="0">
                 <ComboBoxItem>-</ComboBoxItem>
-                <ComboBoxItem>male</ComboBoxItem>
-                <ComboBoxItem>female</ComboBoxItem>
+                <ComboBoxItem>Muž</ComboBoxItem>
+                <ComboBoxItem>Žena</ComboBoxItem>
             </ComboBox>
             <Label Content="Příjmení:" Height="25.723" HorizontalAlignment="Left" Margin="222,-1,0,0" Name="label9" VerticalAlignment="Top" Width="68" />
 
