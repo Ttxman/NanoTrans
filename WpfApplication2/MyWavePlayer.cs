@@ -82,10 +82,12 @@ namespace NanoTrans
             get
             {
                 int actual = 0;
-                if (m_soundBuffer.PlayPosition > m_bfpos)
-                    actual = m_soundBuffer.PlayPosition - m_bfpos;
+                int pos = m_soundBuffer.PlayPosition / m_buffersize;
+
+                if (m_soundBuffer.PlayPosition > pos)
+                    actual = m_soundBuffer.PlayPosition - pos;
                 else
-                    actual = (m_buffDescription.BufferBytes + m_soundBuffer.PlayPosition) - m_bfpos;
+                    actual = m_soundBuffer.PlayPosition + (m_buffDescription.BufferBytes - pos);
 
                 actual /= 2;
                 System.Diagnostics.Debug.WriteLine("s_"+actual);
@@ -100,7 +102,7 @@ namespace NanoTrans
         {
             get 
             {
-                return (int)(1000.0*SamplesPlayedThisSession / m_soundBuffer.Frequency);
+                return (int)(1000.0*SamplesPlayedThisBuffer / m_soundBuffer.Frequency);
             }
             
         }
@@ -137,17 +139,19 @@ namespace NanoTrans
         Func<short[]> m_requestproc;
         BufferDescription m_buffDescription;
         DS.Notify m_notify;
+        int m_buffersize;
 
+        private static readonly int InternalBufferSizeMultiplier = 5;
 
         public MyWavePlayer(int device, int BufferByteSize, Func<short[]> fillProc)
         {
-
+            
             if (BufferByteSize < 500)
             { 
                 throw new ArgumentOutOfRangeException("BufferByteSize","minimal size of buffer is 500 bytes");
             }
 
-
+            m_buffersize = BufferByteSize;
             m_requestproc = fillProc;
             DS.DevicesCollection devices = new DevicesCollection();
             if (device <= 0 || device >= devices.Count)
@@ -173,9 +177,9 @@ namespace NanoTrans
 
             m_buffDescription = new BufferDescription();
             m_buffDescription.ControlPositionNotify = true;
-            m_buffDescription.BufferBytes = BufferByteSize*2;
+            m_buffDescription.BufferBytes = BufferByteSize * InternalBufferSizeMultiplier;
             m_buffDescription.ControlFrequency = true;
-            m_buffDescription.ControlEffects = true;
+            m_buffDescription.ControlEffects = false;
             DS.WaveFormat format = new DS.WaveFormat();
             format.BitsPerSample = 16;
             format.BlockAlign = 2;
@@ -189,17 +193,20 @@ namespace NanoTrans
             m_soundBuffer = new SecondaryBuffer(m_buffDescription, m_outputDevice);
             m_synchronizer = new AutoResetEvent(false);
 
-            BufferPositionNotify[] nots = new BufferPositionNotify[2];
+            BufferPositionNotify[] nots = new BufferPositionNotify[InternalBufferSizeMultiplier];
 
-            BufferPositionNotify not = new BufferPositionNotify();
-            not.Offset = 500;
-            not.EventNotifyHandle = m_synchronizer.SafeWaitHandle.DangerousGetHandle();
-            nots[0] = not;
+            BufferPositionNotify not;
+            int bytepos = BufferByteSize-400;
+            for (int i = 0; i < InternalBufferSizeMultiplier; i++)
+            {
+                not = new BufferPositionNotify();
+                not.Offset = bytepos;
+                not.EventNotifyHandle = m_synchronizer.SafeWaitHandle.DangerousGetHandle();
+                nots[i] = not;
+                bytepos += BufferByteSize;
+            }
 
-            not = new BufferPositionNotify();
-            not.Offset = BufferByteSize + 500;
-            not.EventNotifyHandle = m_synchronizer.SafeWaitHandle.DangerousGetHandle();
-            nots[1] = not;
+
             m_notify = new Notify(m_soundBuffer);
             m_notify.SetNotificationPositions(nots);
 
@@ -235,31 +242,37 @@ namespace NanoTrans
         object datalock = new object();
         private void WriteNextData(short[] data)
         {
-            //lock (datalock)
-            //{
-                try
-                {
+           // lock (datalock)
+           // {
+           //     try
+           //     {
                     m_soundBuffer.Write(m_bfpos, data, LockFlag.None);
                     m_samplesPlayed += data.Length;
                     m_bfpos += 2 * data.Length;
                     m_bfpos %= m_buffDescription.BufferBytes;
-                }
-                catch (Exception e)
-                {
-                    System.Diagnostics.Debug.WriteLine("DXWriteExc: dl:" + data.Length + " " + m_bfpos);
-                }
-            //}
+            //    }
+            //    catch (Exception e)
+            //    {
+            //        System.Diagnostics.Debug.WriteLine("DXWriteExc:" + data.Length + "/" + m_bfpos);
+            //    }
+           // }
         }
 
 
         private void ClearBuffer()
-        { 
-            byte[] one  = new byte[]{0};
-            for (int i = 0; i < m_buffDescription.BufferBytes; i++)
+        {
+            try
             {
-                m_soundBuffer.Write(i,one,LockFlag.None);
+                short[] one = new short[] { 0 };
+                for (int i = 0; i < m_buffDescription.BufferBytes-1; i+=2)
+                {
+                    m_soundBuffer.Write(i, one, LockFlag.None);
+                }
             }
-        
+            catch (Exception e)
+            { 
+                MyLog.LogujChybu(e); 
+            }
         }
 
 
@@ -298,9 +311,11 @@ namespace NanoTrans
             m_soundBuffer.Stop();
             m_soundBuffer.SetCurrentPosition(0);
         }
-
+        System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
         private void RetrieveData()
         {
+          //  sw.Reset();
+          //  sw.Start();
             short[] data = m_requestproc.Invoke();
             if (data == null || data.Length == 0)
             {
@@ -310,6 +325,8 @@ namespace NanoTrans
             {
                 WriteNextData(data);
             }
+          //  sw.Stop();
+          //  System.Diagnostics.Debug.WriteLine("wav load time:"+sw.ElapsedMilliseconds);
 
         }
 
@@ -321,6 +338,7 @@ namespace NanoTrans
                 {
                     m_synchronizer.WaitOne();
                     RetrieveData();
+               
                 }
             }catch(ThreadInterruptedException){}
         }

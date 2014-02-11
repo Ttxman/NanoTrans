@@ -4275,10 +4275,11 @@ namespace NanoTrans
                 long celkMilisekundy = (long)slPoziceMedia.Value;
                 if (_playing)
                 {
-                    celkMilisekundy = celkMilisekundy + (long)(DateTime.Now.Subtract(pCasZacatkuPrehravani).Duration().TotalMilliseconds) - 300;
-                    //celkMilisekundy = celkMilisekundy + MWP.MSplayedThisBufer;
+                    celkMilisekundy = celkMilisekundy + (long)(DateTime.Now.Subtract(pCasZacatkuPrehravani).Duration().TotalMilliseconds) - 600;
+                    //int msplayed = MWP.MSplayedThisBufer;
+                    //celkMilisekundy = celkMilisekundy + msplayed;
                     //System.Diagnostics.Debug.WriteLine("_" + (DateTime.Now.Subtract(pCasZacatkuPrehravani).Duration().TotalMilliseconds));
-                    //System.Diagnostics.Debug.WriteLine(MWP.MSplayedThisBufer);
+                    //System.Diagnostics.Debug.WriteLine(msplayed);
 
                     if (prehratVyber && celkMilisekundy < oVlna.KurzorVyberPocatekMS)
                     {
