@@ -4339,9 +4339,16 @@ namespace NanoTrans
 
                     if (prehratVyber && celkMilisekundy >= oVlna.KurzorVyberKonecMS && oVlna.KurzorVyberKonecMS > -1)
                     {
+                        
+                        if (MWP != null)
+                            MWP.Pause();
+
                         oldms = 0;
                         NastavPoziciKurzoru(oVlna.KurzorVyberPocatekMS, true, true);
                         celkMilisekundy = oVlna.KurzorPoziceMS;
+                        if (MWP != null)
+                            MWP.Play();
+
                     }
                     else
                     {
