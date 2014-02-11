@@ -151,7 +151,7 @@ namespace NanoTrans
             MySpeaker pSpeaker = new MySpeaker(bSpeaker);
             //pSpeaker.speakerFotoJPGBase64 = null;
             if (pSpeaker == null) pSpeaker = new MySpeaker();
-            int i = myDataSource.NajdiSpeakera(pSpeaker.FullName);
+            int i = myDataSource.GetSpeaker(pSpeaker.FullName);
             if (i < 0) i = myDataSource.NovySpeaker(pSpeaker);
             if (i >= 0)
             {
@@ -160,7 +160,7 @@ namespace NanoTrans
             else
             {
                 if (bSpeaker == null) bSpeaker = new MySpeaker();
-                i = myDataSource.NajdiSpeakera(bSpeaker.FullName);
+                i = myDataSource.GetSpeaker(bSpeaker.FullName);
                 bTag.speakerID = i;
             }
 
@@ -230,7 +230,7 @@ namespace NanoTrans
 
                 if (this.bDatabazeMluvcich.NovySpeaker(pSpeaker) > -1)
                 {
-                    if (myDataSource.NajdiSpeakera(pSpeaker.FullName) < 0)
+                    if (myDataSource.GetSpeaker(pSpeaker.FullName) < 0)
                     {
                         if (myDataSource.NovySpeaker(pSpeaker) >= 0)
                         {
@@ -241,7 +241,7 @@ namespace NanoTrans
                     
                     lbDatabazeMluvcich.Items.Add(pSpeaker.FullName);
 
-                    bSpeaker = myDataSource.VratSpeakera(myDataSource.NajdiSpeakera(pSpeaker.FullName));
+                    bSpeaker = myDataSource.VratSpeakera(myDataSource.GetSpeaker(pSpeaker.FullName));
                     //btOK_Click(null, new RoutedEventArgs());
                     
                 }
@@ -257,7 +257,7 @@ namespace NanoTrans
                 {
                     if (MessageBox.Show("Opravdu chcete smazat vybraného mluvčího z příslušného seznamu i datové struktury, pokud je v ní přítomen?", "Upozornění:", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                     {
-                        if (myDataSource.OdstranSpeakera(myDataSource.VratSpeakera(myDataSource.NajdiSpeakera(((string)lbSeznamMluvcich.SelectedItem)))))
+                        if (myDataSource.OdstranSpeakera(myDataSource.VratSpeakera(myDataSource.GetSpeaker(((string)lbSeznamMluvcich.SelectedItem)))))
                         {
                             lbSeznamMluvcich.Items.Clear();
                             //spSeznam.Children.Clear();
@@ -332,7 +332,7 @@ namespace NanoTrans
                     e.Handled = true;
                     if (lbSeznamMluvcich.SelectedItem != null)
                     {
-                        bSpeaker = myDataSource.VratSpeakera(myDataSource.NajdiSpeakera(((string)lbSeznamMluvcich.SelectedItem)));
+                        bSpeaker = myDataSource.VratSpeakera(myDataSource.GetSpeaker(((string)lbSeznamMluvcich.SelectedItem)));
                         //spSeznam.Children.Clear();
                         //spSeznam.Children.Add(this.bSpeaker.speakerName);
                         btOK.Focus();
@@ -353,7 +353,7 @@ namespace NanoTrans
             }
            
             {
-                bSpeaker = myDataSource.VratSpeakera(myDataSource.NajdiSpeakera(((string)lbDatabazeMluvcich.SelectedItem)));
+                bSpeaker = myDataSource.VratSpeakera(myDataSource.GetSpeaker(((string)lbDatabazeMluvcich.SelectedItem)));
                 //spSeznam.Children.Clear();
                 //spSeznam.Children.Add(this.bSpeaker.speakerName);
             }

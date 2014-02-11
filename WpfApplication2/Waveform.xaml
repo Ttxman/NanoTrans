@@ -4,13 +4,19 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
+             xmlns:my="clr-namespace:NanoTrans"
              d:DesignHeight="164" d:DesignWidth="970" SizeChanged="UserControl_SizeChanged" Unloaded="UserControl_Unloaded">
+
+    <UserControl.Resources>
+        <ObjectDataProvider x:Key="provider" ObjectInstance="{x:Static my:MySetup.Refresher}"/>
+    </UserControl.Resources>
+    
     <Grid SizeChanged="Grid_SizeChanged" Loaded="Grid_Loaded">
         <Grid Margin="-1,29,1,0" Name="grid1" ShowGridLines="False" Background="AntiqueWhite" MouseDown="myImage_MouseLeftButtonDown" MouseUp="myImage_MouseUp" MouseMove="myImage_MouseMove" SizeChanged="grid1_SizeChanged" Unloaded="grid1_Unloaded">
             <Grid Height="21" Margin="0,0,0,0" Name="gCasovaOsa" VerticalAlignment="Bottom" Background="LightGreen" Grid.ColumnSpan="2"></Grid>
             <Image Margin="0,22,0,19" Name="myImage" MouseDown="myImage_MouseLeftButtonDown" MouseUp="myImage_MouseUp" MouseMove="myImage_MouseMove" />
             <Rectangle Fill="DarkGreen" HorizontalAlignment="Left" Margin="0,0,0,0" Name="rectangle1" Stroke="Black" Width="2" Focusable="False" IsHitTestVisible="False" />
-            <Label Background="LightGray" HorizontalAlignment="Left" Margin="24.038,0,0,19" Name="rectangle2" Width="67" OpacityMask="Cyan" HorizontalContentAlignment="Center" Opacity="0.6" IsHitTestVisible="True" Visibility="Visible" MouseMove="rectangle2_MouseMove" MouseLeftButtonDown="rectangle2_MouseLeftButtonDown" MouseLeftButtonUp="rectangle2_MouseLeftButtonUp"></Label>
+            <Label Background="LightGray" HorizontalAlignment="Left" Margin="24.038,0,0,19" Name="rectangle2" Width="67" OpacityMask="Cyan" HorizontalContentAlignment="Center" Opacity="0.6" IsHitTestVisible="True" Visibility="Visible" MouseMove="rectangle2_MouseMove" MouseLeftButtonDown="rectangle2_MouseLeftButtonDown" MouseLeftButtonUp="rectangle2_MouseLeftButtonUp" ></Label>
             <Button VerticalAlignment="Bottom" HorizontalAlignment="Left" Height="20" Margin="0,0,0,0" Click="btPosunLevo_Click" Name="btPosunLevo" Focusable="False" IsHitTestVisible="True" IsTabStop="False">
                 <Image Source="icons/iPlay.png" IsHitTestVisible="False" FlowDirection="RightToLeft" />
             </Button>

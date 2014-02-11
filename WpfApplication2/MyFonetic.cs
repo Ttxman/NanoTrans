@@ -657,9 +657,7 @@ namespace NanoTrans
         {
             try
             {
-
-                //TODO: odstrannei nefonetiky
-          /*      if (aDokument == null) return false;
+                if (aDokument == null) return false;
                 if (aTag == null) return false;
                 if (!aTag.IsParagraph) return false;
                 MyParagraph pP =(MyParagraph)aTag;
@@ -670,7 +668,7 @@ namespace NanoTrans
                     MyPhrase pPhrase = pP.Phrases[i];
                     for (int j = 0; j < ABECEDA_NEFONETICKE_ZNAKY.Length; j++)
                     {
-                        if (pPhrase.Text.Contains(ABECEDA_NEFONETICKE_ZNAKY[j].ToString()) && (pPhrase.Text.Length <= 2 || pPhrase.TextPrepisovany == null))
+                        if (pPhrase.Phonetics.Contains(ABECEDA_NEFONETICKE_ZNAKY[j].ToString()) && (pPhrase.Phonetics.Length <= 2))
                         {
                             pP.Phrases.RemoveAt(i);
                             i--;
@@ -682,7 +680,7 @@ namespace NanoTrans
                 for (int i = 0; i < pP.Phrases.Count; i++)
                 {
                     MyPhrase pPhrase = pP.Phrases[i];
-                    if (pPhrase.Text.Contains("_") && pPhrase.Text.Length == 1)
+                    if (pPhrase.Phonetics.Contains("_") && pPhrase.Phonetics.Length == 1)
                     {
                         if (pPredchoziMezera)
                         {
@@ -726,7 +724,8 @@ namespace NanoTrans
         /// <returns></returns>
         public string VratFonetickyPrepis(string aText)
         {
-            //TODO: G2P
+            //TODO:(x) foneticky prepis
+            return "";
             throw new NotImplementedException();
 
         }

@@ -163,8 +163,8 @@ namespace NanoTrans
                 if (aPocatekMS < this.PocatekMS) aPocatekMS = this.PocatekMS;
 
 
-                long pKolikVzorku = aKolikMS * (1600 / 1000);
-                int pOdVzorku = (int)(aPocatekMS - this.PocatekMS) * (1600/ 1000);
+                long pKolikVzorku = aKolikMS * (16000 / 1000);
+                int pOdVzorku = (int)(aPocatekMS - this.PocatekMS) * (16000/ 1000);
                 short[] pole = new short[pKolikVzorku];
 
                 long pDoVzorku = -1;
@@ -173,7 +173,7 @@ namespace NanoTrans
                     long pNewKolikMS = aOmezeniMS - aPocatekMS;
                     if (pNewKolikMS > 0)
                     {
-                        pDoVzorku = pOdVzorku + pNewKolikMS * (1600 / 1000);
+                        pDoVzorku = pOdVzorku + pNewKolikMS * (16000 / 1000);
                     }
                     else
                     {

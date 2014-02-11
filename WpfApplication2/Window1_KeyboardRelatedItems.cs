@@ -56,11 +56,15 @@ namespace NanoTrans
         public static RoutedCommand CommandAbout = new RoutedCommand();
 
 
-        public static RoutedCommand CommandNewParagraphAtPosition = new RoutedCommand();
+        public static RoutedCommand CommandNewSection = new RoutedCommand();
+        public static RoutedCommand CommandInsertNewSection = new RoutedCommand();
+        public static RoutedCommand CommandNewChapter= new RoutedCommand();
+        public static RoutedCommand CommandDeleteElement = new RoutedCommand();
+        public static RoutedCommand CommandAssignSpeaker = new RoutedCommand();
+        public static RoutedCommand CommandExportElement = new RoutedCommand();
 
         public void InitCommands()
         {
-            #region mainform bindings
             this.CommandBindings.Add(new CommandBinding(CommandFindDialog, CFindDialogExecute));
             this.CommandBindings.Add(new CommandBinding(CommandPlayPause, CPlayPauseExecute));
             this.CommandBindings.Add(new CommandBinding(CommandScrollUp, CScrollUP));
@@ -82,6 +86,21 @@ namespace NanoTrans
             this.CommandBindings.Add(new CommandBinding(CommandSaveTranscriptionAs, CSaveTranscriptionAs));
             this.CommandBindings.Add(new CommandBinding(CommandHelp, CHelp));
             this.CommandBindings.Add(new CommandBinding(CommandAbout, CAbout));
+
+
+            this.CommandBindings.Add(new CommandBinding(CommandNewSection, CNewSection));
+            this.CommandBindings.Add(new CommandBinding(CommandInsertNewSection, CInsertNewSection));
+            this.CommandBindings.Add(new CommandBinding(CommandNewChapter, CNewChapter));
+            this.CommandBindings.Add(new CommandBinding(CommandDeleteElement, CDeleteElement));
+            this.CommandBindings.Add(new CommandBinding(CommandAssignSpeaker, CAssignSpeaker));
+            this.CommandBindings.Add(new CommandBinding(CommandExportElement, CExportElement));
+            CommandNewSection.InputGestures.Add(new KeyGesture(Key.F5));
+            CommandInsertNewSection.InputGestures.Add(new KeyGesture(Key.F5,ModifierKeys.Shift));
+            CommandNewChapter.InputGestures.Add(new KeyGesture(Key.F4));
+            CommandDeleteElement.InputGestures.Add(new KeyGesture(Key.Delete,ModifierKeys.Shift));
+            CommandAssignSpeaker.InputGestures.Add(new KeyGesture(Key.M,ModifierKeys.Control));
+            CommandExportElement.InputGestures.Add(new KeyGesture(Key.X, ModifierKeys.Control | ModifierKeys.Shift));
+
 
 
             CommandFindDialog.InputGestures.Add(new KeyGesture(Key.F, ModifierKeys.Control));
@@ -107,16 +126,115 @@ namespace NanoTrans
             CommandSaveTranscription.InputGestures.Add(new KeyGesture(Key.S, ModifierKeys.Control));
             CommandAbout.InputGestures.Add(new KeyGesture(Key.F1, ModifierKeys.Control));
             CommandHelp.InputGestures.Add(new KeyGesture(Key.F1));
-            #endregion
 
-            this.CommandBindings.Add(new CommandBinding(CommandNewParagraphAtPosition, CNewParagraphAtPosition));
-
-
-
-            CommandNewParagraphAtPosition.InputGestures.Add(new KeyGesture(Key.Return));
         }
 
         #region mainform actions
+
+        private void CNewSection(object sender, ExecutedRoutedEventArgs e)
+        {
+            MySection s = new MySection("Sekce");
+            MyParagraph p = new MyParagraph();
+            p.Add(new MyPhrase());
+            s.Add(p);
+            myDataSource.Add(s);
+            VirtualizingListBox.ActiveTransctiption = s;
+        }
+        private void CInsertNewSection(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (VirtualizingListBox.ActiveTransctiption != null)
+            {
+                if (VirtualizingListBox.ActiveTransctiption.IsParagraph)
+                {
+                    MyParagraph p = (MyParagraph)VirtualizingListBox.ActiveTransctiption;
+                    int idx = p.ParentIndex;
+                    MySection sec = (MySection)p.Parent;
+                    MySection s = new MySection("Sekce");
+                    for (int i = idx; i < sec.Children.Count; i++)
+                        s.Add(sec[i]);
+
+                    sec.Children.RemoveRange(idx, sec.Children.Count - idx);
+
+                    sec.Parent.Insert(sec.ParentIndex + 1, s);
+                    VirtualizingListBox.ActiveTransctiption = s;
+                }
+                else if (VirtualizingListBox.ActiveTransctiption.IsSection)
+                {
+                    var s = new MySection("Sekce");
+                    s.Children.AddRange(VirtualizingListBox.ActiveTransctiption.Children);
+                    VirtualizingListBox.ActiveTransctiption.Children.Clear();
+                    VirtualizingListBox.ActiveTransctiption.Parent.Insert(VirtualizingListBox.ActiveTransctiption.ParentIndex, s);
+                    VirtualizingListBox.ActiveTransctiption = s;
+                }
+                else if (VirtualizingListBox.ActiveTransctiption.IsChapter)
+                {
+                    var s = new MySection("Sekce");
+                    VirtualizingListBox.ActiveTransctiption.Insert(0, s);
+
+                    VirtualizingListBox.ActiveTransctiption = s;
+                }
+            }
+        }
+        private void CNewChapter(object sender, ExecutedRoutedEventArgs e)
+        {
+            MyChapter c = new MyChapter("Kapitola");
+            MySection s = new MySection("Sekce");
+            MyParagraph p = new MyParagraph();
+            p.Add(new MyPhrase());
+            s.Add(p);
+            c.Add(s);
+            myDataSource.Add(c);
+            VirtualizingListBox.ActiveTransctiption = c;
+        }
+        private void CDeleteElement(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (VirtualizingListBox.ActiveTransctiption != null)
+            {
+                VirtualizingListBox.ActiveTransctiption.Parent.Remove(VirtualizingListBox.ActiveTransctiption);
+            }
+        }
+        private void CAssignSpeaker(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (VirtualizingListBox.ActiveTransctiption == null)
+                return;
+            new WinSpeakers(VirtualizingListBox.ActiveTransctiption as MyParagraph, MySetup.Setup, this.myDatabazeMluvcich, myDataSource, null).ShowDialog();
+            VirtualizingListBox.SubtitlesContentChanged();
+        }
+
+        private void CExportElement(object sender, ExecutedRoutedEventArgs e)
+        {
+            MyParagraph par = VirtualizingListBox.ActiveTransctiption as MyParagraph;
+            oWav.RamecSynchronne = true;
+            bool nacteno = oWav.NactiRamecBufferu((long)par.Begin.TotalMilliseconds, (long)par.Delka.TotalMilliseconds, MyKONST.ID_BUFFERU_PREPISOVANEHO_ELEMENTU_FONETICKY_PREPIS);//)this.bPozadovanyPocatekRamce, this.bPozadovanaDelkaRamceMS, this.bIDBufferu);        
+            oWav.RamecSynchronne = false;
+
+            Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
+            dlg.DefaultExt = ".wav";
+            dlg.Filter = "wav soubory (.wav)|*.wav";
+            if (dlg.ShowDialog() == true)
+            {
+                string filename = dlg.FileName;
+                //BinaryWriter bw = new BinaryWriter(new FileStream(filename, FileMode.Create));
+                MyBuffer16 bf = new MyBuffer16(oWav.NacitanyBufferSynchronne.data.Length);
+                bf.data = new List<short>(oWav.NacitanyBufferSynchronne.data);
+                MyWav.VytvorWavSoubor(bf, filename);
+
+
+                string ext = System.IO.Path.GetExtension(filename);
+                filename = filename.Substring(0, filename.Length - ext.Length);
+                string textf = filename + ".txt";
+
+                File.WriteAllBytes(textf, win1250.GetBytes(par.Text));
+
+
+                if (!string.IsNullOrEmpty(par.Phonetics))
+                {
+                    textf = filename + ".phn";
+                    File.WriteAllBytes(textf, win1250.GetBytes(par.Phonetics));
+                }
+            }
+        }
+
         private void CFindDialogExecute(object sender, ExecutedRoutedEventArgs e)
         {
             if (!m_findDialog.IsLoaded || !m_findDialog.IsVisible)
@@ -194,13 +312,13 @@ namespace NanoTrans
 
         private void CScrollDown(object sender, ExecutedRoutedEventArgs e)
         {
-            VirtualizingListBox.gridscrollbar.Value += 0.7 * VirtualizingListBox.Height;
+            VirtualizingListBox.gridscrollbar.Value += 0.7 * VirtualizingListBox.ActualHeight;
 
         }
 
         private void CScrollUP(object sender, ExecutedRoutedEventArgs e)
         {
-            VirtualizingListBox.gridscrollbar.Value -= 0.7 * VirtualizingListBox.Height;
+            VirtualizingListBox.gridscrollbar.Value -= 0.7 * VirtualizingListBox.ActualHeight;
         }
 
         private void CSmallJumpRight(object sender, ExecutedRoutedEventArgs e)
@@ -313,9 +431,6 @@ namespace NanoTrans
         private void COpenTranscription(object sender, ExecutedRoutedEventArgs e)
         {
             OtevritTitulky(true, "", false);
-            //refresh uz vykreslenych textboxu
-
-            VirtualizingListBox.SubtitlesContentChanged();
         }
        
         private void CSaveTranscription(object sender, ExecutedRoutedEventArgs e)
@@ -363,9 +478,6 @@ namespace NanoTrans
             if (pr == null)
                 tag = myDataSource.Chapters[0];
 
-
-
-
             if (myDataSource.FindNext(ref tag, ref searchtextoffset, pattern, isregex, CaseSensitive))
             {
                 TranscriptionElement p = tag;
@@ -376,90 +488,6 @@ namespace NanoTrans
 
         public FindDialog m_findDialog;
         #endregion
-
-
-        #region textboxActions
-        private void CNewParagraphAtPosition(object sender, ExecutedRoutedEventArgs e)
-        {
-            TranscriptionElement te = VirtualizingListBox.ActiveTransctiption;
-                if (te!= null)
-                {
-                    //rozdeleni
-
-                    MyParagraph before = new MyParagraph();
-                    MyParagraph after = new MyParagraph();
-                    MyParagraph par = te as MyParagraph;
-                    int i;
-
-                    int pos = VirtualizingListBox.ActiveElement.myTextBox1.CaretIndex;
-
-                    if(pos == 0)
-                        return;
-
-                    int sum = 0;
-                    for (i = 0; i < par.Phrases.Count;i++)
-                    {
-                        if (sum + par.Phrases[i].Text.Length == pos) //deleni v mezere
-                        {
-                            int ix = te.ParentIndex;
-                            te.Parent.RemoveAt(ix);
-                            var b = new List<MyPhrase>();
-                            var a = new List<MyPhrase>();
-                            for (int j = 0; j <= i; j++)
-                                b.Add(par.Phrases[i]);
-
-                            for (int j = i+1; j <= par.Phrases.Count; j++)
-                                a.Add(par.Phrases[i]);
-
-                            par.Phrases.Clear();
-
-                            te.Parent.Insert(ix, new MyParagraph(a));
-                            te.Parent.Insert(ix, new MyParagraph(b)); 
-                            break;
-                        }
-                        else if (sum > pos && sum < pos + par.Phrases[i].Text.Length)
-                        { 
-                        
-                        }
-                    }
-                }
-                else if(myDataSource.VratElementDanehoCasu(waveform1.CaretPosition).Count == 0)
-                {
-
-                    //novy v prazdnu
-                    int indx = -1;
-                    TranscriptionElement lastbefore = null;
-                    bool openelement = false;
-                    foreach (var elm in myDataSource)
-                    {
-                        indx++;
-                        if (lastbefore == null)
-                            lastbefore = elm;
-                        else if (elm.End >= lastbefore.End && elm.End <= waveform1.CaretPosition)
-                        {
-                            lastbefore = elm;
-                        }
-                        else if(elm.End < TimeSpan.Zero) //neukonceny element
-                        {
-                            elm.End = waveform1.CaretPosition;
-                            lastbefore = elm;
-                            openelement = true;
-                            break;
-                        }else
-                            break;
-                    }
-
-                    var p = new MyParagraph() { Begin = lastbefore.End, End = waveform1.CaretPosition };
-                    if(openelement)
-                        p.End = new TimeSpan(-1);
-
-                    myDataSource.Insert(indx, p);
-
-                }
-        }
-        #endregion
-
-
 
 
         #endregion
@@ -549,10 +577,6 @@ namespace NanoTrans
                 default:
                     break;
             }
-        }
-
-        private void tbFonetickyPrepis_PreviewKeyDown(object sender, KeyEventArgs e)
-        {
         }
     }
 

@@ -37,6 +37,8 @@ namespace NanoTrans
                     if (pJmeno.Length > 0) pJmeno += " ";
                     pJmeno += Surname;
                 }
+                if (string.IsNullOrEmpty(pJmeno))
+                    pJmeno = "Mluvčí";
                 return pJmeno;
             }
         }
@@ -54,7 +56,7 @@ namespace NanoTrans
         public MySpeaker()
         {
 
-            ID = -1;
+            ID = int.MinValue;
             FirstName = null;
             Surname = null;
             Sex = null;
@@ -100,7 +102,7 @@ namespace NanoTrans
 
     public abstract class TranscriptionElement
     {
-        public double heigth;
+        public double height;
         protected TimeSpan m_begin = new TimeSpan(-1);
         public TimeSpan Begin
         {
@@ -164,24 +166,18 @@ namespace NanoTrans
         { 
             get
             {
-                foreach (TranscriptionElement e in Children)
-                {
-                    if (--Index == 0)
-                        return e;   
-                }
-
-                return null;
+                return m_children[Index];
             }
 
             set
             {
-                throw new NotSupportedException();
+               m_children[Index] = value;
             }
         
         }
 
-        private TranscriptionElement m_Parent;
-        private int m_ParentIndex;
+        protected TranscriptionElement m_Parent;
+        protected int m_ParentIndex;
         public int ParentIndex
         {
             get { return m_ParentIndex; }
@@ -256,15 +252,37 @@ namespace NanoTrans
              return true;
         }
 
-
         public TranscriptionElement Next()
+        {
+
+            if (m_children.Count > 0 && !IsParagraph)
+                return m_children[0];
+
+            if (m_Parent == null)
+                return null;
+            if (m_ParentIndex == m_Parent.m_children.Count - 1)
+            {
+                TranscriptionElement te = m_Parent.NextSibling();
+                if(te!=null)
+                    return te.Next();
+
+                return null;
+            }
+            else
+            {
+                return m_Parent.m_children[m_ParentIndex + 1];
+            }
+
+        }
+
+        public TranscriptionElement NextSibling()
         {
 
                 if (m_Parent == null)
                     return null;
                 if (m_ParentIndex == m_Parent.m_children.Count - 1)
                 {
-                    TranscriptionElement te = m_Parent.Next();
+                    TranscriptionElement te = m_Parent.NextSibling();
                     if (te != null && te.Children.Count >0)
                         return te.m_children[0];
                     else
@@ -277,14 +295,14 @@ namespace NanoTrans
 
         }
 
-        public TranscriptionElement Previous()
+        public TranscriptionElement PreviousSibling()
         {
 
             if (m_Parent == null)
                 return null;
             if (m_ParentIndex == 0)
             {
-                TranscriptionElement te = m_Parent.Previous();
+                TranscriptionElement te = m_Parent.PreviousSibling();
                 if (te != null && te.Children.Count > 0)
                     return te.m_children[te.m_children.Count - 1];
                 else
@@ -296,7 +314,26 @@ namespace NanoTrans
             }
      
         }
+
+        public TranscriptionElement Previous()
+        {
+
+            if (m_Parent == null)
+                return null;
+            if (m_ParentIndex == 0)
+            {
+                if (IsChapter)
+                    return null;
+                return m_Parent;
+            }
+            else
+            {
+                return m_Parent.m_children[m_ParentIndex - 1];
+            }
+
+        }
     
+
         public virtual int GetTotalChildrenCount()
         {
             int c = m_children.Count;
@@ -316,7 +353,7 @@ namespace NanoTrans
     //nejmensi textovy usek - muze byt veta, vice slov nebo samotne slovo
     public sealed class MyPhrase : TranscriptionElement
     {
-        private string m_text;//slovo/a ktere obsahuji i mezery na konci
+        private string m_text = "";//slovo/a ktere obsahuji i mezery na konci
         
         public override string Text
         {
@@ -324,7 +361,7 @@ namespace NanoTrans
             set { m_text = value; }
         }
 
-        private string m_phonetics;
+        private string m_phonetics="";
 
         public override string Phonetics
         {
@@ -344,7 +381,7 @@ namespace NanoTrans
             this.m_end = kopie.m_end;
             this.m_text = kopie.m_text;
             this.m_phonetics = kopie.m_phonetics;
-            this.heigth = kopie.heigth;
+            this.height = kopie.height;
         }
 
         public MyPhrase():base()
@@ -386,8 +423,7 @@ namespace NanoTrans
         {
             return 0;
         }
-
-
+        
         public override void ChildrenCountChanged()
         {
         }
@@ -432,7 +468,7 @@ namespace NanoTrans
             }
             set
             {
-                m_elementlist[index] = value;
+                throw new NotSupportedException();
             }
         }
 
@@ -655,7 +691,7 @@ namespace NanoTrans
             }
         }
 
-        public int speakerID = -1;
+        public int speakerID = int.MinValue;
 
         /// <summary>
         /// informace zda je dany element zahrnut pro trenovani dat 
@@ -715,8 +751,7 @@ namespace NanoTrans
             this.Begin = new TimeSpan(-1);
             this.End = new TimeSpan(-1);
             this.trainingElement = false;
-            this.speakerID = -1;
-            
+            this.speakerID = int.MinValue;
         }
 
         public MyParagraph(String aText, List<MyCasovaZnacka> aCasoveZnacky, TimeSpan aBegin, TimeSpan aEnd) : this()
@@ -725,11 +760,9 @@ namespace NanoTrans
             this.Begin = aBegin;
             this.End = aEnd;
             this.trainingElement = false;
-            this.speakerID = -1;
+            this.speakerID = int.MinValue;
         }
     }
-
-
 
     //sekce textu nadrazena odstavci
     public class MySection:TranscriptionElement
@@ -769,7 +802,7 @@ namespace NanoTrans
 
         public VirtualTypeList<MyParagraph> Paragraphs;
 
-        public int speaker;
+        public int Speaker;
 
 
         /// <summary>
@@ -932,7 +965,7 @@ namespace NanoTrans
                     return true;
                 }
 
-                tag = tag.Next() as MyParagraph; ;
+                tag = tag.NextSibling() as MyParagraph; ;
                 if (tag == null)
                     return false;
                 par = tag;
@@ -942,35 +975,28 @@ namespace NanoTrans
             return false;
         }
 
-        [XmlIgnore()]
         public string JmenoSouboru { get; set; }
-        [XmlIgnore()]
         public bool Ulozeno { get; set; }
 
         /// <summary>
         /// datum a cas poradu, ktery je v transkripci zpracovan - napr. pocatecni cas audio souboru 
         /// </summary>
-        [XmlAttribute]
         public DateTime dateTime { get; set; }
         /// <summary>
         /// zdroj odkud je transkripce - radio - nazev kanalu, televize, mikrofon, atd...
         /// </summary>
-        [XmlAttribute]
         public string source { get; set; }
         /// <summary>
         /// typ poradu - cele transkripce 
         /// </summary>
-        [XmlAttribute]
         public string type { get; set; }
         /// <summary>
         /// zdroj audio dat - muze byt stejny jako video a naopak
         /// </summary>
-        [XmlAttribute]
         public string audioFileName { get; set; }
         /// <summary>
         /// zdroj video dat - muze byt stejny jako audio a naopak
         /// </summary>
-        [XmlAttribute]
         public string videoFileName { get; set; }
 
         /// <summary>
@@ -1137,9 +1163,19 @@ namespace NanoTrans
         /// </summary>
         /// <param name="aJmeno"></param>
         /// <returns></returns>
-        public int NajdiSpeakera(string aJmeno)
+        public int GetSpeaker(string aJmeno)
         {
             return this.SeznamMluvcich.NajdiSpeakeraID(aJmeno);
+        }
+
+        /// <summary>
+        /// vraci ID speakera podle stringu jmena
+        /// </summary>
+        /// <param name="aJmeno"></param>
+        /// <returns></returns>
+        public MySpeaker GetSpeaker(int id)
+        {
+            return this.SeznamMluvcich.VratSpeakera(id);
         }
 
 
@@ -1192,7 +1228,7 @@ namespace NanoTrans
                 MySubtitlesData pCopy = new MySubtitlesData(co);
 
                 System.Xml.XmlTextWriter writer = new XmlTextWriter(datastream, Encoding.UTF8);
-
+                writer.Formatting = Formatting.Indented;
                 writer.WriteStartDocument(); //<?xml version ...
 
                 
@@ -1234,8 +1270,8 @@ namespace NanoTrans
                             foreach (MyPhrase ph in p.Phrases)
                             {
                                 writer.WriteStartElement("Phrase");
-                                writer.WriteAttributeString("begin", XmlConvert.ToString(p.Begin));
-                                writer.WriteAttributeString("end", XmlConvert.ToString(p.End));
+                                writer.WriteAttributeString("begin", XmlConvert.ToString(ph.Begin));
+                                writer.WriteAttributeString("end", XmlConvert.ToString(ph.End));
                                 writer.WriteElementString("Text", ph.Text);
                                 writer.WriteEndElement();//Phrase
                             }
@@ -1265,8 +1301,8 @@ namespace NanoTrans
                             foreach (MyPhrase ph in p.Phrases)
                             {
                                 writer.WriteStartElement("Phrase");
-                                writer.WriteAttributeString("begin", XmlConvert.ToString(p.Begin));
-                                writer.WriteAttributeString("end", XmlConvert.ToString(p.End));
+                                writer.WriteAttributeString("begin", XmlConvert.ToString(ph.Begin));
+                                writer.WriteAttributeString("end", XmlConvert.ToString(ph.End));
                                 writer.WriteElementString("Text", ph.Phonetics);
                                 writer.WriteEndElement();//Phrase
                             }
@@ -1467,21 +1503,36 @@ namespace NanoTrans
                                 MyPhrase ph = new MyPhrase();
                                 val = reader.GetAttribute("begin");
                                 if (int.TryParse(val, out result))
-                                    ph.Begin = new TimeSpan(result);
+                                    if (result < 0)
+                                        ph.Begin = new TimeSpan(result);
+                                    else
+                                        ph.Begin = TimeSpan.FromMilliseconds(result);
                                 else
                                     ph.Begin = XmlConvert.ToTimeSpan(val);
 
                                 val = reader.GetAttribute("end");
                                 if (int.TryParse(val, out result))
-                                    ph.Begin = new TimeSpan(result);
+                                    if (result < 0)
+                                        ph.End = new TimeSpan(result);
+                                    else
+                                        ph.End = TimeSpan.FromMilliseconds(result);
                                 else
-                                    ph.Begin = XmlConvert.ToTimeSpan(val);
+                                    ph.End = XmlConvert.ToTimeSpan(val);
 
                                 reader.Read();//Text;
-                                reader.ReadStartElement("Text");//posun na content
-                                ph.Text = reader.Value;
-                                p.Phrases.Add(ph);
 
+                                if (reader.IsEmptyElement)
+                                    reader.Read();
+
+                                while (reader.Name == "Text")
+                                {
+                                    reader.ReadStartElement("Text");//posun na content
+                                    ph.Text+= reader.Value;
+                                    while (reader.NodeType != XmlNodeType.EndElement)
+                                        reader.Read();
+                                    reader.ReadEndElement();
+                                }
+                                p.Phrases.Add(ph);
                                 if (reader.Name != "Phrase") //text nebyl prazdny
                                 {
                                     reader.Read();//text;
@@ -1495,6 +1546,8 @@ namespace NanoTrans
                                 reader.ReadEndElement();//Phrases - muze byt emptyelement a ten nema end..
 
                             p.speakerID = XmlConvert.ToInt32(reader.ReadElementString());
+                            if (p.speakerID == -1)
+                                p.speakerID = int.MinValue;
 
                             reader.ReadEndElement();//paragraph
                             s.Paragraphs.Add(p);
@@ -1539,15 +1592,21 @@ namespace NanoTrans
                                 MyPhrase ph = new MyPhrase();
                                 val = reader.GetAttribute("begin");
                                 if (int.TryParse(val, out result))
-                                    ph.Begin = new TimeSpan(result);
+                                    if (result < 0)
+                                        p.Begin = new TimeSpan(result);
+                                    else
+                                        p.Begin = TimeSpan.FromMilliseconds(result);
                                 else
                                     ph.Begin = XmlConvert.ToTimeSpan(val);
 
                                 val = reader.GetAttribute("end");
                                 if (int.TryParse(val, out result))
-                                    ph.Begin = new TimeSpan(result);
+                                    if (result < 0)
+                                        p.End = new TimeSpan(result);
+                                    else
+                                        p.End = TimeSpan.FromMilliseconds(result);
                                 else
-                                    ph.Begin = XmlConvert.ToTimeSpan(val);
+                                    ph.End = XmlConvert.ToTimeSpan(val);
 
                                 reader.Read();//Text;
                                 reader.ReadStartElement("Text");//posun na content
@@ -1566,13 +1625,14 @@ namespace NanoTrans
 
                                 p.Phrases.Add(ph);
                                 reader.ReadEndElement();//Phrase;
-                                //reader.Read();//Phrase | phhrases end element
                             }
 
                             if (reader.Name != "speakerID")
                                 reader.ReadEndElement();//Phrases - muze byt emptyelement a ten nema end..
 
                             p.speakerID = XmlConvert.ToInt32(reader.ReadElementString());
+                            if (p.speakerID == -1)
+                                p.speakerID = int.MinValue;
 
                             reader.ReadEndElement();//paragraph
                             
@@ -1583,15 +1643,22 @@ namespace NanoTrans
                             TimeSpan timeinboth = TimeSpan.Zero;
                             foreach (MyParagraph v in s.Paragraphs)
                             {
+                                if (v.End < p.Begin)
+                                    continue;
+
+                                if (v.Begin > p.End)
+                                    break;
+                                TimeSpan beg = v.Begin > p.Begin ? v.Begin : p.Begin;
+                                TimeSpan end = v.End < p.End ? v.End : p.End;
+                                TimeSpan duration = end - beg;
+
                                 if (bestpar == null)
+                                {
                                     bestpar = v;
+                                    timeinboth = duration;
+                                }
                                 else
                                 {
-                                    TimeSpan beg = v.Begin > p.Begin ? v.Begin : p.Begin;
-                                    TimeSpan end = v.End < p.End ? v.End : p.End;
-
-                                    TimeSpan duration = end - beg;
-
                                     if (duration > timeinboth)
                                     {
                                         timeinboth = duration;
@@ -1600,41 +1667,46 @@ namespace NanoTrans
                                 }
                             }
 
-                            foreach (MyPhrase hn in p.Phrases)
+                            if (p.Phrases.Count == bestpar.Phrases.Count)
                             {
-                                MyPhrase bestphrase = null;
-                                foreach (MyPhrase h in bestpar.Phrases)
+                                for (int i = 0; i < p.Phrases.Count;i++ )
                                 {
-                                    if (bestphrase == null)
-                                        bestphrase = h;
-                                    else
-                                    {
-                                        TimeSpan beg = h.Begin > hn.Begin ? h.Begin : hn.Begin;
-                                        TimeSpan end = h.End < hn.End ? h.End : hn.End;
-
-                                        TimeSpan duration = end - beg;
-
-                                        if (duration > timeinboth)
-                                        {
-                                            timeinboth = duration;
-                                            bestphrase = h;
-                                        }
-                                    }
+                                    bestpar.Phrases[i].Phonetics = p.Phrases[i].Text;
                                 }
+                            }
+                            else
+                            {
+                                int i = 0;
+                                int j = 0;
 
-                                bestphrase.Phonetics = hn.Text;
+                                TimeSpan actual = p.Phrases[i].Begin;
+                                while (i < p.Phrases.Count && j < bestpar.Phrases.Count)
+                                { 
+                                    MyPhrase to = p.Phrases[i];
+                                    MyPhrase from = bestpar.Phrases[j];
+                                    if(true)
+                                    {
+                                    
+                                    }
+                                    i++;
+                                }
                             }
 
-
                         }
+
+                        if (reader.Name == "PhoneticParagraphs" && reader.NodeType == XmlNodeType.EndElement)
+                            reader.ReadEndElement();
 
 
                         if (!(reader.Name == "Section" && reader.NodeType == XmlNodeType.EndElement))
                         {
+                           
                             if (reader.Name != "speaker")
                                 reader.Read();
 
-                            s.speaker = XmlConvert.ToInt32(reader.ReadElementString("speaker"));
+                            int spkr = XmlConvert.ToInt32(reader.ReadElementString("speaker"));
+                            s.Speaker = (spkr < 0)?int.MinValue:spkr;
+
                         }
                         c.Sections.Add(s);
                         reader.ReadEndElement();//section
@@ -1656,10 +1728,20 @@ namespace NanoTrans
                     reader.ReadStartElement("Speaker");
                     MySpeaker sp = new MySpeaker();
                     sp.ID = XmlConvert.ToInt32(reader.ReadElementString("ID"));
-                    sp.FirstName = reader.ReadElementString("FirstName");
+
+                    if (reader.Name != "Surname")
+                    {
+                        if (reader.Name == "Firstname")
+                            sp.FirstName = reader.ReadElementString("Firstname");
+                        else
+                            sp.FirstName = reader.ReadElementString("FirstName");
+                    }
+
                     sp.Surname = reader.ReadElementString("Surname");
-                    sp.Sex = reader.ReadElementString("Sex");
-                    sp.Comment = reader.ReadElementString("Comment");
+                    if(reader.Name == "Sex")
+                        sp.Sex = reader.ReadElementString("Sex");
+                    if (reader.Name == "Comment")
+                        sp.Comment = reader.ReadElementString("Comment");
                     reader.ReadEndElement();//speaker
                     data.SeznamMluvcich.Speakers.Add(sp);
                 }
@@ -1671,9 +1753,6 @@ namespace NanoTrans
                 MessageBox.Show("Chyba pri derializaci souboru: " + ex.Message);
                 return null;
             }
-
-                
-
         }
 
 
@@ -1689,7 +1768,7 @@ namespace NanoTrans
             while (cur != null && cur != item)
             {
                 i++;
-                cur = cur.Next();
+                cur = cur.NextSibling();
             }
             
 
@@ -1697,11 +1776,6 @@ namespace NanoTrans
         }
 
         public override void Insert(int index, TranscriptionElement item)
-        {
-            throw new NotSupportedException();
-        }
-
-        public override void RemoveAt(int index)
         {
             throw new NotSupportedException();
         }
@@ -1751,14 +1825,14 @@ namespace NanoTrans
         {
             if (item is MyChapter)
             { 
-                m_children.Add((MyChapter)item);
+                base.Add(item);
                 this.ChildrenCountChanged();
             }else if(item is MySection)
             {
-                m_children[m_children.Count - 1].Add(item as MySection);
+                m_children[m_children.Count - 1].Add(item);
             }else if(item is MyParagraph)
             {
-                m_children[m_children.Count - 1].Children[m_children[m_children.Count - 1].Children.Count - 1].Add(item as MySection);
+                m_children[m_children.Count - 1].Children[m_children[m_children.Count - 1].Children.Count - 1].Add(item);
             }
         }
 
@@ -1791,7 +1865,7 @@ namespace NanoTrans
         {
             if (item is MyChapter)
             {
-                return Chapters.Remove(item as MyChapter);
+                return base.Remove(item);
             }
 
             foreach (TranscriptionElement el in this)
@@ -1849,6 +1923,7 @@ namespace NanoTrans
             if (SubtitlesChanged != null)
                 SubtitlesChanged();
         }
+
         public override string Text
         {
             get
@@ -1870,8 +1945,6 @@ namespace NanoTrans
             {
             }
         }
-
-
     }
 
     //trida ktera obsahuje informace o casove znacce jednotlicych useku - pocatek a konec a index pozice v textu

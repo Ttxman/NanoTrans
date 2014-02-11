@@ -25,7 +25,7 @@ namespace NanoTrans
             InitializeComponent();
             m_e = e;
             m_parent = parent;
-            textBox1.Text = e.Message;
+            textBox1.Text = e.ToString()+"\n\n"+ e.Message;
         }
 
         private void buttonSaveAndRestart_Click(object sender, RoutedEventArgs e)
@@ -37,6 +37,7 @@ namespace NanoTrans
 
         private void buttonIgnore_Click(object sender, RoutedEventArgs e)
         {
+            this.DialogResult = false;
             Close();
         }
 

@@ -3,33 +3,50 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             Name="element"
              mc:Ignorable="d" xmlns:my="clr-namespace:NanoTrans" d:DesignWidth="400" GotFocus="UserControl_GotFocus" 
-             LostFocus="UserControl_LostFocus">
-             
+             xmlns:sd="http://icsharpcode.net/sharpdevelop/avalonedit"
+             LostFocus="UserControl_LostFocus" Loaded="element_Loaded" VerticalContentAlignment="Stretch">
+
     <UserControl.Resources>
         <ObjectDataProvider x:Key="provider" ObjectInstance="{x:Static my:MySetup.Refresher}"/>
+        <my:SpeakerConverter x:Key="SpeakerConverter" />
     </UserControl.Resources>
 
-    <Grid VerticalAlignment="Top" HorizontalAlignment="Stretch">
+    <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Name="maingrid" Background="{x:Null}">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" MaxHeight="26" />
-                <RowDefinition Height="Auto" MaxHeight="26" />
                 <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="16" />
-                <ColumnDefinition Width="413*" />
-                <ColumnDefinition Width="22" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-        <Button Content="Speaker" Name="button1" MinWidth="80" HorizontalAlignment="Left" MinHeight="26" MaxHeight="26" FontSize="{Binding Source={StaticResource provider}, Path=Setup.SetupOthersFontSize}" />
-        <Canvas Grid.Column="2" Grid.RowSpan="3" Name="textboxcanvas" />
-        <my:MyTextBox Grid.Column="2" x:Name="myTextBox1" BorderThickness="0" Panel.ZIndex="100" TextWrapping="Wrap" Grid.RowSpan="3" 
-                      ClipToBounds="True" FontSize="{Binding Source={StaticResource provider}, Path=Setup.SetupTextFontSize}" BGcanvas="{Binding ElementName=textboxcanvas, Path=.}"
-                      ContextMenu="{Binding ElementName=element, Path=ContextMenu}" TextChanged="myTextBox1_TextChanged" PreviewKeyDown="myTextBox1_PreviewKeyDown" />
+        <Button Name="button1" MinWidth="80" HorizontalAlignment="Left" MinHeight="26" MaxHeight="26" FontSize="{Binding Source={StaticResource provider}, Path=Setup.SetupOthersFontSize}" 
+               Content="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}, Path=ValueElement, Converter={StaticResource SpeakerConverter}}" Click="button1_Click" />
 
-            <StackPanel Grid.Column="1" Grid.RowSpan="3" Name="stackPanel1" Background="LightBlue" />
+        <sd:TextEditor Grid.Column="2" x:Name="editor" BorderThickness="0" Panel.ZIndex="100" Grid.RowSpan="4" FontSize="{Binding Source={StaticResource provider}, Path=Setup.SetupTextFontSize}"
+                       PreviewKeyDown="editor_PreviewKeyDown" 
+                       SnapsToDevicePixels="False" WordWrap="True" 
+                       PreviewKeyUp="editor_PreviewKeyUp" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" OverridesDefaultStyle="true">
+            <sd:TextEditor.Style>
+                <Style TargetType="{x:Type sd:TextEditor}">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type sd:TextEditor}">
+                                <ContentPresenter Focusable="False" Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TextArea}">
+                                </ContentPresenter>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </sd:TextEditor.Style>
+        </sd:TextEditor>
+
+        <StackPanel Grid.Column="1" Grid.RowSpan="4" Name="stackPanel1" Background="LightBlue" Width="16"/>
         <TextBlock Grid.Row="1" Name="textbegin" VerticalAlignment="Top" HorizontalAlignment="Left" Visibility="Collapsed"  MaxHeight="26" Foreground="Green" 
                FontSize="{Binding Source={StaticResource provider}, Path=Setup.SetupOthersFontSize}" Margin="0,0,10,0">
         </TextBlock>
@@ -37,8 +54,8 @@
                FontSize="{Binding Source={StaticResource provider}, Path=Setup.SetupOthersFontSize}" Margin="0,0,10,0">
 
         </TextBlock>
-            <Grid Grid.Column="3" Grid.RowSpan="3" Name="grid2">
-                <CheckBox Height="16" HorizontalAlignment="Center" Name="checkBox1" VerticalAlignment="Center" Checked="checkBox1_Checked" Unchecked="checkBox1_Unchecked" />
+            <Grid Grid.Column="3" Grid.RowSpan="4" Name="grid2">
+                <CheckBox Height="16" HorizontalAlignment="Center" Name="checkBox1" VerticalAlignment="Center" Checked="checkBox1_Checked" Unchecked="checkBox1_Unchecked" Margin="3" />
             </Grid>
     </Grid>
 </UserControl>

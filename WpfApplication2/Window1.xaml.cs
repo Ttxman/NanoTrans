@@ -32,16 +32,6 @@ namespace NanoTrans
     /// 
     public partial class Window1 : Window, System.ComponentModel.INotifyPropertyChanged
     {
-        WinLog mWL = null;
-
-        /// <summary>
-        /// udava v jakem stavu chceme rozpoznavac spustit
-        /// </summary>
-        //private short pPozadovanyStavRozpoznavace;
-        //private List<TranscriptionElement> pSeznamOdstavcuKRozpoznani;
-
-        private List<int> pSeznamZpracovanychPrikazuRozpoznavace = new List<int>();
-
         //timer pro posuvnik videa....
         private DispatcherTimer timer1 = new DispatcherTimer();
         private DispatcherTimer timerRozpoznavace = new DispatcherTimer();
@@ -93,8 +83,6 @@ namespace NanoTrans
         /// <summary>
         /// info zda je nacitan audio soubor kvuli davce
         /// </summary>
-
-        static bool nahled = false;
 
         bool jeVideo = false;
 
@@ -165,11 +153,6 @@ namespace NanoTrans
                 }
             }
         }
-
-        byte[] pVyrovnavaciPametNahravani = new byte[320000];    //vterina vyrovnavaci pameti pro nahravani-10s!!!!!
-        //int pVyrovnavaciPametIndexVrcholu = 0;
-
-
         ContextMenu ContextMenuGridX;
         ContextMenu ContextMenuVlnaImage;
         ContextMenu ContextMenuVideo;
@@ -228,8 +211,6 @@ namespace NanoTrans
                 menuUpravyKapitola.Header = "New chapter";
                 menuUpravySekce.Header = "New section at...";
                 menuUpravySmazat.Header = "Delete element";
-                menuUpravySmazatKonec.Header = "Remove ending time mark";
-                menuUpravySmazatPocatek.Header = "Remove beginning time mark";
 
                 menuNastroje.Header = "Tools";
                 menuNastrojeFonetika.Header = "Phonetic transcription";
@@ -303,11 +284,6 @@ namespace NanoTrans
                     NastavJazyk(MySetup.Setup.jazykRozhranni);
                 }
 
-                if (MySetup.Setup.SpustitLogovaciOkno)
-                {
-                    mWL = new WinLog();
-                    mWL.Show();
-                }
                 //nastaveni posledni pozice okna
                 if (MySetup.Setup.OknoPozice != null)
                 {
@@ -350,17 +326,17 @@ namespace NanoTrans
 
                 MenuItem menuItemX2 = new MenuItem();
                 menuItemX2.Header = "Nová sekce";
-                menuItemX2.InputGestureText = "F3";
+                menuItemX2.InputGestureText = "F5";
                 menuItemX2.Click += new RoutedEventHandler(menuItemX2_Nova_Sekce_Click);
 
                 MenuItem menuItemX2b = new MenuItem();
                 menuItemX2b.Header = "Nová sekce na pozici";
-                menuItemX2b.InputGestureText = "Shift+F3";
+                menuItemX2b.InputGestureText = "Shift+F5";
                 menuItemX2b.Click += new RoutedEventHandler(menuItemX2b_Nova_Sekce_Click);
 
                 MenuItem menuItemX3 = new MenuItem();
                 menuItemX3.Header = "Nová kapitola";
-                menuItemX3.InputGestureText = "F2";
+                menuItemX3.InputGestureText = "F4";
                 menuItemX3.Click += new RoutedEventHandler(menuItemX3_Nova_Kapitola_Click);
 
                 MenuItem menuItemX4 = new MenuItem();
@@ -368,17 +344,9 @@ namespace NanoTrans
                 menuItemX4.InputGestureText = "Shift+Del";
                 menuItemX4.Click += new RoutedEventHandler(menuItemX4_Smaz_Click);
 
-                MenuItem menuItemX5 = new MenuItem();
-                menuItemX5.Header = "Smazat poč. časový index";
-                menuItemX5.InputGestureText = "Ctrl+Del";
-                menuItemX5.Click += new RoutedEventHandler(menuItemX5_Smaz_Click);
-
-                MenuItem menuItemX6 = new MenuItem();
-                menuItemX6.Header = "Smazat kon. časový index";
-                menuItemX6.Click += new RoutedEventHandler(menuItemX6_Smaz_Click);
-
                 MenuItem menuItemX7 = new MenuItem();
                 menuItemX7.Header = "Exportovat záznam";
+                menuItemX7.InputGestureText = "Ctrl+Shift+X";
                 menuItemX7.Click += new RoutedEventHandler(menuItemX7_Click);
 
                 ContextMenuGridX.Items.Add(menuItemX);
@@ -388,9 +356,6 @@ namespace NanoTrans
                 ContextMenuGridX.Items.Add(menuItemX2b);
                 ContextMenuGridX.Items.Add(new Separator());
                 ContextMenuGridX.Items.Add(menuItemX4);
-                ContextMenuGridX.Items.Add(new Separator());
-                ContextMenuGridX.Items.Add(menuItemX5);
-                ContextMenuGridX.Items.Add(menuItemX6);
                 ContextMenuGridX.Items.Add(new Separator());
                 ContextMenuGridX.Items.Add(menuItemX7);
 
@@ -456,7 +421,7 @@ namespace NanoTrans
                 }
                 if (pCesta == null)
                 {
-                    NoveTitulky();
+                  //  NoveTitulky();
                 }
                 else
                 {
@@ -522,58 +487,6 @@ namespace NanoTrans
             }
             return new short[0];
         }
-
-
-        /// <summary>
-        /// handle pro nahravana audio data z recorderu
-        /// </summary>
-        /// <param name="data"></param>
-        /// <param name="size"></param>
-        void MWR_MamData(IntPtr data, int size)
-        {
-             //TODO:
-            
-            /*if ((oPrepisovac != null && oPrepisovac.bufferProHlasoveOvladani != null))
-                {
-                    byte[] pData2 = new byte[size];
-
-                    System.Runtime.InteropServices.Marshal.Copy(data, pData2, 0, size);
-
-                    if (pVyrovnavaciPametIndexVrcholu > 300)
-                    {
-                        byte[] p = new byte[pVyrovnavaciPametIndexVrcholu + size];
-                        for (int i = 0; i < pVyrovnavaciPametIndexVrcholu; i++)
-                        {
-                            p[i] = pVyrovnavaciPametNahravani[i];
-                        }
-                        for (int i = pVyrovnavaciPametIndexVrcholu; i < pVyrovnavaciPametIndexVrcholu + size; i++)
-                        {
-                            p[i] = pData2[i - pVyrovnavaciPametIndexVrcholu];
-                        }
-
-                        pVyrovnavaciPametIndexVrcholu = 0;
-
-                        if (pPozadovanyStavRozpoznavace == MyKONST.ROZPOZNAVAC_1_DIKTAT)
-                        {
-                            oPrepisovac.AsynchronniZapsaniDat(p);
-                        }
-
-                    }
-                    else
-                    {
-                        bool pDoBufferu = false;
-                        if (oPrepisovac != null && oPrepisovac.TypRozpoznavani == MyKONST.ROZPOZNAVAC_1_DIKTAT && !oPrepisovac.AsynchronniZapsaniDat(pData2)) pDoBufferu = true;
-                        if (pDoBufferu)
-                        {
-                            pData2.CopyTo(pVyrovnavaciPametNahravani, pVyrovnavaciPametIndexVrcholu);
-                            pVyrovnavaciPametIndexVrcholu += pData2.Length;
-
-                        }
-
-                    }
-                }*/
-        }
-
 
         /// <summary>
         /// vraci cislo prevedeneho souboru
@@ -730,116 +643,36 @@ namespace NanoTrans
         //--------------------------------obsluha context menu pro gridy v listboxu--------------------------------------------------
         void menuItemX_Nastav_Mluvciho_Click(object sender, RoutedEventArgs e)
         {
-            new WinSpeakers(VirtualizingListBox.ActiveTransctiption as MyParagraph, MySetup.Setup, this.myDatabazeMluvcich, myDataSource, null).ShowDialog();
+            CommandAssignSpeaker.Execute(null,null);
         }
 
         void menuItemX2_Nova_Sekce_Click(object sender, RoutedEventArgs e)
         {
-            //TODO: pridej sekci
+            CommandNewSection.Execute(null, null);
         }
 
         void menuItemX2b_Nova_Sekce_Click(object sender, RoutedEventArgs e)
         {
-            //TODO: pridej sekci na pozici
+            CommandInsertNewSection.Execute(null, null);
         }
 
         void menuItemX3_Nova_Kapitola_Click(object sender, RoutedEventArgs e)
         {
-
-            //TODO: pridej kapitolu
+            CommandNewChapter.Execute(null,null);
         }
 
         void menuItemX4_Smaz_Click(object sender, RoutedEventArgs e)
         {
-            //TODO: odstran
-        }
-
-        void menuItemX5_Smaz_Click(object sender, RoutedEventArgs e)
-        {
-            //TODO: odstran
-        }
-
-        void menuItemX6_Smaz_Click(object sender, RoutedEventArgs e)
-        {
-            //TODO: odstran
+            CommandDeleteElement.Execute(null, null);
         }
 
         static Encoding win1250 = Encoding.GetEncoding("windows-1250");
 
         void menuItemX7_Click(object sender, RoutedEventArgs e)
         {
-            MyParagraph par = VirtualizingListBox.ActiveTransctiption as MyParagraph;
-            oWav.RamecSynchronne = true;
-            bool nacteno = oWav.NactiRamecBufferu((long)par.Begin.TotalMilliseconds, (long)par.Delka.TotalMilliseconds, MyKONST.ID_BUFFERU_PREPISOVANEHO_ELEMENTU_FONETICKY_PREPIS);//)this.bPozadovanyPocatekRamce, this.bPozadovanaDelkaRamceMS, this.bIDBufferu);        
-            oWav.RamecSynchronne = false;
-
-            Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
-            dlg.DefaultExt = ".wav";
-            dlg.Filter = "wav soubory (.wav)|*.wav";
-            if (dlg.ShowDialog() == true)
-            {
-                string filename = dlg.FileName;
-                //BinaryWriter bw = new BinaryWriter(new FileStream(filename, FileMode.Create));
-                MyBuffer16 bf = new MyBuffer16(oWav.NacitanyBufferSynchronne.data.Length);
-                bf.data = new List<short>(oWav.NacitanyBufferSynchronne.data);
-                MyWav.VytvorWavSoubor(bf, filename);
-
-
-                string ext = System.IO.Path.GetExtension(filename);
-                filename = filename.Substring(0, filename.Length - ext.Length);
-                string textf = filename + ".txt";
-
-                File.WriteAllBytes(textf, win1250.GetBytes(par.Text));
-
-
-                if (!string.IsNullOrEmpty(par.Phonetics))
-                {
-                    textf = filename + ".phn";
-                    File.WriteAllBytes(textf, win1250.GetBytes(par.Phonetics));
-                }
-            }
+            CommandExportElement.Execute(null,null);
 
         }
-        #endregion
-
-        /// <summary>
-        /// otevira okno mluvcich
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void buttonX_Click(object sender, RoutedEventArgs e)
-        {
-            //TODO:
-        }
-
-        #region richX  - textboxy...
-
-        //pri ztrate zamereni textboxu...
-
-        /// <summary>
-        /// otevreni popup okna na aktualnim editu
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void richX_PreviewTextInput(object sender, TextCompositionEventArgs e)
-        {
-            if (e.TextComposition.Text == "/")
-            {
-                popup.IsOpen = true;
-                e.Handled = true;
-                popup_filter = "";
-            }
-            else if (popup.IsOpen)
-            {
-                popup_filter_add(e.TextComposition.Text, e);
-            }
-        }
-
-        void richX_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            popup.IsOpen = false;
-        }
-
         #endregion
 
         public bool NoveTitulky()
@@ -875,9 +708,9 @@ namespace NanoTrans
                         var p = new MyParagraph();
                         c.Add(s);
                         s.Add(p);
+                        p.Phrases.Add(new MyPhrase());
 
-
-                        myDataSource.Chapters.Add(c);
+                        myDataSource.Add(c);
 
                         return true;
                     }
@@ -891,7 +724,7 @@ namespace NanoTrans
                     var c = new MyChapter("Kapitola 0");
                     var s = new MySection("Sekce 0");
                     var p = new MyParagraph();
-
+                    p.Add(new MyPhrase());
                     c.Add(s);
                     s.Add(p);
                     myDataSource.Add(c);
@@ -1067,7 +900,7 @@ namespace NanoTrans
                         else
                         {
                             if (pNactenoTTA) pDataSource.JmenoSouboru = null;
-                            myDataSource = null;
+
                             myDataSource = pDataSource;
 
 
@@ -1122,7 +955,6 @@ namespace NanoTrans
                             {
                             }
                         }
-                        //TODO: funkcni databinding na mydatasource mainformu
                         VirtualizingListBox.Subtitles = myDataSource;
                         this.Title = MyKONST.NAZEV_PROGRAMU + " [" + myDataSource.JmenoSouboru + "]";
                         return true;
@@ -1299,23 +1131,13 @@ namespace NanoTrans
 
 
         TimeSpan oldms = TimeSpan.Zero;
-
-        //TODO: spatna zla a oskiliva metoda
         public void NastavPoziciKurzoru(TimeSpan position, bool nastavitMedia, bool aNeskakatNaZacatekElementu)
         {
-
-
-            StackTrace st = new StackTrace(true);
-            string trace = "";
-            foreach (var frame in st.GetFrames())
-            {
-                trace += frame.GetMethod().Name + frame.GetFileLineNumber() + ">";
-            }
-
-
-
             if (position < TimeSpan.Zero) return;
-            waveform1.CaretPosition = position;
+
+            if(waveform1.CaretPosition!=position)
+                waveform1.CaretPosition = position;
+
             if (!Playing)
                 oldms = TimeSpan.Zero;
 
@@ -1323,9 +1145,6 @@ namespace NanoTrans
             {
                 meVideo.Position = waveform1.CaretPosition;
             }
-
-
-
         }
 
         public void InitializeTimerRozpoznavace(long aIntervalMS)
@@ -1359,15 +1178,15 @@ namespace NanoTrans
 
         private void VyberFonetikuMeziCasovymiZnackami(TimeSpan aPoziceKurzoru)
         {
-            //TODO: fonetika 
+            fonetickyPrepis.HiglightedPostion = aPoziceKurzoru;
         }
 
 
 
         private void VyberTextMeziCasovymiZnackami(TimeSpan aPoziceKurzoru)
         {
-            //TODO: text mezi casovymi znackami
-
+            VirtualizingListBox.HiglightedPostion = aPoziceKurzoru;
+            
             VyberFonetikuMeziCasovymiZnackami(aPoziceKurzoru);
         }
 
@@ -1386,12 +1205,12 @@ namespace NanoTrans
             if (_playing)
             {
                 playpos = MWP.PlayPosition;
-
                 if (prehratVyber && playpos < waveform1.SelectionBegin)
                 {
                     playpos = waveform1.SelectionBegin;
                 }
-                waveform1.CaretPosition = MWP.PlayPosition;
+
+                    waveform1.CaretPosition = playpos;
             }
 
             pocetTikuTimeru++;
@@ -1434,50 +1253,11 @@ namespace NanoTrans
             long pPozadovanyPocatekVlny = (long)waveform1.WaveBegin.TotalMilliseconds;
 
             long celkMilisekundy = (long)playpos.TotalMilliseconds;
-            if (playpos.TotalMilliseconds >= mSekundyKonec - waveform1.WaveLengthDelta.TotalMilliseconds && mSekundyKonec < oWav.DelkaSouboruMS && !nahled)
-            {
 
-                if (celkMilisekundy < oWav.DelkaSouboruMS)// && celkMilisekundy < waveform1.AudioBuffer.KonecMS)
-                {
-                    long pKonec = celkMilisekundy - (long)waveform1.WaveLengthDelta.TotalMilliseconds + rozdil;
-                    long pPocatekMS = pKonec - rozdil;
-                    if (pKonec > waveform1.WaveEnd.TotalMilliseconds)
-                        pPocatekMS = (long)waveform1.CaretPosition.TotalMilliseconds - rozdil / 2;
-
-                    if (pPocatekMS < 0)
-                        pPocatekMS = 0;
-                    pKonec = pPocatekMS + rozdil;
-                    mSekundyKonec = pKonec;
-                    waveform1.WaveBegin = TimeSpan.FromMilliseconds(pPocatekMS);
-                    waveform1.WaveEnd = TimeSpan.FromMilliseconds(mSekundyKonec);
-                }
-            }
-            else if (playpos < waveform1.WaveBegin && waveform1.WaveBegin >= TimeSpan.Zero && !nahled)
-            {
-                if (celkMilisekundy < oWav.DelkaSouboruMS && celkMilisekundy < waveform1.AudioBufferEnd.TotalMilliseconds && celkMilisekundy >= waveform1.AudioBufferBegin.TotalMilliseconds)
-                {
-                    long pKonec = celkMilisekundy + (long)(rozdil * 0.3);
-                    long pPocatekMS = pKonec - rozdil;
-                    if (pKonec > waveform1.WaveEnd.TotalMilliseconds)
-                        pPocatekMS = (long)waveform1.CaretPosition.TotalMilliseconds - rozdil / 2;
-
-                    if (pPocatekMS < 0)
-                        pPocatekMS = 0;
-                    pKonec = pPocatekMS + rozdil;
-                    mSekundyKonec = pKonec;
-                    waveform1.WaveBegin = TimeSpan.FromMilliseconds(pPocatekMS);
-                    waveform1.WaveEnd = TimeSpan.FromMilliseconds(mSekundyKonec);
-                }
-
-            }
-            else if (slPoziceMedia_mouseDown == false && nahled == true)
-            {
-                nahled = false;
-            }
 
             if (oWav.Nacteno && celkMilisekundy > waveform1.AudioBufferEnd.TotalMilliseconds - (waveform1.AudioBufferEnd - waveform1.AudioBufferBegin).TotalMilliseconds * 0.2)
             {
-                if (!oWav.NacitaniBufferu && !nahled) //pokud jiz neni nacitano vlakno,dojde k inicializaci threadu
+                if (!oWav.NacitaniBufferu) //pokud jiz neni nacitano vlakno,dojde k inicializaci threadu
                 {
                     if (waveform1.AudioBufferEnd.TotalMilliseconds < oWav.DelkaSouboruMS && !oWav.NacitaniBufferu)
                     {
@@ -1487,7 +1267,7 @@ namespace NanoTrans
             }
             else if (oWav.Nacteno && (waveform1.AudioBufferBegin > TimeSpan.Zero && celkMilisekundy < waveform1.AudioBufferBegin.TotalMilliseconds + (waveform1.AudioBufferEnd - waveform1.AudioBufferBegin).TotalMilliseconds * 0.2) || pPozadovanyPocatekVlny < waveform1.AudioBufferBegin.TotalMilliseconds)
             {
-                if (!oWav.NacitaniBufferu && !nahled) //pokud jiz neni nacitano vlakno,dojde k inicializaci threadu
+                if (!oWav.NacitaniBufferu) //pokud jiz neni nacitano vlakno,dojde k inicializaci threadu
                 {
                     oWav.AsynchronniNacteniRamce2((long)(celkMilisekundy - (waveform1.AudioBufferEnd - waveform1.AudioBufferBegin).TotalMilliseconds * 0.6), MyKONST.DELKA_VYCHOZIHO_ZOBRAZOVACIHO_BUFFERU_MS, 0);
                 }
@@ -1864,8 +1644,6 @@ namespace NanoTrans
                     oWav.Dispose();
                 }
 
-                if (mWL != null) mWL.Close();
-
                 //ulozeni databaze mluvcich - i externi databaze
                 if (myDatabazeMluvcich != null)
                 {
@@ -1938,40 +1716,24 @@ namespace NanoTrans
             meVideo.Source = null;
             jeVideo = false;
             gListVideo.ColumnDefinitions[1].Width = new GridLength(1);
-
-
-
         }
 
-        private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            popup.IsOpen = false;
-        }
 
-        private void button11_Click_1(object sender, RoutedEventArgs e)
-        {
-            if (VirtualizingListBox.ActiveElement != null)
-            {
-                //TODO odstran sekci
-
-
-            }
-        }
 
         #region menu uprava
         private void MUpravy_Nova_Kapitola_Click(object sender, RoutedEventArgs e)
         {
-            //TODO: nova kapitola
+            CommandNewChapter.Execute(null,null);
         }
 
         private void MUpravy_Nova_Sekce_Click(object sender, RoutedEventArgs e)
         {
-            //TODO nova sekce
+            CommandNewSection.Execute(null, null);
         }
 
         private void MUpravy_Smazat_Polozku_Click(object sender, RoutedEventArgs e)
         {
-            //TODO: smazat
+            CommandDeleteElement.Execute(null, null);
         }
 
         #endregion
@@ -1985,18 +1747,17 @@ namespace NanoTrans
             InitCommands();
             m_findDialog = new FindDialog(this);
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
-
             //inicializuje (asynchronni) nacitani slovniku
 
             Thread t = new Thread(
                 delegate()
                 {
-                    if (MyTextBox.LoadVocabulary(MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.CESTA_SLOVNIK_SPELLCHECK))
+                    if (Element.SpellChecker.LoadVocabulary(MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.CESTA_SLOVNIK_SPELLCHECK))
                     {
                         this.Dispatcher.Invoke(new Action(
                     delegate()
                     {
-                        VirtualizingListBox.RefreshTextMarkings();
+                        VirtualizingListBox.SubtitlesContentChanged();
 
                     }
                     ));
@@ -2005,14 +1766,19 @@ namespace NanoTrans
                 ) { Name = "Spellchecking_Load" };
             t.Start();
 
-            // foneticky prepis musi dostat oznaceni jinak pak nejsou videt zmeny kdyz neam focus (pri prehravani)
-            tbFonetickyPrepis.LostFocus += new RoutedEventHandler(tbFonetickyPrepis_LostFocus);
+            fonetickyPrepis.Text = "";
+            fonetickyPrepis.button1.Visibility = Visibility.Collapsed;
+            fonetickyPrepis.checkBox1.Visibility = Visibility.Collapsed;
+            fonetickyPrepis.stackPanel1.Visibility = Visibility.Collapsed;
+            fonetickyPrepis.textbegin.Visibility = Visibility.Collapsed;
+            fonetickyPrepis.textend.Visibility = Visibility.Collapsed;
+            fonetickyPrepis.DisableAutomaticElementVisibilityChanges = true;
+            fonetickyPrepis.EditPhonetics = true;
+            fonetickyPrepis.editor.VerticalScrollBarVisibility = ScrollBarVisibility.Visible;
+            fonetickyPrepis.editor.Style = null;
+            fonetickyPrepis.editor.OverridesDefaultStyle = false;
+            fonetickyPrepis.editor.TextArea.TextView.LineTransformers.Remove(Element.DefaultSpellchecker);
 
-            tbFonetickyPrepis.Text = " ";
-            tbFonetickyPrepis.Focus();
-            tbFonetickyPrepis.SelectionStart = 0;
-            tbFonetickyPrepis.SelectionLength = 1;
-            //refresh uz vykreslenych textboxu
             HidInit();
 
             string foldername = System.IO.Path.GetRandomFileName();
@@ -2024,6 +1790,9 @@ namespace NanoTrans
             Directory.CreateDirectory(temppath);
             TempCheckMutex = new Mutex(true, "NanoTransMutex_" + foldername);
             MyKONST.CESTA_DOCASNYCH_SOUBORU_ZVUKU = temppath + "\\";
+
+            NoveTitulky();
+
         }
 
         void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
@@ -2031,13 +1800,9 @@ namespace NanoTrans
 
             ExceptionCatchWindow w = new ExceptionCatchWindow(this, e.ExceptionObject as Exception);
             w.ShowDialog();
-
         }
 
-        void tbFonetickyPrepis_LostFocus(object sender, RoutedEventArgs e)
-        {
-            e.Handled = true;
-        }
+
         private static Mutex TempCheckMutex;
 
 
@@ -2111,8 +1876,12 @@ namespace NanoTrans
         /// <returns></returns>
         private bool SpustRozpoznavaniVybranehoElementu(TranscriptionElement aTag, TimeSpan aPocatekMS, TimeSpan aKonecMS, bool aIgnorovatTextOdstavce)
         {
-            //TODO: foneticke rozpoznani
-            #region zabaleno
+
+
+            //TODO:(x) rozpoznani elementu
+            MessageBox.Show("Automatické fonetické rozpoznáni není v této verzi podporováno","Oznámení",MessageBoxButton.OK,MessageBoxImage.Information);
+            return false;
+            #region sbaleno
             /*
             if (oPrepisovac != null && (oPrepisovac.Rozpoznavani || oPrepisovac.Ukoncovani))
             {
@@ -2337,7 +2106,6 @@ namespace NanoTrans
              */
             #endregion
 
-            return false;
         }
 
         private void btHlasoveOvladani_Click(object sender, RoutedEventArgs e)
@@ -2365,7 +2133,10 @@ namespace NanoTrans
 
         private void btFonetickyPrepis_Click(object sender, RoutedEventArgs e)
         {
-            //menuItemFonetickyPrepis_Click(null, new RoutedEventArgs());
+            MessageBox.Show("Automatické fonetické rozpoznáni není v této verzi podporováno", "Oznámení", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+            //TODO:(x) foneticky prepis
+            /*
             try
             {
                 MyFonetic mf = new MyFonetic(MySetup.Setup.absolutniCestaEXEprogramu);
@@ -2374,7 +2145,7 @@ namespace NanoTrans
             catch
             {
 
-            }
+            }*/
         }
 
 
@@ -2497,7 +2268,7 @@ namespace NanoTrans
             {
                 MyParagraph pp = VirtualizingListBox.ActiveTransctiption as MyParagraph;
                 if (pp == null) return;
-                int pIndexKurzoru = tbFonetickyPrepis.CaretIndex;
+                int pIndexKurzoru = fonetickyPrepis.editor.CaretOffset;
                 int pIndexPocatkuSlova = -1;
                 string pText = "";
                 for (int iii = 0; iii < pp.Phrases.Count; iii++)
@@ -2558,8 +2329,7 @@ namespace NanoTrans
                                     }
                                 }
                             }
-                            //ZobrazitFonetickyPrepisOdstavce(pTag);
-                            tbFonetickyPrepis.CaretIndex = pIndexPocatkuSlova;
+                            fonetickyPrepis.editor.CaretOffset = pIndexPocatkuSlova;
                             return;
 
                         }
@@ -2646,19 +2416,16 @@ namespace NanoTrans
                                     for (int l = 0; l < pP.Phrases.Count; l++)
                                     {
                                         MyPhrase pFraze = pP.Phrases[l];
-                                        //pRadek += "[" + pFraze.begin.ToString() + "]" + pFraze.Text + "[" + pFraze.end.ToString() + "]";
                                         pRadek += "[" + (pFraze.Begin).ToString() + "]" + pFraze.Text;
                                     }
                                     sw.WriteLine(pRadek);
                                 }
-
                             }
                         }
 
                         sw.Close();
                     }
                     else return -3;
-
                 }
                 return -2;
             }
@@ -2671,8 +2438,6 @@ namespace NanoTrans
 
         private void btOdstranitNefonemy_Click(object sender, RoutedEventArgs e)
         {
-
-            //TODO:
             if (bFonetika == null) bFonetika = new MyFonetic(MySetup.Setup.absolutniCestaEXEprogramu);
 
             bool pStav = bFonetika.OdstraneniNefonetickychZnakuZPrepisu(myDataSource, VirtualizingListBox.ActiveTransctiption);
@@ -2680,7 +2445,7 @@ namespace NanoTrans
             {
                 MyParagraph pP = VirtualizingListBox.ActiveTransctiption as MyParagraph;
             }
-            //ZobrazitFonetickyPrepisOdstavce(MySetup.Setup.RichTag);
+            //TODO: ZobrazitFonetickyPrepisOdstavce(MySetup.Setup.RichTag);
 
         }
 
@@ -2761,7 +2526,7 @@ namespace NanoTrans
             if (!pAutomaticky && (bool)chbAutomatickyRozpoznat.IsChecked)
             {
                 ZobrazitOknoFonetickehoPrepisu(true);
-                tbFonetickyPrepis.Focus();
+                fonetickyPrepis.Focus();
             }
         }
 
@@ -2894,35 +2659,11 @@ namespace NanoTrans
             if (VirtualizingListBox.ActiveElement !=null)
             {
                 Element focusedel = VirtualizingListBox.ActiveElement;
-                
                 if (focusedel != null)
                 {
-                    MyTextBox focused = focusedel.myTextBox1;
+                    ICSharpCode.AvalonEdit.TextEditor focused = focusedel.editor;
                     string insert = "[" + ((Button)sender).Content + "]";
-
-                    string t = focused.Text; ;
-                    int ix;
-                    string beg;
-                    string end;
-
-                    if (focused.SelectionLength > 0)
-                    {
-                        ix = focused.SelectionStart;
-                        beg = t.Substring(0, ix);
-                        ix += focused.SelectionLength;
-                        end = t.Substring(ix);
-                    }
-                    else
-                    {
-                        ix = focused.CaretIndex;
-                        beg = t.Substring(0, ix);
-                        end = t.Substring(ix);
-                    }
-
-                    focused.Text = beg + insert + end;
-                    focused.SelectionLength = 0;
-                    focused.CaretIndex = beg.Length + insert.Length;
-
+                    focused.Document.Insert(focused.CaretOffset,insert);
                 }
             }
         }
@@ -2944,148 +2685,7 @@ namespace NanoTrans
                     this.InputBindings.Add(new KeyBinding(new ButtonClickCommand(b), (Key)Enum.Parse(typeof(Key), "D" + index), ModifierKeys.Alt));
                 index++;
             }
-            MyTextBox.suggestions = MySetup.Setup.NerecoveUdalosti;
-            listboxpopupPopulate(MySetup.Setup.NerecoveUdalosti);
         }
-
-
-        public void listboxpopupPopulate(IEnumerable<string> blockmarks)
-        {
-            listboxPopup.Items.Clear();
-            foreach (string s in blockmarks)
-            {
-                StackPanel sp = new StackPanel();
-                sp.Orientation = Orientation.Horizontal;
-                Label lb1 = new Label();
-                Label lb2 = new Label();
-                lb1.FontWeight = FontWeights.Bold;
-                Thickness t = lb1.Padding;
-                t.Right = 0;
-                lb1.Padding = t;
-
-                t = lb2.Padding;
-                t.Left = 0;
-                lb2.Padding = t;
-
-                int maxcnt = 0;
-                foreach (string s2 in blockmarks)
-                {
-                    if (s != s2)
-                    {
-                        for (int i = 0; i < s.Length && i < s2.Length; i++)
-                        {
-                            if (s[i] != s2[i])
-                            {
-                                if (maxcnt < i)
-                                    maxcnt = i;
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                lb1.Content = s.Substring(0, maxcnt + 1);
-                lb2.Content = s.Substring(maxcnt + 1);
-
-                sp.Children.Add(lb1);
-                sp.Children.Add(lb2);
-                listboxPopup.Items.Add(sp);
-            }
-        }
-
-        private void Window_LocationChanged(object sender, EventArgs e)
-        {
-            popup.IsOpen = false;
-        }
-
-        private void ListBox_LostFocus(object sender, RoutedEventArgs e)
-        {
-            popup.IsOpen = false;
-        }
-
-        private void ListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            if (listboxPopup.SelectedItem == null)
-                return;
-            string value = "[" + listboxPopup.SelectedItem.ToString() + "]";
-            if (value != null)
-            {
-                MyTextBox box = VirtualizingListBox.ActiveElement.myTextBox1;
-                if (box != null)
-                {
-                    string beg;
-                    string end;
-                    if (box.SelectionLength > 0)
-                    {
-                        beg = box.Text.Substring(0, box.SelectionStart);
-                        end = box.Text.Substring(box.SelectionStart + box.SelectionLength);
-                    }
-                    else
-                    {
-                        beg = box.Text.Substring(0, box.CaretIndex + 1 - popup_filter.Length);
-                        end = box.Text.Substring(box.CaretIndex);
-                    }
-
-                    box.Text = beg + value + end;
-
-                    box.CaretIndex = beg.Length + value.Length;
-                    popup.IsOpen = false;
-                    box.Focus();
-                }
-
-            }
-        }
-
-        string popup_filter;
-        private void popup_filter_add(string s, TextCompositionEventArgs e)
-        {
-            popup_filter += s.ToLower();
-            listboxPopup.Items.Clear();
-            List<string> strings = new List<string>();
-            foreach (string st in MySetup.Setup.NerecoveUdalosti)
-            {
-                if (st.StartsWith(popup_filter))
-                    strings.Add(st);
-            }
-
-            if (strings.Count == 0)
-            {
-                popup.IsOpen = false;
-                listboxpopupPopulate(MySetup.Setup.NerecoveUdalosti);
-                popup_filter = "";
-            }
-            else if (strings.Count == 1)
-            {
-                popup.IsOpen = false;
-                listboxPopup.Items.Add(strings[0]);
-                listboxPopup.SelectedIndex = 0;
-                ListBox_MouseDoubleClick(null, null);
-
-                listboxpopupPopulate(MySetup.Setup.NerecoveUdalosti);
-                popup_filter = "";
-
-                e.Handled = true;
-                popup.IsOpen = false;
-            }
-            else
-            {
-                listboxpopupPopulate(strings);
-            }
-        }
-
-        private void popup_Opened(object sender, EventArgs e)
-        {
-            popup_filter = "";
-        }
-
-        private void Window_LostFocus(object sender, RoutedEventArgs e)
-        {
-            popup.IsOpen = false;
-        }
-
-
-
-
         #endregion
 
         #region undo
@@ -3178,14 +2778,6 @@ namespace NanoTrans
             }
         }
 
-        private void waveform1_UpdateBegin(object sender, EventArgs e)
-        {
-        }
-
-        private void waveform1_UpdateEnd(object sender, EventArgs e)
-        {
-        }
-
         private void waveform1_CarretPostionChangedByUser(object sender, Waveform.TimeSpanEventArgs e)
         {
             if (Playing)
@@ -3194,11 +2786,8 @@ namespace NanoTrans
             }
             pIndexBufferuVlnyProPrehrani = (int)waveform1.CaretPosition.TotalMilliseconds;
             List<MyParagraph> pl = myDataSource.VratElementDanehoCasu(waveform1.CaretPosition);
-            if (pl.Count != 0)
-            {
-                
-            }
 
+            VyberTextMeziCasovymiZnackami(e.Value);
         }
 
         private void waveform1_ParagraphClick(object sender, Waveform.MyTranscriptionElementEventArgs e)
@@ -3219,11 +2808,18 @@ namespace NanoTrans
                 pIndexBufferuVlnyProPrehrani = (int)e.Value.TotalMilliseconds;
                 oldms = TimeSpan.Zero;
             }
+
+            var list = m_mydatasource.VratElementDanehoCasu(e.Value);
+            if (list != null && list.Count > 0)
+            {
+                if(VirtualizingListBox.ActiveTransctiption != list[0])
+                VirtualizingListBox.ActiveTransctiption = list[0];
+            }
         }
 
         private void waveform1_ElementChanged(object sender, Waveform.MyTranscriptionElementEventArgs e)
         {
-
+            VirtualizingListBox.RecreateElements(VirtualizingListBox.gridscrollbar.Value);
         }
 
         private void waveform1_SelectionChanged(object sender, EventArgs e)
@@ -3237,11 +2833,30 @@ namespace NanoTrans
         }
 
 
-
-        #region INotifyPropertyChanged Members
-
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
 
-        #endregion
+
+        private void VirtualizingListBox_ChangeSpeaker(object sender, EventArgs e)
+        {
+            CommandAssignSpeaker.Execute(null, null);
+        }
+
+        private void VirtualizingListBox_SelectedElementChanged(object sender, EventArgs e)
+        {
+            if (VirtualizingListBox.ActiveTransctiption == null)
+                return;
+            fonetickyPrepis.ValueElement = VirtualizingListBox.ActiveTransctiption;
+            fonetickyPrepis.IsEnabled = true;
+
+        }
+
+        private void VirtualizingListBox_SetTimeRequest(TimeSpan obj)
+        {
+            if (Playing)
+                CommandPlayPause.Execute(null, null);
+
+            NastavPoziciKurzoru(obj,true, true);
+            VyberTextMeziCasovymiZnackami(obj);
+        }
     }
 }

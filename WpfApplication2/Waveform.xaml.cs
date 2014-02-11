@@ -96,8 +96,8 @@ namespace NanoTrans
                     trace += frame.GetMethod().Name + frame.GetFileLineNumber() + ">";
                 }
 
-                if(!trace.Contains("OnTimer3444"))
-                    System.Diagnostics.Debug.WriteLine(trace);
+
+               // System.Diagnostics.Debug.WriteLine(""+value+":"+trace);
 
 
                 long pos = (long)value.TotalMilliseconds;
@@ -110,13 +110,11 @@ namespace NanoTrans
 
                 TimeSpan ts = value;
 
-                if (ts < WaveBegin || ts > WaveEnd)
+                if (value < WaveBegin || value > WaveEnd)
                 {
                     BeginUpdate();
-                    SliderPostion = ts;
+                    SliderPostion = CaretPosition;
                     EndUpdate();
-                    //return;
-
                 }
 
                 string label = ts.Hours.ToString() + ":" + ts.Minutes.ToString("D2") + ":" + ts.Seconds.ToString("D2") + "," + ((int)ts.Milliseconds / 10).ToString("D2");
@@ -269,15 +267,32 @@ namespace NanoTrans
         }
 
         private MySubtitlesData m_subtitlesData;
-        public MySubtitlesData SubtitlesData
+
+
+        public static readonly DependencyProperty SubtitlesProperty = DependencyProperty.Register("Subtitles", typeof(MySubtitlesData), typeof(Waveform), new FrameworkPropertyMetadata(OnSubtitlesChanged));
+
+        public static void OnSubtitlesChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            get { return m_subtitlesData; }
+
+            ((Waveform)d).m_subtitlesData = (MySubtitlesData)e.NewValue;
+        }
+
+
+        public MySubtitlesData Subtitles
+        {
+            get
+            {
+                return (MySubtitlesData)GetValue(SubtitlesProperty);
+            }
             set
             {
+
+                SetValue(SubtitlesProperty, value);
                 m_subtitlesData = value;
                 InvalidateSpeakers();
             }
         }
+
 
 
 
@@ -846,16 +861,18 @@ namespace NanoTrans
                                     if (pEnd > aZobrazenaVlna.mSekundyVlnyKon) pEnd = aZobrazenaVlna.mSekundyVlnyKon;
 
                                     Button pMluvci = new Button();
+
+
+                                    pMluvci.PreviewMouseMove += new MouseEventHandler(pMluvci_MouseMove);
+                                    pMluvci.PreviewMouseLeftButtonUp+=new MouseButtonEventHandler(pMluvci_PreviewMouseLeftButtonUp);
+                                    pMluvci.PreviewMouseLeftButtonDown += new MouseButtonEventHandler(pMluvci_PreviewMouseLeftButtonDown);
+
                                     pMluvci.VerticalAlignment = VerticalAlignment.Top;
                                     pMluvci.HorizontalAlignment = HorizontalAlignment.Left;
 
                                     double aLeft = (double)(myImage.ActualWidth * (pBegin - aZobrazenaVlna.mSekundyVlnyZac) / aZobrazenaVlna.DelkaVlnyMS);
-                                    //double aLeft = (double)(gCasovaOsa.ActualWidth * (pBegin - aZobrazenaVlna.mSekundyVlnyZac) / aZobrazenaVlna.DelkaVlnyMS);
-
-                                    //double aRight = myImage.ActualWidth - (double)(myImage.ActualWidth * (pEnd - aZobrazenaVlna.mSekundyVlnyZac) / aZobrazenaVlna.DelkaVlnyMS);
                                     double aRight = gCasovaOsa.ActualWidth - (double)(myImage.ActualWidth * (pEnd - aZobrazenaVlna.mSekundyVlnyZac) / aZobrazenaVlna.DelkaVlnyMS);
                                     pMluvci.Margin = new Thickness(aLeft, pMluvci.Margin.Top, pMluvci.Margin.Right, rectangle2.Margin.Bottom);
-                                    //pMluvci.Width = myImage.ActualWidth - aLeft - aRight;
                                     pMluvci.Width = gCasovaOsa.ActualWidth - aLeft - aRight;
 
                                     pMluvci.Background = Brushes.LightPink;
@@ -949,6 +966,26 @@ namespace NanoTrans
 
                 return;
         }
+
+        void pMluvci_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            Button b = sender as Button;
+            b.CaptureMouse();
+            Point p = e.GetPosition(b);
+            if (p.X <= 4)
+            {
+                btndrag = true;
+                btndragleft = true;   
+            }
+            else if (p.X >= b.Width - 4)
+            {
+                btndrag = true;
+                btndragleft = false;
+            }
+
+            e.Handled = true;
+        }
+
 
         void pMluvci_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
@@ -1081,7 +1118,7 @@ namespace NanoTrans
 
         private void myImage_MouseUp(object sender, MouseButtonEventArgs e)
         {
-
+            return;
             double pos = e.GetPosition(myImage).X;
             if (Math.Abs(downpos - pos) < 1)
             {
@@ -1094,108 +1131,17 @@ namespace NanoTrans
 
                 EndUpdate();
             }
-
-
-            Point position;
-            if (sender.GetType() == grid1.GetType())
-            {
-                position = e.GetPosition((Grid)sender);
-            }
-            else
-            {
-                position = e.GetPosition((Image)sender);
-            }
-            double pX = position.X;
-            double pY = position.Y;
-
-            if (e.LeftButton == MouseButtonState.Released && oVlna.MouseLeftDown)
-            {
-                long celkMilisekundy = (long)(oVlna.mSekundyVlnyZac + pX / myImage.ActualWidth * (oVlna.DelkaVlnyMS));
-
-
-                //otoceni vyberu
-                if (oVlna.KurzorVyberKonec < oVlna.KurzorVyberPocatek)
-                {
-                    TimeSpan pom = oVlna.KurzorVyberKonec;
-                    oVlna.KurzorVyberKonec = oVlna.KurzorVyberPocatek;
-                    oVlna.KurzorVyberPocatek = pom;
-                }
-
-                TranscriptionElement pAktualni = m_subtitlesData.VratElementDanehoCasu(new TimeSpan((SelectionEnd + SelectionBegin).Ticks / 2))[0];
-                TranscriptionElement pPredchozi = pAktualni.Previous();
-                TranscriptionElement pNasledujici = pAktualni.Next();
-
-                int sekce = pAktualni.Parent.ParentIndex;
-                int sekcepred = pPredchozi.Parent.ParentIndex;
-                int sekceza = pNasledujici.Parent.ParentIndex;
-
-                if (pAktualni != null)
-                {
-                    bool leftshift = Keyboard.Modifiers == ModifierKeys.Shift;
-                    if (r2dragLeft && pPredchozi != null && (leftshift || sekcepred != sekce))
-                    {
-                        bool rozhrani = false;
-                        if (sekcepred != sekce) //rozhrani sekci
-                        {
-                            rozhrani = true;
-                            leftshift = false;
-                        }
-                        //upraveni predchoziho elementu
-                        if ((pPredchozi.End == pAktualni.Begin && !rozhrani) || pPredchozi.End > oVlna.KurzorVyberPocatek)
-                        {
-                            if (ElementChanged != null)
-                                ElementChanged(this, new MyTranscriptionElementEventArgs(pPredchozi));
-
-                        }
-                    }
-                    if (!r2dragLeft && pNasledujici != null && (!leftshift || sekceza != sekce))
-                    {
-                        bool rozhrani = false;
-                        if (sekceza != sekce)//rozhrani sekci
-                        {
-                            rozhrani = true;
-                            leftshift = false;
-                        }
-
-                        //upraveni nasl. elementu
-                        if ((pNasledujici.Begin == pAktualni.End && !rozhrani) || pNasledujici.Begin < oVlna.KurzorVyberKonec)
-                        {
-
-                            if (ElementChanged != null)
-                                ElementChanged(this, new MyTranscriptionElementEventArgs(pNasledujici));
-                        }
-                    }
-                    //upraveni aktualniho elementu
-
-                    TimeSpan pNovyPocatek = oVlna.KurzorVyberPocatek;
-                    TimeSpan pNovyKonec = oVlna.KurzorVyberKonec;
-                    if (Keyboard.Modifiers == ModifierKeys.Shift)
-                    {
-                        if (!r2dragLeft)
-                            pNovyPocatek = new TimeSpan(-2);
-                        else
-                            pNovyKonec = new TimeSpan(-2);
-                    }
-
-                    if (ElementChanged != null)
-                        ElementChanged(this, new MyTranscriptionElementEventArgs(pAktualni));
-
-                }
-                oVlna.MouseLeftDown = false;
-
-                if (SelectionChanged != null)
-                    SelectionChanged(this, new EventArgs());
-            }
-
-
         }
 
         private void myImage_MouseMove(object sender, MouseEventArgs e)
         {
+            if (btndrag)
+                return;
+
             if (e.LeftButton != MouseButtonState.Pressed)
                 r2drag = false;
             double pos = e.GetPosition(myImage).X;
-            if (Math.Abs(downpos - pos) > 1 && e.LeftButton == MouseButtonState.Pressed && !r2drag)
+            if (Math.Abs(downpos - pos) > 1 && e.LeftButton == MouseButtonState.Pressed && !r2drag && !btndrag)
             {
                 double relative = pos / myImage.ActualWidth;
                 //double relative2 = downpos / myImage.ActualWidth;
@@ -1225,14 +1171,14 @@ namespace NanoTrans
 
         public void slPoziceMedia_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            // if (!slPoziceMedia_mouseDown)
-            {
+                bool updating = m_updating;
+
+            if(!updating)
                 if (SliderPositionChanged != null)
                     SliderPositionChanged(this, new TimeSpanEventArgs(TimeSpan.FromMilliseconds(slPoziceMedia.Value)));
-            }
 
 
-            bool updating = m_updating;
+        
             
             if(!updating)
                 BeginUpdate();
@@ -1258,8 +1204,8 @@ namespace NanoTrans
             WaveBegin = TimeSpan.FromMilliseconds(wbg);
             WaveEnd = TimeSpan.FromMilliseconds(wed);
 
-
-            CaretPosition = TimeSpan.FromMilliseconds(e.NewValue);
+            if(!updating)
+                CaretPosition = TimeSpan.FromMilliseconds(e.NewValue);
 
             if (CarretPostionChangedByUser != null && !updating)
                 CarretPostionChangedByUser(this, new TimeSpanEventArgs(this.CaretPosition));
@@ -1317,6 +1263,11 @@ namespace NanoTrans
                 Invalidator.Interrupt();
         }
 
+
+        private bool r2drag = false;
+        private bool r2dragLeft = false;
+        private MyParagraph r2dragelement = null;
+
         private void rectangle2_MouseMove(object sender, MouseEventArgs e)
         {
             Point p = e.GetPosition(rectangle2);
@@ -1343,33 +1294,21 @@ namespace NanoTrans
                 if (r2dragLeft)
                 {
                     SelectionBegin = x;
-                    if (r2dragelement != null)
-                    {
-                        // m_subtitlesData.UpravCasZobraz(r2dragelement, x, m_subtitlesData.VratCasElementuKonec(r2dragelement));
-                        InvalidateSpeakers();
-                    }
                 }
                 else
                 {
                     SelectionEnd = x;
-                    if (r2dragelement != null)
-                    {
-                        // m_subtitlesData.UpravCasZobraz(r2dragelement, m_subtitlesData.VratCasElementuPocatek(r2dragelement), x);
-                        InvalidateSpeakers();
-                    }
                 }
             }
         }
 
-        private bool r2drag = false;
-        private bool r2dragLeft = false;
-        private MyParagraph r2dragelement = null;
         private void rectangle2_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             TimeSpan selbeg = SelectionBegin;
             TimeSpan selend = SelectionEnd;
             r2dragelement = null;
             Point p = e.GetPosition(rectangle2);
+            rectangle2.CaptureMouse();
             if (p.X <= 4)
             {
                 r2drag = true;
@@ -1382,148 +1321,150 @@ namespace NanoTrans
                 r2dragLeft = false;
                 Mouse.Capture(rectangle2, CaptureMode.Element);
             }
-
-
-            List<MyParagraph> beg = m_subtitlesData.VratElementDanehoCasu(selbeg);
-
-            if (beg != null && beg.Count > 0)
-            {
-                foreach (MyParagraph t in beg)
-                {
-                    TimeSpan konec = t.End;
-                    if (konec == selend)
-                    {
-                        r2dragelement = t;
-                        break;
-                    }
-
-                }
-            }
-
         }
 
         private void rectangle2_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-
-            if (r2drag)
-                Mouse.Capture(null);
             r2drag = false;
-
-            if (r2dragelement != null)
-            {
-                MyParagraph pPredchozi = r2dragelement.Previous() as MyParagraph;
-                MyParagraph pAktualni = r2dragelement;
-                MyParagraph pNasledujici = r2dragelement.Next() as MyParagraph;
-                bool shift = Keyboard.Modifiers == ModifierKeys.Shift;
-
-                int sekce = r2dragelement.Parent.ParentIndex;
-                int sekcepred = -1;
-                if (pPredchozi != null)
-                    sekcepred = pPredchozi.Parent.ParentIndex;
-
-                int sekceza = -1;
-                if (pNasledujici != null)
-                    sekceza = pNasledujici.Parent.ParentIndex;
-
-                if (pAktualni != null)
-                {
-                    TimeSpan actualb = r2dragelement.Begin;
-                    TimeSpan actuale = r2dragelement.End;
-                    TimeSpan pNovyPocatek = oVlna.KurzorVyberPocatek;
-                    TimeSpan pNovyKonec = oVlna.KurzorVyberKonec;
-                    if (Keyboard.Modifiers == ModifierKeys.Shift)
-                    {
-                        if (!r2dragLeft)
-                            pNovyPocatek = new TimeSpan(-2);
-                        else
-                            pNovyKonec = new TimeSpan(-2);
-                    }
-
-
-                    if(ElementChanged!=null)
-                        ElementChanged.Invoke(this,new MyTranscriptionElementEventArgs(r2dragelement));
-                    //musi to tu byt dvakrat ta funkce si vnitne meni hodnoty...
-                    oVlna.KurzorVyberPocatek = r2dragelement.Begin;
-                    oVlna.KurzorVyberKonec = r2dragelement.End;
-                    pNovyPocatek = oVlna.KurzorVyberPocatek;
-                    pNovyKonec = oVlna.KurzorVyberKonec;
-
-                    //TODO: nejak to prefiltrovat do jedny funkce...
-                    //pokud se z messageboxu povolil prekryv, musime ho povolit i tady... :/
-                    if (r2dragLeft && pPredchozi != null)
-                    {
-                        if (pPredchozi.End > pAktualni.Begin)
-                            shift = true;
-                    }
-                    else if (!r2dragLeft && pNasledujici != null)
-                    {
-                        if (pAktualni.End > pNasledujici.Begin)
-                            shift = true;
-                    }
-
-                    if (Keyboard.Modifiers == ModifierKeys.Shift)
-                    {
-                        if (!r2dragLeft)
-                            pNovyPocatek = new TimeSpan(-2);
-                        else
-                            pNovyKonec = new TimeSpan(-2);
-                    }
-
-                    if (r2dragLeft && pPredchozi != null && (!shift || sekcepred != sekce))
-                    {
-                        bool rozhrani = false;
-                        if (sekcepred != sekce) //rozhrani sekci
-                        {
-                            shift = false;
-                            rozhrani = true;
-                        }
-
-                        if ((pPredchozi.End == actualb && !rozhrani) || pNasledujici.Begin < oVlna.KurzorVyberKonec)
-                        {
-                            if (ElementChanged != null)
-                                ElementChanged.Invoke(this, new MyTranscriptionElementEventArgs(pPredchozi));
-                        }
-
-                    }
-                    if (!r2dragLeft && pNasledujici != null && (!shift || sekceza != sekce))
-                    {
-                        bool rozhrani = false;
-                        if (sekceza != sekce)//rozhrani sekci
-                        {
-                            rozhrani = true;
-                            shift = false;
-                        }
-
-                        //upraveni nasl. elementu
-                        if ((pNasledujici.Begin == actuale && !rozhrani) || pNasledujici.Begin < oVlna.KurzorVyberKonec)
-                        {
-                            if (ElementChanged != null)
-                                ElementChanged.Invoke(this, new MyTranscriptionElementEventArgs(pNasledujici));
-                        }
-                    }
-
-
-
-                    if (SelectionChanged != null)
-                        SelectionChanged(this, new EventArgs());
-
-                    iInvalidateSpeakers();
-
-                }
-
-            }
-
-            r2dragelement = null;
+            rectangle2.ReleaseMouseCapture();
         }
+
+        bool btndrag = false;
+        bool btndragleft = false;
+        bool btnrozhr = false;
+        void pMluvci_MouseMove(object sender, MouseEventArgs e)
+        {
+            Button b = sender as Button;
+            Point p = e.GetPosition(b);
+
+            if (p.X <= 4)
+            {
+                b.Cursor = Cursors.ScrollWE;
+            }
+            else if (p.X >= b.Width - 4)
+            {
+                b.Cursor = Cursors.ScrollWE;
+            }
+            else
+            {
+                b.Cursor = Cursors.IBeam;
+            }
+            p = e.GetPosition(grid1);
+
+
+            int ix = bObelnikyMluvcich.IndexOf(b);
+
+            Button bp = (ix==0)?null:bObelnikyMluvcich[ix-1];
+            Button bn = (ix == bObelnikyMluvcich.Count - 1) ? null : bObelnikyMluvcich[ix + 1];
+
+            TranscriptionElement pAktualni = b.Tag as TranscriptionElement;
+            TranscriptionElement pPredchozi = (bp==null)?null:bp.Tag as TranscriptionElement;
+            TranscriptionElement pNasledujici = (bn==null)?null:bn.Tag as TranscriptionElement;
+
+            int sekce = pAktualni.Parent.ParentIndex;
+            int sekcepred = (bp == null) ?-10: pPredchozi.Parent.ParentIndex;
+            int sekceza = (bn==null)?-10:pNasledujici.Parent.ParentIndex;
+     
+            if (btndrag)
+            {
+                if (btndragleft)
+                {
+                    double bwi = b.Width + (b.Margin.Left - p.X);
+                    double bmarginl = p.X;
+
+                    TimeSpan ts = new TimeSpan((long)(WaveLength.Ticks * (bmarginl / grid1.ActualWidth))) + WaveBegin;
+
+                    if ((bp != null && bmarginl < bp.Margin.Left + bp.Width) || btnrozhr) //kolize
+                    {
+                        if (sekce == sekcepred)
+                        {
+                            btnrozhr = true;
+                            if ((Keyboard.Modifiers & ModifierKeys.Shift) == 0)
+                            {
+                                bp.Width = p.X - bp.Margin.Left;
+                                pPredchozi.End = ts;
+                                if (ElementChanged != null)
+                                    ElementChanged(this, new MyTranscriptionElementEventArgs(pPredchozi));
+                            }
+                            else
+                                btnrozhr = false;
+                        }
+                        
+                    }
+
+                    pAktualni.Begin = ts;
+                    b.Width = bwi;
+                    b.Margin = new Thickness(bmarginl, b.Margin.Top, b.Margin.Right, b.Margin.Bottom);
+
+                    if (ElementChanged != null)
+                        ElementChanged(this, new MyTranscriptionElementEventArgs(pAktualni));
+                }
+                else
+                {
+                    double bwi = p.X - b.Margin.Left;
+
+                    TimeSpan ts = new TimeSpan((long)(WaveLength.Ticks * ((bwi + b.Margin.Left) / grid1.ActualWidth))) + WaveBegin;
+
+
+                    if ((bn != null && b.Margin.Left + b.Width > bn.Margin.Left) || btnrozhr)
+                    {
+                        if (sekce == sekceza)
+                        {
+                            btnrozhr = true;
+                            if ((Keyboard.Modifiers & ModifierKeys.Shift) == 0)
+                            {
+                                bn.Width = bn.Width + (bn.Margin.Left - p.X);
+                                bn.Margin = new Thickness(p.X, bn.Margin.Top, bn.Margin.Right, bn.Margin.Bottom);
+                                pNasledujici.Begin = ts;
+                                if (ElementChanged != null)
+                                    ElementChanged(this, new MyTranscriptionElementEventArgs(pNasledujici));
+                            }
+                            else
+                                btnrozhr = false;
+                        }
+                    }
+                    pAktualni.End = ts;
+
+                    b.Width = bwi;
+
+                    if (ElementChanged != null)
+                        ElementChanged(this, new MyTranscriptionElementEventArgs(pAktualni));
+                }
+            }
+            
+          
+        }
+
+
+        void pMluvci_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+
+            Point position;
+            Button b = sender as Button;
+
+            position = e.GetPosition((Button)sender);
+
+            if (btndrag)
+                InvalidateSpeakers();
+            btndrag = false;
+            btnrozhr = false;
+
+            b.ReleaseMouseCapture();
+        }
+
+        
+
+
 
         private void Grid_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             InvalidateWaveform();
-    }
+        }
 
         private void Grid_Loaded(object sender, RoutedEventArgs e)
         {
             InvalidateWaveform();
         }
-    }
+
+}
 }

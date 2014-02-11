@@ -774,7 +774,7 @@ namespace NanoTrans
 
                                 
                                 //prevod do pole nacitanych dat
-                               //TODO: --- Buffer.BlockCopy(pBuffer, 0, pDataNacitana, j * 2, pCount);
+                                //TODO:(x) --- Buffer.BlockCopy(pBuffer, 0, pDataNacitana, j * 2, pCount);
 
                                 for (int i = 0; i < pCount / 2; i++)
                                 {
@@ -860,7 +860,6 @@ namespace NanoTrans
         /// </summary>
         public void Dispose()
         {
-            //TODO: chybi GC.SupressFinalize(this).. to neni tak strasny, ale ten comment na dispose musim proverit kde se to vola
             try
             {
                                 

@@ -7,6 +7,5 @@
         <TextBlock Text="Nastala neočekávaná chyba programu. Abyste zabránily ztrátě dat uložte změny a restartujte NanoTrans" Height="71" Name="label1" VerticalAlignment="Top" FontSize="25" FontFamily="20" FontWeight="Bold" TextWrapping="Wrap" Foreground="#FFE10000" />
         <Label Content="Výpis chyby:" Height="28" HorizontalAlignment="Left" Margin="0,77,0,0" Name="label2" VerticalAlignment="Top" Width="86" />
         <Button Content="Uložit a restartovat" HorizontalAlignment="Left" Margin="12,0,0,12" Name="buttonSaveAndRestart" Width="118" Height="40" VerticalAlignment="Bottom" Click="buttonSaveAndRestart_Click" />
-        <Button Content="Ignorovat" HorizontalAlignment="Left" Margin="170,0,0,12" Name="buttonIgnore" Width="118" Height="40" VerticalAlignment="Bottom" Click="buttonIgnore_Click" />
     </Grid>
 </Window>

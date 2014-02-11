@@ -240,7 +240,7 @@ namespace NanoTrans
 
 
         static SingletonRefresher m_refresher = null;
-        //hack protoze tahle trida nebyla vytvarena jako singleton a objekt v Setup se muze menit
+        //tohle je hack protoze tahle trida nebyla vytvarena jako singleton a objekt v Setup se muze menit
         public static SingletonRefresher Refresher
         {
             get
@@ -372,11 +372,6 @@ namespace NanoTrans
         public Audio audio;
 
         /// <summary>
-        /// info zda spustit okno s logovanim stavu rozpoznavace a chyb programu
-        /// </summary>
-        public bool SpustitLogovaciOkno { get; set; }
-
-        /// <summary>
         /// info zda jsou zobrazeny fotografie mluvcich v prepisu
         /// </summary>
         public bool ZobrazitFotografieMluvcich { get; set; }
@@ -444,7 +439,6 @@ namespace NanoTrans
 
             SetupTextFontSize = 13;
 
-            SpustitLogovaciOkno = false;
             ZobrazitFotografieMluvcich = true;
             Fotografie_VyskaMax = 50;
             defaultLeftPositionRichX = 70;

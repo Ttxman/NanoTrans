@@ -297,8 +297,6 @@ namespace NanoTrans
 
         private void ClearBuffer()
         {
-            try
-            {
                 timestamp.Clear();
 
                 short[] one = new short[] { 0 };
@@ -306,10 +304,6 @@ namespace NanoTrans
                 {
                     m_soundBuffer.Write(i, one, LockFlag.None);
                 }
-            }
-            catch// (Exception e)
-            { 
-            }
         }
 
 

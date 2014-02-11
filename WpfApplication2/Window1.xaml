@@ -2,7 +2,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Title="NanoTrans" Height="758" Width="867" Closing="Window_Closing"
-    xmlns:local="clr-namespace:NanoTrans" ResizeMode="CanResizeWithGrip" SizeChanged="Window_SizeChanged" Loaded="Window_Loaded" WindowStartupLocation="CenterScreen" PreviewKeyUp="Window_PreviewKeyUp" Icon="icons/pen.ico" IsEnabled="True" AllowDrop="True" Drop="Window_Drop" LocationChanged="Window_LocationChanged" LostFocus="Window_LostFocus"
+    xmlns:local="clr-namespace:NanoTrans" ResizeMode="CanResizeWithGrip" Loaded="Window_Loaded" WindowStartupLocation="CenterScreen" PreviewKeyUp="Window_PreviewKeyUp" Icon="icons/pen.ico" IsEnabled="True" AllowDrop="True" Drop="Window_Drop"
     Name = "MainWindow"
     xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase" >
     <Window.Resources>
@@ -52,19 +52,10 @@
                 <MenuItem Header="Konec" Click="MSoubor_Konec_Click" Name="menuSouborKonec" />
             </MenuItem>
             <MenuItem Header="Úpravy" Name="menuUpravy">
-                <MenuItem Header="Nová kapitola" InputGestureText="F2"  Click="MUpravy_Nova_Kapitola_Click" Name="menuUpravyKapitola" />
-                <MenuItem Header="Nová sekce na pozici" InputGestureText="F3" Click="MUpravy_Nova_Sekce_Click" Name="menuUpravySekce" />
+                <MenuItem Header="Nová kapitola" InputGestureText="F4"  Click="MUpravy_Nova_Kapitola_Click" Name="menuUpravyKapitola" />
+                <MenuItem Header="Nová sekce na pozici" InputGestureText="F5" Click="MUpravy_Nova_Sekce_Click" Name="menuUpravySekce" />
                 <Separator />
                 <MenuItem Header="Smazat položku" InputGestureText="Shift+Del" Click="MUpravy_Smazat_Polozku_Click" Name="menuUpravySmazat" />
-                <Separator />
-                <MenuItem Header="Smazat poč. časový index" InputGestureText="Ctrl+Del" Click="menuItemX5_Smaz_Click" Name="menuUpravySmazatPocatek" />
-                <MenuItem Header="Smazat kon. časový index" Click="menuItemX6_Smaz_Click" Name="menuUpravySmazatKonec" />
-                <!--MenuItem Header="Časová značka" >
-                    <MenuItem Header="Vložit" />
-                    <MenuItem Header="Smazat" />
-                </MenuItem-->
-
-
             </MenuItem>
 
             <MenuItem Header="_Nástroje" Tag="20" Name="menuNastroje">
@@ -94,7 +85,7 @@
             </MenuItem>
 
 
-            <MenuItem Header="_NanoTrans" Tag="20" Name="menuPrepisovac">
+            <MenuItem Header="_NanoTrans" Tag="20" Name="menuPrepisovac" Visibility="Collapsed">
                 <MenuItem Header="Automatický přepis" InputGestureText="F5" Click="button10_Click" Name="menuPrepisovacPrepis">
                     
                 </MenuItem>
@@ -287,7 +278,9 @@
 
         </StatusBar>
         <Grid Name="gFonetickyPrepis" Grid.Row="1" Margin="0,0,0,8">
-            <TextBox Name="tbFonetickyPrepis" TextWrapping="Wrap" Margin="19,11.573,213,30" TextDecorations="None" VerticalScrollBarVisibility="Auto"></TextBox>
+            <Border Margin="0,0,206,30" BorderThickness="1" BorderBrush="LightBlue" >
+                    <local:Element x:Name="fonetickyPrepis" Margin="1,1,1,1" IsEnabled="False" />
+            </Border>
             <Button Focusable="False" Height="20" IsTabStop="False" Padding="0,0,1,1" Width="20" HorizontalAlignment="Right" Margin="0,10.573,1.337,0" Grid.Row="1" VerticalAlignment="Top" Name="btZavritFonPrepis" Click="btZavritFonPrepis_Click">X</Button>
             <Button Focusable="False" HorizontalAlignment="Left" IsTabStop="False" Name="btOdstranitNefonemy" ToolTip="Odstraní znaky z fonetického přepisu, které nejsou fonémy" Click="btOdstranitNefonemy_Click" VerticalAlignment="Bottom" Margin="129,0,0,5.724" Height="21.277">Odstr. nefonémy (F11)</Button>
             <Button Focusable="False" HorizontalAlignment="Left" IsTabStop="False" Margin="19,0,0,5.724" Name="btNormalizovat" Click="btNormalizovat_Click" VerticalAlignment="Bottom" Height="21.277">Normalizovat (F9)</Button>
@@ -318,23 +311,13 @@
         </ToolBarTray>
         <Button Content="TS" Height="23" Margin="0,26,52,0" Name="button2" Width="27" HorizontalAlignment="Right" VerticalAlignment="Top" Click="button2_Click" Foreground="Black" Visibility="Hidden" />
         <Button Content="Bck" Height="23" Margin="0,26,5,0" Name="button3" Width="33" VerticalAlignment="Top" HorizontalAlignment="Right" Click="button3_Click_1" Visibility="Hidden" />
-        <Canvas MinHeight="25" Panel.ZIndex="99" Name="canvas1" DataContext="{Binding}" Margin="368,29,340,295">
-            <Popup Name="popup" Placement="Relative" Opened="popup_Opened">
-                <Grid Background="Cornsilk" Width="175">
-                    <Grid.BitmapEffect>
-                        <DropShadowBitmapEffect />
-                    </Grid.BitmapEffect>
-                    <ListBox Name="listboxPopup" Margin="5" LostFocus="ListBox_LostFocus" MouseDoubleClick="ListBox_MouseDoubleClick">
-                        <ListBoxItem>prvni</ListBoxItem>
-                        <ListBoxItem>druhy</ListBoxItem>
-                        <ListBoxItem>treti</ListBoxItem>
-                        <ListBoxItem>oxmy</ListBoxItem>
-                    </ListBox>
-                </Grid>
-            </Popup>
-        </Canvas>
-        <local:Waveform Grid.Row="2" Margin="3,52,1,26" x:Name="waveform1" PlayPauseClick="waveform1_PlayPauseClick" SliderPositionChanged="waveform1_SliderPositionChanged" UpdateBegin="waveform1_UpdateBegin" UpdateEnd="waveform1_UpdateEnd" CarretPostionChangedByUser="waveform1_CarretPostionChangedByUser" ParagraphClick="waveform1_ParagraphClick" ParagraphDoubleClick="waveform1_ParagraphDoubleClick" CarretPostionChanged="waveform1_CarretPostionChanged" ElementChanged="waveform1_ElementChanged" SelectionChanged="waveform1_SelectionChanged" />
-        <local:SubtitlesVizualizer x:Name="VirtualizingListBox" Background="#FF7DAF7D" Margin="0,55,306,5" ClipToBounds="True" Subtitles="{Binding ElementName=MainWindow, Path=myDataSource}"/>
+        <local:Waveform Grid.Row="2" Margin="3,52,1,26" x:Name="waveform1" PlayPauseClick="waveform1_PlayPauseClick" 
+                        SliderPositionChanged="waveform1_SliderPositionChanged"
+                        CarretPostionChangedByUser="waveform1_CarretPostionChangedByUser" ParagraphClick="waveform1_ParagraphClick" 
+                        ParagraphDoubleClick="waveform1_ParagraphDoubleClick" CarretPostionChanged="waveform1_CarretPostionChanged" 
+                        ElementChanged="waveform1_ElementChanged" SelectionChanged="waveform1_SelectionChanged"
+                        Subtitles="{Binding ElementName=MainWindow, Path=myDataSource}" />
+        <local:SubtitlesVizualizer x:Name="VirtualizingListBox" Background="#FF7DAF7D" Margin="0,55,306,5" ClipToBounds="False" Subtitles="{Binding ElementName=MainWindow, Path=myDataSource}" ChangeSpeaker="VirtualizingListBox_ChangeSpeaker" SelectedElementChanged="VirtualizingListBox_SelectedElementChanged" SetTimeRequest="VirtualizingListBox_SetTimeRequest" />
     </Grid>
     
     
