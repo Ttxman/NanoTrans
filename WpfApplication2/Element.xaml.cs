@@ -615,7 +615,7 @@ namespace NanoTrans
             this.textend.Text = string.Format("{0}:{1:00}:{2:00},{3}", val.Hours, val.Minutes, val.Seconds, val.Milliseconds.ToString("00").Substring(0, 2));
         }
 
-        private void UserControl_GotFocus(object sender, RoutedEventArgs e)
+        internal void UserControl_GotFocus(object sender, RoutedEventArgs e)
         {
             if (ValueElement is MyParagraph)
             {
@@ -937,7 +937,7 @@ namespace NanoTrans
         {
             if (m_forceCarretpositionOnLoad >= 0)
             {
-                editor.Focus();
+                UserControl_GotFocus(editor,e);
                 internal_setCarretOffset(m_forceCarretpositionOnLoad, m_forcesellength);
             }
         }

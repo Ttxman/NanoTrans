@@ -32,7 +32,7 @@
                 </Button>
                 <Label Name="lAudioPozice" Margin="0,0,0,0" Height="24" Width="84.436" FontSize="12" FontWeight="Bold">0:00:00,00</Label>
             </StackPanel>
-            <Slider Name="slPoziceMedia" PreviewMouseLeftButtonUp="slPoziceMedia_PreviewMouseUp" PreviewMouseLeftButtonDown="slPoziceMedia_MouseDown" PreviewMouseDown="slPoziceMedia_MouseDown" ValueChanged="slPoziceMedia_ValueChanged" LostMouseCapture="slPoziceMedia_LostMouseCapture" IsMoveToPointEnabled="True" IsTabStop="False" Focusable="False" IsSelectionRangeEnabled="True" Foreground="Black" Background="Transparent" BorderBrush="Transparent" BorderThickness="0" Margin="110,4,52,0" />
+            <Slider Name="slPoziceMedia" PreviewMouseLeftButtonUp="slPoziceMedia_PreviewMouseUp" PreviewMouseLeftButtonDown="slPoziceMedia_MouseDown" PreviewMouseDown="slPoziceMedia_MouseDown" ValueChanged="slPoziceMedia_ValueChanged" LostMouseCapture="slPoziceMedia_LostMouseCapture" IsMoveToPointEnabled="True" IsTabStop="False" Focusable="False" IsSelectionRangeEnabled="True" Foreground="Black" Background="Transparent" BorderBrush="Transparent" BorderThickness="0" Margin="110,4,52,0" Maximum="1000" />
             <Label Name="lAudioDelka2" FontSize="11" FontWeight="Normal" HorizontalAlignment="Right" Margin="0,1" ToolTip="Celková délka audio souboru [h:mm:ss]">0:00:00</Label>
         </Grid>
     </Grid>

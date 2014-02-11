@@ -275,6 +275,17 @@ namespace NanoTrans
         {
 
             ((Waveform)d).m_subtitlesData = (MySubtitlesData)e.NewValue;
+            MySubtitlesData value = (MySubtitlesData)e.NewValue;
+            if (value.Count > 0)
+            {
+                TranscriptionElement last = value.Last();
+                if (last.Begin > last.End)
+                     ((Waveform)d).slPoziceMedia.Maximum = last.Begin.TotalMilliseconds;
+                else
+                     ((Waveform)d).slPoziceMedia.Maximum = last.End.TotalMilliseconds;
+            }
+
+            ((Waveform)d).Invalidate();
         }
 
 
@@ -289,7 +300,7 @@ namespace NanoTrans
 
                 SetValue(SubtitlesProperty, value);
                 m_subtitlesData = value;
-                InvalidateSpeakers();
+                Invalidate();
             }
         }
 
@@ -439,7 +450,7 @@ namespace NanoTrans
 
         private void iInvalidateWaveform()
         {
-
+            
             double zacatek = oVlna.mSekundyVlnyZac;
             double konec = oVlna.mSekundyVlnyKon;
             try

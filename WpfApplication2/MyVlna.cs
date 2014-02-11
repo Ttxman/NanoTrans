@@ -37,8 +37,22 @@ namespace NanoTrans
                 }
             }
         }
-        
-        public long mSekundyVlnyKon { get; set; }
+
+        private long m_mSekundyVlnyKon;
+        public long mSekundyVlnyKon 
+        { 
+            get
+            {
+                return m_mSekundyVlnyKon;
+            } 
+            set
+            {
+                m_mSekundyVlnyKon = value;
+            } 
+        }
+
+
+
         public long MSekundyDelta { get; set; }
         
 

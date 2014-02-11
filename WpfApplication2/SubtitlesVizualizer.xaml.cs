@@ -43,9 +43,10 @@ namespace NanoTrans
                 
             }
 
+            vis.gridscrollbar.Value = 0;
             vis.RecalculateSizes();
 
-            vis.RecreateElements(vis.gridscrollbar.Value);
+
 
             vis.SubtitlesContentChanged();
         }
@@ -408,9 +409,10 @@ namespace NanoTrans
             set 
             {
                 var elm = SetActiveTranscription(value);
-                if(elm!=null && !elm.editor.IsFocused)
-                    elm.editor.Focus();
-
+                
+                //virtualni prideleni focusu
+                elm.UserControl_GotFocus(null,null);
+                l_GotFocus(elm, null);
 
             }
         }

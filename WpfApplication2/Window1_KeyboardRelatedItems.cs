@@ -471,7 +471,12 @@ namespace NanoTrans
         public void FindNext(string pattern, bool isregex, bool CaseSensitive, bool searchinspeakers)
         {
             if (VirtualizingListBox.ActiveTransctiption == null)
-                return;
+                if (m_mydatasource.Chapters.Count > 0)
+                {
+                    VirtualizingListBox.ActiveTransctiption = m_mydatasource.Chapters[0];
+                }
+                else
+                    return;
             TranscriptionElement tag = VirtualizingListBox.ActiveTransctiption ;
 
             TranscriptionElement pr = tag;

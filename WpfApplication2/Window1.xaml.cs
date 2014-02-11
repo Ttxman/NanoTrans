@@ -1144,19 +1144,25 @@ namespace NanoTrans
 
 
         TimeSpan oldms = TimeSpan.Zero;
+        bool _pozicenastav = false;
         public void NastavPoziciKurzoru(TimeSpan position, bool nastavitMedia, bool aNeskakatNaZacatekElementu)
         {
-            if (position < TimeSpan.Zero) return;
-
-            if(waveform1.CaretPosition!=position)
-                waveform1.CaretPosition = position;
-
-            if (!Playing)
-                oldms = TimeSpan.Zero;
-
-            if (!Playing && jeVideo && Math.Abs(meVideo.Position.TotalMilliseconds) > 200)
+            if (!_pozicenastav)
             {
-                meVideo.Position = waveform1.CaretPosition;
+                _pozicenastav = true;
+                if (position < TimeSpan.Zero) return;
+
+                if (waveform1.CaretPosition != position)
+                    waveform1.CaretPosition = position;
+
+                if (!Playing)
+                    oldms = TimeSpan.Zero;
+
+                if (!Playing && jeVideo && Math.Abs(meVideo.Position.TotalMilliseconds) > 200)
+                {
+                    meVideo.Position = waveform1.CaretPosition;
+                }
+                _pozicenastav = false;
             }
         }
 
@@ -2776,7 +2782,7 @@ namespace NanoTrans
                 return;
             fonetickyPrepis.ValueElement = VirtualizingListBox.ActiveTransctiption;
             fonetickyPrepis.IsEnabled = true;
-
+            NastavPoziciKurzoru(VirtualizingListBox.ActiveTransctiption.Begin, true, true);
         }
 
         private void VirtualizingListBox_SetTimeRequest(TimeSpan obj)

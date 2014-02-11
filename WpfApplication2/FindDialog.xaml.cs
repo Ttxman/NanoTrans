@@ -37,7 +37,7 @@ namespace NanoTrans
         public void SearchNext()
         { 
             m_parent.FindNext(textBox1.Text,checkBox2.IsChecked == true,checkBox1.IsChecked == true, checkBox3.IsChecked == true);
-            
+            textBox1.Focus();
         }
 
         private void button1_Click(object sender, RoutedEventArgs e)
@@ -49,6 +49,11 @@ namespace NanoTrans
         {
             if (e.Key == Key.Return)
                 SearchNext();
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            textBox1.Focus();
         }
     }
 }

@@ -958,21 +958,22 @@ namespace NanoTrans
             length = 0;
             if (par == null)
                 return false;
-
+            
 
             if (searchinspeakers)
             {
-                MyParagraph pr = paragraph.NextSibling() as MyParagraph;
-
-                while (pr!= null)
+                TranscriptionElement prs = paragraph.Next();
+                
+                while (prs!= null)
                 {
-                    if (GetSpeaker(pr.speakerID).FullName.ToLower().Contains(pattern.ToLower()))
+                    MyParagraph pr = prs as MyParagraph;
+                    if (pr!=null && GetSpeaker(pr.speakerID).FullName.ToLower().Contains(pattern.ToLower()))
                     {
                         paragraph = pr;
                         TextOffset = 0;
                         return true;
                     }
-                    pr = pr.NextSibling() as MyParagraph;
+                    prs = pr.Next();
                 }
                 return false;
             }
@@ -984,6 +985,8 @@ namespace NanoTrans
             }
             else
             {
+                if (!CaseSensitive)
+                    pattern = pattern.ToLower();
                 r = new Regex(Regex.Escape(pattern));
             }
 
@@ -1005,7 +1008,7 @@ namespace NanoTrans
                     return true;
                 }
 
-                tag = tag.NextSibling() as MyParagraph; ;
+                tag = tag.Next();
                 if (tag == null)
                     return false;
                 par = tag;
