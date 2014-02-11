@@ -1551,6 +1551,11 @@ namespace NanoTrans
                     end = AudioLength;
                     begin = AudioLength - half - half;
                 }
+                if (begin < TimeSpan.Zero)
+                {
+                    begin = TimeSpan.Zero;
+                    end = MyKONST.DELKA_VYCHOZIHO_ZOBRAZOVACIHO_BUFFERU;
+                }
                 requestedBegin = begin;
                 requestedEnd = end;
                 

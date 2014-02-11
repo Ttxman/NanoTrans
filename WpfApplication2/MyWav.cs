@@ -907,6 +907,7 @@ namespace NanoTrans
                                 int pCount = (int)(pNacistDat) * this.pVelikostVzorku;
 
                                 byte[] pBuffer = new byte[pCount];
+
                                 input.BaseStream.Seek(pPocatecniIndexVSouboru, SeekOrigin.Begin);
 
                                 pPocetNactenych += input.Read(pBuffer, 0, pCount);
