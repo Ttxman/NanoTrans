@@ -287,6 +287,7 @@ namespace NanoTrans
                    // NastavJazyk(MySetup.Setup.jazykRozhranni);
                 }
 
+                /*
                 //nastaveni posledni pozice okna
                 if (MySetup.Setup.OknoPozice != null)
                 {
@@ -308,7 +309,7 @@ namespace NanoTrans
                 }
 
                 this.WindowState = MySetup.Setup.OknoStav;
-
+                */
 
                 ZobrazitOknoFonetickehoPrepisu(MySetup.Setup.ZobrazitFonetickyPrepis - 1 > 0);
 
