@@ -619,4 +619,7 @@ Show Video</value>
   <data name="GlobalNonSpeechEvents" xml:space="preserve">
     <value>cough,ehm,laugh,silence,breath,noise,music,smack</value>
   </data>
+  <data name="SpeakersManagerButtonCancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
 </root>

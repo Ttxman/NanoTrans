@@ -618,4 +618,7 @@
   <data name="GlobalNonSpeechEvents" xml:space="preserve">
     <value>kasel,ehm,smich,ticho,nadech,hluk,hudba,mlask</value>
   </data>
+  <data name="SpeakersManagerButtonCancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
 </root>

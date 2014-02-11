@@ -13,8 +13,6 @@ namespace NanoTrans.Core
     /// </summary>
     public class SpeakerAttribute
     {
-        private SpeakerAttribute a;
-
         public string ID { get; set; }
         public string Name { get; set; }
         public string Value { get; set; }

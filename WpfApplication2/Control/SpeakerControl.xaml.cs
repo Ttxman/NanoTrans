@@ -68,6 +68,29 @@ namespace NanoTrans
             if (StoreSpeakerRequest != null)
                 StoreSpeakerRequest(this.SpeakerContainer);
         }
+
+        private void ButtonAddAttributeClick(object sender, RoutedEventArgs e)
+        {
+            SpeakerAttribute sa = new SpeakerAttribute("", GlobalSetup.Setup.SpeakerAtributteCategories[0], "");
+            SpeakerContainer.Speaker.Attributes.Add(sa);
+            SpeakerContainer.RefreshAttributes();
+
+        }
+
+        private void ButtonRemoveAttributeClick(object sender, RoutedEventArgs e)
+        {
+            var a = AttributeList.SelectedItem as SpeakerAttributeContainer;
+            if (a != null)
+            {
+                SpeakerContainer.Speaker.Attributes.Remove(a.SpeakerAttribute);
+                SpeakerContainer.RefreshAttributes();
+            }
+        }
+
+        private void SpeakerAttributeControl_GotFocus(object sender, RoutedEventArgs e)
+        {
+            AttributeList.SelectedItem = (sender as SpeakerAttributeControl).Attribute;
+        }
     }
 
     [ValueConversion(typeof(Speaker.Sexes), typeof(string))]
@@ -127,7 +150,7 @@ namespace NanoTrans
 
 
     }
-    
+
     [ValueConversion(typeof(bool), typeof(Visibility))]
     public class MyBoolToVisibilityConverter : IValueConverter
     {
@@ -138,7 +161,7 @@ namespace NanoTrans
 
             if (s)
                 return Visibility.Visible;
-            else 
+            else
                 return Visibility.Collapsed;
 
         }

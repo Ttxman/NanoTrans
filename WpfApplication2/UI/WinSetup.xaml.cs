@@ -23,10 +23,10 @@ namespace NanoTrans
     /// </summary>
     public partial class WinSetup : Window
     {
-        public MySetup _setup;
+        public GlobalSetup _setup;
         private SpeakerCollection _speakersDatabase;
 
-        public WinSetup(MySetup aNastaveni, SpeakerCollection aDatabazeMluvcich)
+        public WinSetup(GlobalSetup aNastaveni, SpeakerCollection aDatabazeMluvcich)
         {
             _setup = aNastaveni;
             _speakersDatabase = aDatabazeMluvcich;
@@ -88,11 +88,11 @@ namespace NanoTrans
 
                 //prehravani
 
-                decimal val = (decimal)aNastaveni.ZpomalenePrehravaniRychlost;
+                decimal val = (decimal)aNastaveni.SlowedPlaybackSpeed;
                 if (val >= UpDownSpeed.Minimum.Value && val <= UpDownSpeed.Maximum.Value)
                     UpDownSpeed.Value = val;
 
-                val = (decimal)(aNastaveni.VlnaMalySkok);
+                val = (decimal)(aNastaveni.WaveformSmallJump);
                 if (val >= UpDownJump.Minimum.Value && val <= UpDownJump.Maximum.Value)
                     UpDownJump.Value = val;
             }
@@ -106,7 +106,7 @@ namespace NanoTrans
         /// </summary>
         /// <param name="aNastaveni"></param>
         /// <returns></returns>
-        public static MySetup WinSetupNastavit(MySetup aNastaveni, SpeakerCollection aDatabazeMluvcich)
+        public static GlobalSetup WinSetupNastavit(GlobalSetup aNastaveni, SpeakerCollection aDatabazeMluvcich)
         {
             WinSetup ws = new WinSetup(aNastaveni, aDatabazeMluvcich);
             ws.ShowDialog();
@@ -141,8 +141,8 @@ namespace NanoTrans
             _setup.ZobrazitFotografieMluvcich = (bool)chbZobrazitFotku.IsChecked;
             _setup.Fotografie_VyskaMax = slVelikostFotografie.Value;
 
-            _setup.ZpomalenePrehravaniRychlost = (double)UpDownSpeed.Value;
-            _setup.VlnaMalySkok = (double)UpDownJump.Value;
+            _setup.SlowedPlaybackSpeed = (double)UpDownSpeed.Value;
+            _setup.WaveformSmallJump = (double)UpDownJump.Value;
 
 
             _setup.SaveInShortFormat = true;

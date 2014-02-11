@@ -122,7 +122,7 @@ namespace NanoTrans.Core
         public VirtualTypeList<TranscriptionChapter> Chapters;    //vsechny kapitoly streamu
 
         [XmlElement("SpeakersDatabase")]
-        public SpeakerCollection _speakers = new SpeakerCollection();
+        private SpeakerCollection _speakers = new SpeakerCollection();
 
         [XmlIgnore]
         public SpeakerCollection Speakers

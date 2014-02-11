@@ -204,7 +204,7 @@ namespace NanoTrans
 
         private void MenuItem_NewSpeaker(object sender, RoutedEventArgs e)
         {
-            Speaker sp = new Speaker("-----", "-----", Speaker.Sexes.X, null) { DataBase = DBType.User };
+            Speaker sp = new Speaker("-----", "-----", Speaker.Sexes.X, null) { DataBaseType = DBType.User };
             SpeakerProvider.AddLocalSpeaker(sp);
             SpeakerProvider.View.Refresh();
 
@@ -274,6 +274,11 @@ namespace NanoTrans
         {
             if(SpeakersBox.SelectedItem!=null)
                 ButtonOK_Click(null, null);
+        }
+
+        private void ButtonCancel_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
         }
 
     }
@@ -560,9 +565,9 @@ namespace NanoTrans
         public void RemoveSpeaker(Speaker s)
         {
             var cont = _allSpeakers.FirstOrDefault(sc => sc.Speaker == s);
-            if (s.DataBase == DBType.User)
+            if (s.DataBaseType == DBType.User)
                 _localSpeakers.Remove(s);
-            else if (s.DataBase == DBType.File)
+            else if (s.DataBaseType == DBType.File)
                 _documentSpeakers.Remove(s);
 
             if (cont != null)
@@ -600,9 +605,9 @@ namespace NanoTrans
             }
         }
 
-        public List<SpeakerAttribute> Attributes
+        public ReadOnlyCollection<SpeakerAttributeContainer> Attributes
         {
-            get { return Speaker.Attributes; }
+            get { return Speaker.Attributes.Select(a=>new SpeakerAttributeContainer(a)).ToList().AsReadOnly(); }
         }
 
         bool _marked = false;
@@ -720,7 +725,7 @@ namespace NanoTrans
 
             set
             {
-                _speaker.DegreeBefore = _degreeBefore = value;
+                _speaker.DegreeBefore = _degreeBefore = value.Trim();
                 Changed = true;
                 if (PropertyChanged != null)
                     PropertyChanged(this, new PropertyChangedEventArgs("DegreeBefore"));
@@ -736,7 +741,7 @@ namespace NanoTrans
 
             set
             {
-                _speaker.FirstName = _firstName = value;
+                _speaker.FirstName = _firstName = value.Trim();
                 Changed = true;
                 if (PropertyChanged != null)
                     PropertyChanged(this, new PropertyChangedEventArgs("FirstName"));
@@ -771,7 +776,7 @@ namespace NanoTrans
 
             set
             {
-                _speaker.MiddleName = _secondName = value;
+                _speaker.MiddleName = _secondName = value.Trim();
                 Changed = true;
                 if (PropertyChanged != null)
                     PropertyChanged(this, new PropertyChangedEventArgs("SecondName"));
@@ -788,7 +793,7 @@ namespace NanoTrans
 
             set
             {
-                _speaker.Surname = _surName = value;
+                _speaker.Surname = _surName = value.Trim();
                 Changed = true;
                 if (PropertyChanged != null)
                     PropertyChanged(this, new PropertyChangedEventArgs("SurName"));
@@ -805,7 +810,7 @@ namespace NanoTrans
 
             set
             {
-                _speaker.DegreeAfter = _degreeAfter = value;
+                _speaker.DegreeAfter = _degreeAfter = value.Trim();
                 Changed = true;
                 if (PropertyChanged != null)
                     PropertyChanged(this, new PropertyChangedEventArgs("DegreeAfter"));
@@ -851,6 +856,12 @@ namespace NanoTrans
         //Attributes
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        public void RefreshAttributes()
+        {
+            if (PropertyChanged != null)
+                PropertyChanged(this, new PropertyChangedEventArgs("Attributes"));
+        }
     }
 
 

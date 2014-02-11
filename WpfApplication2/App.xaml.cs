@@ -20,7 +20,6 @@ namespace NanoTrans
             Startup_ARGS = e.Args;
 
             AppDomain.CurrentDomain.FirstChanceException += CurrentDomain_FirstChanceException;
-
            LocalizeDictionary.Instance.SetCurrentThreadCulture = true;
            LocalizeDictionary.Instance.Culture = new CultureInfo("cs");
 

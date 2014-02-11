@@ -445,7 +445,7 @@ namespace NanoTrans
                 listbox.SelectedItem = el;
 
                 //events may not be active yet
-                if (elm.Background != MySetup.Setup.BarvaTextBoxuOdstavceAktualni)
+                if (elm.Background != GlobalSetup.Setup.ActiveParagraphBackground)
                 {
                     elm.editor.Focus();
                     ColorizeBackground(el);
@@ -489,14 +489,14 @@ namespace NanoTrans
             {
                 if (elem.ValueElement == focused)
                 {
-                    elem.Background = MySetup.Setup.BarvaTextBoxuOdstavceAktualni;
+                    elem.Background = GlobalSetup.Setup.ActiveParagraphBackground;
                 }
                 else
                 {
                     if (elem.ValueElement is TranscriptionSection)
-                        elem.Background = MySetup.Setup.SectionBackground;
+                        elem.Background = GlobalSetup.Setup.SectionBackground;
                     else if (elem.ValueElement is TranscriptionChapter)
-                        elem.Background = MySetup.Setup.BarvaTextBoxuKapitoly;
+                        elem.Background = GlobalSetup.Setup.ChapterBackground;
                     else
                         elem.Background = null;
                 }

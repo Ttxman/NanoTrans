@@ -134,7 +134,7 @@ namespace NanoTrans
                 el.textbegin.Visibility = Visibility.Visible;
                 el.textend.Visibility = Visibility.Visible;
                 el.stackPanelAttributes.Visibility = Visibility.Visible;
-                el.Background = MySetup.Setup.BarvaTextBoxuOdstavce;
+                el.Background = GlobalSetup.Setup.ParagraphBackground;
                 Element.RefreshSpeakerButton(el, p);
                 el.checkBox1.Visibility = Visibility.Visible;
                 el.checkBox1.IsChecked = ((TranscriptionParagraph)val).trainingElement;
@@ -145,7 +145,7 @@ namespace NanoTrans
                 el.textbegin.Visibility = Visibility.Collapsed;
                 el.textend.Visibility = Visibility.Collapsed;
                 el.stackPanelAttributes.Visibility = Visibility.Collapsed;
-                el.Background = MySetup.Setup.SectionBackground;
+                el.Background = GlobalSetup.Setup.SectionBackground;
                 el.buttonSpeaker.Visibility = Visibility.Collapsed;
                 el.checkBox1.Visibility = Visibility.Collapsed;
             }
@@ -155,7 +155,7 @@ namespace NanoTrans
                 el.textbegin.Visibility = Visibility.Collapsed;
                 el.textend.Visibility = Visibility.Collapsed;
                 el.stackPanelAttributes.Visibility = Visibility.Collapsed;
-                el.Background = MySetup.Setup.BarvaTextBoxuKapitoly;
+                el.Background = GlobalSetup.Setup.ChapterBackground;
                 el.buttonSpeaker.Visibility = Visibility.Collapsed;
                 el.checkBox1.Visibility = Visibility.Collapsed;
             }
@@ -164,7 +164,7 @@ namespace NanoTrans
                 el.textbegin.Visibility = Visibility.Visible;
                 el.textend.Visibility = Visibility.Visible;
                 el.stackPanelAttributes.Visibility = Visibility.Visible;
-                el.Background = MySetup.Setup.BarvaTextBoxuOdstavce;
+                el.Background = GlobalSetup.Setup.ParagraphBackground;
                 el.buttonSpeaker.Visibility = Visibility.Visible;
                 el.checkBox1.Visibility = Visibility.Visible;
                 el.checkBox1.IsChecked = false;
@@ -373,6 +373,7 @@ namespace NanoTrans
 
         private void UpdateCustomParamsFromSpeaker()
         {
+            return;
             if (customparams == null || customparams.Count == 0 || ValueElement==null)
                 return;
 
@@ -561,7 +562,7 @@ namespace NanoTrans
                 completionWindow.ResizeMode = ResizeMode.NoResize;
                 // provide AvalonEdit with the data:
                 IList<ICompletionData> data = completionWindow.CompletionList.CompletionData;
-                foreach (string s in MySetup.Setup.NerecoveUdalosti)
+                foreach (string s in GlobalSetup.Setup.NonSpeechEvents)
                     data.Add(new CodeCompletionData(s));
 
                 completionWindow.Show();
@@ -674,7 +675,7 @@ namespace NanoTrans
                 lb2.Padding = t;
 
                 int maxcnt = 0;
-                foreach (string s2 in MySetup.Setup.NerecoveUdalosti)
+                foreach (string s2 in GlobalSetup.Setup.NonSpeechEvents)
                 {
                     if (text != s2)
                     {
@@ -747,7 +748,7 @@ namespace NanoTrans
             if (ValueElement != null)
             {
                 TimeSpan val = ValueElement.Begin;
-                this.textbegin.Text = string.Format("{0}:{1:00}:{2:00},{3}", val.Hours, val.Minutes, val.Seconds, val.Milliseconds.ToString("00").Substring(0, 2));
+                this.textbegin.Text = string.Format("{0}:{1:00}:{2:00},{3}", val.Hours, val.Minutes, val.Seconds, val.Milliseconds.ToString("000").Substring(0, 2));
                 EndChanged(this, null);//zmena zacatku muze ovlivnit konec...
             }
 
@@ -765,7 +766,7 @@ namespace NanoTrans
                     textend.Visibility = System.Windows.Visibility.Visible;
 
                 TimeSpan val = ValueElement.End;
-                this.textend.Text = string.Format("{0}:{1:00}:{2:00},{3}", val.Hours, val.Minutes, val.Seconds, val.Milliseconds.ToString("00").Substring(0, 2));
+                this.textend.Text = string.Format("{0}:{1:00}:{2:00},{3}", val.Hours, val.Minutes, val.Seconds, val.Milliseconds.ToString("000").Substring(0, 2));
             }
         }
 
@@ -876,11 +877,15 @@ namespace NanoTrans
                 if (editor.CaretOffset == 0 && MergeWithPreviousRequest != null)
                     MergeWithPreviousRequest(this, new EventArgs());
 
+                e.Handled = true;
+
             }
             else if (e.Key == Key.Delete && editor.SelectionLength == 0)
             {
                 if (editor.CaretOffset == editor.Document.TextLength && MergeWithnextRequest != null)
                     MergeWithnextRequest(this, new EventArgs());
+
+                e.Handled = true;
 
             }
             else if (e.Key == Key.Enter || e.Key == Key.Return)

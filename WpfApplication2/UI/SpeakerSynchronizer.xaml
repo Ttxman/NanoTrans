@@ -33,6 +33,7 @@
         <my:SpeakerControl x:Name="speakerControl" IsEnabled="False" Grid.Column="2"/>
         <DockPanel Grid.Column="0" LastChildFill="True">
             <TextBlock Text="{lex:LocText SpeakersSynchronizerLabelDocumentList}" DockPanel.Dock="Top"/>
+            <TextBox Name="documentFilterBox" DockPanel.Dock="Top" TextChanged="documentFilterBox_TextChanged"/>
             <Button DockPanel.Dock="Bottom" Click="Button_Click" Content="{lex:LocText SpeakersSynchronizerButtonOK}"/>
             <ListBox x:Name="listdocument" Grid.Column="0" Grid.RowSpan="2" DockPanel.Dock="Bottom" PreviewKeyDown="listdocument_PreviewKeyDown" HorizontalContentAlignment="Stretch">
                 <ListBox.ContextMenu>
@@ -62,6 +63,7 @@
         </DockPanel>
         <DockPanel Grid.Column="1" LastChildFill="True">
             <TextBlock Text="{lex:LocText SpeakersSynchronizerLabelLocalList}" DockPanel.Dock="Top"/>
+            <TextBox Name="userFilterBox" DockPanel.Dock="Top" TextChanged="userFilterBox_TextChanged"/>
             <ListBox x:Name="listlocal" Grid.Column="0" Grid.RowSpan="2" DockPanel.Dock="Bottom" HorizontalContentAlignment="Stretch">
                 <ListBox.Resources>
                     <DataTemplate DataType="{x:Type core:Speaker}">

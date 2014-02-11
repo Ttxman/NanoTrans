@@ -156,7 +156,7 @@ namespace NanoTrans.Core
         #region serializace nova
 
 
-        public static readonly List<string> Langs = new List<string> { "CZ", "SK", "RU", "HR", "PL", "EN", "DE", "ES", "--" };
+        public static readonly List<string> Langs = new List<string> { "CZ", "SK", "RU", "HR", "PL", "EN", "DE", "ES", "IT", "CU", "--" };
         [XmlIgnore]
         public Dictionary<string, string> Elements = new Dictionary<string, string>();
         private static readonly XAttribute EmptyAttribute = new XAttribute("empty", "");
@@ -247,14 +247,14 @@ namespace NanoTrans.Core
                     switch (rem)
                     {
                         case "user":
-                            this.DataBase = DBType.User;
+                            this.DataBaseType = DBType.User;
                             break;
 
                         case "api":
-                            this.DataBase = DBType.Api;
+                            this.DataBaseType = DBType.Api;
                             break;
                         case "file":
-                            this.DataBase = DBType.File;
+                            this.DataBaseType = DBType.File;
                             break;
 
                         default:
@@ -326,12 +326,12 @@ namespace NanoTrans.Core
             );
 
             string val = "file";
-            if (DataBase != DBType.File)
+            if (DataBaseType != DBType.File)
             {
                 elm.Add(new XAttribute("dbid", this.DBID));
-                if (this.DataBase == DBType.Api)
+                if (this.DataBaseType == DBType.Api)
                     val = "api";
-                else if (DataBase == DBType.User)
+                else if (DataBaseType == DBType.User)
                     val = "user";
                 elm.Add(new XAttribute("dbtype", val));
             }
@@ -345,7 +345,7 @@ namespace NanoTrans.Core
             if (!string.IsNullOrWhiteSpace(DegreeAfter))
                 elm.Add(new XAttribute("degreeafter", DegreeAfter));
 
-            if (DataBase != DBType.File)
+            if (DataBaseType != DBType.File)
                 elm.Add(new XAttribute("synchronized", XmlConvert.ToString(DateTime.UtcNow, XmlDateTimeSerializationMode.Utc)));//stored in UTC convert from local
 
 
@@ -363,7 +363,7 @@ namespace NanoTrans.Core
         private Speaker(Speaker aSpeaker)
         {
             _ID = speakersIndexCounter++;
-            DataBase = aSpeaker.DataBase;
+            DataBaseType = aSpeaker.DataBaseType;
             Surname = aSpeaker.Surname;
             FirstName = aSpeaker.FirstName;
             MiddleName = aSpeaker.MiddleName;
@@ -411,7 +411,8 @@ namespace NanoTrans.Core
 
         /// <summary>
         /// if not set, GUID is automatically generated on first access (when database is not API based)
-        /// if Database is Type and not set - returns null
+        /// if DataBaseType is DBType.API and not set - returns null
+        /// if DataBaseType is DBType.User - modification is disabled
         /// </summary>
         public string DBID
         {
@@ -419,7 +420,7 @@ namespace NanoTrans.Core
             {
                 if (_dbid == null)
                 {
-                    if (DataBase == DBType.Api)
+                    if (DataBaseType == DBType.Api)
                         return null;
                     else
                         _dbid = Guid.NewGuid().ToString();
@@ -431,7 +432,7 @@ namespace NanoTrans.Core
             {
                 if (string.IsNullOrWhiteSpace(_dbid))
                     _dbid = value;
-                else if (DataBase == DBType.User)
+                else if (DataBaseType == DBType.User)
                     throw new ArgumentException("cannot change DBID when Dabase is User");
                 else
                     _dbid = value;
@@ -439,7 +440,7 @@ namespace NanoTrans.Core
             }
         }
 
-        public DBType DataBase { get; set; }
+        public DBType DataBaseType { get; set; }
 
         public DateTime Synchronized { get; set; }
     }

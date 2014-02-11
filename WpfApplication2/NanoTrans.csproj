@@ -140,6 +140,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Control\SpeakerAttributeControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Control\SpeakerControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -212,6 +216,9 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Control\SpeakerAttributeControl.xaml.cs">
+      <DependentUpon>SpeakerAttributeControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Control\SpeakerControl.xaml.cs">
       <DependentUpon>SpeakerControl.xaml</DependentUpon>
     </Compile>
@@ -281,7 +288,7 @@
   <ItemGroup>
     <Compile Include="Source\MyBuffer16.cs" />
     <Compile Include="Source\MyKONST.cs" />
-    <Compile Include="Source\MySetup.cs" />
+    <Compile Include="Source\GlobalSetup.cs" />
     <Compile Include="Source\MyVlna.cs" />
     <Compile Include="Source\MyWav.cs" />
     <Compile Include="Source\MyWavePlayer.cs" />

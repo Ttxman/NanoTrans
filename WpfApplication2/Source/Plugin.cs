@@ -13,76 +13,76 @@ namespace NanoTrans
     internal class Plugin
     {
 
-        private string m_fileName;
+        private string _fileName;
 
         public string FileName
         {
-            get { return m_fileName; }
-            set { m_fileName = value; }
+            get { return _fileName; }
+            set { _fileName = value; }
         }
-        bool m_input;
+        bool _input;
 
         public bool Input
         {
-            get { return m_input; }
-            set { m_input = value; }
+            get { return _input; }
+            set { _input = value; }
         }
-        bool m_isassembly;
+        bool _isassembly;
 
         public bool Isassembly
         {
-            get { return m_isassembly; }
-            set { m_isassembly = value; }
+            get { return _isassembly; }
+            set { _isassembly = value; }
         }
-        string m_mask;
+        string _mask;
 
         public string Mask
         {
-            get { return m_mask; }
-            set { m_mask = value; }
+            get { return _mask; }
+            set { _mask = value; }
         }
-        string m_parameters;
+        string _parameters;
 
         public string Parameters
         {
-            get { return m_parameters; }
-            set { m_parameters = value; }
+            get { return _parameters; }
+            set { _parameters = value; }
         }
 
-        Func<Stream, Transcription, bool> m_importDelegate;
+        Func<Stream, Transcription, bool> _importDelegate;
 
         public Func<Stream, Transcription, bool> ImportDelegate
         {
-            get { return m_importDelegate; }
-            set { m_importDelegate = value; }
+            get { return _importDelegate; }
+            set { _importDelegate = value; }
         }
-        Func<Transcription, Stream, bool> m_exportDelegate;
+        Func<Transcription, Stream, bool> _exportDelegate;
 
         public Func<Transcription, Stream, bool> ExportDelegate
         {
-            get { return m_exportDelegate; }
-            set { m_exportDelegate = value; }
+            get { return _exportDelegate; }
+            set { _exportDelegate = value; }
         }
 
 
-        string m_name;
+        string _name;
 
         public string Name
         {
-            get { return m_name; }
-            set { m_name = value; }
+            get { return _name; }
+            set { _name = value; }
         }
 
         public Plugin(bool input, bool isassembly, string mask, string parameters, string name, Func<Stream, Transcription, bool> importDelegate, Func<Transcription, Stream, bool> exportDelegate, string filename)
         {
-            m_input = input;
-            m_isassembly = isassembly;
-            m_mask = mask;
-            m_parameters = parameters;
-            m_importDelegate = importDelegate;
-            m_exportDelegate = exportDelegate;
-            m_fileName = filename;
-            m_name = name;
+            _input = input;
+            _isassembly = isassembly;
+            _mask = mask;
+            _parameters = parameters;
+            _importDelegate = importDelegate;
+            _exportDelegate = exportDelegate;
+            _fileName = filename;
+            _name = name;
         }
 
 
@@ -93,7 +93,7 @@ namespace NanoTrans
                 OpenFileDialog opf = new OpenFileDialog();
                 opf.CheckFileExists = true;
                 opf.CheckPathExists = true;
-                opf.Filter = m_mask;
+                opf.Filter = _mask;
 
                 if (opf.ShowDialog() == true)
                     sourcefile = opf.FileName;
@@ -108,7 +108,7 @@ namespace NanoTrans
                         using (var f = File.OpenRead(sourcefile))
                         {
                             var imp = new WPFTranscription();
-                            if (!m_importDelegate.Invoke(f, imp))
+                            if (!_importDelegate.Invoke(f, imp))
                                 throw new Exception();
                             
                             imp.FileName = sourcefile;
@@ -124,8 +124,8 @@ namespace NanoTrans
 
 
                         ProcessStartInfo psi = new ProcessStartInfo();
-                        psi.FileName = Path.Combine(FilePaths.GetReadPath(FilePaths.PluginsPath), m_fileName);
-                        psi.Arguments = string.Format(m_parameters, "\"" + inputfile + "\"", "\"" + tempFile + "\"", "\"" + tempFolder + "\"");
+                        psi.FileName = Path.Combine(FilePaths.GetReadPath(FilePaths.PluginsPath), _fileName);
+                        psi.Arguments = string.Format(_parameters, "\"" + inputfile + "\"", "\"" + tempFile + "\"", "\"" + tempFolder + "\"");
 
                         Process p = new Process();
                         p.StartInfo = psi;
@@ -140,7 +140,7 @@ namespace NanoTrans
                 }
                 catch
                 {
-                    MessageBox.Show("Import souboru skončil chybou", "chyba", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(Properties.Strings.MessageBoxImportError, Properties.Strings.MessageBoxErrorCaption, MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
 
@@ -148,7 +148,7 @@ namespace NanoTrans
         }
         public override string ToString()
         {
-            return m_name;
+            return _name;
         }
 
         public void ExecuteExport(Transcription data, string destfile = null)
@@ -158,7 +158,7 @@ namespace NanoTrans
                 SaveFileDialog sf = new SaveFileDialog();
 
                 sf.CheckPathExists = true;
-                sf.Filter = m_mask;
+                sf.Filter = _mask;
 
                 if (sf.ShowDialog() == true)
                 {
@@ -171,7 +171,7 @@ namespace NanoTrans
             {
                 if (Isassembly)
                 {
-                    m_exportDelegate.Invoke(data, File.Create(destfile));
+                    _exportDelegate.Invoke(data, File.Create(destfile));
                 }
                 else
                 {
@@ -179,12 +179,12 @@ namespace NanoTrans
                     string inputfile = System.IO.Path.Combine(tempFolder, System.IO.Path.GetRandomFileName()) + ".trsx";
                     string tempFile = destfile;
 
-                    data.Serialize(inputfile, true, !MySetup.Setup.SaveInShortFormat);
+                    data.Serialize(inputfile, true, !GlobalSetup.Setup.SaveInShortFormat);
 
                     ProcessStartInfo psi = new ProcessStartInfo();
 
-                    psi.FileName = Path.Combine(FilePaths.GetReadPath(FilePaths.PluginsPath), m_fileName);
-                    psi.Arguments = string.Format(m_parameters, "\"" + inputfile + "\"", "\"" + tempFile + "\"", "\"" + tempFolder + "\"");
+                    psi.FileName = Path.Combine(FilePaths.GetReadPath(FilePaths.PluginsPath), _fileName);
+                    psi.Arguments = string.Format(_parameters, "\"" + inputfile + "\"", "\"" + tempFile + "\"", "\"" + tempFolder + "\"");
 
                     Process p = new Process();
                     p.StartInfo = psi;
@@ -196,7 +196,7 @@ namespace NanoTrans
             }
             catch
             {
-                MessageBox.Show("Export souboru skončil chybou", "chyba", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(Properties.Strings.MessageBoxExportError, Properties.Strings.MessageBoxErrorCaption, MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
         }

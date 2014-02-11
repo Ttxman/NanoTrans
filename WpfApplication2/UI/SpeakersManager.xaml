@@ -65,7 +65,7 @@
             <Label DockPanel.Dock="Left" Content="{lex:LocText SpeakersManagerLabelSearch}"/>
             <TextBox Text="{Binding ElementName=manager,Path=SpeakerProvider.FilterString,TargetNullValue='',UpdateSourceTrigger=PropertyChanged}"/>
         </DockPanel>
-        <ListBox Name="SpeakersBox" MinWidth="200" Grid.Column="0" Grid.Row="3" AlternationCount="2" ItemsSource="{Binding ElementName=manager,Path=SpeakerProvider.View}" SelectionMode="{Binding ElementName=manager,Converter={StaticResource selConverter}, Path=SelectMany}" ContextMenuOpening="SpeakersBox_ContextMenuOpening" SelectionChanged="SpeakersBox_SelectionChanged" MouseDoubleClick="SpeakersBox_MouseDoubleClick">
+        <ListBox Name="SpeakersBox" Width="250" Grid.Column="0" Grid.Row="3" AlternationCount="2" ItemsSource="{Binding ElementName=manager,Path=SpeakerProvider.View}" SelectionMode="{Binding ElementName=manager,Converter={StaticResource selConverter}, Path=SelectMany}" ContextMenuOpening="SpeakersBox_ContextMenuOpening" SelectionChanged="SpeakersBox_SelectionChanged" MouseDoubleClick="SpeakersBox_MouseDoubleClick">
             <ListBox.GroupStyle>
                 <GroupStyle HeaderTemplate="{StaticResource groupingHeaderTemplate}" ContainerStyle="{StaticResource ContainerStyle}"/>
             </ListBox.GroupStyle>
@@ -102,8 +102,15 @@
         </ListBox>
         <StackPanel Grid.Column="0" Grid.Row="4">
             <Button Click="ButtonNewSpeaker_Click" Content="{lex:LocText SpeakersManagerButtonNewSpeaker}"/>
-            <Button Height="30" Margin="0,4,0,0" Click="ButtonOK_Click" Content="{lex:LocText SpeakersManagerButtonOK}"/>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button Click="ButtonOK_Click" Content="{lex:LocText SpeakersManagerButtonOK}" Grid.Column="0"/>
+                <Button Click="ButtonCancel_Click" Content="{lex:LocText SpeakersManagerButtonCancel}" Grid.Column="1"/>
+            </Grid>
         </StackPanel>
-        <my:SpeakerControl x:Name="SpeakerDetails" Grid.Row="2" Grid.Column="1" SpeakerContainer="{Binding ElementName=SpeakersBox,Path=SelectedItem}" IsEnabled="{Binding ElementName=manager,Path=Editable}" Grid.RowSpan="3"  />
+        <my:SpeakerControl Margin="5,0,0,0" x:Name="SpeakerDetails" Grid.Row="2" Grid.Column="1" SpeakerContainer="{Binding ElementName=SpeakersBox,Path=SelectedItem}" IsEnabled="{Binding ElementName=manager,Path=Editable}" Grid.RowSpan="3"  />
     </Grid>
 </Window>

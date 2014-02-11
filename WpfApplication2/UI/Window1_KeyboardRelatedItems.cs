@@ -450,7 +450,7 @@ namespace NanoTrans
                 if ((Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift || ToolBar2BtnSlow.IsChecked == true)
                 {
                     adjustspeed = true;
-                    meVideo.SpeedRatio = MySetup.Setup.ZpomalenePrehravaniRychlost;
+                    meVideo.SpeedRatio = GlobalSetup.Setup.SlowedPlaybackSpeed;
                 }
                 else
                 {
@@ -493,7 +493,7 @@ namespace NanoTrans
                 Playing = true;
 
                 if (adjustspeed)
-                    MWP.Play(MySetup.Setup.ZpomalenePrehravaniRychlost);
+                    MWP.Play(GlobalSetup.Setup.SlowedPlaybackSpeed);
                 else
                     MWP.Play();
 

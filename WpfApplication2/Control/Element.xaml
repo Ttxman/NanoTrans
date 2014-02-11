@@ -9,7 +9,7 @@
              Loaded="element_Loaded" VerticalContentAlignment="Stretch">
 
     <UserControl.Resources>
-        <ObjectDataProvider x:Key="provider" ObjectInstance="{x:Static my:MySetup.Refresher}"/>
+        <ObjectDataProvider x:Key="provider" ObjectInstance="{x:Static my:GlobalSetup.Refresher}"/>
         <my:SpeakerConverter x:Key="SpeakerConverter" />
     </UserControl.Resources>
 

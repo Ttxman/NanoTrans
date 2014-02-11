@@ -9,10 +9,10 @@
              Name="Vizualizer" Loaded="Vizualizer_Loaded" PreviewKeyDown="Vizualizer_PreviewKeyDown">
     
     <UserControl.Resources>
-        <ObjectDataProvider x:Key="provider" ObjectInstance="{x:Static my:MySetup.Refresher}"/>
+        <ObjectDataProvider x:Key="provider" ObjectInstance="{x:Static my:GlobalSetup.Refresher}"/>
     </UserControl.Resources>
     <Grid>
-        <ListBox Name="listbox" ItemsSource="{Binding Transcription, ElementName=Vizualizer}" Background="{Binding Source={StaticResource provider},Path=Setup.BarvaTextBoxuOdstavce}"
+        <ListBox Name="listbox" ItemsSource="{Binding Transcription, ElementName=Vizualizer}" Background="{Binding Source={StaticResource provider},Path=Setup.ParagraphBackground}"
             VirtualizingPanel.ScrollUnit="Pixel" 
             VirtualizingPanel.IsVirtualizing="True" 
             VirtualizingPanel.CacheLength="2,3" 

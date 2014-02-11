@@ -38,7 +38,7 @@ namespace NanoTrans
             this._speakersDatabase = SpeakersDatabase;
 
 
-            _pairs = _transcription._speakers
+            _pairs = _transcription.Speakers
                 .OrderBy(s => s.Surname)
                 .ThenBy(s => s.FirstName)
                 .ThenBy(s => s.MiddleName)
@@ -168,6 +168,30 @@ namespace NanoTrans
         private void listdocument_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             MenuItemClearPairing_Click(null, null);
+        }
+
+        private void documentFilterBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(documentFilterBox.Text))
+            {
+                listdocument.Items.Filter = x => true;
+            }
+            else
+            {
+                listdocument.Items.Filter = x => (((SpeakerPair)x).Speaker1.FullName.ToLower().Contains(documentFilterBox.Text.ToLower()));
+            }
+        }
+
+        private void userFilterBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(documentFilterBox.Text))
+            {
+                listlocal.Items.Filter = x => true;
+            }
+            else
+            {
+                listlocal.Items.Filter = x => (((Speaker)x).FullName.ToLower().Contains(userFilterBox.Text.ToLower()));
+            }
         }
 
     }

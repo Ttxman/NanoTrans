@@ -70,18 +70,17 @@
             </StackPanel>
         </StackPanel>
         <Label Grid.Row="1" FontWeight="Bold" Content="{lex:LocText SpeakerDetailsLabelAttributes}"/>
-        <ListBox ScrollViewer.CanContentScroll="False" Grid.ColumnSpan="2" Grid.Row="2" ItemsSource="{Binding ElementName=Control,Path=SpeakerContainer.Attributes,UpdateSourceTrigger=PropertyChanged}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+        <ListBox HorizontalContentAlignment="Stretch" Name="AttributeList" ScrollViewer.CanContentScroll="False" Grid.ColumnSpan="2" Grid.Row="2" ItemsSource="{Binding ElementName=Control,Path=SpeakerContainer.Attributes,UpdateSourceTrigger=PropertyChanged}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
             <ListBox.Resources>
-                <DataTemplate DataType="{x:Type core:SpeakerAttribute}">
-                    <TextBlock TextWrapping="Wrap"><Bold><Run Text="{Binding Name}"/>: </Bold><Run Text="{Binding Value}"/></TextBlock>
+                <DataTemplate DataType="{x:Type my:SpeakerAttributeContainer}">
+                    <my:SpeakerAttributeControl Attribute="{Binding}" GotFocus="SpeakerAttributeControl_GotFocus" />
                 </DataTemplate>
             </ListBox.Resources>
         </ListBox>
 
         <StackPanel Grid.ColumnSpan="2" Grid.Row="3" HorizontalAlignment="Left" Orientation="Horizontal" Visibility="{Binding IsEnabled, ElementName=Control, Converter={StaticResource boolvisconverter}}">
-            <Button Width="100" Content="{lex:LocText SpeakerDetailsButtonAddAttribute}"/>
-            <Button Width="100" Content="{lex:LocText SpeakerDetailsButtonEditAttribute}"/>
-            <Button Width="100" Content="{lex:LocText SpeakerDetailsButtonDeleteAttribute}"/>
+            <Button Width="100" Content="{lex:LocText SpeakerDetailsButtonAddAttribute}" Click="ButtonAddAttributeClick"/>
+            <Button Width="100" Content="{lex:LocText SpeakerDetailsButtonDeleteAttribute}" Click="ButtonRemoveAttributeClick"/>
         </StackPanel>
     </Grid>
 </UserControl>

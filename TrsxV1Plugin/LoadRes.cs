@@ -96,7 +96,9 @@ namespace TrsxV1Plugin
             for (int i = 0; i < ORTOT.Length; i++)
             {
                 TranscriptionPhrase ph = new TranscriptionPhrase();
-                ph.Text = orto[i] + " ";
+                ph.Text = orto[i].Trim() + " ";
+                if (orto[i].Length == 0) //empty words
+                    ph.Text = ""; 
                 ph.Phonetics = PRON[i];
                 ph.Begin = START[i];
                 ph.End = STOP[i];
@@ -114,7 +116,7 @@ namespace TrsxV1Plugin
             while (phrazes.Count > 0)
             {
                 string tt = phrazes[0].Text.Trim();
-                if (tt.First() == '[' && tt.Last() == ']')//nerecova udalost
+                if (string.IsNullOrWhiteSpace(tt) ||( tt.First() == '[' && tt.Last() == ']'))//nerecova udalost
                 {
                     silence.Add(phrazes[0]);
                     TimeSpan begin;
@@ -205,7 +207,7 @@ namespace TrsxV1Plugin
                         var ph2 = (TranscriptionPhrase)ph.NextSibling();
 
                         string t = ph.Text.Trim();
-                        if (t.StartsWith("[") && t.EndsWith("]"))
+                        if (string.IsNullOrWhiteSpace(t) || (t.StartsWith("[") && t.EndsWith("]")))
                             ph.Parent.Remove(ph);
 
                         ph = ph2;

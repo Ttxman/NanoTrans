@@ -8,7 +8,7 @@
              d:DesignHeight="164" d:DesignWidth="970" SizeChanged="UserControl_SizeChanged" Unloaded="UserControl_Unloaded">
 
     <UserControl.Resources>
-        <ObjectDataProvider x:Key="provider" ObjectInstance="{x:Static my:MySetup.Refresher}"/>
+        <ObjectDataProvider x:Key="provider" ObjectInstance="{x:Static my:GlobalSetup.Refresher}"/>
     </UserControl.Resources>
     
     <Grid SizeChanged="Grid_SizeChanged" Loaded="Grid_Loaded">

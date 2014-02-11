@@ -30,9 +30,9 @@ namespace NanoTrans
         /// <returns>speaker or null when user (or online) database not contain Speaker that can be automatically synchronized</returns>
         internal Speaker SynchronizeSpeaker(Speaker s)
         {
-            if (s.DataBase == DBType.Api)
+            if (s.DataBaseType == DBType.Api)
                 throw new NotImplementedException();//not yet implemented
-            else if (s.DataBase == DBType.User && s.DBID!=null)//some user created it manually
+            else if (s.DataBaseType == DBType.User && s.DBID!=null)//some user created it manually
             {
                 Speaker ls;
                 if(_slist.TryGetValue(s.DBID, out ls))
@@ -40,7 +40,7 @@ namespace NanoTrans
                     return ls;
                 }
             }
-            else if (s.DataBase == DBType.File)//old format or export from some tool
+            else if (s.DataBaseType == DBType.File)//old format or export from some tool
                 return null;
 
 

@@ -159,48 +159,48 @@ namespace NanoTrans
             //nastaveni aplikace
             Stream s = FilePaths.GetConfigFileReadStream();
             if (s != null)
-                MySetup.Setup = MySetup.Setup.Deserializovat(s);
+                GlobalSetup.Setup = GlobalSetup.Setup.Deserializovat(s);
             else
-                MySetup.Setup.Serializovat(s, MySetup.Setup);
+                GlobalSetup.Setup.Serializovat(s, GlobalSetup.Setup);
 
 
 
 
 
             //nastaveni posledni pozice okna
-            if (MySetup.Setup.OknoPozice != null)
+            if (GlobalSetup.Setup.OknoPozice != null)
             {
-                if (MySetup.Setup.OknoPozice.X >= 0 && MySetup.Setup.OknoPozice.Y >= 0)
+                if (GlobalSetup.Setup.OknoPozice.X >= 0 && GlobalSetup.Setup.OknoPozice.Y >= 0)
                 {
                     this.WindowStartupLocation = WindowStartupLocation.Manual;
-                    this.Left = MySetup.Setup.OknoPozice.X;
-                    this.Top = MySetup.Setup.OknoPozice.Y;
+                    this.Left = GlobalSetup.Setup.OknoPozice.X;
+                    this.Top = GlobalSetup.Setup.OknoPozice.Y;
                 }
             }
             //nastaveni posledni velikosti okna
-            if (MySetup.Setup.OknoVelikost != null)
+            if (GlobalSetup.Setup.OknoVelikost != null)
             {
-                if (MySetup.Setup.OknoVelikost.Width >= 50 && MySetup.Setup.OknoVelikost.Height >= 50)
+                if (GlobalSetup.Setup.OknoVelikost.Width >= 50 && GlobalSetup.Setup.OknoVelikost.Height >= 50)
                 {
-                    this.Width = MySetup.Setup.OknoVelikost.Width;
-                    this.Height = MySetup.Setup.OknoVelikost.Height;
+                    this.Width = GlobalSetup.Setup.OknoVelikost.Width;
+                    this.Height = GlobalSetup.Setup.OknoVelikost.Height;
                 }
             }
 
-            this.WindowState = MySetup.Setup.OknoStav;
+            this.WindowState = GlobalSetup.Setup.OknoStav;
 
 
-            ZobrazitOknoFonetickehoPrepisu(MySetup.Setup.ZobrazitFonetickyPrepis - 1 > 0);
+            ZobrazitOknoFonetickehoPrepisu(GlobalSetup.Setup.ZobrazitFonetickyPrepis - 1 > 0);
 
             //databaze mluvcich
             SpeakersDatabase = new AdvancedSpeakerCollection();
 
-            string fname = System.IO.Path.GetFullPath(MySetup.Setup.CestaDatabazeMluvcich);
+            string fname = System.IO.Path.GetFullPath(GlobalSetup.Setup.CestaDatabazeMluvcich);
             if (fname.Contains(FilePaths.ProgramDirectory))
             {
                 if (!FilePaths.WriteToAppData)
                 {
-                    SpeakerCollection.Deserialize(MySetup.Setup.CestaDatabazeMluvcich, SpeakersDatabase);
+                    SpeakerCollection.Deserialize(GlobalSetup.Setup.CestaDatabazeMluvcich, SpeakersDatabase);
                 }
                 else
                 {
@@ -209,17 +209,17 @@ namespace NanoTrans
                     {
                         SpeakerCollection.Deserialize(fname2, SpeakersDatabase);
                     }
-                    else if (File.Exists(MySetup.Setup.CestaDatabazeMluvcich))
+                    else if (File.Exists(GlobalSetup.Setup.CestaDatabazeMluvcich))
                     {
-                        SpeakerCollection.Deserialize(MySetup.Setup.CestaDatabazeMluvcich, SpeakersDatabase);
+                        SpeakerCollection.Deserialize(GlobalSetup.Setup.CestaDatabazeMluvcich, SpeakersDatabase);
                     }
                 }
             }
             else
             {
-                if (File.Exists(MySetup.Setup.CestaDatabazeMluvcich))
+                if (File.Exists(GlobalSetup.Setup.CestaDatabazeMluvcich))
                 {
-                    SpeakerCollection.Deserialize(MySetup.Setup.CestaDatabazeMluvcich, SpeakersDatabase);
+                    SpeakerCollection.Deserialize(GlobalSetup.Setup.CestaDatabazeMluvcich, SpeakersDatabase);
                 }
                 else
                 {
@@ -237,6 +237,7 @@ namespace NanoTrans
 
         private void menuItemVlna1_SetStartToCursor_Click(object sender, RoutedEventArgs e)
         {
+
             TranscriptionElement te = VirtualizingListBox.ActiveElement.ValueElement;
 
             TranscriptionElement pre = te.PreviousSibling();
@@ -781,7 +782,7 @@ namespace NanoTrans
                         return false;
                 }
 
-                if (Transcription.Serialize(savePath, MySetup.Setup.UkladatKompletnihoMluvciho, !MySetup.Setup.SaveInShortFormat))
+                if (Transcription.Serialize(savePath, GlobalSetup.Setup.UkladatKompletnihoMluvciho, !GlobalSetup.Setup.SaveInShortFormat))
                 {
                     this.Title = MyKONST.NAZEV_PROGRAMU + " [" + Transcription.FileName + "]";
                     return true;
@@ -1085,7 +1086,7 @@ namespace NanoTrans
                     MWP.Dispose();
                     MWP = null;
                 }
-                MWP = new MyWavePlayer(MySetup.Setup.audio.OutputDeviceIndex, 4800, WOP_ChciData);
+                MWP = new MyWavePlayer(GlobalSetup.Setup.audio.OutputDeviceIndex, 4800, WOP_ChciData);
                 return true;
             }
             catch
@@ -1151,10 +1152,10 @@ namespace NanoTrans
 
         private void MNastroje_Nastaveni_Click(object sender, RoutedEventArgs e)
         {
-            MySetup.Setup = WinSetup.WinSetupNastavit(MySetup.Setup, SpeakersDatabase);
+            GlobalSetup.Setup = WinSetup.WinSetupNastavit(GlobalSetup.Setup, SpeakersDatabase);
             //pokus o ulozeni konfigurace
-            MySetup.Setup.Serializovat(FilePaths.GetConfigFileWriteStream(), MySetup.Setup);
-            waveform1.SmallJump = TimeSpan.FromSeconds(MySetup.Setup.VlnaMalySkok);
+            GlobalSetup.Setup.Serializovat(FilePaths.GetConfigFileWriteStream(), GlobalSetup.Setup);
+            waveform1.SmallJump = TimeSpan.FromSeconds(GlobalSetup.Setup.WaveformSmallJump);
             InicializaceAudioPrehravace();  //nove nastaveni prehravaciho zarizeni 
         }
 
@@ -1263,7 +1264,7 @@ namespace NanoTrans
                 //ulozeni databaze mluvcich - i externi databaze
                 if (SpeakersDatabase != null)
                 {
-                    string fname = System.IO.Path.GetFullPath(MySetup.Setup.CestaDatabazeMluvcich);
+                    string fname = System.IO.Path.GetFullPath(GlobalSetup.Setup.CestaDatabazeMluvcich);
                     if (fname.StartsWith(FilePaths.ProgramDirectory))//kdyz je to v adresari (program files..)
                     {
                         if (!FilePaths.WriteToAppData) //checkni jestli muzes zapisovat
@@ -1275,7 +1276,7 @@ namespace NanoTrans
                     {
                         try
                         {
-                            SpeakersDatabase.Serialize(MySetup.Setup.CestaDatabazeMluvcich);
+                            SpeakersDatabase.Serialize(GlobalSetup.Setup.CestaDatabazeMluvcich);
                         }
                         catch
                         {
@@ -1289,20 +1290,20 @@ namespace NanoTrans
                 }
 
                 //pokus o ulozeni nastaveni
-                if (MySetup.Setup != null)
+                if (GlobalSetup.Setup != null)
                 {
                     if (this.WindowState == WindowState.Normal)
                     {
                         //nastaveni posledni zname souradnice okna a velikosti okna
-                        MySetup.Setup.OknoPozice = new Point(this.Left, this.Top);
-                        MySetup.Setup.OknoVelikost = new Size(this.Width, this.Height);
+                        GlobalSetup.Setup.OknoPozice = new Point(this.Left, this.Top);
+                        GlobalSetup.Setup.OknoVelikost = new Size(this.Width, this.Height);
                     }
                     if (this.WindowState != WindowState.Minimized)
                     {
-                        MySetup.Setup.OknoStav = this.WindowState;
+                        GlobalSetup.Setup.OknoStav = this.WindowState;
                     }
 
-                    MySetup.Setup.Serializovat(FilePaths.GetConfigFileWriteStream(), MySetup.Setup);
+                    GlobalSetup.Setup.Serializovat(FilePaths.GetConfigFileWriteStream(), GlobalSetup.Setup);
 
                 }
             }
@@ -1633,15 +1634,15 @@ namespace NanoTrans
 
             if (aZobrazit)
             {
-                MySetup.Setup.ZobrazitFonetickyPrepis = Math.Abs(MySetup.Setup.ZobrazitFonetickyPrepis);
+                GlobalSetup.Setup.ZobrazitFonetickyPrepis = Math.Abs(GlobalSetup.Setup.ZobrazitFonetickyPrepis);
 
-                d.RowDefinitions[1].Height = new GridLength(MySetup.Setup.ZobrazitFonetickyPrepis);
+                d.RowDefinitions[1].Height = new GridLength(GlobalSetup.Setup.ZobrazitFonetickyPrepis);
 
                 return true;
             }
             else
             {
-                MySetup.Setup.ZobrazitFonetickyPrepis = -Math.Abs(MySetup.Setup.ZobrazitFonetickyPrepis);
+                GlobalSetup.Setup.ZobrazitFonetickyPrepis = -Math.Abs(GlobalSetup.Setup.ZobrazitFonetickyPrepis);
                 d.RowDefinitions[1].Height = new GridLength(0);
                 return false;
             }
@@ -1745,7 +1746,7 @@ namespace NanoTrans
         private void toolBar1_Loaded(object sender, RoutedEventArgs e)
         {
             int index = 1;
-            foreach (string s in MySetup.Setup.NerecoveUdalosti)
+            foreach (string s in GlobalSetup.Setup.NonSpeechEvents)
             {
                 Button b = new Button();
                 b.Content = s;
@@ -1772,7 +1773,7 @@ namespace NanoTrans
             if (Transcription != null)
             {
                 MemoryStream ms = new MemoryStream();
-                Transcription.Serialize(ms, true, !MySetup.Setup.SaveInShortFormat);
+                Transcription.Serialize(ms, true, !GlobalSetup.Setup.SaveInShortFormat);
                 ms.Close();
                 Back_data.Add(ms.ToArray());
             }
