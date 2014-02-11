@@ -42,10 +42,20 @@ namespace NanoTrans
             get { return m_mydatasource; }
             set
             {
+                if(m_mydatasource!=null)
+                    m_mydatasource.SubtitlesChanged-=m_mydatasource_SubtitlesChanged;
                 m_mydatasource = value;
+                if (m_mydatasource != null)
+                    m_mydatasource.SubtitlesChanged += m_mydatasource_SubtitlesChanged;
+
                 if (PropertyChanged != null)
                     PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs("myDataSource"));
             }
+        }
+
+        void  m_mydatasource_SubtitlesChanged()
+        {
+            waveform1.InvalidateSpeakers();
         }
 
         /// <summary>
@@ -729,80 +739,7 @@ namespace NanoTrans
             }
         }
 
-        /// <summary>
-        /// pokusi se prevest korpus do xml
-        /// </summary>
-        /// <param name="aCestaKorpus"></param>
-        /// <param name="aCestaXML"></param>
-        /// <returns></returns>
-        public bool PrevedKorpus(string aCestaKorpus, ref string aCestaXML)
-        {
-            try
-            {
-                FileInfo fi = new FileInfo(aCestaKorpus);
-                if (fi == null || !fi.Exists || (fi.Extension != ".krp" && fi.Extension != ".txt")) return false;
-                string pCestaXML = MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.CESTA_KORPUS2XML_DIR + "temp.xml";
 
-                //zavolani scriptu v perlu
-                ProcessStartInfo ps = new ProcessStartInfo("perl.exe", "\"" + MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.CESTA_KORPUS2XML + "\" -k \"" + aCestaKorpus + "\"" + " -x " + "\"" + pCestaXML + "\"");
-                ps.UseShellExecute = false;
-                ps.RedirectStandardOutput = true;
-                ps.RedirectStandardError = true;
-                ps.CreateNoWindow = true;
-                Process p = new Process();
-                p.StartInfo = ps;
-                p.Start();
-                string output = p.StandardOutput.ReadToEnd();
-                string error = p.StandardError.ReadToEnd();
-                p.WaitForExit();
-
-                aCestaXML = pCestaXML;
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-
-        /// <summary>
-        /// pokusi se prevest tta na xml, vraci cestu ke xml, v pripade uspechu
-        /// </summary>
-        /// <param name="aCestaTTA"></param>
-        /// <returns></returns>
-        public bool PrevedTTA(string aCestaTTA, ref string aCestaWav, ref string aCestaXML)
-        {
-            try
-            {
-                FileInfo fi = new FileInfo(aCestaTTA);
-                if (fi == null || !fi.Exists || fi.Extension != ".tta") return false;
-                string pCestaWav = MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.CESTA_TTASPLIT_TEMP + "temp.wav";
-                string pCestaXML = MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.CESTA_TTASPLIT_TEMP + "temp.xml";
-                string pCestaTtaSplit = MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.CESTA_TTASPLIT_EXE;
-
-                //zavolani scriptu v perlu
-                ProcessStartInfo ps = new ProcessStartInfo("perl.exe", "\"" + MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.CESTA_TTA2XML + "\"" + " -e \"" + pCestaTtaSplit + "\"" + " -t \"" + aCestaTTA + "\" -w \"" + pCestaWav + "\"" + " -d " + "\"" + MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.CESTA_TTA2XML_DIR + "\"" + " -x " + "\"" + pCestaXML + "\"");
-                ps.UseShellExecute = false;
-                ps.RedirectStandardOutput = true;
-                ps.RedirectStandardError = true;
-                ps.CreateNoWindow = true;
-                Process p = new Process();
-                p.StartInfo = ps;
-                p.Start();
-                string output = p.StandardOutput.ReadToEnd();
-                string error = p.StandardError.ReadToEnd();
-                p.WaitForExit();
-
-                aCestaWav = pCestaWav;
-                aCestaXML = pCestaXML;
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
 
 
         public bool OtevritTitulky(bool pouzitOpenDialog, string jmenoSouboru, bool aDavkovySoubor)
@@ -843,9 +780,8 @@ namespace NanoTrans
                     fileDialog.Filter = "Soubory titulků (*" + MySetup.Setup.PriponaTitulku + ")|*" + MySetup.Setup.PriponaTitulku;
                     if (MyKONST.VERZE == MyEnumVerze.Interni)
                     {
-                        fileDialog.Filter += "|Soubory (*.tta) |*.tta";
                         fileDialog.Filter += "|Soubory (*.trsx) |*.trsx";
-                        fileDialog.Filter = "Podporované typy (*.trsx, *.xml, *.tta)|*.trsx;*.xml;*.tta|" + fileDialog.Filter;
+                        fileDialog.Filter = "Podporované typy (*.trsx, *.xml)|*.trsx;*.xml;|" + fileDialog.Filter;
                     }
                     fileDialog.Filter += "|Všechny soubory (*.*)|*.*";
                     fileDialog.FilterIndex = 1;
@@ -877,30 +813,6 @@ namespace NanoTrans
                             }
                         }
 
-                        bool pNactenoTTA = false;
-                        if (MyKONST.VERZE == MyEnumVerze.Interni)
-                        {
-                            string pCestaXML = null;
-                            string pCestaWAV = null;
-                            if (this.PrevedTTA(fileDialog.FileName, ref pCestaWAV, ref pCestaXML))
-                            {
-                                if (pCestaXML != null) fileDialog.FileName = pCestaXML;
-                                pNactenoTTA = true;
-                                NactiAudio(pCestaWAV);
-                            }
-                        }
-
-                        if (!pNactenoTTA && !aDavkovySoubor)
-                        {
-                            string pCestaXML = null;
-                            if (this.PrevedKorpus(fileDialog.FileName, ref pCestaXML))
-                            {
-                                if (pCestaXML != null)
-                                    fileDialog.FileName = pCestaXML;
-
-                            }
-                        }
-
                         MySubtitlesData pDataSource = null;
                         pDataSource = myDataSource.Deserializovat(fileDialog.FileName);
 
@@ -912,8 +824,6 @@ namespace NanoTrans
                         }
                         else
                         {
-                            if (pNactenoTTA) pDataSource.JmenoSouboru = null;
-
                             myDataSource = pDataSource;
 
 
@@ -934,7 +844,7 @@ namespace NanoTrans
                                     pAudioFile = fi.Directory.FullName + "\\" + myDataSource.audioFileName;
                                 }
                                 FileInfo fi2 = new FileInfo(pAudioFile);
-                                if (fi2.Exists && (!oWav.Nacteno || oWav.CestaSouboru.ToUpper() != pAudioFile.ToUpper()))
+                                if (fi2.Exists)
                                 {
                                     NactiAudio(pAudioFile);
                                 }
@@ -1804,6 +1714,8 @@ namespace NanoTrans
             MyKONST.CESTA_DOCASNYCH_SOUBORU_ZVUKU = temppath + "\\";
 
             NoveTitulky();
+
+            VirtualizingListBox.RequestTimePosition += delegate(out TimeSpan value){value = waveform1.CaretPosition;};
 
         }
 
@@ -2741,6 +2653,7 @@ namespace NanoTrans
             {
                 if (VirtualizingListBox.ActiveTransctiption != list[0])
                     VirtualizingListBox.ActiveTransctiption = list[0];
+               
             }
             _pozicenastav = false;
             VyberTextMeziCasovymiZnackami(e.Value);
@@ -2799,6 +2712,16 @@ namespace NanoTrans
 
             NastavPoziciKurzoru(obj,true, true);
             VyberTextMeziCasovymiZnackami(obj);
+        }
+
+        private void menuNastrojeVideoZobrazit_Click(object sender, RoutedEventArgs e)
+        {
+            gListVideo.ColumnDefinitions[1].Width = GridLength.Auto;
+        }
+
+        private void button4_Click(object sender, RoutedEventArgs e)
+        {
+            VirtualizingListBox.SubtitlesContentChanged();
         }
     }
 }

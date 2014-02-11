@@ -62,6 +62,11 @@ namespace NanoTrans
             }
         }
 
+
+        public delegate void TimespanRequestDelegate(out TimeSpan value); 
+        public event TimespanRequestDelegate RequestTimePosition;
+
+
         public void RecalculateSizes()
         {
             double totalh = 0;
@@ -80,9 +85,9 @@ namespace NanoTrans
                     lm.ValueElement = tr;
                     lm.maingrid.Measure(new Size(gridstack.ActualWidth, double.MaxValue));
                     lm.maingrid.Arrange(new Rect(0, 0, gridstack.ActualWidth, lm.maingrid.DesiredSize.Height));
-                    lm.editor.UpdateLayout();
-                    tr.height = lm.maingrid.ActualHeight;
-                    totalh += lm.maingrid.ActualHeight;
+                    lm.maingrid.UpdateLayout();
+                    tr.height = lm.editor.ActualHeight;
+                    totalh += lm.editor.ActualHeight;
                 }
                 lm.ValueElement = null;
                 Subtitles.TotalHeigth = totalh;
@@ -300,7 +305,8 @@ namespace NanoTrans
 
                             p1.Begin = p.Begin;
                             p1.End = p1.Begin + l1;
-
+                            if (p1.End <= par.Begin)
+                                p1.End = par.Begin + TimeSpan.FromMilliseconds(100); //pojistka kvuli nezarovnanejm textum
                             int idx = i;
                             par.RemoveAt(i);
                             par.Insert(i, p1);
@@ -325,7 +331,22 @@ namespace NanoTrans
                                 par2.Add(ph);
                             }
                             par.EndUpdate();
+
+                            if (Keyboard.Modifiers.HasFlag(ModifierKeys.Control))
+                            { 
+                                
+                                if (RequestTimePosition != null)
+                                {
+                                    TimeSpan pos;
+                                    RequestTimePosition(out pos);
+
+                                    par.End = pos;
+                                    par2.Begin = pos;
+                                }
+                            }
+
                             par.Parent.Insert(par.ParentIndex + 1, par2);
+                            ActiveTransctiption = par2;
                             return;
                         }
                         sum += p.Text.Length;
@@ -342,18 +363,17 @@ namespace NanoTrans
        
         void l_LostFocus(object sender, RoutedEventArgs e)
         {
-            m_activeElement = null;
-            (sender as Element).maingrid.Background = null;
+            //m_activeTranscription = null;
+            //(sender as Element).maingrid.Background = null;
         }
 
         void l_GotFocus(object sender, RoutedEventArgs e)
         {
             
-            m_activeElement = sender as Element;
-            m_activeElement.maingrid.Background = Brushes.Beige;
-            if (m_activeTranscription == m_activeElement.ValueElement)
+            var el = sender as Element;
+            if (m_activeTranscription == el.ValueElement || el == null)
                 return;
-            m_activeTranscription = m_activeElement.ValueElement;
+            ActiveTransctiption = el.ValueElement;
             
             if (SelectedElementChanged != null)
             {
@@ -388,31 +408,32 @@ namespace NanoTrans
             gridscrollbar.Value = value;
         }
 
-        private Element m_activeElement;
         public Element ActiveElement
         {
-            get { return m_activeElement; }
+            get { return GetVisualForTransctiption(m_activeTranscription); }
         }
 
         private TranscriptionElement m_activeTranscription;
+        private int m_activeTranscriptionOffset = -1;
+        private int m_activetransctiptionSelectionLength = -1;
         public TranscriptionElement ActiveTransctiption
         {
             get 
             {
-                if (m_activeElement == null)
-                    return null;
-                else
-                    return m_activeElement.ValueElement;
+                return m_activeTranscription;
             }
 
             set 
             {
-                var elm = SetActiveTranscription(value);
+                var e = ActiveElement;
+                if (e != null)
+                    e.maingrid.Background = null;
                 
-                //virtualni prideleni focusu
-                elm.UserControl_GotFocus(null,null);
-                l_GotFocus(elm, null);
+                m_activeTranscription = value;
+                e = SetActiveTranscription(value);
 
+                if (e != null)
+                    e.maingrid.Background = Brushes.Beige;
             }
         }
 
@@ -433,7 +454,7 @@ namespace NanoTrans
         {
             if (el == null)
                 return null;
-
+            
             
             Element e = GetVisualForTransctiption(el);
             
@@ -442,7 +463,23 @@ namespace NanoTrans
                 TranscriptionElement t = e.ValueElement;
                 double h = e.TransformToAncestor(this).Transform(new Point(0, 0)).Y + e.ValueElement.height;
 
-                if (h  > ActualHeight)
+                if(e.ValueElement.height > ActualHeight)
+                {
+                    double delta = 0;
+                    if (Subtitles != null)
+                    {
+                        foreach (TranscriptionElement tr in Subtitles)
+                        {
+                            if (tr == el)
+                                break;
+                            delta += tr.height;
+                        }
+                    }
+                    gridscrollbar.Value = delta - 30;
+                    UpdateLayout();
+                    e = GetVisualForTransctiption(t);
+                }
+                else if (h  > ActualHeight)
                 {
                     double delta = h - ActualHeight + 10;
                     gridscrollbar.Value += delta;
@@ -474,9 +511,10 @@ namespace NanoTrans
                     totalh += tr.height; 
                 }
             }
+            totalh -= 20;
             gridscrollbar.Value = totalh;
-
-            return gridstack.Children[0] as Element;
+            m_activeTranscriptionOffset = 0;
+            return GetVisualForTransctiption(el);
         }
 
         private Stack<Element> ElementCache = new Stack<Element>();
@@ -519,11 +557,7 @@ namespace NanoTrans
             bool ffound = false;
 
             TranscriptionElement te = ActiveTransctiption;
-            int offset = -1;
-
-            if (ActiveElement != null)
-                offset = ActiveElement.editor.CaretOffset;
-
+            int offset = m_activeTranscriptionOffset;
 
             List<Element> elms = new List<Element>();
             foreach (Element el in gridstack.Children)
@@ -533,7 +567,8 @@ namespace NanoTrans
             foreach (Element el in elms)
                 RecycleElement(el);
 
-            m_activeElement = null;
+
+
             if (Subtitles != null)
             {
                 double move = 0;
@@ -582,14 +617,15 @@ namespace NanoTrans
             }
 
 
-            gridstack.UpdateLayout();
+           // gridstack.UpdateLayout();
             foreach (Element l in gridstack.Children)
             {
                 l.SizeChanged += l_SizeChanged;
-                if (l.ValueElement == te)
+                if (l.ValueElement == ActiveTransctiption)
                 {
                     l.SetCaretOffset(offset);
                     l.HiglightedPostion = HiglightedPostion;
+                    l.maingrid.Background = Brushes.Beige;
                 }
                 else
                 {

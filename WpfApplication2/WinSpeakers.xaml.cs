@@ -192,10 +192,10 @@ namespace NanoTrans
             //ulozi zmeny v mluvcim - v databazi i v datove strukture
 
             MySpeaker pkopieSpeaker = new MySpeaker(bSpeaker);
-            if (pkopieSpeaker != null && pkopieSpeaker.FullName!=null && pkopieSpeaker.FullName!="" && pSpeaker != null)
+            if (bSpeaker!=null && pkopieSpeaker != null && pkopieSpeaker.FullName != null && pkopieSpeaker.FullName != "" && pSpeaker != null)
             {
                 MySpeaker pSp = myDataSource.SeznamMluvcich.NajdiSpeakeraSpeaker(pkopieSpeaker.FullName);
-                if (pSp != null && pSp.ID >= 0)
+                if (pSp != null && pSp.ID != int.MinValue)
                 {
                     if (myDataSource.SeznamMluvcich.UpdatujSpeakera(pkopieSpeaker.FullName, pSpeaker))
                     {

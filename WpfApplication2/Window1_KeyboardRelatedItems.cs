@@ -63,6 +63,14 @@ namespace NanoTrans
         public static RoutedCommand CommandAssignSpeaker = new RoutedCommand();
         public static RoutedCommand CommandExportElement = new RoutedCommand();
 
+        public static RoutedCommand CommandAssignElementStart = new RoutedCommand();
+        public static RoutedCommand CommandAssignElementEnd = new RoutedCommand();
+        public static RoutedCommand CommandAssignElementTimeSelection = new RoutedCommand();
+
+
+
+
+
         public void InitCommands()
         {
             this.CommandBindings.Add(new CommandBinding(CommandFindDialog, CFindDialogExecute));
@@ -94,14 +102,20 @@ namespace NanoTrans
             this.CommandBindings.Add(new CommandBinding(CommandDeleteElement, CDeleteElement));
             this.CommandBindings.Add(new CommandBinding(CommandAssignSpeaker, CAssignSpeaker));
             this.CommandBindings.Add(new CommandBinding(CommandExportElement, CExportElement));
+            this.CommandBindings.Add(new CommandBinding(CommandAssignElementStart, CAssignElementStart));
+            this.CommandBindings.Add(new CommandBinding(CommandAssignElementEnd,CAssignElementEnd));
+            this.CommandBindings.Add(new CommandBinding(CommandAssignElementTimeSelection,CAssignElementTimeSelection));
+
+            CommandAssignElementStart.InputGestures.Add(new KeyGesture(Key.Home,ModifierKeys.Control));
+            CommandAssignElementEnd.InputGestures.Add(new KeyGesture(Key.End, ModifierKeys.Control));
+           // CommandAssignElementTimeSelection.InputGestures.Add(new KeyGesture());
+
             CommandNewSection.InputGestures.Add(new KeyGesture(Key.F5));
             CommandInsertNewSection.InputGestures.Add(new KeyGesture(Key.F5,ModifierKeys.Shift));
             CommandNewChapter.InputGestures.Add(new KeyGesture(Key.F4));
             CommandDeleteElement.InputGestures.Add(new KeyGesture(Key.Delete,ModifierKeys.Shift));
             CommandAssignSpeaker.InputGestures.Add(new KeyGesture(Key.M,ModifierKeys.Control));
             CommandExportElement.InputGestures.Add(new KeyGesture(Key.X, ModifierKeys.Control | ModifierKeys.Shift));
-
-
 
             CommandFindDialog.InputGestures.Add(new KeyGesture(Key.F, ModifierKeys.Control));
             CommandFindDialog.InputGestures.Add(new KeyGesture(Key.F3));
@@ -127,6 +141,24 @@ namespace NanoTrans
             CommandAbout.InputGestures.Add(new KeyGesture(Key.F1, ModifierKeys.Control));
             CommandHelp.InputGestures.Add(new KeyGesture(Key.F1));
 
+        }
+
+        private void CAssignElementStart(object sender, ExecutedRoutedEventArgs e)
+        {
+            VirtualizingListBox.ActiveTransctiption.Begin = waveform1.CaretPosition;
+            waveform1.InvalidateSpeakers();
+        }
+
+        private void CAssignElementEnd(object sender, ExecutedRoutedEventArgs e)
+        {
+            VirtualizingListBox.ActiveTransctiption.End = waveform1.CaretPosition;
+            waveform1.InvalidateSpeakers();
+        }
+        private void CAssignElementTimeSelection(object sender, ExecutedRoutedEventArgs e)
+        {
+            VirtualizingListBox.ActiveTransctiption.Begin = waveform1.SelectionBegin;
+            VirtualizingListBox.ActiveTransctiption.End = waveform1.SelectionEnd;
+            waveform1.InvalidateSpeakers();
         }
 
         #region mainform actions

@@ -56,17 +56,16 @@ namespace NanoTrans
         //obsluha kontextoveho menu image vlny
         private void menuItemVlna1_prirad_zacatek_Click(object sender, RoutedEventArgs e)
         {
-            VirtualizingListBox.ActiveTransctiption.Begin = waveform1.CaretPosition;
+            CommandAssignElementStart.Execute(null, null);
         }
         private void menuItemVlna1_prirad_konec_Click(object sender, RoutedEventArgs e)
         {
-            VirtualizingListBox.ActiveTransctiption.End = waveform1.CaretPosition;
+            CommandAssignElementEnd.Execute(null, null);
         }
 
         private void menuItemVlna1_prirad_vyber_Click(object sender, RoutedEventArgs e)
         {
-            VirtualizingListBox.ActiveTransctiption.Begin = waveform1.SelectionBegin;
-            VirtualizingListBox.ActiveTransctiption.End = waveform1.SelectionEnd;
+            CommandAssignElementTimeSelection.Execute(null, null);
         }
 
         private void menuItemVlna1_prirad_casovou_znacku_Click(object sender, RoutedEventArgs e)

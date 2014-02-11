@@ -89,12 +89,12 @@ namespace NanoTrans
             {
 
 
-                StackTrace st = new StackTrace(true);
-                string trace = "";
-                foreach (var frame in st.GetFrames())
-                {
-                    trace += frame.GetMethod().Name + frame.GetFileLineNumber() + ">";
-                }
+               // StackTrace st = new StackTrace(true);
+               // string trace = "";
+               // foreach (var frame in st.GetFrames())
+               // {
+               //     trace += frame.GetMethod().Name + frame.GetFileLineNumber() + ">";
+               // }
 
 
                // System.Diagnostics.Debug.WriteLine(""+value+":"+trace);
@@ -834,8 +834,10 @@ namespace NanoTrans
         private List<Button> bObelnikyMluvcich = new List<Button>();
         private void iInvalidateSpeakers()
         {
-            MySubtitlesData aDokument = m_subtitlesData;
-            MyVlna aZobrazenaVlna = oVlna;
+            try
+            {
+                MySubtitlesData aDokument = m_subtitlesData;
+                MyVlna aZobrazenaVlna = oVlna;
 
                 if (aDokument == null) return;
                 if (aZobrazenaVlna == null) return;
@@ -857,7 +859,11 @@ namespace NanoTrans
                             MyParagraph pParagraph = pSection.Paragraphs[k];
                             long pBegin = (long)pParagraph.Begin.TotalMilliseconds;
                             long pEnd = (long)pParagraph.End.TotalMilliseconds;
-                            if (pBegin >= 0 && pEnd != pBegin && pEnd >= 0)
+
+                            if (pEnd < pBegin)
+                                pEnd = pBegin;
+
+                            if (pBegin >= 0 && pEnd != pBegin && pEnd >= 0 && pParagraph.End >= TimeSpan.Zero)
                             {
                                 if ((pBegin < aZobrazenaVlna.mSekundyVlnyZac && pEnd < aZobrazenaVlna.mSekundyVlnyZac) || (pBegin > aZobrazenaVlna.mSekundyVlnyKon))
                                 {
@@ -877,7 +883,7 @@ namespace NanoTrans
 
 
                                     pMluvci.PreviewMouseMove += new MouseEventHandler(pMluvci_MouseMove);
-                                    pMluvci.PreviewMouseLeftButtonUp+=new MouseButtonEventHandler(pMluvci_PreviewMouseLeftButtonUp);
+                                    pMluvci.PreviewMouseLeftButtonUp += new MouseButtonEventHandler(pMluvci_PreviewMouseLeftButtonUp);
                                     pMluvci.PreviewMouseLeftButtonDown += new MouseButtonEventHandler(pMluvci_PreviewMouseLeftButtonDown);
 
                                     pMluvci.VerticalAlignment = VerticalAlignment.Top;
@@ -953,6 +959,7 @@ namespace NanoTrans
                         }
                     }
                 }
+
                 MyParagraph pPredchozi = null;
                 MyParagraph pNasledujici = null;
                 for (int i = 0; i < this.bObelnikyMluvcich.Count; i++)
@@ -977,7 +984,8 @@ namespace NanoTrans
                 }
 
 
-                return;
+            }
+            catch { }
         }
 
         void pMluvci_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)

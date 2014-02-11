@@ -71,6 +71,10 @@
                     <Separator/>
                     <MenuItem Header="Automatický fonetický přepis" InputGestureText="F10" Click="menuItemNastrojeFonetickyPrepis_Click" Name="menuNastrojeFonetikaFonetika" />
                 </MenuItem>
+                
+                <MenuItem Header="Video" Name="menuNastrojeVideo">
+                    <MenuItem Header="Zobrazit Video" Name="menuNastrojeVideoZobrazit" Click="menuNastrojeVideoZobrazit_Click" />
+                </MenuItem>
                 <MenuItem Header="Allignment" InputGestureText="" Click="menuItemNastrojeAllignment_Click"/>
                 
                 <Separator/>
@@ -310,6 +314,7 @@
                         ParagraphDoubleClick="waveform1_ParagraphDoubleClick" CarretPostionChanged="waveform1_CarretPostionChanged" 
                         ElementChanged="waveform1_ElementChanged" SelectionChanged="waveform1_SelectionChanged"
                         Subtitles="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:Window1}},Path=myDataSource}" />
+        <Button Content="Obnovit zobrazení" Foreground="Black" Height="23" HorizontalAlignment="Right" Margin="0,26,89,0" Name="button4" VerticalAlignment="Top" Width="80" Click="button4_Click" />
     </Grid>
     
     

@@ -34,6 +34,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NDepend) = preSolution
-		Project = ".\NanoTrans.ndproj"
+		Project = ""
 	EndGlobalSection
 EndGlobal

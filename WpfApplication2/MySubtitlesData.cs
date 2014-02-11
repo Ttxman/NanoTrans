@@ -106,7 +106,23 @@ namespace NanoTrans
         protected TimeSpan m_begin = new TimeSpan(-1);
         public TimeSpan Begin
         {
-            get { return m_begin; }
+            get 
+            {
+                if (m_begin == new TimeSpan(-1))
+                {
+                    TranscriptionElement elm = this.Previous();
+                    while (elm != null && elm.m_end == new TimeSpan(-1))
+                    {
+                        elm = elm.Previous();
+                    }
+                    if (elm != null)
+                        return elm.End;
+                    else
+                        return TimeSpan.Zero;
+                }
+
+                return m_begin;
+            }
             set 
             { 
                 m_begin = value;
@@ -117,7 +133,21 @@ namespace NanoTrans
         protected TimeSpan m_end = new TimeSpan(-1);
         public TimeSpan End
         {
-            get { return m_end; }
+            get 
+            {
+                if (m_end == new TimeSpan(-1))
+                {
+                    TranscriptionElement elm = this.Next();
+                    while (elm != null && elm.m_begin == new TimeSpan(-1))
+                    {
+                        elm = elm.Next();
+                    }
+                    if (elm != null)
+                        return elm.Begin;
+                }
+                
+                return m_end; 
+            }
             set 
             { 
                 m_end = value;
@@ -1109,7 +1139,7 @@ namespace NanoTrans
             List<MyParagraph> toret = new List<MyParagraph>();
             foreach (var el in this)
             {
-                if (el.IsParagraph && el.Begin <= cas && el.End >= cas)
+                if (el.IsParagraph && el.Begin <= cas && el.End > cas)
                 {
                     toret.Add((MyParagraph)el);
                 }
