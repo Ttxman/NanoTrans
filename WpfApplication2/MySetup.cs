@@ -235,7 +235,12 @@ namespace NanoTrans
                 m_setup = value;
                 m_refresher.Setup = value;
             }
-            get { return m_setup; }
+            get 
+            {
+                if (m_setup == null)
+                    m_setup = new MySetup();
+                return m_setup; 
+            }
         }
 
 
@@ -249,34 +254,6 @@ namespace NanoTrans
             }
         }
 
-
-        /// <summary>
-        /// absolutni cesta k exe programu po spusteni
-        /// </summary>
-        [XmlIgnore]
-        public string absolutniCestaEXEprogramu
-        {
-            get
-            {
-                string loc = System.Reflection.Assembly.GetEntryAssembly().Location;
-                loc = Path.GetDirectoryName(loc);
-                return loc;
-            }
-
-        }
-        /// <summary>
-        /// Vraci absolutni cestu adresare s rozpoznavacem - pouze GET property
-        /// </summary>
-        [XmlIgnore]
-        public string AbsolutniAdresarRozpoznavace
-        {
-            get
-            {
-                //return "";
-                if (absolutniCestaEXEprogramu == null || rozpoznavac.RelativniCestaRozpoznavace == null) return null;
-                return absolutniCestaEXEprogramu + rozpoznavac.RelativniCestaRozpoznavace;
-            }
-        }
 
 
         Brush m_BarvaTextBoxuOdstavce;
@@ -341,7 +318,7 @@ namespace NanoTrans
             get
             {
                 if (!Path.IsPathRooted(m_CestaDatabazeMluvcich))
-                    return Path.Combine(absolutniCestaEXEprogramu + "/" + m_CestaDatabazeMluvcich);
+                    return Path.Combine(FilePaths.ProgramDirectory,m_CestaDatabazeMluvcich);
                 else
                     return m_CestaDatabazeMluvcich;
             }
@@ -355,9 +332,6 @@ namespace NanoTrans
         /// info zda je k prepisu ukladan komplet mluvci vcetne obrazku
         /// </summary>
         public bool UkladatKompletnihoMluvciho { get; set; }
-
-        public MySetupFonetickyPrepis fonetickyPrepis;
-        public MySetupRozpoznavac rozpoznavac;
 
 
         public MySpeaker diktatMluvci;
@@ -428,24 +402,6 @@ namespace NanoTrans
             audio.VystupniZarizeniIndex = 0;
             audio.VstupniZarizeniIndex = 0;
 
-            fonetickyPrepis.Jazyk = "";
-            fonetickyPrepis.Pohlavi = "";
-            fonetickyPrepis.PrehratAutomatickyRozpoznanyOdstavec = false;
-
-            rozpoznavac.RelativniCestaRozpoznavace = "/Nanocore";
-            rozpoznavac.Mluvci = "amodels/male.amd";
-            rozpoznavac.JazykovyModel = "lmodels/spoken_20081128-20081130_153158-shd3-ubm.bin";
-            rozpoznavac.PrepisovaciPravidla = "drules/spoken_20081128.ppp";
-            rozpoznavac.DelkaInternihoBufferuPrepisovace = 6000;
-            rozpoznavac.LicencniServer = "quadira.ite.tul.cz";
-            rozpoznavac.LicencniSoubor = "martin.cickan@tul.cz";
-            rozpoznavac.KvalitaRozpoznavaniOvladani = 110;
-            rozpoznavac.KvalitaRozpoznavaniDiktat = 110;
-
-            rozpoznavac.MluvciRelativniAdresar = "amodels";
-            rozpoznavac.JazykovyModelRelativniAdresar = "lmodels";
-            rozpoznavac.PrepisovaciPravidlaRelativniAdresar = "drules";
-
             diktatMluvci = new MySpeaker();
             hlasoveOvladaniMluvci = new MySpeaker();
 
@@ -473,8 +429,7 @@ namespace NanoTrans
 
         public MySetup()
         {
-            fonetickyPrepis = new MySetupFonetickyPrepis();
-            rozpoznavac = new MySetupRozpoznavac();
+
             NastavDefaultHodnoty();
             PriponaTitulku = ".trsx";
             PriponaDatabazeMluvcich = ".xml";
@@ -486,23 +441,21 @@ namespace NanoTrans
             BarvaTextBoxuFonetickyZakazany = Brushes.LightGray;
         }
 
-        public MySetup(string aAbsolutniCestaEXEprogramu)
+
+        /// <summary>
+        /// Serializuje tuto tridu a ulozi data do xml souboru
+        /// </summary>
+        /// <param name="jmenoSouboru"></param>
+        /// <param name="co"></param>
+        /// <returns></returns>
+        public bool Serializovat(string filename, MySetup co)
         {
-            if (aAbsolutniCestaEXEprogramu == null) aAbsolutniCestaEXEprogramu = "";
-            fonetickyPrepis = new MySetupFonetickyPrepis();
-            rozpoznavac = new MySetupRozpoznavac();
+            if (!File.Exists(filename))
+                Directory.CreateDirectory(Path.GetDirectoryName(filename));
 
-            NastavDefaultHodnoty();
-            //rozpoznavac.AbsolutniCestaRozpoznavace = this.AbsolutniCestaEXEprogramu + rozpoznavac.RelativniCestaRozpoznavace;
-
-            PriponaTitulku = ".trsx";
-            PriponaDatabazeMluvcich = ".xml";
-
-
-            BarvaTextBoxuOdstavce = Brushes.AliceBlue;
-            BarvaTextBoxuOdstavceAktualni = Brushes.AntiqueWhite;
-            BarvaTextBoxuFoneticky = Brushes.AliceBlue;
-            BarvaTextBoxuFonetickyZakazany = Brushes.LightGray;
+            using (var s = File.Open(filename, FileMode.Create, FileAccess.ReadWrite))
+                return Serializovat(s, co);
+            
         }
 
         /// <summary>
@@ -511,15 +464,14 @@ namespace NanoTrans
         /// <param name="jmenoSouboru"></param>
         /// <param name="co"></param>
         /// <returns></returns>
-        public bool Serializovat(String jmenoSouboru, MySetup co)
+        public bool Serializovat(Stream filestream, MySetup co)
         {
             try
             {
-                if (!File.Exists(jmenoSouboru))
-                    Directory.CreateDirectory(Path.GetDirectoryName(jmenoSouboru));
+                
 
                 XmlSerializer serializer = new XmlSerializer(typeof(MySetup));
-                TextWriter writer = new StreamWriter(jmenoSouboru);
+                TextWriter writer = new StreamWriter(filestream);
                 //XmlTextWriter writer = new XmlTextWriter(jmenoSouboru, Encoding.UTF8);
 
                 serializer.Serialize(writer, co);
@@ -534,16 +486,25 @@ namespace NanoTrans
 
         }
 
-        //Deserializuje soubor             
+
         public MySetup Deserializovat(String jmenoSouboru)
+        { 
+            if (!File.Exists(jmenoSouboru))
+                return this;
+            using (var s = File.Open(jmenoSouboru,FileMode.Open,FileAccess.Read))
+                return Deserializovat(s);
+        }
+
+        //Deserializuje soubor             
+        public MySetup Deserializovat(Stream filestream)
         {
             try
             {
-                if (!new FileInfo(jmenoSouboru).Exists) return this;
+                
                 XmlSerializer serializer = new XmlSerializer(typeof(MySetup));
                 MySetup md;
 
-                XmlTextReader xreader = new XmlTextReader(jmenoSouboru);
+                XmlTextReader xreader = new XmlTextReader(filestream);
                 md = (MySetup)serializer.Deserialize(xreader);
                 xreader.Close();
                 if (md == null) return this;

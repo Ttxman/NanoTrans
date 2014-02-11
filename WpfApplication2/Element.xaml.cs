@@ -1000,44 +1000,17 @@ namespace NanoTrans
                 spell = null;
             }
         }
+
         public static bool LoadVocabulary()
         {
-            MySetup.Setup = new MySetup(new FileInfo(Application.ResourceAssembly.Location).DirectoryName);
-            if (MySetup.Setup != null)
+            string faff = FilePaths.GetReadPath(@"\data\cs_CZ.aff");
+            string fdic = FilePaths.GetReadPath(@"\data\cs_CZ.dic");
+            if (File.Exists(faff) && File.Exists(fdic))
             {
-                if (Window1.CheckWritePermissions(System.IO.Path.GetFullPath(MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.KONFIGURACNI_SOUBOR)))
-                {
-                    string faff = MySetup.Setup.absolutniCestaEXEprogramu + @"\data\cs_CZ.aff";
-                    string fdic = MySetup.Setup.absolutniCestaEXEprogramu + @"\data\cs_CZ.dic";
-                    if (File.Exists(faff) && File.Exists(fdic))
-                    {
-                        spell = new NHunspell.Hunspell(faff, fdic);
-                        return true;
-                    }
-                }
-                else
-                {
-                    string faff = System.IO.Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\NanoTrans\data\cs_CZ.aff");
-                    string fdic = System.IO.Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\NanoTrans\data\cs_CZ.dic");
-
-                    if (File.Exists(faff) && File.Exists(fdic)) // nova verze :)
-                    {
-                        spell = new NHunspell.Hunspell(faff, fdic);
-                        return true;
-                    }
-                    else
-                    {
-                        faff = MySetup.Setup.absolutniCestaEXEprogramu + @"\data\cs_CZ.aff";
-                        fdic = MySetup.Setup.absolutniCestaEXEprogramu + @"\data\cs_CZ.dic";
-                        if (File.Exists(faff) && File.Exists(fdic))
-                        {
-                            spell = new NHunspell.Hunspell(faff, fdic);
-                            return true;
-                        }
-                    }
-                }
-
+                spell = new NHunspell.Hunspell(faff, fdic);
+                return true;
             }
+
             return false;
         }
 

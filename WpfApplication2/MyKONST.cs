@@ -33,82 +33,19 @@ namespace NanoTrans
 
         public static MyEnumVerze VERZE = MyEnumVerze.Interni;
                 
-
-        public static string CESTA_SLOVNIK_SPELLCHECK = "/Data/Vocabulary.txt";
-        public static string KONFIGURACNI_SOUBOR = "/Data/config.xml";
-        /// <summary>
-        /// konstanta k defaultnimu souboru s ruchy - relativni cesta
-        /// </summary>
-        public const string CESTA_RUCHOVY_SOUBOR = "/Data/ruchy.xml";
-        public const string CESTA_MAKRA_SOUBOR = "/Data/makra.xml";
-
         
         public static int ID_ZOBRAZOVACIHO_BUFFERU_VLNY = 0;
         public static int ID_BUFFERU_PREPISOVANEHO_ELEMENTU = 1;
         public static int ID_BUFFERU_PREPISOVANEHO_ELEMENTU_FONETICKY_PREPIS = 2;
 
         public static long DELKA_DOCASNEHO_SOUBORU_ZVUKU_MS = 60000;
-        public static string CESTA_DOCASNYCH_SOUBORU_ZVUKU = "/Prevod/Temp/"; 
-        public static string CESTA_FFMPEG = "/Prevod/ffmpeg.exe"; 
 
-        
-        //prepis pomoci HTK
-        /// <summary>
-        /// kam ukladat wav soubory a ostatni docasne soubory
-        /// </summary>
-        public const string CESTA_FONETIKA_TEMP = "/Prevod/Fonetika/Temp/";
-        public const string CESTA_FONETIKA = "/Prevod/Fonetika/";
-        public const string CESTA_FONETIKA_PERL_SCRIPT = CESTA_FONETIKA + "TextToPhonetic4.pl";
-
-        /// <summary>
-        /// cesta kam ukladat docasny wav - jmeno souboru
-        /// </summary>
-        public const string CESTA_FONETIKA_DOCASNY_WAV = CESTA_FONETIKA_TEMP + "test.wav";
-        
-        //pouze interni verze
-        /// <summary>
-        /// cesta ke scriptu pro tta2xml prevod, pouze pro interni verzi
-        /// </summary>
-        public const string CESTA_TTA2XML = "/Prevod/tta/tta2xml.pl";
-        public const string CESTA_TTA2XML_DIR = "/Prevod/tta/";
-        public const string CESTA_TTASPLIT_EXE = "/Prevod/tta/ttasplit.exe";
-        /// <summary>
-        /// 
-        /// </summary>
-        public const string CESTA_TTASPLIT_TEMP = "/Prevod/tta/Temp/";
-
-        public const string CESTA_KORPUS2XML = "/Prevod//korpus//korpus2xml.pl";
-        public const string CESTA_KORPUS2XML_DIR = "/Prevod/korpus/";
-        
-
-        public const string CESTA_SLOVNIK_FONETIKA_UZIVATELSKY = CESTA_FONETIKA + "/lexuser.voc";
-        public const string CESTA_SLOVNIK_FONETIKA_ZAKLADNI = CESTA_FONETIKA + "/lex.voc";
-        
         public static string TEXT_VYCHOZI_NASTAVENI_ROZPOZNAVACE = "[Výchozí nastavení rozpoznávače]";
 
-        public static long DELKA_POSILANYCH_DAT_PRI_OFFLINE_ROZPOZNAVANI_MS = 2000;
-        /// <summary>
-        /// jak moc je nahrano dat pri hlasovem ovladani programu... jinak uz neni nic nahravano, dokud neni buffer vyprazdnen
-        /// </summary>
-        public static long DELKA_MAXIMALNIHO_ZPOZDENI_PRI_ONLINE_ROZPOZNAVANI_MS = 10000;
-        /// <summary>
-        /// opetovne nahravani
-        /// </summary>
-        public static long DELKA_MAXIMALNIHO_ZPOZDENI_PRI_ONLINE_ROZPOZNAVANI_DELTA_MS = 2000;
-
-        /// <summary>
-        /// jak casto je volan rozpoznavac pro zobrazeni vysledku
-        /// </summary>
-        public static long PERIODA_TIMERU_ROZPOZNAVACE_MS = 500;
         /// <summary>
         /// jak casto je volano prekreslovani kurzoru
         /// </summary>
         public static int PERIODA_TIMERU_VLNY_MS = 20;
-
-        /// <summary>
-        /// rozliseni v pixelech za s pro zobrazeni vlny
-        /// </summary>
-        public static int ROZLISENI_ZOBRAZENI_VLNY_S = 160;
 
         /// <summary>
         /// vychozi delka bufferu pro prehravani audio a presne kresleni vlny
@@ -122,72 +59,6 @@ namespace NanoTrans
         public static short ROZPOZNAVAC_0_OFFLINE_ROZPOZNAVANI = 0;
         public static short ROZPOZNAVAC_1_DIKTAT = 1;
         public static short ROZPOZNAVAC_2_HLASOVE_OVLADANI = 2;
-
-        
-        
-
-
-        //vraci index od kterym se novy string lisi od stareho
-        [Obsolete]
-        public static int VratIndexZmenyStringu(string aOriginal, string aUpraveny, int aAktualniIndexKurzoru)
-        {
-            if (aOriginal == null || aUpraveny == null) return -1;
-            if (aOriginal.Length > 0 && aUpraveny.Length == 0) return 0;
-
-            for (int i = 0; i < aOriginal.Length; i++)
-            {
-                if (i >= aUpraveny.Length) return i;    //string je stejny,ale novy je kratsi
-                if ((aOriginal[i] != aUpraveny[i])||(aAktualniIndexKurzoru<i))
-                {
-                    if (aAktualniIndexKurzoru<i && i != aAktualniIndexKurzoru)
-                    {
-                        //return aAktualniIndexKurzoru;
-                    }
-                    return i; //stringy se lisi v nejake pozici
-                }
-            }
-            if (aOriginal.Length < aUpraveny.Length) return aOriginal.Length;   //novy string je delsi a lisi se v nove casti
-
-
-            return -1;
-        }
-
-
-        public static void ZobrazToolTip(string aText, System.Windows.Point aBod, int aZpozdeniMS)
-        {
-
-            System.Windows.Controls.ToolTip toolTip = new System.Windows.Controls.ToolTip();
-
-            toolTip.Content = aText;
-            toolTip.PlacementRectangle = new System.Windows.Rect(aBod, new System.Windows.Size(50, 20));
-
-            //toolTip.PlacementTarget = (Button)sender;
-
-            toolTip.Placement = System.Windows.Controls.Primitives.PlacementMode.AbsolutePoint;
-
-            //((Button)sender).ToolTip = toolTip;
-
-            toolTip.IsOpen = true;
-
-            System.Windows.Threading.DispatcherTimer timer = new System.Windows.Threading.DispatcherTimer { Interval = new TimeSpan(0, 0, 0, 0, aZpozdeniMS), IsEnabled = true };
-
-            timer.Tick += new EventHandler(delegate(object timerSender, EventArgs timerArgs)
-            {
-
-                if (toolTip != null)
-                {
-
-                    toolTip.IsOpen = false;
-
-                }
-
-                toolTip = null;
-
-                timer = null;
-
-            });
-
-        }
 
 
 

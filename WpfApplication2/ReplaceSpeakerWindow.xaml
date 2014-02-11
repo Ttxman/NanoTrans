@@ -1,0 +1,17 @@
+﻿<Window x:Class="NanoTrans.ReplaceSpeakerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="ReplaceSpeakerWindow" ResizeMode="NoResize" SizeToContent="WidthAndHeight">
+    <Grid>
+        <StackPanel Name="designstack">
+            <Label>Nahrazovaný mluvčí:</Label>
+            <ComboBox Height="23" HorizontalAlignment="Left"  Name="comboboxReplaced" VerticalAlignment="Top" Width="300" />
+            <Label>Výsledný mluvčí</Label>
+            <ComboBox Height="23" HorizontalAlignment="Left"  Name="comboBoxReplacer" VerticalAlignment="Top" Width="300" />
+            <StackPanel Orientation="Horizontal">
+                <Button Name="buttonOK" Click="buttonOK_Click" Width="50" Margin="0,0,10,0">Ok</Button>
+                <Button Name="buttonCancel" Click="buttonCancel_Click" Width="50">Cancel</Button>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Window>

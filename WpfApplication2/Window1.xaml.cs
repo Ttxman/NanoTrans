@@ -79,21 +79,14 @@ namespace NanoTrans
         private MyPrepisovac oPrepisovac = null;
 
 
-        /// <summary>
-        /// trida starajici se o foneticke prepisy
-        /// </summary>
-        private MyFonetic bFonetika = null;
-
-        /// <summary>
-        /// info zda je nacitan audio soubor kvuli davce
-        /// </summary>
-
         bool jeVideo = false;
 
-        bool prehratVyber = false;  //prehrava jen vybranou prepsanou sekci, pokud je specifikovan zacatek a konec
         /// <summary>
         /// po vybrani elementu pokracuje v prehravani
         /// </summary>
+        bool prehratVyber = false;  //prehrava jen vybranou prepsanou sekci, pokud je specifikovan zacatek a konec
+      
+
 
 
         short pocetTikuTimeru = 0;    //pomocna pro deleni tiku timeru
@@ -173,30 +166,19 @@ namespace NanoTrans
 
                 btNormalizovat.Content = "Normalization (F9)";
                 btOdstranitNefonemy.Content = "Delete Nonphonemes (F11)";
-                chbPrehravatRozpoznane.Content = "Play after recognition";
-                button1.Content = "Phonetic recognition (F10)";
-                lPohlavi.Content = "Sex:";
-                lJazyk.Content = "Language:";
+
+
                 lPocatek.Content = "Beg.";
                 lKonec.Content = "End:";
                 btPriraditVyber.Content = "Assign selection to element";
 
-                btAutomaticky.Content = "Automatic";
-                btNacistAdresar.Content = "Select folder";
-                chbAutomatickyRozpoznat.Content = "Recognize after loading";
 
                 tiInfo.Header = "Document info";
-                tiDavka.Header = "Batch processing";
-                tiPrepis.Header = "Voice recognition";
+
 
                 lDatum.Content = "Date and time:";
                 lZdroj.Content = "Source:";
                 lTyp.Content = "Type:";
-
-                btAutomatickeRozpoznani.Content = "Aut. audio recognition";
-                btDiktat.Content = "Dictate";
-                btHlasoveOvladani.Content = "Voice control";
-                lZbyvajiciData.Content = "Data to recognition (Delay)";
 
 
                 //menu
@@ -276,33 +258,17 @@ namespace NanoTrans
                     menu1.Items.RemoveAt(3);
 
                 }
-                string fname;
-                //nastaveni aplikace
-                MySetup.Setup = new MySetup(new FileInfo(Application.ResourceAssembly.Location).DirectoryName);
-                if (MySetup.Setup != null)
-                {
-                    fname = System.IO.Path.GetFullPath(MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.KONFIGURACNI_SOUBOR);
-                    if (CheckWritePermissions(fname))
-                    {
-                        if (File.Exists(fname))
-                            MySetup.Setup = MySetup.Setup.Deserializovat(fname);
-                        MySetup.Setup.Serializovat(fname, MySetup.Setup);
-                    }
-                    else
-                    {
-                        string fname2 = System.IO.Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\NanoTrans" + MyKONST.KONFIGURACNI_SOUBOR);
-                        if (File.Exists(fname2))
-                        {
-                            MySetup.Setup = MySetup.Setup.Deserializovat(fname2);
-                        }
-                        else
-                        {
-                            MySetup.Setup = MySetup.Setup.Deserializovat(fname);
-                            MySetup.Setup.Serializovat(fname2, MySetup.Setup);
-                        }
-                    }
 
-                }
+
+                //nastaveni aplikace
+                Stream s = FilePaths.GetConfigFileReadStream();
+                if (s != null)
+                    MySetup.Setup = MySetup.Setup.Deserializovat(s);
+                else
+                    MySetup.Setup.Serializovat(s, MySetup.Setup);
+
+
+                
 
 
                 //nastaveni posledni pozice okna
@@ -333,16 +299,16 @@ namespace NanoTrans
                 //databaze mluvcich
                 myDatabazeMluvcich = new MySpeakers();
 
-                fname = System.IO.Path.GetFullPath(MySetup.Setup.CestaDatabazeMluvcich);
-                if (fname.Contains(MySetup.Setup.absolutniCestaEXEprogramu))
+                string fname = System.IO.Path.GetFullPath(MySetup.Setup.CestaDatabazeMluvcich);
+                if (fname.Contains(FilePaths.ProgramDirectory))
                 {
-                    if (CheckWritePermissions(fname))
+                    if (!FilePaths.WriteToAppData)
                     {
                         myDatabazeMluvcich = myDatabazeMluvcich.Deserializovat(MySetup.Setup.CestaDatabazeMluvcich);
                     }
                     else
                     {
-                        string fname2 = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\NanoTrans" + fname.Substring(MySetup.Setup.absolutniCestaEXEprogramu.Length);
+                        string fname2 = System.IO.Path.Combine(FilePaths.AppDataDirectory, fname.Substring(FilePaths.ProgramDirectory.Length));
                         if (File.Exists(fname2))
                         {
                             myDatabazeMluvcich = myDatabazeMluvcich.Deserializovat(fname2);
@@ -425,9 +391,6 @@ namespace NanoTrans
                 ContextMenuVlnaImage.Items.Add(menuItemVlna2);
                 ContextMenuVlnaImage.Items.Add(new Separator());
                 ContextMenuVlnaImage.Items.Add(menuItemVlna3);
-                //ContextMenuVlnaImage.Items.Add(menuItemVlna5);
-                //ContextMenuVlnaImage.Items.Add(new Separator());
-                //ContextMenuVlnaImage.Items.Add(menuItemVlna4);
 
                 waveform1.ContextMenu = ContextMenuVlnaImage;
 
@@ -451,7 +414,7 @@ namespace NanoTrans
             try
             {
                 //oWav = new MyWav(new ExampleCallback(ResultCallback), new BufferCallback(ResultCallbackBuffer), 1000000);
-                oWav = new MyWav(MySetup.Setup.absolutniCestaEXEprogramu);
+                oWav = new MyWav();
                 oWav.HaveData += oWav_HaveData;
                 oWav.HaveFileNumber += oWav_HaveFileNumber;
                 oWav.TemporaryWavesDone += new EventHandler(oWav_TemporaryWavesDone);
@@ -566,14 +529,6 @@ namespace NanoTrans
         /// automaticke nacteni 1 polozky
         /// </summary>
         bool pAutomaticky = false;
-        /// <summary>
-        /// automaticke nacteni vsech polozek
-        /// </summary>
-        bool pAutomaticky2 = false;
-        /// <summary>
-        /// index pri automatickem nacitani
-        /// </summary>
-        int pAutomatickyIndex = -1;
 
 
         /// <summary>
@@ -1032,11 +987,12 @@ namespace NanoTrans
         }
 
 
-        public bool UlozitTitulky(bool pouzitSaveDialog, string jmenoSouboru)
+        public bool UlozitTitulky(bool useSaveDialog, string jmenoSouboru)
         {
             try
             {
-                if (pouzitSaveDialog)
+                string savePath = myDataSource.JmenoSouboru;
+                if (useSaveDialog)
                 {
                     Microsoft.Win32.SaveFileDialog fileDialog = new Microsoft.Win32.SaveFileDialog();
 
@@ -1047,38 +1003,18 @@ namespace NanoTrans
                     fileDialog.RestoreDirectory = true;
                     if (fileDialog.ShowDialog() == true)
                     {
-                        if (myDataSource.Serializovat(fileDialog.FileName, myDataSource, MySetup.Setup.UkladatKompletnihoMluvciho))
-                        {
-                            this.Title = MyKONST.NAZEV_PROGRAMU + " [" + myDataSource.JmenoSouboru + "]";
-                            return true;
-                        }
-                        else return false;
+                        savePath = fileDialog.FileName;
                     }
-                    else return false;
+                    else
+                        return false;
+                }
 
-                }
-                else
+                if (myDataSource.Serializovat(savePath, myDataSource, MySetup.Setup.UkladatKompletnihoMluvciho))
                 {
-                    bool pStav = myDataSource.Serializovat(jmenoSouboru, myDataSource, MySetup.Setup.UkladatKompletnihoMluvciho);
-                    if (pStav && lbDavkoveNacteni.Items.Count > 0)
-                    {
-                        if (myDataSource.JmenoSouboru.ToLower().Contains("_phonetic"))
-                        {
-                            for (int i = 0; i < lbDavkoveNacteni.Items.Count; i++)
-                            {
-                                string pPol = (lbDavkoveNacteni.Items[i] as CheckBox).Content.ToString().ToLower();
-                                FileInfo fi = new FileInfo(myDataSource.JmenoSouboru);
-                                string pHledane = fi.Name.ToLower().Replace("_phonetic.xml", "");
-                                if (pPol.Contains(pHledane))
-                                {
-                                    (lbDavkoveNacteni.Items[i] as CheckBox).IsChecked = true;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    return pStav;
+                    this.Title = MyKONST.NAZEV_PROGRAMU + " [" + myDataSource.JmenoSouboru + "]";
+                    return true;
                 }
+                return false;
             }
             catch (Exception ex)
             {
@@ -1476,7 +1412,7 @@ namespace NanoTrans
         {
             MySetup.Setup = WinSetup.WinSetupNastavit(MySetup.Setup, myDatabazeMluvcich);
             //pokus o ulozeni konfigurace
-            MySetup.Setup.Serializovat(MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.KONFIGURACNI_SOUBOR, MySetup.Setup);
+            MySetup.Setup.Serializovat(FilePaths.GetConfigFileWriteStream(), MySetup.Setup);
             waveform1.SmallJump = TimeSpan.FromSeconds(MySetup.Setup.VlnaMalySkok);
             InicializaceAudioPrehravace();  //nove nastaveni prehravaciho zarizeni 
         }
@@ -1590,18 +1526,13 @@ namespace NanoTrans
                 //ulozeni databaze mluvcich - i externi databaze
                 if (myDatabazeMluvcich != null)
                 {
-                    string dirname = MySetup.Setup.absolutniCestaEXEprogramu;
                     string fname = System.IO.Path.GetFullPath(MySetup.Setup.CestaDatabazeMluvcich);
-                    if (fname.StartsWith(dirname))//kdyz je to v adresari (program files..)
+                    if (fname.StartsWith(FilePaths.ProgramDirectory))//kdyz je to v adresari (program files..)
                     {
-                        if (CheckWritePermissions(fname)) //checkni jestli muzes zapisovat
-                        {
+                        if (!FilePaths.WriteToAppData) //checkni jestli muzes zapisovat
                             myDatabazeMluvcich.Serializovat(fname, myDatabazeMluvcich);
-                        }
                         else
-                        {
-                            myDatabazeMluvcich.Serializovat(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\NanoTrans" + fname.Substring(dirname.Length), myDatabazeMluvcich);
-                        }
+                            myDatabazeMluvcich.Serializovat(FilePaths.AppDataDirectory + fname.Substring(FilePaths.ProgramDirectory.Length), myDatabazeMluvcich);
                     }
                     else //neni to u me neresit prava
                     {
@@ -1623,56 +1554,17 @@ namespace NanoTrans
                         MySetup.Setup.OknoStav = this.WindowState;
                     }
 
-                    string fname = MySetup.Setup.absolutniCestaEXEprogramu + MyKONST.KONFIGURACNI_SOUBOR;
+                        MySetup.Setup.Serializovat(FilePaths.GetConfigFileWriteStream(), MySetup.Setup);
 
-                    if (CheckWritePermissions(fname))
-                    {
-                        MySetup.Setup.Serializovat(fname, MySetup.Setup);
-                    }
-                    else
-                    {
-                        MySetup.Setup.Serializovat(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\NanoTrans" + MyKONST.KONFIGURACNI_SOUBOR, MySetup.Setup);
-                    }
                 }
             }
 
             //smazani souboru...
-
-            foreach (string f in Directory.GetFiles(MyKONST.CESTA_DOCASNYCH_SOUBORU_ZVUKU))
-            {
-                File.Delete(f);
-            }
-
-            Directory.Delete(MyKONST.CESTA_DOCASNYCH_SOUBORU_ZVUKU);
-            TempCheckMutex.Close();
+            FilePaths.DeleteTemp();
 
             Environment.Exit(0); // Vynuti ukonceni vsech vlaken a uvolneni prostredku
 
 
-        }
-
-        public static bool CheckWritePermissions(string path)
-        {
-            /*
-            var set = new PermissionSet(PermissionState.None);
-            set.AddPermission(new FileIOPermission(FileIOPermissionAccess.AllAccess,System.IO.Path.GetDirectoryName(path)));
-            set.AddPermission(new FileIOPermission(FileIOPermissionAccess.AllAccess, path));
-             * 
-            return set.IsSubsetOf(AppDomain.CurrentDomain.PermissionSet);*/
-            try
-            {
-
-                bool delete = !File.Exists(path);
-
-                File.AppendAllText(path, "");
-                if (delete)
-                    File.Delete(path);
-            }
-            catch
-            {
-                return false;
-            }
-            return true;
         }
 
 
@@ -1747,15 +1639,6 @@ namespace NanoTrans
 
             PedalsInit();
 
-            string foldername = System.IO.Path.GetRandomFileName();
-            string temppath = System.IO.Path.GetTempPath() + "NanoTrans\\";
-
-            Directory.CreateDirectory(temppath);
-            DeleteUnusedTempFolders(temppath);
-            temppath = temppath + foldername;
-            Directory.CreateDirectory(temppath);
-            TempCheckMutex = new Mutex(true, "NanoTransMutex_" + foldername);
-            MyKONST.CESTA_DOCASNYCH_SOUBORU_ZVUKU = temppath + "\\";
 
             string pCesta = null;
             if (App.Startup_ARGS != null && App.Startup_ARGS.Length > 0)
@@ -1781,7 +1664,7 @@ namespace NanoTrans
         Process PedalProcess = null;
         private void PedalsInit()
         {
-            string pedalsexe = MySetup.Setup.absolutniCestaEXEprogramu + "\\Pedals.exe";
+            string pedalsexe = FilePaths.PedalPath;
 
             if (File.Exists(pedalsexe))
             {
@@ -1852,41 +1735,7 @@ namespace NanoTrans
         }
 
 
-        private static Mutex TempCheckMutex;
 
-
-        private void DeleteUnusedTempFolders(string foldername)
-        {
-            DirectoryInfo di = new DirectoryInfo(foldername);
-            DirectoryInfo[] dirs = di.GetDirectories();
-
-            foreach (DirectoryInfo dir in dirs)
-            {
-                try
-                {
-                    //ziskal sem nezaregistrovany pristup ke slozce.. smazat
-                    bool isnew;
-                    using (Mutex m = new Mutex(true, "NanoTransMutex_" + dir.Name, out isnew))
-                    {
-                        if (isnew)
-                        {
-                            foreach (var f in dir.GetFiles())
-                            {
-                                f.Delete();
-                            }
-
-                            dir.Delete();
-                        }
-
-                    }
-                }
-                catch
-                { }
-
-            }
-
-
-        }
 
 
         private void btDiktat_Click(object sender, RoutedEventArgs e)
@@ -2256,53 +2105,7 @@ namespace NanoTrans
         /// <returns></returns>
         public int Normalizovat(TranscriptionElement aElement, int aIndexNormalizace)
         {
-            try
-            {
-                if (aElement == null) return -1;
-                List<MyParagraph> pSeznamKNormalizaci = new List<MyParagraph>();
-                if (aElement.IsChapter)
-                {
-                    MyChapter pC = aElement as MyChapter;
-                    for (int i = 0; i < pC.Sections.Count; i++)
-                    {
-                        for (int j = 0; j < pC.Sections[i].Paragraphs.Count; j++)
-                        {
-                            pSeznamKNormalizaci.Add(pC.Sections[i].Paragraphs[j]);
-                        }
-                    }
-                }
-                else if (aElement.IsSection)
-                {
-                    MySection pS = aElement as MySection;
-                    pSeznamKNormalizaci.AddRange(pS.Paragraphs);
-                }
-                else if (aElement.IsParagraph)
-                {
-                    pSeznamKNormalizaci.Add((MyParagraph)aElement);
-                }
-                if (pSeznamKNormalizaci == null || pSeznamKNormalizaci.Count == 0) return -1;
-                if (aIndexNormalizace < 0) aIndexNormalizace = WinNormalizace.ZobrazitVyberNormalizace(-1, this);
-                if (aIndexNormalizace < 0) return -1;
-                MyFonetic pFonetika = new MyFonetic(MySetup.Setup.absolutniCestaEXEprogramu);
-                for (int j = 0; j < pSeznamKNormalizaci.Count; j++)
-                {
-                    MyParagraph pOdstavec = pSeznamKNormalizaci[j];
-
-                    for (int i = 0; i < pOdstavec.Phrases.Count; i++)
-                    {
-                        string pText = pOdstavec.Phrases[i].Text;
-                        string pTextNormalizovany = pText;
-
-                        pFonetika.NormalizaceTextu(aIndexNormalizace, pText, ref pTextNormalizovany);
-                        pOdstavec.Phrases[i].Text = pTextNormalizovany;
-                    }
-                }
-                return 0;
-            }
-            catch
-            {
-                return -1;
-            }
+            throw new NotImplementedException();
         }
 
         private void btNormalizovat_Click(object sender, RoutedEventArgs e)
@@ -2443,204 +2246,8 @@ namespace NanoTrans
 
         private void btOdstranitNefonemy_Click(object sender, RoutedEventArgs e)
         {
-            if (bFonetika == null) bFonetika = new MyFonetic(MySetup.Setup.absolutniCestaEXEprogramu);
+            throw new NotImplementedException();
 
-            bool pStav = bFonetika.OdstraneniNefonetickychZnakuZPrepisu(myDataSource, VirtualizingListBox.ActiveTransctiption);
-            if (pStav)
-            {
-                MyParagraph pP = VirtualizingListBox.ActiveTransctiption as MyParagraph;
-            }
-            //TODO: ZobrazitFonetickyPrepisOdstavce(MySetup.Setup.RichTag);
-
-        }
-
-        private void btNacistAdresar_Click(object sender, RoutedEventArgs e)
-        {
-
-            System.Windows.Forms.FolderBrowserDialog folderDialog = new System.Windows.Forms.FolderBrowserDialog();
-
-            folderDialog.Description = "vyberte adresář s přepisy a audio soubory...";
-            try
-            {
-                DirectoryInfo di0 = new DirectoryInfo(tbDavkovyAdresar.Text);
-                if (di0 != null && di0.Exists)
-                {
-                    folderDialog.SelectedPath = di0.FullName;
-                }
-            }
-            catch
-            {
-
-            }
-
-
-            if (folderDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                DirectoryInfo di = new DirectoryInfo(folderDialog.SelectedPath);
-                if (di != null)
-                {
-                    lbDavkoveNacteni.Items.Clear();
-                    tbDavkovyAdresar.Text = di.FullName;
-                    FileInfo[] files = di.GetFiles("*.txt");
-                    FileInfo[] filesXML = di.GetFiles("*.xml");
-                    foreach (FileInfo fi in files)
-                    {
-                        string pNazevSouboru = fi.Name.Replace(fi.Extension, "").ToLower();
-                        bool pNalezeno = false;
-                        foreach (FileInfo fi2 in filesXML)
-                        {
-                            if (fi2.Name.ToLower().Contains(pNazevSouboru) && fi2.Name.ToLower().Contains("_phonetic"))
-                            {
-                                pNalezeno = true;
-                                break;
-                            }
-                        }
-                        CheckBox pChb = new CheckBox();
-                        pChb.Focusable = false;
-                        pChb.IsChecked = pNalezeno;
-                        pChb.Content = fi.Name;
-                        pChb.IsHitTestVisible = false;
-                        lbDavkoveNacteni.Items.Add(pChb);
-                    }
-
-                }
-
-
-            }
-
-        }
-
-        /// <summary>
-        /// nacte polozku davkoveho zpracovani - THREAD SAFE
-        /// </summary>
-        /// <param name="aIndexPolozky"></param>
-        private void NactiPolozkuDavkovehoZpracovani(int aIndexPolozky)
-        {
-            if (this.Dispatcher.Thread != System.Threading.Thread.CurrentThread)
-            {
-                this.Dispatcher.Invoke(new Action<int>(NactiPolozkuDavkovehoZpracovani), aIndexPolozky);
-                return;
-            }
-            if (lbDavkoveNacteni.Items.Count == 0) return;
-            if (aIndexPolozky < 0 || aIndexPolozky > lbDavkoveNacteni.Items.Count - 1) aIndexPolozky = 0;
-            lbDavkoveNacteni.SelectedItem = lbDavkoveNacteni.Items[aIndexPolozky];
-            if (lbDavkoveNacteni.SelectedItem == null) return;
-            string pStr = tbDavkovyAdresar.Text + "//" + (lbDavkoveNacteni.SelectedItem as CheckBox).Content.ToString();
-            pAutomaticky = (bool)chbAutomatickyRozpoznat.IsChecked && !(bool)(lbDavkoveNacteni.SelectedItem as CheckBox).IsChecked;
-            OtevritTitulky(false, pStr, true);
-            if (!pAutomaticky && (bool)chbAutomatickyRozpoznat.IsChecked)
-            {
-                ZobrazitOknoFonetickehoPrepisu(true);
-                phoneticTranscription.Focus();
-            }
-        }
-
-        private void lbDavkoveNacteni_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            NactiPolozkuDavkovehoZpracovani(lbDavkoveNacteni.SelectedIndex);
-        }
-
-        private void btDavkaExportHTK_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                for (int i = 0; i < lbDavkoveNacteni.Items.Count; i++)
-                {
-                    MySubtitlesData pExport = null;
-                    string pJmenoSouboruXML = (lbDavkoveNacteni.Items[i] as CheckBox).Content.ToString();
-                    FileInfo fi = new FileInfo(tbDavkovyAdresar.Text + "//" + pJmenoSouboruXML);
-                    pJmenoSouboruXML = fi.FullName.Replace(fi.Extension, "") + "_phonetic.xml";
-                    string pJmenoSouboruWAV = fi.FullName.Replace(fi.Extension, "") + ".wav";
-                    FileInfo fi2 = new FileInfo(pJmenoSouboruXML);
-                    if (fi2.Exists)
-                    {
-                        pExport = MySubtitlesData.Deserialize(pJmenoSouboruXML);
-                        string prozsirit = "";
-                        MyWav pWAV = new MyWav(MySetup.Setup.absolutniCestaEXEprogramu);
-                        if (pExport.Chapters[0].Sections[0].Paragraphs.Count > 1)
-                        {
-                            pWAV.ZacniPrevodSouboruNaDocasneWav(tbDavkovyAdresar.Text + "//" + pExport.audioFileName, "e://", 300000);
-                        }
-
-                        for (int kk = 0; kk < pExport.Chapters[0].Sections[0].Paragraphs.Count; kk++)
-                        {
-                            if (pExport.Chapters[0].Sections[0].Paragraphs.Count > 1)
-                                prozsirit = kk.ToString();
-                            MyParagraph pp = pExport.Chapters[0].Sections[0].Paragraphs[kk];
-                            if (pp.trainingElement)
-                            {
-                                string pHTK = MyFonetic.PrevedFonetickyTextNaHTKFormat(pp.Text);
-                                if (pHTK != null)
-                                {
-
-                                    string pJmenoSouboruLAB = pJmenoSouboruXML.Replace(".xml", prozsirit + ".lab");
-                                    StreamWriter sw = new StreamWriter(pJmenoSouboruLAB, false, Encoding.GetEncoding(1250));
-                                    sw.Write(pHTK);
-                                    sw.Close();
-
-                                    if (prozsirit == "")
-                                    {
-                                        pWAV.ZacniPrevodSouboruNaDocasneWav(pJmenoSouboruWAV, "e://", 60000);
-                                    }
-                                    if (pWAV.NactiRamecBufferu((long)pp.Begin.TotalMilliseconds, (long)pp.Delka.TotalMilliseconds, -1))
-                                    {
-                                        MyBuffer16 pBuffer = new MyBuffer16((long)pp.Delka.TotalMilliseconds);
-                                        pBuffer.UlozDataDoBufferu(pWAV.NacitanyBufferSynchronne.data, pWAV.NacitanyBufferSynchronne.pocatecniCasMS, pWAV.NacitanyBufferSynchronne.koncovyCasMS);
-                                        MyWav.VytvorWavSoubor(pBuffer, pJmenoSouboruWAV.Replace(".wav", "_phonetic" + prozsirit + ".wav"));
-                                    }
-
-                                }
-                            }
-                        }
-                    }
-
-
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.ToString());
-            }
-
-        }
-
-        private void cbJazyk_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            MySetup.Setup.fonetickyPrepis.Jazyk = "";
-            if (cbJazyk.SelectedIndex > 0) MySetup.Setup.fonetickyPrepis.Jazyk = (cbJazyk.SelectedItem as ComboBoxItem).Content.ToString();
-        }
-
-        private void cbPohlavi_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            MySetup.Setup.fonetickyPrepis.Pohlavi = "";
-            if (cbPohlavi.SelectedIndex > 0) MySetup.Setup.fonetickyPrepis.Pohlavi = (cbPohlavi.SelectedItem as ComboBoxItem).Content.ToString();
-        }
-
-        private void chbPrehravatRozpoznane_Checked(object sender, RoutedEventArgs e)
-        {
-            MySetup.Setup.fonetickyPrepis.PrehratAutomatickyRozpoznanyOdstavec = (bool)chbPrehravatRozpoznane.IsChecked;
-        }
-
-
-        /// <summary>
-        /// automaticke foneticke rozpoznani celeho seznamu
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void btAutomaticky_Click_1(object sender, RoutedEventArgs e)
-        {
-            if (pAutomaticky2)
-            {
-                if (MessageBox.Show("Chcete přerušit automatickou tvorbu fonetických přepisů dávkového zpracování?", "Pozor:", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-                {
-                    pAutomaticky2 = false;
-                    return;
-                }
-            }
-            pAutomaticky2 = true;
-            pAutomatickyIndex = lbDavkoveNacteni.SelectedIndex;
-            chbAutomatickyRozpoznat.IsChecked = true;
-            NactiPolozkuDavkovehoZpracovani(pAutomatickyIndex);
         }
 
         private void Window_Drop(object sender, DragEventArgs e)

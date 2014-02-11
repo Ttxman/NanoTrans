@@ -34,110 +34,7 @@
 
                 </Grid>
             </TabItem>
-            <TabItem IsEnabled="false">
-                <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <Image Source="/icons/iPrepisovac1.png" />
-                        <TextBlock Text="  Rozpoznávač" Margin="2,0,0,0" VerticalAlignment="Center" />
-                    </StackPanel>
-                </TabItem.Header>
-                <Grid Margin="0,0,0,0" Name="gNastaveniRozpoznavac">
-                    <GroupBox Header="Výchozí mluvčí"  Margin="5,0,5,0" Name="groupBox1" VerticalAlignment="Top">
-                        <ComboBox Height="23" Name="cbMluvci"  Margin="5,5,5,5" />
-                    </GroupBox>
-                    <GroupBox Header="Soubor s licencí" Margin="6,161.723,5,155.724" Name="groupBox5">
-                        <Grid>
-                            <TextBox Name="tbLicencniSoubor"  Margin="5,5,65,5"  />
-                            <Button ToolTip="Načte soubor s licencí a uloží jeho cestu" Name="btNacistLicenci" Margin="0,2,5,0" Width="54" HorizontalAlignment="Right" Height="23.164" VerticalAlignment="Top" Click="btNacistLicenci_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <Image Source="/icons/iLicence.png" />
-                                    <TextBlock Margin="2,0,0,0" Text="..." VerticalAlignment="Center" />
-                                </StackPanel>
-                            </Button>
-                        </Grid>
-                    </GroupBox>
-                    <GroupBox Header="Parametry" Margin="4,217,6,6" Name="groupBox6">
-                        <Grid>
-                            <Label HorizontalAlignment="Left" Margin="5,9,0,0" Name="lBuffer" Width="161" Height="27.723" VerticalAlignment="Top">Velikost vyrovnávací paměti:</Label>
-                            <TextBox Margin="163,9,0,0" Name="tbBuffer" Height="24.446" VerticalAlignment="Top" HorizontalAlignment="Left" Width="119" />
-                        </Grid>
-                    </GroupBox>
-                    <GroupBox Header="Jazykový model" Margin="5,52,5,0" Name="groupBox2"  VerticalAlignment="Top">
-                        <ComboBox Height="23" Name="cbJazykovyModel" Margin="5,5,5,5" />
-                    </GroupBox>
-                    <GroupBox Header="Přepisovací pravidla" Margin="5,107,247,0" Name="groupBox3" VerticalAlignment="Top" Height="52.277">
-                        <ComboBox Height="23" Name="cbPrepisovaciPravidla" Margin="5,5,5,5" />
-                    </GroupBox>
-                    <GroupBox Header="Licenční server" Margin="0,107,5,0" Name="groupBox4"  VerticalAlignment="Top" HorizontalAlignment="Right" Width="236.413" Height="52.277">
-                        <TextBox Height="23" Name="tbLicencniServer" Margin="5,5,5,5" />
-                    </GroupBox>
-                </Grid>
-            </TabItem>
-            <TabItem IsEnabled="False">
-                <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <Image Source="/icons/iHlasoveOvladani.png" />
-                        <TextBlock Text="  Hlasové ovládání / diktát" Margin="2,0,0,0" VerticalAlignment="Center" />
-                    </StackPanel>
-                </TabItem.Header>
-                <Grid>
-                    <GroupBox Header="Hlasový profil" Margin="5,5,5,0" FontWeight="Bold" >
-                        <Grid>
-                            <Label HorizontalAlignment="Left" Margin="8,2,0,0" Width="136" Height="32" VerticalAlignment="Top">Profil mluvčího diktát:</Label>
-                            <TextBox Margin="158,7,6,0" Name="tbMluvciDiktatu" IsReadOnly="True" Background="LightYellow" Height="62.723" VerticalAlignment="Top" />
-                            <Button HorizontalAlignment="Left" Margin="46.882,37,0,0" Name="btMluvciDiktatu" Width="83" Click="btMluvciHlasovehoOvladani_Click" Height="24.723" VerticalAlignment="Top">
-                                <StackPanel Orientation="Horizontal">
-                                    <Image Source="/icons/iZmenit.png" />
-                                    <TextBlock Text=" Změnit" Margin="2,0,0,0" VerticalAlignment="Center" />
-                                </StackPanel>
-                            </Button>
-                            <GroupBox Header="Kvalita rozpoznávání diktátu:" Margin="8,76,6,0" Height="74.723" VerticalAlignment="Top">
-                                <Grid >
-                                    <Slider Margin="8,6,6,0" Name="slKvalitaRozpoznavaniDiktat" Height="22" VerticalAlignment="Top" Maximum="120" Value="110" TickPlacement="None" Minimum="100" />
-                                    <Label HorizontalAlignment="Left" FontWeight="Normal" Margin="18.129,21.723,0,6" Width="183.871">Nižší přesnost / pomalý počítač</Label>
-                                    <Label HorizontalAlignment="Right" FontWeight="Normal" Margin="0,21.723,6,6" Width="164">Vyšší přesnost / rychlý počítač</Label>
-                                </Grid>
-                            </GroupBox>
-                            <GroupBox Header="Kvalita hlasového ovládání:" Height="75" Margin="8,0,6,2" VerticalAlignment="Bottom">
-                                <Grid >
-                                    <Slider Margin="8,6,6,0" Name="slKvalitaRozpoznavaniOvladani" Height="22" VerticalAlignment="Top" Maximum="120" Value="110" TickPlacement="None" Minimum="100" />
-                                    <Label HorizontalAlignment="Left" FontWeight="Normal" Margin="18.129,21,0,6" Width="183.871">Nižší přesnost / pomalý počítač</Label>
-                                    <Label HorizontalAlignment="Right" FontWeight="Normal" Margin="0,21,6,6" Width="164">Vyšší přesnost / rychlý počítač</Label>
-                                </Grid>
-                            </GroupBox>
-                            <Label HorizontalAlignment="Left" Margin="8,160,0,0" Width="231" Height="31.723" VerticalAlignment="Top">Profil mluvčího hlasového ovládání:</Label>
-                            <TextBox Background="LightYellow" IsReadOnly="True" Margin="158,183,6,0" Name="tbMluvciHlasovehoOvladani" Height="62.723" VerticalAlignment="Top" />
-                            <Button Height="24.723" HorizontalAlignment="Left" Margin="46.882,195,0,0" Name="btMluvciHlasoveOvladani" VerticalAlignment="Top" Width="83" Click="btMluvciHlasoveOvladani_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <Image Source="/icons/iZmenit.png" />
-                                    <TextBlock Margin="2,0,0,0" Text=" Změnit" VerticalAlignment="Center" />
-                                </StackPanel>
-                            </Button>
-                        </Grid>
-                    </GroupBox>
-                </Grid>
-            </TabItem>
-            <TabItem IsEnabled="False" Header="Fonetický přepis">
-                <Grid>
-                    <GroupBox Header="Automatická tvorba fonetického přepisu" Margin="5,5,5,0" Height="151" VerticalAlignment="Top" FontWeight="Bold" >
-                        <Grid>
-                            <Label HorizontalAlignment="Left" Margin="17,15,0,0" Name="lJazyk" VerticalAlignment="Top" >Jazyk fonetického přepisu:</Label>
-                            <Label HorizontalAlignment="Left" Margin="17,40,0,0" Name="lPohlavi" VerticalAlignment="Top">Pohlaví pro fon. přepis:</Label>
-                            <ComboBox Height="23" Margin="189.47,15,0,0" Name="cbFonPrepisJazyk" VerticalAlignment="Top" HorizontalAlignment="Left" Width="157.53" SelectedIndex="0">
-                                <ComboBoxItem>-</ComboBoxItem>
-                                <ComboBoxItem>cz</ComboBoxItem>
-                                <ComboBoxItem>sk</ComboBoxItem>
-                            </ComboBox>
-                            <ComboBox Height="23" Margin="189.47,40.277,0,0" Name="cbFonPrepisPohlavi" VerticalAlignment="Top" HorizontalAlignment="Left" Width="157.53" SelectedIndex="0">
-                                <ComboBoxItem>-</ComboBoxItem>
-                                <ComboBoxItem>male</ComboBoxItem>
-                                <ComboBoxItem>female</ComboBoxItem>
-                            </ComboBox>
-                            <CheckBox Height="16" HorizontalAlignment="Left" Margin="17,0,0,9" Name="chbFonPrehratPoRozpoznani" VerticalAlignment="Bottom" >Po rozpoznání přehrát odstavec</CheckBox>
-                        </Grid>
-                    </GroupBox>
-                </Grid>
-            </TabItem>
+
             <TabItem Header="Ostatní">
                 <Grid>
                     <StackPanel>
@@ -145,7 +42,7 @@
                             <Grid>
                                 <Label Margin="0,7,0,0" Height="27.723" VerticalAlignment="Top" HorizontalAlignment="Left" Width="56">Soubor:</Label>
                                 <TextBox Height="23" Margin="55,9,117,0" Name="tbCestaDatabazeMluvcich" VerticalAlignment="Top" Background="LightYellow" IsReadOnly="True" />
-                                <Button HorizontalAlignment="Right" Width="92"  Margin="0,7,12,0" Height="27.723" VerticalAlignment="Top" Click="Button_Click">
+                                <Button HorizontalAlignment="Right" Width="92"  Margin="0,7,12,0" Height="27.723" VerticalAlignment="Top" Click="ButtonLoadSpeakersDatabase_Click">
                                     <StackPanel Orientation="Horizontal">
                                         <Image Margin="0,0,5,0" Height="17" Source="icons/iOtevrit.png" />
                                         <TextBlock Text="Načíst..." Margin="2,0,0,0" VerticalAlignment="Center" />
@@ -170,6 +67,11 @@
                                 <Button Height="27.723" Margin="0,0,10,0" Visibility="{Binding Source={StaticResource SpellEngine}, Converter={StaticResource CollapseOnNotNullConverter}}" Click="Button_Click_1">Stáhnout slovník automaticky</Button>
                                 <Button Height="27.723" Margin="0,0,10,0" Visibility="{Binding Source={StaticResource SpellEngine}, Converter={StaticResource CollapseOnNullConverter}}" Click="Button_Click_1">Aktualizovat slovník automaticky</Button>
                                 <Button Height="27.723" Margin="0,0,10,0" Click="Button_Click_2">Načíst slovníky ručně</Button>
+                            </StackPanel>
+                        </GroupBox>
+                        <GroupBox FontWeight="Bold" Header="Rychlé zobrazování" IsEnabled="False" >
+                            <StackPanel Orientation="Horizontal" >
+                                <CheckBox Content="Načíst a vytvořit celý přepis v paměti (velká spotřeba RAM - stovky MB)" Height="16" Name="checkboxQuickScroll" />
                             </StackPanel>
                         </GroupBox>
                     </StackPanel>

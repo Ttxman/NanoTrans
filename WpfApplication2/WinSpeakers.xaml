@@ -34,7 +34,7 @@
 
 
             <Button Content="OK" Height="29" IsTabStop="False" Name="btOK" ToolTip="Smaže vybraného mluvčího" VerticalAlignment="Bottom" Grid.Column="3" Grid.Row="2" Margin="0,0,0,6" Click="btOK_Click" />
-            <Button Content="Oprav skryté" Focusable="True" Height="29" HorizontalAlignment="Right" IsTabStop="False" Margin="0,137,8,0" Name="button1" ToolTip="Přidá mluvčí z přepisu do interní databáze" VerticalAlignment="Top" Width="90" Grid.Column="2" Grid.Row="1" Click="button1_Click_1" />
+            <Button Content="Nahraď ml." Focusable="True" Height="29" HorizontalAlignment="Right" IsTabStop="False" Margin="0,169,8,0" Name="buttonReplace" ToolTip="Přidá mluvčí z přepisu do interní databáze" VerticalAlignment="Top" Width="90" Grid.Column="2" Grid.Row="1" Click="buttonReplace_Click" />
         </Grid>
     </Grid>
 </Window>

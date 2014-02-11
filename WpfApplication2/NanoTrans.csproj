@@ -178,6 +178,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="ReplaceSpeakerWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="SubtitlesVizualizer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -254,12 +258,15 @@
       <DependentUpon>ExceptionCatchWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Extensions.cs" />
+    <Compile Include="FilePaths.cs" />
     <Compile Include="FindDialog.xaml.cs">
       <DependentUpon>FindDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="MyEnumParagraphAttributes.cs" />
-    <Compile Include="MyPopupListbox.cs" />
     <Compile Include="MyPrepisovac.cs" />
+    <Compile Include="ReplaceSpeakerWindow.xaml.cs">
+      <DependentUpon>ReplaceSpeakerWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="SubtitlesVizualizer.xaml.cs">
       <DependentUpon>SubtitlesVizualizer.xaml</DependentUpon>
     </Compile>
@@ -281,7 +288,6 @@
   <ItemGroup>
     <Compile Include="MyBuffer16.cs" />
     <Compile Include="MyEnumTypElementu.cs" />
-    <Compile Include="MyFonetic.cs" />
     <Compile Include="MyKONST.cs" />
     <Compile Include="MySetup.cs" />
     <Compile Include="MySpeakers.cs" />

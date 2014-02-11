@@ -144,21 +144,6 @@
                     </Grid>
                 </TabItem>
 
-                <TabItem Name="tiPrepis" IsEnabled="False">
-                    <TabItem.Header>
-                        <StackPanel Orientation="Horizontal">
-                            <Image Source="/icons/iPrepisovac1.png" />
-                            <TextBlock Text="NanoTrans" Margin="2,0,0,0" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </TabItem.Header>
-                    <Grid Grid.Column="1" Margin="1,1,1,1" Name="grid3" HorizontalAlignment="Stretch" Focusable="False" >
-                        <ProgressBar Height="17" Margin="10,0,10,11" Name="pbZpozdeniPrepisu" VerticalAlignment="Bottom" Foreground="GreenYellow" Maximum="60" />
-                        <Label Height="23" Margin="8.939,0,10,32" Name="lZbyvajiciData" VerticalAlignment="Bottom">Zbývající data k rozpoznání (Zpoždění)</Label>
-                        <Button Margin="8.939,37,31.061,0" Name="btDiktat" Click="btDiktat_Click" Visibility="Visible" Height="25" VerticalAlignment="Top" Focusable="False" IsTabStop="False">Diktát (F6)</Button>
-                        <Button Height="25" Margin="8.939,6,31.061,0" Name="btAutomatickeRozpoznani" VerticalAlignment="Top" Click="button10_Click" Focusable="False" IsTabStop="False" ToolTip="Spustí automatické rozpoznání vybraného elementu přepisu: Musí být načten audio soubor a element musí mít přiřazen časové indexy počátku a konce">Automatický přepis (F5)</Button>
-                        <Button Margin="8.939,68,31.061,0" Name="btHlasoveOvladani" Focusable="False" IsTabStop="False" Click="btHlasoveOvladani_Click" Height="25.002" VerticalAlignment="Top">Hlasové ovládání (F7)</Button>
-                    </Grid>
-                </TabItem>
                 <TabItem Name="tiInfo">
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
@@ -175,23 +160,7 @@
                         <TextBox Height="23" Margin="81,12,7,0" Name="tbDatumCasDokumentu" VerticalAlignment="Top" />
                     </Grid>
                 </TabItem>
-                <TabItem Name="tiDavka" IsEnabled="False">
-                    <TabItem.Header>
-                        <StackPanel Orientation="Horizontal">
-                            <Image Height="18" />
-                            <TextBlock Text="Dávkové načtení" Margin="2,0,0,0" VerticalAlignment="Center" />
-                         </StackPanel>
-                    </TabItem.Header>
-                    <Grid >
-                        
-                        <ListBox Margin="13.999,15,13.999,93" Name="lbDavkoveNacteni" MouseDoubleClick="lbDavkoveNacteni_MouseDoubleClick" Focusable="False" />
-                        <Button  Margin="0,0,6,10" Name="btNacistAdresar" FontWeight="Bold" VerticalAlignment="Bottom" HorizontalAlignment="Right" ToolTip="Načte adresář s textovými/audio soubory" Click="btNacistAdresar_Click" Height="21.277" Width="87.453" IsTabStop="False" Focusable="False">Načíst adresář</Button>
-                        <TextBox Height="23" Margin="17.675,0,13.999,64" Name="tbDavkovyAdresar" VerticalAlignment="Bottom" Focusable="False" IsTabStop="False" IsReadOnly="True" Background="LightYellow" />
-                        <Button Height="19" Margin="0,0,100,10" Name="btDavkaExportHTK" VerticalAlignment="Bottom" Click="btDavkaExportHTK_Click" HorizontalAlignment="Right" Width="77.589" Focusable="False" IsTabStop="False">HTK Exp.</Button>
-                        <CheckBox Height="16" Margin="13.649,0,0,42" Name="chbAutomatickyRozpoznat" VerticalAlignment="Bottom" HorizontalAlignment="Left" ToolTip="Po otevření položky ze seznamu, ji automaticky rozpozná" Focusable="False" IsTabStop="False">Po načtení rozpoznat</CheckBox>
-                        <Button Height="19" HorizontalAlignment="Left" Margin="7.694,0,0,10" Name="btAutomaticky" VerticalAlignment="Bottom" Width="71" ToolTip="Automaticky rozpozná všechny položky" Click="btAutomaticky_Click_1" IsTabStop="False" Focusable="False">Automaticky</Button>
-                    </Grid>
-                </TabItem>
+
             </TabControl>
         </Grid>
         <GroupBox Header="Audio: " Name="groupBox1" Grid.Row="2" Height="52" VerticalAlignment="Top">
@@ -278,31 +247,13 @@
 
         </StatusBar>
         <Grid Name="gFonetickyPrepis" Grid.Row="1" Margin="0,0,0,8">
-            <Border Margin="0,0,206,30" BorderThickness="1" BorderBrush="LightBlue" >
+            <Border Margin="0,0,24,30" BorderThickness="1" BorderBrush="LightBlue" >
                     <local:Element x:Name="phoneticTranscription" Margin="1,1,1,1" IsEnabled="False" />
             </Border>
             <Button Focusable="False" Height="20" IsTabStop="False" Padding="0,0,1,1" Width="20" HorizontalAlignment="Right" Margin="0,10.573,1.337,0" Grid.Row="1" VerticalAlignment="Top" Name="btZavritFonPrepis" Click="btZavritFonPrepis_Click">X</Button>
-            <Button Focusable="False" HorizontalAlignment="Right" IsTabStop="False" Name="btOdstranitNefonemy" ToolTip="Odstraní znaky z fonetického přepisu, které nejsou fonémy" Click="btOdstranitNefonemy_Click" VerticalAlignment="Bottom" Margin="0,0,592,5.724" Height="21.277">Odstr. nefonémy (F11)</Button>
-            <Button Focusable="False" HorizontalAlignment="Left" IsTabStop="False" Margin="19,0,0,5.724" Name="btNormalizovat" Click="btNormalizovat_Click" VerticalAlignment="Bottom" Height="21.277">Normalizovat (F9)</Button>
-            
-            <GroupBox HorizontalAlignment="Right" Margin="0,11.573,24.999,5.724" Name="groupBox2" Width="183.22">
-                <Grid>
-                    <Button Focusable="False" IsTabStop="False" Name="button1" Click="button1_Click_1" Height="27" ContentStringFormat="" FontWeight="Bold" Margin="5.999,8,0,0" VerticalAlignment="Top">Aut. fonetický přepis (F10)</Button>
-                    <ComboBox Height="23" Margin="7.202,61,0,0" Name="cbJazyk" VerticalAlignment="Top" HorizontalAlignment="Left" Width="65.396" SelectionChanged="cbJazyk_SelectionChanged">
-                        <ComboBoxItem>-</ComboBoxItem>
-                        <ComboBoxItem>cz</ComboBoxItem>
-                        <ComboBoxItem>sk</ComboBoxItem>
-                    </ComboBox>
-                    <ComboBox Height="23" Margin="80.511,61,8.001,0" Name="cbPohlavi" VerticalAlignment="Top" SelectionChanged="cbPohlavi_SelectionChanged">
-                        <ComboBoxItem>-</ComboBoxItem>
-                        <ComboBoxItem>male</ComboBoxItem>
-                        <ComboBoxItem>female</ComboBoxItem>
-                    </ComboBox>
-                    <Label Margin="10.544,38,0,0" VerticalAlignment="Top" Name="lJazyk" HorizontalAlignment="Left">Jazyk:</Label>
-                    <Label Margin="0,38,42.369,0" Height="23.277" VerticalAlignment="Top" Name="lPohlavi" HorizontalAlignment="Right" Width="48.34">Pohlaví:</Label>
-                </Grid>
-            </GroupBox>
-            <CheckBox Height="16" Margin="0,0,231,11" Name="chbPrehravatRozpoznane" VerticalAlignment="Bottom" HorizontalAlignment="Right" Checked="chbPrehravatRozpoznane_Checked" Focusable="False" IsTabStop="False">Přehrávat rozpoznané</CheckBox>
+            <Button IsEnabled="False" Focusable="False" HorizontalAlignment="Right" IsTabStop="False" Name="btOdstranitNefonemy" ToolTip="Odstraní znaky z fonetického přepisu, které nejsou fonémy" Click="btOdstranitNefonemy_Click" VerticalAlignment="Bottom" Margin="0,0,592,5.724" Height="21.277">Odstr. nefonémy (F11)</Button>
+            <Button IsEnabled="False" Focusable="False" HorizontalAlignment="Left" IsTabStop="False" Margin="19,0,0,5.724" Name="btNormalizovat" Click="btNormalizovat_Click" VerticalAlignment="Bottom" Height="21.277">Normalizovat (F9)</Button>
+
         </Grid>
         <GridSplitter Grid.Row="1" Margin="0,0,0,-3" Name="gridSplitter3" Height="5" VerticalAlignment="Bottom" Focusable="False" IsTabStop="False" Grid.IsSharedSizeScope="False" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" ResizeBehavior="PreviousAndNext" ShowsPreview="True" />
         <Button Visibility="Hidden" Grid.Row="2" Height="23" HorizontalAlignment="Left" Margin="280,0,0,2" Name="btPriraditVyber" VerticalAlignment="Bottom" Click="btPriraditVyber_Click" Focusable="False" IsTabStop="False">Přiřadit výběr k elementu</Button>

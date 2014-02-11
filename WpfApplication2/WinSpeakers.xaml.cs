@@ -279,7 +279,7 @@ namespace NanoTrans
                 {
                     FileInfo fi = new FileInfo(bNastaveni.CestaDatabazeMluvcich);
                     if (fi != null && fi.Directory.Exists) fileDialog.InitialDirectory = fi.DirectoryName;
-                    else fileDialog.InitialDirectory = bNastaveni.absolutniCestaEXEprogramu;
+                    else fileDialog.InitialDirectory = FilePaths.DefaultDirectory;
                 }
                 catch
                 {
@@ -354,7 +354,7 @@ namespace NanoTrans
                 {
                     FileInfo fi = new FileInfo(bNastaveni.CestaDatabazeMluvcich);
                     if (fi != null && fi.Directory.Exists) fileDialog.InitialDirectory = fi.DirectoryName;
-                    else fileDialog.InitialDirectory = bNastaveni.absolutniCestaEXEprogramu;
+                    else fileDialog.InitialDirectory = FilePaths.DefaultDirectory;
                 }
                 catch
                 {
@@ -415,19 +415,7 @@ namespace NanoTrans
             MySpeaker sp = lbSeznamMluvcich.SelectedItem as MySpeaker;
             if (sp != null)
             {
-                TranscriptionElement elm = myDataSource.First();
-                while (elm != null)
-                {
-                    if (elm.IsParagraph)
-                    {
-                        MyParagraph p = (MyParagraph)elm;
-                        if (myDataSource.Speakers.VratSpeakera(p.speakerID).ID == MySpeaker.DefaultID)
-                        {
-                            p.speakerID = sp.ID;
-                        }
-                    }
-                    elm = elm.Next();
-                }
+                
             }
             else
             {
@@ -435,5 +423,55 @@ namespace NanoTrans
             }
         }
 
+        private void buttonReplace_Click(object sender, RoutedEventArgs e)
+        {
+            ReplaceSpeakerWindow w = new ReplaceSpeakerWindow(myDataSource.Speakers);
+            if (w.ShowDialog() == true)
+            {
+                if (w.From != null && w.To != null && w.From.ID != w.To.ID)
+                {
+                    if (w.From.ID == MySpeaker.DefaultID)
+                    {
+                        TranscriptionElement elm = myDataSource.First();
+                        while (elm != null)
+                        {
+                            if (elm.IsParagraph)
+                            {
+                                MyParagraph p = (MyParagraph)elm;
+                                if (myDataSource.Speakers.VratSpeakera(p.speakerID).ID == MySpeaker.DefaultID)
+                                {
+                                    p.speakerID = w.To.ID;
+                                }
+                            }
+                            elm = elm.Next();
+                        }
+
+                    }
+                    else
+                    {
+                        TranscriptionElement elm = myDataSource.First();
+                        while (elm != null)
+                        {
+                            if (elm.IsParagraph)
+                            {
+                                MyParagraph p = (MyParagraph)elm;
+                                if (p.speakerID == w.From.ID)
+                                {
+                                    p.speakerID = w.To.ID;
+                                }
+                            }
+                            elm = elm.Next();
+                        }
+                    }
+                    MessageBox.Show("Převedeno", "Převedeno", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    MessageBox.Show("Nelze Převést", "Nelze Převést", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                }
+
+                
+            }
+        }
     }
 }

@@ -133,14 +133,12 @@ namespace NanoTrans
         /// </summary>
         private Process prPrevod = null;
 
-        private string _AbsolutniCestaAdresareProgramu;
 
         /// <summary>
         /// konstruktor
         /// </summary>
-        public MyWav(string aAbsolutniCestaAdresareProgramu)
+        public MyWav()
         {
-            this._AbsolutniCestaAdresareProgramu = aAbsolutniCestaAdresareProgramu;
             pFrekvence = 16000;
             pVelikostVzorku = 2;
             pPocetKanalu = 1;
@@ -200,7 +198,7 @@ namespace NanoTrans
 
         private void AsynchronniPrevodMultimedialnihoSouboruNaDocasne()
         {
-            this.ZacniPrevodSouboruNaDocasneWav(_CestaSouboru, MyKONST.CESTA_DOCASNYCH_SOUBORU_ZVUKU, MyKONST.DELKA_DOCASNEHO_SOUBORU_ZVUKU_MS);    //nastaveni bufferu
+            this.ZacniPrevodSouboruNaDocasneWav(_CestaSouboru, FilePaths.TempDirectory, MyKONST.DELKA_DOCASNEHO_SOUBORU_ZVUKU_MS);    //nastaveni bufferu
         }
 
         /// <summary>
@@ -422,7 +420,7 @@ namespace NanoTrans
             {
                 long pDelka = -1;
                 Process prInfo = new Process();
-                prInfo.StartInfo.FileName = this._AbsolutniCestaAdresareProgramu + MyKONST.CESTA_FFMPEG;
+                prInfo.StartInfo.FileName = FilePaths.FFmpegPath;
                 prInfo.StartInfo.WorkingDirectory = new FileInfo(aCesta).DirectoryName;
 
                 //prPrevod.StartInfo.Arguments = "-i " + aCesta + " -y -vn -ar 16000 -ac 1 -acodec pcm_s16le -f wav -";
@@ -509,7 +507,7 @@ namespace NanoTrans
                 //po naplneni zobrazovaciho bufferu lze vykreslit vlnu v programu-
 
                 prPrevod = new Process();
-                prPrevod.StartInfo.FileName = this._AbsolutniCestaAdresareProgramu + MyKONST.CESTA_FFMPEG;
+                prPrevod.StartInfo.FileName = FilePaths.FFmpegPath;
                 prPrevod.StartInfo.WorkingDirectory = new FileInfo(aCesta).DirectoryName;
                 //-f s16le bez hlavicky
                 //prPrevod.StartInfo.Arguments = "-i " + aCesta + " -y -vn -ar 16000 -ac 1 -acodec pcm_s16le -f wav -";
@@ -997,7 +995,7 @@ namespace NanoTrans
 
                 //smazani vsech docasnych souboru z temp adresare
 
-                FileInfo fi = new FileInfo(MyKONST.CESTA_DOCASNYCH_SOUBORU_ZVUKU);
+                FileInfo fi = new FileInfo(FilePaths.TempDirectory);
                 FileInfo[] pSoubory = fi.Directory.GetFiles("*.wav");
                 foreach (FileInfo i in pSoubory)
                 {
