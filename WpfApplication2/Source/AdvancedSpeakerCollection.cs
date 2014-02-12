@@ -10,17 +10,33 @@ namespace NanoTrans
 {
     public class AdvancedSpeakerCollection : SpeakerCollection
     {
-        public override XElement Serialize()
+        public AdvancedSpeakerCollection() 
         {
-            var x = base.Serialize();
-            return x;
+ 
         }
-
+        public AdvancedSpeakerCollection(string filename)
+            : base(filename)
+        { 
+        
+        }
         Dictionary<string, Speaker> _slist = new Dictionary<string,Speaker>();
         protected override void Initialize(XDocument doc)
         {
             _slist.Clear();
             _slist = _Speakers.ToDictionary(s => s.DBID);
+
+            var merges = _Speakers.SelectMany(s => s.Merges.Select(m=>new { speaker = s, merged = m }));
+            foreach (var m in merges)
+            { 
+                if(m.merged.DBtype!=DBType.File)
+                    if(!_slist.ContainsKey(m.merged.DBID))
+                        _slist[m.merged.DBID] = m.speaker;
+
+            }
+
+
+
+            base.Initialize(doc);
         }
 
         /// <summary>
@@ -28,7 +44,7 @@ namespace NanoTrans
         /// </summary>
         /// <param name="s"></param>
         /// <returns>speaker or null when user (or online) database not contain Speaker that can be automatically synchronized</returns>
-        internal Speaker SynchronizeSpeaker(Speaker s)
+        public Speaker SynchronizeSpeaker(Speaker s)
         {
             if (s.DataBaseType == DBType.Api)
                 throw new NotImplementedException();//not yet implemented

@@ -19,24 +19,24 @@ namespace NanoTrans
     /// </summary>
     public partial class PickOneDialog : Window
     {
-        List<string> m_data;
+        List<string> _data;
         public PickOneDialog(List<string> data, string title)
         {
             InitializeComponent();
-            box.ItemsSource = m_data = data;
+            box.ItemsSource = _data = data;
             this.Title = title;
         }
 
-        private int m_line = 0;
+        private int _line = 0;
 
         public int SelectedIndex
         {
-            get { return m_line; }
+            get { return _line; }
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            m_line = m_data.IndexOf(box.SelectedItem.ToString());
+            _line = _data.IndexOf(box.SelectedItem.ToString());
 
             this.DialogResult = true;
             Close();
@@ -58,11 +58,11 @@ namespace NanoTrans
         {
             if (string.IsNullOrEmpty(textBox1.Text))
             {
-                box.ItemsSource = m_data;
+                box.ItemsSource = _data;
             }
             else
             {
-                box.ItemsSource = m_data.Where(s => s.Contains(textBox1.Text));
+                box.ItemsSource = _data.Where(s => s.Contains(textBox1.Text));
             }
         }
 

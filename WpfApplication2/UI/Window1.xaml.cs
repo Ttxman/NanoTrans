@@ -29,6 +29,7 @@ using Microsoft.Win32;
 using NanoTrans.Audio;
 using NanoTrans.Core;
 using System.Windows.Controls.Primitives;
+using WPFLocalizeExtension.Engine;
 
 namespace NanoTrans
 {
@@ -144,6 +145,11 @@ namespace NanoTrans
             else
                 GlobalSetup.Setup.Serialize(s, GlobalSetup.Setup);
 
+            if (GlobalSetup.Setup.Locale != null)
+            {
+                LocalizeDictionary.Instance.Culture = new System.Globalization.CultureInfo(GlobalSetup.Setup.Locale);
+            }
+
             //set window position, size and state
             if (GlobalSetup.Setup.WindowsPosition != null)
             {
@@ -203,6 +209,8 @@ namespace NanoTrans
                 }
             }
 
+            foreach (var item in SpeakersDatabase)
+                item.PinnedToDocument = false;
 
             oWav = new WavReader();
             oWav.HaveData += oWav_HaveData;
@@ -459,6 +467,7 @@ namespace NanoTrans
             source.Add(c);
             source.Saved = true;
             Transcription = source;
+            SynchronizeSpeakers();
             VirtualizingListBox.ActiveTransctiption = p;
             return true;
         }
@@ -653,23 +662,30 @@ namespace NanoTrans
 
         private void SynchronizeSpeakers()
         {
+
+            //unpin data from last document
+            foreach (var item in SpeakersDatabase)
+                item.PinnedToDocument = false;
+
             var toremove = new List<Speaker>();
             foreach (Speaker i in Transcription.Speakers)
             {
                 Speaker ss = SpeakersDatabase.SynchronizeSpeaker(i);
                 if (ss != null)
                 {
+                    if (i.PinnedToDocument)//pin to this document
+                        ss.PinnedToDocument = true;
+
+
                     foreach (var p in Transcription.EnumerateParagraphs().Where(p => p.Speaker == i))
                         p.Speaker = ss;
-
-                    toremove.Add(i);
+                    if(!i.PinnedToDocument)
+                        toremove.Add(i);
                 }
             }
 
             foreach (var s in toremove)
-            {
                 Transcription.Speakers.Remove(s);
-            }
         }
 
 
@@ -1178,15 +1194,15 @@ namespace NanoTrans
                     if (fname.StartsWith(FilePaths.ProgramDirectory))//check access to program files.
                     {
                         if (!FilePaths.WriteToAppData)
-                            SpeakersDatabase.Serialize(fname);
+                            SpeakersDatabase.Serialize(fname,true);
                         else
-                            SpeakersDatabase.Serialize(FilePaths.AppDataDirectory + fname.Substring(FilePaths.ProgramDirectory.Length));
+                            SpeakersDatabase.Serialize(FilePaths.AppDataDirectory + fname.Substring(FilePaths.ProgramDirectory.Length),true);
                     }
                     else// not in ProgramFiles - NanoTrans not installed, don't do anything
                     {
                         try
                         {
-                            SpeakersDatabase.Serialize(GlobalSetup.Setup.SpeakersDatabasePath);
+                            SpeakersDatabase.Serialize(GlobalSetup.Setup.SpeakersDatabasePath,true);
                         }
                         catch
                         {
@@ -1574,6 +1590,15 @@ namespace NanoTrans
 
         private void toolBar1_Loaded(object sender, RoutedEventArgs e)
         {
+            GlobalSetup.Setup.PropertyChanged += Setup_PropertyChanged;
+            Setup_PropertyChanged(GlobalSetup.Setup, new System.ComponentModel.PropertyChangedEventArgs("NonSpeechEvents"));
+        }
+
+        void Setup_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName != "NonSpeechEvents")
+                return;
+            toolBar1.Items.Clear();
             int index = 1;
             foreach (string s in GlobalSetup.Setup.NonSpeechEvents)
             {
@@ -1588,6 +1613,7 @@ namespace NanoTrans
                 index++;
             }
         }
+
         #endregion
 
         #region undo not working .)
@@ -1870,14 +1896,14 @@ namespace NanoTrans
 
             VirtualizingListBox.ActiveElement.ElementLanguage = l;
             var prev = VirtualizingListBox.ActiveElement;
-            if (VirtualizingListBox.ActiveElement.RefreshSpeakerButton())
+            if (VirtualizingListBox.ActiveElement.RefreshSpeakerInfos())
             {
                 prev = VirtualizingListBox.GetVisualForTransctiption(VirtualizingListBox.ActiveTransctiption.Previous());//refresh previous elements
-                while (prev != null && prev.RefreshSpeakerButton())
+                while (prev != null && prev.RefreshSpeakerInfos())
                     prev = VirtualizingListBox.GetVisualForTransctiption(prev.ValueElement.Previous());
 
                 prev = VirtualizingListBox.GetVisualForTransctiption(VirtualizingListBox.ActiveTransctiption.Next());//refresh next elements
-                while (prev != null && prev.RefreshSpeakerButton())
+                while (prev != null && prev.RefreshSpeakerInfos())
                     prev = VirtualizingListBox.GetVisualForTransctiption(prev.ValueElement.Next());
 
             }

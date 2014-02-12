@@ -11,7 +11,7 @@
         lex:ResxLocalizationProvider.DefaultAssembly="NanoTrans"
         lex:ResxLocalizationProvider.DefaultDictionary="Strings"
         
-        Title="{lex:LocText SpeakersManagerTitle}" MinHeight="450" MinWidth="650" MaxWidth="1000"
+        Title="{lex:LocText SpeakersManagerTitle}" MinHeight="450" MinWidth="650"
         Name="manager" Loaded="manager_Loaded">
     <Window.Resources>
         <my:MultipleSelectionConverter x:Key="selConverter" />
@@ -35,7 +35,7 @@
     </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="300"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
@@ -45,6 +45,7 @@
             <RowDefinition Height="196*"/>
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
+        <GridSplitter Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Stretch" Grid.RowSpan="100" Background="Transparent" ShowsPreview="True" Width="5"/>
         <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.ColumnSpan="2" VerticalAlignment="Center" Margin="0,4,0,5">
             <TextBlock Margin="10,0,5,0" FontWeight="Bold" Foreground="#FF2B1B72" Text="{Binding ElementName=manager, Path=MessageLabel}"/>
             <TextBlock Text="{Binding ElementName=manager, Path=Message}" TextTrimming="CharacterEllipsis" />
@@ -65,7 +66,7 @@
             <Label DockPanel.Dock="Left" Content="{lex:LocText SpeakersManagerLabelSearch}"/>
             <TextBox Name="FilterTBox" Text="{Binding ElementName=manager,Path=SpeakerProvider.FilterString,TargetNullValue='',UpdateSourceTrigger=PropertyChanged}"/>
         </DockPanel>
-        <ListBox Name="SpeakersBox" Width="250" Grid.Column="0" Grid.Row="3" AlternationCount="2" ItemsSource="{Binding ElementName=manager,Path=SpeakerProvider.View}" SelectionMode="{Binding ElementName=manager,Converter={StaticResource selConverter}, Path=SelectMany}" ContextMenuOpening="SpeakersBox_ContextMenuOpening" SelectionChanged="SpeakersBox_SelectionChanged" MouseDoubleClick="SpeakersBox_MouseDoubleClick">
+        <ListBox Name="SpeakersBox" MinWidth="250" Grid.Column="0" Grid.Row="3" AlternationCount="2" ItemsSource="{Binding ElementName=manager,Path=SpeakerProvider.View}" SelectionMode="{Binding ElementName=manager,Converter={StaticResource selConverter}, Path=SelectMany}" ContextMenuOpening="SpeakersBox_ContextMenuOpening" SelectionChanged="SpeakersBox_SelectionChanged" MouseDoubleClick="SpeakersBox_MouseDoubleClick" MouseDown="SpeakersBox_MouseDown">
             <ListBox.GroupStyle>
                 <GroupStyle HeaderTemplate="{StaticResource groupingHeaderTemplate}" ContainerStyle="{StaticResource ContainerStyle}"/>
             </ListBox.GroupStyle>
@@ -96,7 +97,7 @@
             <ListBox.Resources>
                 <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="{x:Static SystemColors.HighlightColor}"/>
                 <DataTemplate DataType="{x:Type my:SpeakerContainer}">
-                    <my:SpeakerSmall SpeakerContainer="{Binding}" MiniatureVisible="{Binding IsChecked, ElementName=showMiniatures}"/>
+                    <my:SpeakerSmall SpeakerContainer="{Binding}" MiniatureVisible="{Binding IsChecked, ElementName=showMiniatures}" SpeakerModified="SpeakerSmall_speakermodified"/>
                 </DataTemplate>
             </ListBox.Resources>
         </ListBox>

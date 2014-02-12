@@ -17,12 +17,8 @@ namespace NanoTrans
         public static string[] Startup_ARGS;
         private void Application_Startup(object sender, StartupEventArgs e)
         {
-            Startup_ARGS = e.Args;
-
-            AppDomain.CurrentDomain.FirstChanceException += CurrentDomain_FirstChanceException;
-           LocalizeDictionary.Instance.SetCurrentThreadCulture = true;
-           LocalizeDictionary.Instance.Culture = new CultureInfo("cs");
-
+           Startup_ARGS = e.Args;
+           AppDomain.CurrentDomain.FirstChanceException += CurrentDomain_FirstChanceException;
         }
 
         void CurrentDomain_FirstChanceException(object sender, System.Runtime.ExceptionServices.FirstChanceExceptionEventArgs e)

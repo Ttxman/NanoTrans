@@ -8,6 +8,7 @@ using System.Xml.Serialization;
 using System.Xml;
 using System.Windows;
 using NanoTrans.Core;
+using WPFLocalizeExtension.Engine;
 
 namespace NanoTrans
 {
@@ -128,8 +129,54 @@ namespace NanoTrans
 
         public double SlowedPlaybackSpeed { get; set; }
         public double WaveformSmallJump { get; set; } //delka maleho skoku na vlne
+
+
+        string[] _NonSpeechEvents = null;
+        
         [XmlIgnore]
-        public string[] NonSpeechEvents { get; set; }
+        public string[] NonSpeechEvents 
+        {
+            get
+            {
+                if (_NonSpeechEvents == null)
+                {
+                    _NonSpeechEvents = NanoTrans.Properties.Strings.GlobalNonSpeechEvents.Split(',');
+                }
+
+                return _NonSpeechEvents;
+            }
+
+            set 
+            {
+                _NonSpeechEvents = value;
+                if (PropertyChanged != null)
+                    PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs("NonSpeechEvents"));
+            }
+        }
+
+        string[] _SpeakerAtributteCategories = null;
+        [XmlIgnore]
+        public string[] SpeakerAtributteCategories 
+        {
+            get
+            {
+                if (_SpeakerAtributteCategories == null)
+                {
+                    _SpeakerAtributteCategories = NanoTrans.Properties.Strings.GlobalDefaultSpeakerAttributes.Split(',');
+                }
+
+                return _SpeakerAtributteCategories;
+            }
+
+            set
+            {
+                _SpeakerAtributteCategories = value;
+                if (PropertyChanged != null)
+                    PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs("SpeakerAtributteCategories"));
+            }
+        }
+
+
 
         double _SetupTextFontSize;
         public double SetupTextFontSize //udava velikost pisma v textboxech   
@@ -202,7 +249,7 @@ namespace NanoTrans
         public double MaxSpeakerImageWidth { get; set; }
 
 
-        public string[] SpeakerAtributteCategories{ get; set; }
+
 
         public void Initialize()
         {
@@ -223,8 +270,8 @@ namespace NanoTrans
             WindowState = WindowState.Normal;
             SlowedPlaybackSpeed = 0.8;
             WaveformSmallJump  = 5;
-            NonSpeechEvents = new[] { "kasel", "ehm", "smich", "ticho", "nadech", "hluk", "hudba", "mlask" };
-            SpeakerAtributteCategories = new[] {"Komentář","Rodinný stav", "Národnost", "Zaměstnání"  };
+            //NonSpeechEvents = new[] { "kasel", "ehm", "smich", "ticho", "nadech", "hluk", "hudba", "mlask" };
+            //SpeakerAtributteCategories = new[] {"Komentář","Rodinný stav", "Národnost", "Zaměstnání"  };
             
         }
 
@@ -241,6 +288,30 @@ namespace NanoTrans
             PhoneticParagraphDisabledBackground = Brushes.LightGray;
             SectionBackground = Brushes.LightGreen;
             ChapterBackground = Brushes.LightPink;
+
+            LocalizeDictionary.Instance.PropertyChanged += LocalizationInstance_PropertyChanged;
+        }
+
+        string _Locale = null;
+        public string Locale
+        {
+            get
+            {
+                return _Locale;
+            }
+
+            set
+            {
+                _Locale = value;
+                if (PropertyChanged != null)
+                    PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs("Locale"));
+            }
+        }
+
+        void LocalizationInstance_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            SpeakerAtributteCategories = null;
+            NonSpeechEvents = null;
         }
 
         public bool Serialize(string filename, GlobalSetup co)
@@ -296,7 +367,8 @@ namespace NanoTrans
                 XmlTextReader xreader = new XmlTextReader(filestream);
                 md = (GlobalSetup)serializer.Deserialize(xreader);
                 xreader.Close();
-                if (md == null) return this;
+                if (md == null) 
+                    return this;
                 return md;
             }
             catch (Exception ex)

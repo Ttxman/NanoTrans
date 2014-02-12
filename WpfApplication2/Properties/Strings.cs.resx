@@ -621,4 +621,16 @@
   <data name="SpeakersManagerButtonCancel" xml:space="preserve">
     <value>Cancel</value>
   </data>
+  <data name="SpeakerDetailsPinToCocument" xml:space="preserve">
+    <value>Připojit k dokumentu:</value>
+  </data>
+  <data name="SpeakersSynchronizerContextMenuRemoveLink" xml:space="preserve">
+    <value>Odstraň Přiřazení</value>
+  </data>
+  <data name="WinSetupLocalizationTitle" xml:space="preserve">
+    <value>Lokalizace</value>
+  </data>
+  <data name="GlobalDefaultSpeakerAttributes" xml:space="preserve">
+    <value>Komentář,Rodinný stav,Národnost,Zaměstnání</value>
+  </data>
 </root>

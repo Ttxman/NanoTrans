@@ -29,15 +29,15 @@ namespace NanoTrans
         {
             InitializeComponent();
         }
-        float m_TotalBytes = 1000;
+        float _TotalBytes = 1000;
         public float TotalBytes
         {
-            get { lock (this) { return m_TotalBytes; } }
+            get { lock (this) { return _TotalBytes; } }
             set
             {
                 lock (this)
                 {
-                    m_TotalBytes = (float)Math.Floor(value/1024f);
+                    _TotalBytes = (float)Math.Floor(value/1024f);
                 }
                 if (PropertyChanged != null)
                     PropertyChanged(this, new PropertyChangedEventArgs("TotalBytes"));
@@ -45,15 +45,15 @@ namespace NanoTrans
         }
 
 
-        float m_Bytes = 0;
+        float _Bytes = 0;
         public float BytesDownloaded
         {
-            get { lock (this) { return m_Bytes; } }
+            get { lock (this) { return _Bytes; } }
             set
             {
                 lock (this)
                 {
-                    m_Bytes = (float)Math.Floor(value / 1024f);
+                    _Bytes = (float)Math.Floor(value / 1024f);
                 }
                 if (PropertyChanged != null)
                     PropertyChanged(this, new PropertyChangedEventArgs("BytesDownloaded"));

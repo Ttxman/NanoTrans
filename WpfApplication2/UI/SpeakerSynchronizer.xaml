@@ -38,7 +38,7 @@
             <ListBox x:Name="listdocument" Grid.Column="0" Grid.RowSpan="2" DockPanel.Dock="Bottom" PreviewKeyDown="listdocument_PreviewKeyDown" HorizontalContentAlignment="Stretch">
                 <ListBox.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="Odstraň přiřazení" Click="MenuItemClearPairing_Click"/>
+                        <MenuItem Header="{lex:BLoc Key=NanoTrans:Strings:SpeakersSynchronizerContextMenuRemoveLink}" Click="MenuItemClearPairing_Click"/>
                     </ContextMenu>
                 </ListBox.ContextMenu>
                 <ListBox.Resources>

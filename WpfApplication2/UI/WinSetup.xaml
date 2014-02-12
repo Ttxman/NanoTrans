@@ -69,13 +69,24 @@
                             </Grid>
                         </GroupBox>
 
-                        <GroupBox FontWeight="Bold" Header="{lex:Loc Key=WinSetupSpellchekingTitle}" Height="83" Margin="5,5,5,0" VerticalAlignment="Top">
-                            <StackPanel Orientation="Horizontal">
+                        <GroupBox FontWeight="Bold" Header="{lex:Loc Key=WinSetupSpellchekingTitle}" Margin="5,5,5,0" VerticalAlignment="Top">
+                            <StackPanel Orientation="Horizontal" Margin="0,5,0,5">
                                 <Button Height="27.723" Margin="0,0,10,0" Visibility="{Binding Source={StaticResource SpellEngine}, Converter={StaticResource CollapseOnNotNullConverter}}" Click="Button_Click_1" Content="{lex:Loc Key=WinSetupSpellchekingDownloadAutomatically}"/>
                                 <Button Height="27.723" Margin="0,0,10,0" Visibility="{Binding Source={StaticResource SpellEngine}, Converter={StaticResource CollapseOnNullConverter}}" Click="Button_Click_1" Content="{lex:Loc Key=WinSetupSpellchekingUpdateAutomatically}"/>
                                 <Button Height="27.723" Margin="0,0,10,0" Click="ButtonLoadOpenOfficeSpellchekingDictionaries" Content="{lex:Loc Key=WinSetupSpellchekingSetManually}"/>
                             </StackPanel>
                         </GroupBox>
+
+                        <GroupBox FontWeight="Bold" Header="{lex:Loc Key=WinSetupLocalizationTitle}">
+                            <ComboBox Name="LocalizationSelection" HorizontalAlignment="Left" Margin="0,5,0,5" IsTextSearchEnabled="True" ItemsSource="{x:Static local:WinSetup.AvailableCultures}" SelectionChanged="LocalizationSelection_SelectionChanged">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Path=NativeName}"/>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </GroupBox>
+
                     </StackPanel>
                 </Grid>
             </TabItem>

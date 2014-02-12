@@ -31,6 +31,21 @@ namespace NanoTrans.Core
                 }
             }
         }
+
+
+        private bool _PinnedToDocument = false;
+        /// <summary>
+        ///  == Do not delete from document, when not used in any paragraph
+        /// </summary>
+        public bool PinnedToDocument
+        {
+            get { return _PinnedToDocument; }
+            set
+            {
+                _PinnedToDocument = value;
+            }
+        }
+
         public void FixID()
         {
             _IDFixed = true;
@@ -161,7 +176,7 @@ namespace NanoTrans.Core
         public Dictionary<string, string> Elements = new Dictionary<string, string>();
         private static readonly XAttribute EmptyAttribute = new XAttribute("empty", "");
 
-        public static Speaker DeserializeV2(XElement s, bool isStrict)
+        internal static Speaker DeserializeV2(XElement s, bool isStrict)
         {
             Speaker sp = new Speaker();
 
@@ -210,6 +225,8 @@ namespace NanoTrans.Core
             return sp;
         }
 
+
+
         public Speaker(XElement s)//V3 format
         {
             if (!s.CheckRequiredAtributes("id", "surname", "firstname", "sex", "lang"))
@@ -233,6 +250,10 @@ namespace NanoTrans.Core
             }
 
             DefaultLang = s.Attribute("lang").Value;
+
+            //merges
+            this.Merges.AddRange(s.Elements("m").Select(m => new DBMerge(m.Attribute("dbid").Value, stringToDBType(m.Attribute("dbtype").Value))));
+
             Attributes.AddRange(s.Elements("a").Select(e => new SpeakerAttribute(e)));
 
             Elements = s.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
@@ -243,24 +264,7 @@ namespace NanoTrans.Core
             {
                 DBID = rem;
                 if (Elements.TryGetValue("dbtype", out rem))
-                {
-                    switch (rem)
-                    {
-                        case "user":
-                            this.DataBaseType = DBType.User;
-                            break;
-
-                        case "api":
-                            this.DataBaseType = DBType.Api;
-                            break;
-                        case "file":
-                            this.DataBaseType = DBType.File;
-                            break;
-
-                        default:
-                            break;
-                    }
-                }
+                    this.DataBaseType = stringToDBType(rem);
 
             }
 
@@ -290,8 +294,9 @@ namespace NanoTrans.Core
             if (Elements.TryGetValue("degreebefore", out rem))
                 this.DegreeBefore = rem;
 
-            if (Elements.TryGetValue("degreeafter", out rem))
-                this.DegreeAfter = rem;
+            if (Elements.TryGetValue("pinned", out rem))
+                this.PinnedToDocument = XmlConvert.ToBoolean(rem);
+
 
 
             Elements.Remove("id");
@@ -307,10 +312,34 @@ namespace NanoTrans.Core
             Elements.Remove("degreeafter");
             Elements.Remove("synchronized");
 
+            Elements.Remove("pinned");
+
 
         }
 
-        public XElement Serialize() //v3
+        private DBType stringToDBType(string rem)
+        {
+            switch (rem)
+            {
+                case "user":
+                    return DBType.User;
+                case "api":
+                    return DBType.Api;
+
+                case "file":
+                    return DBType.File;
+
+                default:
+                    goto case "file";
+            }
+        }
+
+        /// <summary>
+        /// serialize speaker
+        /// </summary>
+        /// <param name="saveAll">save including image and merges, used when saving database</param>
+        /// <returns></returns>
+        public XElement Serialize(bool saveAll = false) //v3
         {
             XElement elm = new XElement("s",
                 Elements.Select(e =>
@@ -333,6 +362,8 @@ namespace NanoTrans.Core
                     val = "api";
                 else if (DataBaseType == DBType.User)
                     val = "user";
+                else
+                    val = "file";
                 elm.Add(new XAttribute("dbtype", val));
             }
 
@@ -348,6 +379,12 @@ namespace NanoTrans.Core
             if (DataBaseType != DBType.File)
                 elm.Add(new XAttribute("synchronized", XmlConvert.ToString(DateTime.UtcNow, XmlDateTimeSerializationMode.Utc)));//stored in UTC convert from local
 
+            if (PinnedToDocument)
+                elm.Add(new XAttribute("pinned", true));
+
+            if (saveAll)
+                foreach (var m in Merges)
+                    elm.Add(m.Serialize());
 
             foreach (var a in Attributes)
                 elm.Add(a.Serialize());
@@ -372,6 +409,7 @@ namespace NanoTrans.Core
             DefaultLang = aSpeaker.DefaultLang;
             Sex = aSpeaker.Sex;
             ImgBase64 = aSpeaker.ImgBase64;
+            Merges = new List<DBMerge>(aSpeaker.Merges);
 
             foreach (var a in aSpeaker.Attributes)
             {
@@ -443,5 +481,7 @@ namespace NanoTrans.Core
         public DBType DataBaseType { get; set; }
 
         public DateTime Synchronized { get; set; }
+
+        public List<DBMerge> Merges = new List<DBMerge>();
     }
 }

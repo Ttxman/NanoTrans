@@ -28,6 +28,7 @@ namespace NanoTrans
         {
             SpeakerSmall sender = (SpeakerSmall)d;
             BindingOperations.SetBinding(sender, LoadingProperty, new Binding("IsLoading") { Source = sender.SpeakerContainer });
+            BindingOperations.SetBinding(sender, ModifiedProperty, new Binding("Changed") {Source = sender.SpeakerContainer , Mode= BindingMode.OneWay});
         }
 
         public SpeakerContainer SpeakerContainer
@@ -54,6 +55,30 @@ namespace NanoTrans
         public static readonly DependencyProperty MiniatureVisibleProperty =
         DependencyProperty.Register("MiniatureVisible", typeof(bool), typeof(SpeakerSmall));
 
+
+        public static readonly DependencyProperty ModifiedProperty =
+        DependencyProperty.Register("Modified", typeof(bool), typeof(SpeakerSmall), new FrameworkPropertyMetadata(OnModified));
+
+        public static void OnModified(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            SpeakerSmall sender = (SpeakerSmall)d;
+            if (sender.SpeakerModified != null)
+                sender.SpeakerModified();
+        }
+
+        public event Action SpeakerModified;
+
+        public bool Changed
+        { 
+            get
+            {
+                return (bool)GetValue(ModifiedProperty);
+            }
+            set
+            {
+                SetValue(ModifiedProperty, value);
+            }
+        }
 
         public bool IsLoading
         {

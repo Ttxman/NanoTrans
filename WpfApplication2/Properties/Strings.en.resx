@@ -223,8 +223,7 @@
     <value>Video</value>
   </data>
   <data name="menuToolsVideoShow" xml:space="preserve">
-    <value>
-Show Video</value>
+    <value>Show Video</value>
   </data>
   <data name="MessageBoxAudioFormatError" xml:space="preserve">
     <value>Audio file format cannot be opened. The file is corrupted or  in an invalid format.</value>
@@ -621,5 +620,17 @@ Show Video</value>
   </data>
   <data name="SpeakersManagerButtonCancel" xml:space="preserve">
     <value>Cancel</value>
+  </data>
+  <data name="SpeakerDetailsPinToCocument" xml:space="preserve">
+    <value>Pin to document:</value>
+  </data>
+  <data name="SpeakersSynchronizerContextMenuRemoveLink" xml:space="preserve">
+    <value>Remove Link</value>
+  </data>
+  <data name="WinSetupLocalizationTitle" xml:space="preserve">
+    <value>Localization</value>
+  </data>
+  <data name="GlobalDefaultSpeakerAttributes" xml:space="preserve">
+    <value>Comment,Marital status,Nationality,Employment</value>
   </data>
 </root>

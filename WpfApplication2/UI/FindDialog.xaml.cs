@@ -26,19 +26,19 @@ namespace NanoTrans
         
         }
 
-        private Window1 m_parent;
+        private Window1 _parent;
         public FindDialog(Window1 parent)
         {
-            m_parent = parent;
+            _parent = parent;
             InitializeComponent();
         }
 
         bool searching = false;
         public void SearchNext()
         { 
-            m_parent.FindNext(textBox1.Text,checkBox2.IsChecked == true,checkBox1.IsChecked == true, checkBox3.IsChecked == true);
+            _parent.FindNext(textBox1.Text,checkBox2.IsChecked == true,checkBox1.IsChecked == true, checkBox3.IsChecked == true);
             searching = true;
-            m_parent.VirtualizingListBox.UpdateLayout();
+            _parent.VirtualizingListBox.UpdateLayout();
             textBox1.Focus();
         }
 
@@ -80,7 +80,7 @@ namespace NanoTrans
 
         private void Window_Closed(object sender, EventArgs e)
         {
-            m_parent.Focus();
+            _parent.Focus();
         }
 
 

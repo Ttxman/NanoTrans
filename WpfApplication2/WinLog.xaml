@@ -1,9 +1,0 @@
-﻿<Window x:Class="NanoTrans.WinLog"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Title="WinLog" Height="340" Width="408">
-    <Grid >
-        <ListBox Margin="10,10,12,31" Name="listBox1" />
-        <Button Height="21" Margin="86,0,109,4" Name="button1" VerticalAlignment="Bottom" Click="button1_Click">clear</Button>
-    </Grid>
-</Window>

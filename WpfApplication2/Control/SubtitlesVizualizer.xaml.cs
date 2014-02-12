@@ -549,7 +549,7 @@ namespace NanoTrans
         {
             foreach (Element ee in listbox.VisualFindChildren<Element>())
             {
-                ee.RefreshSpeakerButton();
+                ee.RefreshSpeakerInfos();
             }
         }
 

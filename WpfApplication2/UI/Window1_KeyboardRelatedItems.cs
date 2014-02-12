@@ -214,9 +214,9 @@ namespace NanoTrans
             string[] masks = _ExportPlugins.Select(p => p.Mask).ToArray();
 
             SaveFileDialog sf = new SaveFileDialog();
-            if (Transcription.FileName!=null)
+            if (Transcription.FileName != null)
                 sf.InitialDirectory = System.IO.Path.GetDirectoryName(System.IO.Path.GetFullPath(Transcription.FileName));
-                sf.FileName = System.IO.Path.GetFileNameWithoutExtension(Transcription.FileName);
+            sf.FileName = System.IO.Path.GetFileNameWithoutExtension(Transcription.FileName);
 
             sf.AddExtension = true;
             sf.CheckPathExists = true;
@@ -355,6 +355,12 @@ namespace NanoTrans
                 VirtualizingListBox.ActiveTransctiption.Parent.Remove(VirtualizingListBox.ActiveTransctiption);
             }
         }
+
+        double? smwidth = null;
+        double? smheight = null;
+        double? smleft = null;
+        double? smtop = null;
+
         private void CAssignSpeaker(object sender, ExecutedRoutedEventArgs e)
         {
             TranscriptionParagraph tpr = null;
@@ -364,11 +370,29 @@ namespace NanoTrans
                 tpr = VirtualizingListBox.ActiveTransctiption as TranscriptionParagraph;
 
             var mgr = new SpeakersManager(tpr.Speaker, Transcription, Transcription.Speakers, SpeakersDatabase) { MessageLabel = "Vybraný odstavec:", Message = VirtualizingListBox.ActiveTransctiption.Text };
+            if (smwidth != null && smheight != null && smleft != null && smtop != null)
+            {
+                mgr.Width = smwidth.Value;
+                mgr.Height = smheight.Value;
+                mgr.Left = smleft.Value;
+                mgr.Top = smtop.Value;
+            }
 
-            if (mgr.ShowDialog() == true && mgr.SelectedSpeaker!=null)
+            if (mgr.ShowDialog() == true && mgr.SelectedSpeaker != null)
             {
                 tpr.Speaker = mgr.SelectedSpeaker;
                 this.Transcription.Saved = false;
+            }
+
+            smwidth = mgr.Width;
+            smheight = mgr.Height;
+            smleft = mgr.Left;
+            smtop = mgr.Top;
+
+            if (mgr.SpeakerChanged)//refresh all sepakers
+            { 
+                var pinned = SpeakersDatabase.Where(s => s.PinnedToDocument);
+                Transcription.Speakers.AddRange(pinned.Except(Transcription.Speakers));
             }
 
             VirtualizingListBox.SpeakerChanged(VirtualizingListBox.ActiveElement);

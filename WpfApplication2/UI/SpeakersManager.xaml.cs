@@ -36,6 +36,13 @@ namespace NanoTrans
             }
         }
 
+        bool _changed = false;
+        public bool SpeakerChanged
+        {
+            get { return _changed; }
+            set { _changed = true; } //cannot unchange speaker, refresh is required
+        }
+
         bool _showMiniatures = true;
         public bool ShowMiniatures
         {
@@ -122,6 +129,7 @@ namespace NanoTrans
                 ss.Marked = true;
             SpeakersBox.SelectedValue = ss;
             SpeakersBox.ScrollIntoView(SpeakersBox.SelectedItem);
+            //SpeakersBox.Items.SortDescriptions.Add( new SortDescription("",ListSortDirection.Ascending));
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -142,6 +150,11 @@ namespace NanoTrans
                 _transcription.Saved = false;
                 var speakers = sm2.SpeakersBox.SelectedItems.Cast<SpeakerContainer>().Select(x => x.Speaker).ToList();
                 speakers.Remove(selectedSpeaker);
+
+                //merge
+                selectedSpeaker.Merges.AddRange(speakers.Select(s=>new DBMerge(s.DBID,s.DataBaseType)));
+                selectedSpeaker.Merges.AddRange(speakers.SelectMany(s => s.Merges));
+
                 if (speakers.Count == 0)
                     return;
 
@@ -168,7 +181,7 @@ namespace NanoTrans
                     }
 
                     SpeakerProvider.View.Refresh();
-
+                    SpeakersBox.UnselectAll();
                 }
             }
 
@@ -197,7 +210,7 @@ namespace NanoTrans
                 }
 
                 SpeakerProvider.View.Refresh();
-
+                SpeakersBox.UnselectAll();
             }
 
         }
@@ -230,6 +243,7 @@ namespace NanoTrans
 
         private void ButtonNewSpeaker_Click(object sender, RoutedEventArgs e)
         {
+            FilterTBox.Text = "";
             MenuItem_NewSpeaker(null, null);
             _transcription.Saved = false;
         }
@@ -266,8 +280,9 @@ namespace NanoTrans
         private void SpeakersBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (SpeakersBox.SelectedItem == null)
-                return;
-            SelectedSpeaker = ((SpeakerContainer)SpeakersBox.SelectedItem).Speaker;
+                SelectedSpeaker = null;
+            else
+                SelectedSpeaker = ((SpeakerContainer)SpeakersBox.SelectedItem).Speaker;
         }
 
         private void SpeakersBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -284,6 +299,18 @@ namespace NanoTrans
         private void manager_Loaded(object sender, RoutedEventArgs e)
         {
             FilterTBox.Focus();
+        }
+
+        private void SpeakersBox_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            var sp = (SpeakerContainer)SpeakersBox.GetObjectAtPoint<ListBoxItem>(e.GetPosition(SpeakersBox));
+            if (SpeakersBox.SelectedItem != sp)
+                SpeakersBox.SelectedItem = sp;
+        }
+
+        private void SpeakerSmall_speakermodified()
+        {
+            SpeakerChanged = true;
         }
 
     }
@@ -541,6 +568,8 @@ namespace NanoTrans
             if (localSpeakers != null)
                 _allSpeakers.AddRange(localSpeakers.Select(s => new SpeakerContainer(documentSpeakers, s) { IsLocal = true }));
 
+            _allSpeakers.Sort((x,y)=>{ int cmp = string.Compare(x.SurName,y.SurName); return (cmp != 0)?cmp:string.Compare(x.FirstName,y.FirstName); });
+
             _view = CollectionViewSource.GetDefaultView(_allSpeakers);
 
             _view.Filter = FilterItems;
@@ -628,7 +657,6 @@ namespace NanoTrans
                     PropertyChanged(this, new PropertyChangedEventArgs("Marked"));
             }
         }
-
 
 
         Speaker _speaker;
@@ -720,6 +748,24 @@ namespace NanoTrans
         Speaker.Sexes? _sex;
         //Attributes
 
+        public bool PinnedToDocument
+        {
+            get
+            {
+                return _speaker.PinnedToDocument;
+            }
+
+            set
+            {
+                
+                _speaker.PinnedToDocument = value;
+                Changed = true;
+
+                if (PropertyChanged != null)
+                    PropertyChanged(this, new PropertyChangedEventArgs("PinnedToDocument"));
+            }
+        }
+
         public string DegreeBefore
         {
             get
@@ -729,7 +775,7 @@ namespace NanoTrans
 
             set
             {
-                _speaker.DegreeBefore = _degreeBefore = value.Trim();
+                _speaker.DegreeBefore = _degreeBefore = (value ?? "").Trim();
                 Changed = true;
                 if (PropertyChanged != null)
                     PropertyChanged(this, new PropertyChangedEventArgs("DegreeBefore"));
@@ -745,7 +791,7 @@ namespace NanoTrans
 
             set
             {
-                _speaker.FirstName = _firstName = value.Trim();
+                _speaker.FirstName = _firstName = (value??"").Trim();
                 Changed = true;
                 if (PropertyChanged != null)
                     PropertyChanged(this, new PropertyChangedEventArgs("FirstName"));
@@ -780,7 +826,7 @@ namespace NanoTrans
 
             set
             {
-                _speaker.MiddleName = _secondName = value.Trim();
+                _speaker.MiddleName = _secondName = (value ?? "").Trim();
                 Changed = true;
                 if (PropertyChanged != null)
                     PropertyChanged(this, new PropertyChangedEventArgs("SecondName"));
@@ -797,7 +843,7 @@ namespace NanoTrans
 
             set
             {
-                _speaker.Surname = _surName = value.Trim();
+                _speaker.Surname = _surName = (value??"").Trim();
                 Changed = true;
                 if (PropertyChanged != null)
                     PropertyChanged(this, new PropertyChangedEventArgs("SurName"));
@@ -814,7 +860,7 @@ namespace NanoTrans
 
             set
             {
-                _speaker.DegreeAfter = _degreeAfter = value.Trim();
+                _speaker.DegreeAfter = _degreeAfter = (value ?? "").Trim();
                 Changed = true;
                 if (PropertyChanged != null)
                     PropertyChanged(this, new PropertyChangedEventArgs("DegreeAfter"));

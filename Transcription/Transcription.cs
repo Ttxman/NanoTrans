@@ -319,7 +319,7 @@ namespace NanoTrans.Core
                         }),
                         this.Meta,
                         Chapters.Select(c => c.Serialize()),
-                        SerializeSpeakers()
+                        SerializeSpeakers(SaveSpeakersDetailed)
                     );
 
             if (!string.IsNullOrWhiteSpace(this.DocumentID))
@@ -343,10 +343,13 @@ namespace NanoTrans.Core
             }
         }
 
-        private XElement SerializeSpeakers()
+        private XElement SerializeSpeakers(bool SaveSpeakersDetailed)
         {
-            var speakers = this.EnumerateParagraphs().Select(p => p.Speaker).Where(s => s != Speaker.DefaultSpeaker && s.ID != Speaker.DefaultID).Distinct().ToList();
-            return new SpeakerCollection(speakers).Serialize();
+            var speakers = this.EnumerateParagraphs().Select(p => p.Speaker).Where(s => s != Speaker.DefaultSpeaker && s.ID != Speaker.DefaultID)
+                            .Concat(_speakers.Where(s=>s.PinnedToDocument))
+                            .Distinct()
+                .ToList();
+            return new SpeakerCollection(speakers).Serialize(SaveSpeakersDetailed);
         }
 
 

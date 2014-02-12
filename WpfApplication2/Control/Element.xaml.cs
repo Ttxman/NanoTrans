@@ -61,11 +61,19 @@ namespace NanoTrans
 
         }
 
-        public bool RefreshSpeakerButton()
+        /// <summary>
+        /// redraw all ui elements depending on speaker
+        /// </summary>
+        /// <returns>true if button visibility changed</returns>
+        public bool RefreshSpeakerInfos()
         {
             var res = Element.RefreshSpeakerButton(this, this.ValueElement as TranscriptionParagraph);
 
             var be = BindingOperations.GetBindingExpressionBase(buttonSpeaker, Button.ContentProperty);
+            if (be != null)
+                be.UpdateTarget();
+
+            be = BindingOperations.GetBindingExpressionBase(textBlockLanguage, TextBlock.TextProperty);
             if (be != null)
                 be.UpdateTarget();
 
@@ -414,8 +422,6 @@ namespace NanoTrans
                 bool closenotcorrect = false;
                 completionWindow.KeyDown += (object sender, KeyEventArgs e) =>
                 {
-
-
                     if (e.Key == Key.Q)
                     {
                         e.Handled = true;
@@ -473,10 +479,6 @@ namespace NanoTrans
                 };
             }
         }
-
-
-
-
 
         void TextView_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -1174,6 +1176,7 @@ namespace NanoTrans
 
         public event PropertyChangedEventHandler PropertyChanged;
     }
+
     public class SpellChecker : DocumentColorizingTransformer
     {
         static TextDecorationCollection defaultdecoration;
@@ -1304,6 +1307,7 @@ namespace NanoTrans
         {
             if (spell == null)
                 return;
+
             int lineStartOffset = line.Offset;
             string text = CurrentContext.Document.GetText(line);
             MatchCollection matches = Element.wordSplitter.Matches(text, 0);

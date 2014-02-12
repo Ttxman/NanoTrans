@@ -8,13 +8,15 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using System.IO;
 using Microsoft.Win32;
 using Ionic.Zip;
 using System.Linq;
 using System.Configuration;
 using NanoTrans.Core;
+using System.Globalization;
+using System.Diagnostics;
+using WPFLocalizeExtension.Engine;
 
 namespace NanoTrans
 {
@@ -71,7 +73,7 @@ namespace NanoTrans
                     tbSpeakerDBPath.Text = path;
                 }
 
-                
+
                 tbTextSize.Text = setup.SetupTextFontSize.ToString();
                 chbShowSpeakerImage.IsChecked = setup.ShowSpeakerImage;
                 slSpeakerImageSize.Value = setup.MaxSpeakerImageWidth;
@@ -87,11 +89,45 @@ namespace NanoTrans
                 val = (decimal)(setup.WaveformSmallJump);
                 if (val >= UpDownJump.Minimum.Value && val <= UpDownJump.Maximum.Value)
                     UpDownJump.Value = val;
+
+
             }
+
+            //setup.Localization
+            int index = AvailableCultures.Select((c, i) => new { c, i }).First(p => p.c.DisplayName == LocalizeDictionary.Instance.Culture.DisplayName).i;
+            LocalizationSelection.SelectedItem = preselectionCulture = AvailableCultures[index];
 
         }
 
+        private CultureInfo preselectionCulture = LocalizeDictionary.Instance.Culture;
 
+        static CultureInfo[] _AvailableCultures = null;
+        public static CultureInfo[] AvailableCultures
+        {
+            get
+            {
+                if (_AvailableCultures == null)
+                {
+                    var programLocation = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+                    var asname = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name;
+                    var resourceFileName = asname + ".resources.dll";
+
+                    var resources = new DirectoryInfo(programLocation).GetFiles(resourceFileName, SearchOption.AllDirectories);
+                    _AvailableCultures = resources.Select(f => new CultureInfo(f.Directory.Name)).OrderBy(c => c.NativeName).ToArray();
+                }
+
+                return _AvailableCultures;
+            }
+        }
+
+        private void LocalizationSelection_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (LocalizationSelection.SelectedItem != null)
+            {
+                LocalizeDictionary.Instance.Culture = (CultureInfo)LocalizationSelection.SelectedItem;
+                _setup.Locale = LocalizeDictionary.Instance.Culture.IetfLanguageTag;
+            }
+        }
 
         public static GlobalSetup WinSetupShowDialog(GlobalSetup aNastaveni, SpeakerCollection aDatabazeMluvcich)
         {
@@ -145,7 +181,7 @@ namespace NanoTrans
             fileDialog.Filter = string.Format(Properties.Strings.FileDialogLoadSpeakersDatabaseFilter, "*.xml", "*.xml");
 
             FileInfo fi = new FileInfo(_setup.SpeakersDatabasePath);
-            if (fi != null && fi.Directory.Exists) 
+            if (fi != null && fi.Directory.Exists)
                 fileDialog.InitialDirectory = fi.DirectoryName;
             else fileDialog.InitialDirectory = FilePaths.DefaultDirectory;
 
@@ -248,6 +284,8 @@ namespace NanoTrans
 
             }
         }
+
+
     }
 
     public class CollapseOnNullConverter : IValueConverter

@@ -19,8 +19,9 @@
         <my:SexConverter x:Key="sexConverter" />
         <my:JPGB64Converter x:Key="jpgConverter" />
         <my:MyBoolToVisibilityConverter x:Key="boolvisconverter" />
+        <my:NullToBoolConverter x:Key="nulltoboolconverter" />
     </UserControl.Resources>
-    <Grid>
+    <Grid IsEnabled="{Binding ElementName=Control,Path=SpeakerContainer, Converter={StaticResource nulltoboolconverter}}">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
@@ -33,15 +34,21 @@
         </Grid.ColumnDefinitions>
         <StackPanel>
             <Label FontWeight="Bold" Content="{lex:LocText SpeakerDetailsDegreeBefore}"/>
-            <TextBox Text="{Binding ElementName=Control,Path=SpeakerContainer.DegreeBefore,TargetNullValue='',UpdateSourceTrigger=PropertyChanged}"/>
+            <TextBox Text="{Binding ElementName=Control,Path=SpeakerContainer.DegreeBefore,TargetNullValue={x:Static clr:String.Empty},UpdateSourceTrigger=PropertyChanged}"/>
             <Label FontWeight="Bold" Content="{lex:LocText SpeakerDetailsFirstName}"/>
-            <TextBox Text="{Binding ElementName=Control,Path=SpeakerContainer.FirstName,TargetNullValue='',UpdateSourceTrigger=PropertyChanged}"/>
+            <TextBox Text="{Binding ElementName=Control,Path=SpeakerContainer.FirstName,TargetNullValue={x:Static clr:String.Empty},UpdateSourceTrigger=PropertyChanged}"/>
             <Label FontWeight="Bold" Content="{lex:LocText SpeakerDetailsMiddleName}"/>
-            <TextBox Text="{Binding ElementName=Control,Path=SpeakerContainer.SecondName,TargetNullValue='',UpdateSourceTrigger=PropertyChanged}"/>
+            <TextBox Text="{Binding ElementName=Control,Path=SpeakerContainer.SecondName,TargetNullValue={x:Static clr:String.Empty},UpdateSourceTrigger=PropertyChanged}"/>
             <Label FontWeight="Bold" Content="{lex:LocText SpeakerDetailsSurName}"/>
-            <TextBox Text="{Binding ElementName=Control,Path=SpeakerContainer.SurName,TargetNullValue='',UpdateSourceTrigger=PropertyChanged}"/>
+            <TextBox Text="{Binding ElementName=Control,Path=SpeakerContainer.SurName,TargetNullValue={x:Static clr:String.Empty},UpdateSourceTrigger=PropertyChanged}"/>
             <Label FontWeight="Bold" Content="{lex:LocText SpeakerDetailsDegreeAfter}"/>
-            <TextBox Text="{Binding ElementName=Control,Path=SpeakerContainer.DegreeAfter,TargetNullValue='',UpdateSourceTrigger=PropertyChanged}"/>
+            <TextBox Text="{Binding ElementName=Control,Path=SpeakerContainer.DegreeAfter,TargetNullValue={x:Static clr:String.Empty},UpdateSourceTrigger=PropertyChanged}"/>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock VerticalAlignment="Center" Margin="0,0,3,0" Text="{lex:LocText SpeakerDetailsPinToCocument}"/>
+                <ToggleButton Margin="3" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding ElementName=Control,Path=SpeakerContainer.PinnedToDocument}" Focusable="False" ClickMode="Press" >
+                    <Image Source="/NanoTrans;component/icons/pin.png" Stretch="None" />
+                </ToggleButton>
+            </StackPanel>
         </StackPanel>
         <StackPanel Grid.Column="1" HorizontalAlignment="Center">
             <Grid>

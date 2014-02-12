@@ -88,12 +88,13 @@ namespace NanoTrans.Core
         /// <summary>
         /// BEWARE - SpeakerCollection is synchronized manually, It can contain different speakers than transcription
         /// </summary>
+        /// <param name="saveAll">save including image and merges, used when saving database</param>
         /// <returns></returns>
-        public virtual XElement Serialize()
+        public virtual XElement Serialize(bool saveAll = false)
         {
             XElement elm = new XElement("sp",
                 elements.Select(e => new XAttribute(e.Key, e.Value)),
-                _Speakers.Select(s => s.Serialize())
+                _Speakers.Select(s => s.Serialize(saveAll))
             );
 
             return elm;
@@ -102,8 +103,9 @@ namespace NanoTrans.Core
         /// <summary>
         /// BEWARE - SpeakerCollection is synchronized manually, It can contain different speakers than transcription
         /// </summary>
+        /// <param name="saveAll">save including image and merges, used when saving database</param>
         /// <returns></returns>
-        public void Serialize(string filename)
+        public void Serialize(string filename,bool saveAll = false)
         {
             var xelm = Serialize();
             xelm.Save(filename);

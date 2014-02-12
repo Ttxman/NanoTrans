@@ -17,15 +17,15 @@
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <Border Grid.ColumnSpan="2" Margin="1" BorderBrush="Blue" BorderThickness="1" Visibility="{Binding SpeakerContainer.Marked,RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type my:SpeakerSmall}},  Converter={StaticResource visConverter}}">
-        </Border>
+        <Border Grid.ColumnSpan="2" Margin="1" BorderBrush="Blue" BorderThickness="1" Visibility="{Binding SpeakerContainer.Marked,RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type my:SpeakerSmall}},  Converter={StaticResource visConverter}}"/>
+        <Rectangle Grid.ColumnSpan="2" Margin="1" Visibility="{Binding SpeakerContainer.PinnedToDocument,RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type my:SpeakerSmall}},  Converter={StaticResource visConverter}}" Fill="#7FC14B6B"/>
 
         <Grid Margin="5,5,0,5" Width="50" Height="50" Visibility="{Binding MiniatureVisible, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type my:SpeakerSmall}}, Converter={StaticResource visConverter}}">
             <Rectangle Grid.Column="0" Margin="0" Fill="Gray"/>
             <my:LoadingAnimation Grid.Column="0"  Margin="5" Visibility="{Binding SpeakerContainer.Updating, Converter={StaticResource visConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type my:SpeakerSmall}}}" />
             <Image Source="{Binding SpeakerContainer.ImgBase64, Converter={StaticResource jpgConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type my:SpeakerSmall}}}" Grid.Column="0" Margin="5,5,5,5" Stretch="UniformToFill" />
         </Grid>
-        
+
         <StackPanel Orientation="Vertical" Grid.Column="1" Margin="5,0,0,0">
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="{Binding SpeakerContainer.DegreeBefore, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type my:SpeakerSmall}}}"/>
