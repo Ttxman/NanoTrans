@@ -14,7 +14,7 @@ USBHIDDRIVER http://www.florian-leitner.de/index.php/projects/usb-hid-driver-lib
 AvalonEdit https://github.com/icsharpcode/SharpDevelop/wiki/AvalonEdit ... for text editor component  
 Ionic.Zip http://dotnetzip.codeplex.com/ ... for reading zip files  
 WPFLocalizeExtension http://wpflocalizeextension.codeplex.com/ ... for localization  
-WPFToolkit.Extended http://wpftoolkit.codeplex.com/releases/view/94810 ... for aditional WF controls  
+WPFToolkit.Extended http://wpftoolkit.codeplex.com/releases/view/94810 ... for aditional WPF controls  
 
 
 #Warnings!!!
@@ -41,15 +41,13 @@ Online database of speakers. (for synchronizing speakers across documents)
 ##core library
 NanoTrans.Core can be used in any project, its independent on UI libraries (and can be used on mono)
 
-##editor
-Nanotrans is build on the Core library
 
 ##Transcription format
 format is defined in TRSXSchema3.xsd  
 in general all tags can have any number of custom attributes, NanoTrans will not delete or modify them. (but if tag is deleted or merged custom attributes are lost)  
-For custom structured data there is <meta> tag. You can store anything in it and it will be preserved.  
+For custom structured data there is \<meta\> tag. You can store anything in it and it will be preserved.  
 
-##import and export plugins
+##Import and export plugins
 plugins are defined in Plugins.xml  
 there are 2 possible ways to create plugin:  
 ###exe/script
