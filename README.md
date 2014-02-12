@@ -3,6 +3,12 @@ NanoTrans
 
 Editor for Orthographic and Phonetic Transcriptions in C# and WPF
 
+###Publication:  
+Seps, Ladislav. "NanoTrans—Editor for orthographic and phonetic transcriptions." Telecommunications and Signal Processing (TSP), 2013 36th International Conference on. IEEE, 2013.  
+  
+This publication should work as feature overview, copy (nanotrans_TSP2013.pdf) is included in root
+
+
 #If you have any question or in need of help with NanoTrans please feel free to email me.
 
 
