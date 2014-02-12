@@ -57,8 +57,8 @@ exact parameter string for executable is specified in Plugins.xml
 assembly and class are specified in Plugins.xml  
 On the specified class public static method is called to do the importin/exporting  
 required formats are:  
-import: Func<Stream, Transcription, bool> ... public static bool Import(Stream input, Transcription storage)  
-export: Func<Transcription, Stream, bool> ... public static bool Export(Transcription t, Stream Output)  
+import: Func\<Stream, Transcription, bool\> ... public static bool Import(Stream input, Transcription storage)  
+export: Func\<Transcription, Stream, bool\> ... public static bool Export(Transcription t, Stream Output)  
 
 ##Localization
 To add localization you have to add resource file called "Strings.LOCALE.resx" to the project "NanoTrans" in Properties section. It should contains same lines as "Strings.resx".  
