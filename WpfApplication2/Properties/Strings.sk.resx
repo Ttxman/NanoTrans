@@ -1,0 +1,636 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="FileDialogLoadOODictionaryFilter" xml:space="preserve">
+    <value>Rozšíření OpenOffice 3 {*.zip,*.oxt} |*.zip;*.oxt</value>
+  </data>
+  <data name="FileDialogLoadSpeakersDatabaseFilter" xml:space="preserve">
+    <value>Soubory mluvčích (*{0})|*{1}|Všechny soubory (*.*)|*.*</value>
+  </data>
+  <data name="FileDialogLoadSpeakersDatabaseTitle" xml:space="preserve">
+    <value>Otevřít soubor s databází mluvčích...</value>
+  </data>
+  <data name="FileDialogSaveSpeakersDatabaseTitle" xml:space="preserve">
+    <value>Uložit databází mluvčích...</value>
+  </data>
+  <data name="infoPanelsVideoHeader" xml:space="preserve">
+    <value>Video</value>
+  </data>
+  <data name="mainWindowAudioPanelHeader" xml:space="preserve">
+    <value>Audio:</value>
+  </data>
+  <data name="mainWindowLoadAudioButtonText" xml:space="preserve">
+    <value>Audio...</value>
+  </data>
+  <data name="mainWindowStatusbarAudioConversionHeader" xml:space="preserve">
+    <value>Převod audia:</value>
+  </data>
+  <data name="mainWindowStatusbarStatusTextConversionDone" xml:space="preserve">
+    <value>Převod souboru dokončen!</value>
+  </data>
+  <data name="mainWindowStatusbarStatusTextConversionRunning" xml:space="preserve">
+    <value>Probíhá převod vybraného audio souboru na podporovaný formát...</value>
+  </data>
+  <data name="mainWindowStatusbarStatusTextReady" xml:space="preserve">
+    <value>Připraven</value>
+  </data>
+  <data name="menuEdit" xml:space="preserve">
+    <value>Úpravy</value>
+  </data>
+  <data name="menuEditDeleteElement" xml:space="preserve">
+    <value>Smazat položku</value>
+  </data>
+  <data name="menuEditDeleteNonSpeechEvents" xml:space="preserve">
+    <value>Odstraň neřečové události</value>
+  </data>
+  <data name="menuEditNewChapter" xml:space="preserve">
+    <value>Nová kapitola</value>
+  </data>
+  <data name="menuEditNewSection" xml:space="preserve">
+    <value>Nová sekce na pozici</value>
+  </data>
+  <data name="menuFile" xml:space="preserve">
+    <value>Soubor</value>
+  </data>
+  <data name="menuFileExit" xml:space="preserve">
+    <value>Konec</value>
+  </data>
+  <data name="menufileExport" xml:space="preserve">
+    <value>Exportovat (Ctrl+Shift+E)</value>
+  </data>
+  <data name="menuFileImport" xml:space="preserve">
+    <value>Importovat (Ctrl+Shift+I)</value>
+  </data>
+  <data name="menuFileNewTranscription" xml:space="preserve">
+    <value>Nový přepis</value>
+  </data>
+  <data name="menufileOpenAudio" xml:space="preserve">
+    <value>Otevřít audio</value>
+  </data>
+  <data name="menuFileOpenTranscription" xml:space="preserve">
+    <value>Otevřít přepis</value>
+  </data>
+  <data name="menuFileOpenVideo" xml:space="preserve">
+    <value>Otevřít video</value>
+  </data>
+  <data name="menuFileSave" xml:space="preserve">
+    <value>Uložit přepis</value>
+  </data>
+  <data name="menuFileSaveAs" xml:space="preserve">
+    <value>Uložit přepis jako</value>
+  </data>
+  <data name="menuHelp" xml:space="preserve">
+    <value>Nápověda</value>
+  </data>
+  <data name="menuHelpAbout" xml:space="preserve">
+    <value>O programu</value>
+  </data>
+  <data name="menuHelpHelp" xml:space="preserve">
+    <value>Popis programu</value>
+  </data>
+  <data name="menuTools" xml:space="preserve">
+    <value>_Nástroje</value>
+  </data>
+  <data name="menuToolsFonetics" xml:space="preserve">
+    <value>Fonetický přepis</value>
+  </data>
+  <data name="menuToolsFoneticsShow" xml:space="preserve">
+    <value>Zobrazit fonetický přepis</value>
+  </data>
+  <data name="menuToolsSetSpeaker" xml:space="preserve">
+    <value>Nastav mluvčího</value>
+  </data>
+  <data name="menuToolsSettings" xml:space="preserve">
+    <value>Nastavení</value>
+  </data>
+  <data name="menuToolsVideo" xml:space="preserve">
+    <value>Video</value>
+  </data>
+  <data name="menuToolsVideoShow" xml:space="preserve">
+    <value>Zobrazit Video</value>
+  </data>
+  <data name="MessageBoxAudioFormatError" xml:space="preserve">
+    <value>Soubor, který se pokoušíte přehrát není podporován nebo je poškozený</value>
+  </data>
+  <data name="MessageBoxCannotTakeSnapshotVideoNotLoaded" xml:space="preserve">
+    <value>Nelze vytvořit obrázek mluvčího, protože není načteno video</value>
+  </data>
+  <data name="MessageBoxConfigFileDeserializationError" xml:space="preserve">
+    <value>Chyba pri derializaci konfiguračního souboru souboru:</value>
+  </data>
+  <data name="MessageBoxConfirmSpeakerDeletion" xml:space="preserve">
+    <value>Opravdu chcete smazat vybraného mluvčího z databáze programu?</value>
+  </data>
+  <data name="MessageBoxConfirmUsedSpeakerDeletion" xml:space="preserve">
+    <value>Opravdu chcete smazat vybraného mluvčího z příslušného seznamu i datové struktury, pokud je v ní přítomen?</value>
+  </data>
+  <data name="MessageBoxDictinaryInstalled" xml:space="preserve">
+    <value>Slovníky pro kontrolu pravopisu byly nainstalovány</value>
+  </data>
+  <data name="MessageBoxDictionaryConfirmLoad" xml:space="preserve">
+    <value>Načíst slovník {0}?</value>
+  </data>
+  <data name="MessageBoxDictionaryDownloadError" xml:space="preserve">
+    <value>Soubor nebyl stažen, uživatel zastavil stahování, cílová adresa už neexistuje, nebo není dostupné připojení k internetu</value>
+  </data>
+  <data name="MessageBoxDictionaryDownloadErrorCaption" xml:space="preserve">
+    <value>Problém se stahováním z internetu</value>
+  </data>
+  <data name="MessageBoxDictionaryFormatError" xml:space="preserve">
+    <value>Soubor nelze otevřít, je poškozený, nebo to není rozšíření Open Office 3</value>
+  </data>
+  <data name="MessageBoxErrorCaption" xml:space="preserve">
+    <value>Chyba</value>
+  </data>
+  <data name="MessageBoxExportError" xml:space="preserve">
+    <value>Export souboru skončil chybou</value>
+  </data>
+  <data name="MessageBoxImportError" xml:space="preserve">
+    <value>Import souboru skončil chybou</value>
+  </data>
+  <data name="MessageBoxInfoCaption" xml:space="preserve">
+    <value>Informace</value>
+  </data>
+  <data name="MessageBoxLocalSpeakersDatabaseUnreachableLoad" xml:space="preserve">
+    <value>Databáze mluvčích je nedostupná, změňte cestu v nastavení</value>
+  </data>
+  <data name="MessageBoxLocalSpeakersDatabaseUnreachableSave" xml:space="preserve">
+    <value>Cesta k databázi mluvčích je neplatná, mluvčí nebudou uloženi (v nastavní jde cesta změnit)</value>
+  </data>
+  <data name="MessageBoxOpenTranscriptionError" xml:space="preserve">
+    <value>Chyba pri otevirani prepisu: </value>
+  </data>
+  <data name="MessageBoxQuestionCaption" xml:space="preserve">
+    <value>Otázka:</value>
+  </data>
+  <data name="MessageBoxSaveBeforeClosing" xml:space="preserve">
+    <value>Přepis není uložený. Chcete ho nyní uložit?</value>
+  </data>
+  <data name="MessageBoxSaveTranscriptionError" xml:space="preserve">
+    <value>Chyba pri ukladani titulku:</value>
+  </data>
+  <data name="MessageBoxSearchCaption" xml:space="preserve">
+    <value>Vyhledávání</value>
+  </data>
+  <data name="MessageBoxSearchTryFromBegining" xml:space="preserve">
+    <value>Vyhledávaný výraz nebyl nalezen, začít znovu od začátku dokumentu?</value>
+  </data>
+  <data name="MessageBoxSpeakerCannotReplace" xml:space="preserve">
+    <value>Nelze Převést</value>
+  </data>
+  <data name="MessageBoxSpeakerReplaceDone" xml:space="preserve">
+    <value>Převedeno</value>
+  </data>
+  <data name="MessageBoxSpeakerReplaceTargetNotSelected" xml:space="preserve">
+    <value>Není výbraný mluvčí na kterého neviditelné převést</value>
+  </data>
+  <data name="MessageBoxTooShortParagraph" xml:space="preserve">
+    <value>Odstavec nemůže být kratší než 100ms</value>
+  </data>
+  <data name="MessageBoxUseVideoFileAsAudioSource" xml:space="preserve">
+    <value>Chcete použít jako zdroj audia načítaný video soubor?</value>
+  </data>
+  <data name="MessageBoxWarningCaption" xml:space="preserve">
+    <value>Varování</value>
+  </data>
+  <data name="OODictionaryLicenceTitle" xml:space="preserve">
+    <value>Pro instalaci slovníků si musíte být vědomi tohoto:</value>
+  </data>
+  <data name="WaveformContextMenuSetEnd" xml:space="preserve">
+    <value>Přiřadit čas konce elementu</value>
+  </data>
+  <data name="WaveformContextMenuSetSelection" xml:space="preserve">
+    <value>Přiřadit čas výběru elementu</value>
+  </data>
+  <data name="WaveformContextMenuSetStart" xml:space="preserve">
+    <value>Přiřadit čas začátku elementu</value>
+  </data>
+  <data name="WaveformContextMenuSetStartToCursor" xml:space="preserve">
+    <value>Posunout přepis - začátek ke kurzoru</value>
+  </data>
+  <data name="WinSetupAudioPlayback" xml:space="preserve">
+    <value>Přehrávání zvuku</value>
+  </data>
+  <data name="WinSetupAudioRecording" xml:space="preserve">
+    <value>Záznam zvuku</value>
+  </data>
+  <data name="WinSetupAudioTab" xml:space="preserve">
+    <value> Audio</value>
+  </data>
+  <data name="WinSetupInputDevices" xml:space="preserve">
+    <value>Vstupní zažízení:</value>
+  </data>
+  <data name="WinSetupJumpLength" xml:space="preserve">
+    <value>Délka skoku:</value>
+  </data>
+  <data name="WinSetupOKButton" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="WinSetupOthersTab" xml:space="preserve">
+    <value>Ostatní</value>
+  </data>
+  <data name="WinSetupOutputDevices" xml:space="preserve">
+    <value>Výstupní zažízení:</value>
+  </data>
+  <data name="WinSetupPlaybackSettings" xml:space="preserve">
+    <value>Nastavení Přehrávání</value>
+  </data>
+  <data name="WinSetupPlaybackTab" xml:space="preserve">
+    <value>Přehrávání</value>
+  </data>
+  <data name="WinSetupSlowPlaybackSpeed" xml:space="preserve">
+    <value>Zpomalené přehrávání - rychlost:</value>
+  </data>
+  <data name="WinSetupSpeakersDatabaseButtonTitle" xml:space="preserve">
+    <value>Načíst...</value>
+  </data>
+  <data name="WinSetupSpeakersDatabaseLabelTitle" xml:space="preserve">
+    <value>Soubor:</value>
+  </data>
+  <data name="WinSetupSpeakersDatabaseTitle" xml:space="preserve">
+    <value>Výchozí databáze mluvčích</value>
+  </data>
+  <data name="WinSetupSpellchekingDownloadAutomatically" xml:space="preserve">
+    <value>Stáhnout slovník automaticky</value>
+  </data>
+  <data name="WinSetupSpellchekingSetManually" xml:space="preserve">
+    <value>Načíst slovníky ručně</value>
+  </data>
+  <data name="WinSetupSpellchekingTitle" xml:space="preserve">
+    <value>Spellcheking Slovníky</value>
+  </data>
+  <data name="WinSetupSpellchekingUpdateAutomatically" xml:space="preserve">
+    <value>Aktualizovat slovník automaticky</value>
+  </data>
+  <data name="WinSetupStornoButton" xml:space="preserve">
+    <value>Storno</value>
+  </data>
+  <data name="WinSetupTextualTranscriptionFontSize" xml:space="preserve">
+    <value>Velikost textu přepisu:</value>
+  </data>
+  <data name="WinSetupTextualTranscriptionImageSize" xml:space="preserve">
+    <value>Velikost:</value>
+  </data>
+  <data name="WinSetupTextualTranscriptionShowImage" xml:space="preserve">
+    <value>Zobrazit fotografii mluvčího</value>
+  </data>
+  <data name="WinSetupTextualTranscriptionTitle" xml:space="preserve">
+    <value>Textový přepis</value>
+  </data>
+  <data name="WinSetupTitle" xml:space="preserve">
+    <value>Nastavení</value>
+  </data>
+  <data name="TranscriptionContextMenuAdd50ms" xml:space="preserve">
+    <value>Posunout zbytek +50ms</value>
+  </data>
+  <data name="TranscriptionContextMenuDeleteElement" xml:space="preserve">
+    <value>Smazat...</value>
+  </data>
+  <data name="TranscriptionContextMenuExport" xml:space="preserve">
+    <value>Exportovat záznam</value>
+  </data>
+  <data name="TranscriptionContextMenuNewChapter" xml:space="preserve">
+    <value>Nová kapitola</value>
+  </data>
+  <data name="TranscriptionContextMenuNewSection" xml:space="preserve">
+    <value>Nová sekce</value>
+  </data>
+  <data name="TranscriptionContextMenuNewSectionAtPosition" xml:space="preserve">
+    <value>Nová sekce na pozici</value>
+  </data>
+  <data name="TranscriptionContextMenuSetSpeaker" xml:space="preserve">
+    <value>Nastav mluvčího</value>
+  </data>
+  <data name="TranscriptionContextMenuSubstract50ms" xml:space="preserve">
+    <value>Posunout zbytek -50ms</value>
+  </data>
+  <data name="VideoContextMenuTakeSnapshot" xml:space="preserve">
+    <value>Sejmout obrázek mlvčího</value>
+  </data>
+  <data name="AboutWindowTitle" xml:space="preserve">
+    <value>O programu</value>
+  </data>
+  <data name="DefaultChapterText" xml:space="preserve">
+    <value>Kapitola 0</value>
+  </data>
+  <data name="DefaultSectionText" xml:space="preserve">
+    <value>Sekce 0</value>
+  </data>
+  <data name="DownloadFileWindowTitle" xml:space="preserve">
+    <value>Stahování</value>
+  </data>
+  <data name="ExceptionWindowBigMessage" xml:space="preserve">
+    <value>Nastala neočekávaná chyba programu. Abyste zabránily ztrátě dat uložte změny a restartujte NanoTrans</value>
+  </data>
+  <data name="ExceptionWindowExceptionTitle" xml:space="preserve">
+    <value>Výpis chyby:</value>
+  </data>
+  <data name="ExceptionWindowSaveAndRestartButton" xml:space="preserve">
+    <value>Uložit a restartovat</value>
+  </data>
+  <data name="ExceptionWindowTitle" xml:space="preserve">
+    <value>Nastala neočekáváná výjimka</value>
+  </data>
+  <data name="FileDialogLoadImageFilter" xml:space="preserve">
+    <value>Soubory obrázků|*.jpg;*.jpeg;*.png;*.gif;*.bmp|Všechny soubory (*.*)|*.*</value>
+  </data>
+  <data name="FileDialogLoadImageTitle" xml:space="preserve">
+    <value>Otevřít soubor s obrázkem mluvčího...</value>
+  </data>
+  <data name="FileDialogLoadImportFilter" xml:space="preserve">
+    <value>Soubory všech importovatelných typů({0})|{0}</value>
+  </data>
+  <data name="FileDialogLoadImportTitle" xml:space="preserve">
+    <value>Importovat soubor</value>
+  </data>
+  <data name="FileDialogLoadTranscriptionFilter" xml:space="preserve">
+    <value>Soubory titulků (*.trsx)|*.trsx|Všechny soubory (*.*)|*.*</value>
+  </data>
+  <data name="FileDialogLoadTranscriptionTitle" xml:space="preserve">
+    <value>Otevřít soubor s titulky...</value>
+  </data>
+  <data name="FileDialogSaveTranscriptionFilter" xml:space="preserve">
+    <value>Soubory titulků (*.trsx)|*.trsx|Všechny soubory (*.*)|*.*</value>
+  </data>
+  <data name="FileDialogSaveTranscriptionTitle" xml:space="preserve">
+    <value>Uložit soubor s titulky...</value>
+  </data>
+  <data name="FindDialogCaseSensitiveCheckbox" xml:space="preserve">
+    <value>Rozlišovat malá a velká písmena</value>
+  </data>
+  <data name="FindDialogNextButton" xml:space="preserve">
+    <value>Najít další</value>
+  </data>
+  <data name="FindDialogSearchInSpeakersCheckbox" xml:space="preserve">
+    <value>Hledat v mluvčích</value>
+  </data>
+  <data name="FindDialogSearchLable" xml:space="preserve">
+    <value>Najít:</value>
+  </data>
+  <data name="FindDialogTitle" xml:space="preserve">
+    <value>Hledání</value>
+  </data>
+  <data name="FindDialogUseRegexCheckbox" xml:space="preserve">
+    <value>Hledat regulárním výrazem</value>
+  </data>
+  <data name="HelpWindowCloseButtonText" xml:space="preserve">
+    <value>Zavřít</value>
+  </data>
+  <data name="HelpWindowTitle" xml:space="preserve">
+    <value>Nápověda</value>
+  </data>
+  <data name="ImportSelectImportPlugin" xml:space="preserve">
+    <value>Soubor s danou příponou je možné importovat více pluginy, vyberte ten správný</value>
+  </data>
+  <data name="LoadAudioFilter" xml:space="preserve">
+    <value>Multimediální soubory (*.wav, *.mp3, *.wma, *.avi, *.mpg, *.wmv)|*.wav;*.mp3;*.wma;*.avi;*.mpg;*.mpeg;*.wmv|Zvukové soubory (*.wav, *.mp3, *.wma)|*.wav;*.mp3;*.wma|Všechny soubory (*.*)|*.*</value>
+  </data>
+  <data name="LoadAudioTitle" xml:space="preserve">
+    <value>Otevřít zvukový soubor...</value>
+  </data>
+  <data name="LoadVideoFilter" xml:space="preserve">
+    <value>Video soubor (*.avi, *.mpg, *.wmv)|*.avi;*.mpg;*.mpeg;*.wmv|Všechny soubory (*.*)|*.*</value>
+  </data>
+  <data name="LoadVideoTitle" xml:space="preserve">
+    <value>Otevřít video soubor...</value>
+  </data>
+  <data name="PickOneDialogFilterLabel" xml:space="preserve">
+    <value>Filtr</value>
+  </data>
+  <data name="PickOneDialogOKButton" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="SexConversionFemale" xml:space="preserve">
+    <value>Žena</value>
+  </data>
+  <data name="SexConversionMale" xml:space="preserve">
+    <value>Muž</value>
+  </data>
+  <data name="TextWallWindowCancelButton" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="TextWallWindowOKButton" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="TextWallWindowTitle" xml:space="preserve">
+    <value>TextWallWindow</value>
+  </data>
+  <data name="ContextMenuLanguageHeader" xml:space="preserve">
+    <value>Jazyk Odstavce</value>
+  </data>
+  <data name="SpeakerDetailsButtonAddAttribute" xml:space="preserve">
+    <value>Přidat popisek</value>
+  </data>
+  <data name="SpeakerDetailsButtonDeleteAttribute" xml:space="preserve">
+    <value>Smazat popisek</value>
+  </data>
+  <data name="SpeakerDetailsButtonEditAttribute" xml:space="preserve">
+    <value>Editovat popisek</value>
+  </data>
+  <data name="SpeakerDetailsDegreeAfter" xml:space="preserve">
+    <value>Titul za:</value>
+  </data>
+  <data name="SpeakerDetailsDegreeBefore" xml:space="preserve">
+    <value>Titul před:</value>
+  </data>
+  <data name="SpeakerDetailsFirstName" xml:space="preserve">
+    <value>Jméno:</value>
+  </data>
+  <data name="SpeakerDetailsLabelAttributes" xml:space="preserve">
+    <value>Popisky</value>
+  </data>
+  <data name="SpeakerDetailsMiddleName" xml:space="preserve">
+    <value>Druhé jméno:</value>
+  </data>
+  <data name="SpeakerDetailsOnlineReload" xml:space="preserve">
+    <value>Obnovit</value>
+  </data>
+  <data name="SpeakerDetailsOnlineSave" xml:space="preserve">
+    <value>Uložit</value>
+  </data>
+  <data name="SpeakerDetailsSurName" xml:space="preserve">
+    <value>Přijmení:</value>
+  </data>
+  <data name="SpeakersManagerButtonNewSpeaker" xml:space="preserve">
+    <value>Nový mluvčí</value>
+  </data>
+  <data name="SpeakersManagerButtonOK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="SpeakersManagerCheckboxDocumentSpeakers" xml:space="preserve">
+    <value>Mluvčí z přepisu</value>
+  </data>
+  <data name="SpeakersManagerCheckboxLocalSpeakers" xml:space="preserve">
+    <value>Mluvčí uživatele</value>
+  </data>
+  <data name="SpeakersManagerCheckboxOnlineSpeakers" xml:space="preserve">
+    <value>Mluvčí online</value>
+  </data>
+  <data name="SpeakersManagerCheckboxShowMiniatures" xml:space="preserve">
+    <value>Zobrazit Miniatury</value>
+  </data>
+  <data name="SpeakersManagerContextMenuDelete" xml:space="preserve">
+    <value>Odstranit</value>
+  </data>
+  <data name="SpeakersManagerContextMenuMerge" xml:space="preserve">
+    <value>Sloučit s dalšími mluvčími</value>
+  </data>
+  <data name="SpeakersManagerContextMenuNew" xml:space="preserve">
+    <value>Nový mluvčí</value>
+  </data>
+  <data name="SpeakersManagerContextMenuReplace" xml:space="preserve">
+    <value>Nahradit v prepisu za</value>
+  </data>
+  <data name="SpeakersManagerLabelSearch" xml:space="preserve">
+    <value>Hledat:</value>
+  </data>
+  <data name="SpeakersManagerTitle" xml:space="preserve">
+    <value>Správce mluvčích</value>
+  </data>
+  <data name="SpeakersSynchronizerButtonOK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="SpeakersSynchronizerLabelDocumentList" xml:space="preserve">
+    <value>Mluvčí v dokumentu:</value>
+  </data>
+  <data name="SpeakersSynchronizerLabelLocalList" xml:space="preserve">
+    <value>Mluvčí uživatele:</value>
+  </data>
+  <data name="SpeakersSynchronizerTitle" xml:space="preserve">
+    <value>Synchronizace mluvčích</value>
+  </data>
+  <data name="GlobalNonSpeechEvents" xml:space="preserve">
+    <value>kasel,ehm,smich,ticho,nadech,hluk,hudba,mlask</value>
+  </data>
+  <data name="SpeakersManagerButtonCancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="SpeakerDetailsPinToCocument" xml:space="preserve">
+    <value>Připojit k dokumentu:</value>
+  </data>
+  <data name="SpeakersSynchronizerContextMenuRemoveLink" xml:space="preserve">
+    <value>Odstraň Přiřazení</value>
+  </data>
+  <data name="WinSetupLocalizationTitle" xml:space="preserve">
+    <value>Lokalizace</value>
+  </data>
+  <data name="GlobalDefaultSpeakerAttributes" xml:space="preserve">
+    <value>Komentář,Rodinný stav,Národnost,Zaměstnání</value>
+  </data>
+</root>

@@ -1,0 +1,27 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+# SharpDevelop 3.2.0.5382
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "USBHIDDRIVER", "USBHIDDRIVER\USBHIDDRIVER.csproj", "{58F64D08-1159-4A19-9EC4-DDD5ED056946}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "programHID", "programHID\programHID.csproj", "{F2A8D252-0C97-483B-9672-8745DC67199F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{58F64D08-1159-4A19-9EC4-DDD5ED056946}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58F64D08-1159-4A19-9EC4-DDD5ED056946}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58F64D08-1159-4A19-9EC4-DDD5ED056946}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58F64D08-1159-4A19-9EC4-DDD5ED056946}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2A8D252-0C97-483B-9672-8745DC67199F}.Debug|Any CPU.Build.0 = Debug|x86
+		{F2A8D252-0C97-483B-9672-8745DC67199F}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{F2A8D252-0C97-483B-9672-8745DC67199F}.Release|Any CPU.Build.0 = Release|x86
+		{F2A8D252-0C97-483B-9672-8745DC67199F}.Release|Any CPU.ActiveCfg = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
