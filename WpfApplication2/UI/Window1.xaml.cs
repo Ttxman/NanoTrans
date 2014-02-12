@@ -350,7 +350,6 @@ namespace NanoTrans
         }
 
 
-
         /// <summary>
         /// Callback from the audio-data processing thread
         /// </summary>
@@ -367,9 +366,7 @@ namespace NanoTrans
                 {
                     if (!caretRefreshTimer.IsEnabled) InitializeTimer();
                     if (waveform1.WaveLength < TimeSpan.FromSeconds(30))
-                    {
-                        waveform1.WaveLength = TimeSpan.FromSeconds(30);
-                    }
+                        Toolbar1Btn5_Click(TB30,null);
                 }
             }
             else if (me.BufferID == Const.ID_BUFFER_TRANSCRIBED_ELEMENT_PHONETIC)
@@ -1099,6 +1096,7 @@ namespace NanoTrans
         #endregion
 
         //toolbar buttons
+        //TODO: integrate into waveform
         private void Toolbar1Btn5_Click(object sender, RoutedEventArgs e)
         {
             try

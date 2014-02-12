@@ -444,7 +444,7 @@ namespace NanoTrans
 
         private void iInvalidateWaveform()
         {
-            bool notbuffered = WaveBegin < AudioBufferBegin || WaveEnd > AudioBufferEnd;
+            bool notbuffered = WaveBegin < AudioBufferBegin || WaveBegin > AudioBufferEnd;
 
             if (notbuffered)
             {
@@ -481,11 +481,12 @@ namespace NanoTrans
                 }
 
 
-                long mSekundyKonec = wave.EndMS;
+                long mSekundyKonec = (wave.EndMS < wave.audioBuffer.EndMS)?wave.EndMS:wave.audioBuffer.EndMS;
                 if (bg < 0)
                 {
                     bg = 0;
-                    if (en < 0) en = bg + 30 * _frequency;//set length to 30s if buffer is shorter than requested
+                    if (en < 0) 
+                        en = bg + 30 * _frequency;//set length to 30s if buffer is shorter than requested
                     wave.BeginMS = 1000 * bg / _frequency + wave.audioBuffer.StartMS;
                     wave.EndMS = 1000 * en / _frequency + wave.audioBuffer.StartMS;
                     mSekundyKonec = (int)(wave.EndMS);
