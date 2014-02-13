@@ -71,24 +71,22 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ICSharpCode.AvalonEdit, Version=4.2.0.8783, Culture=neutral, PublicKeyToken=9cc39be672370310, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\AvalonEdit.4.2.0.8783\lib\Net40\ICSharpCode.AvalonEdit.dll</HintPath>
+    <Reference Include="ICSharpCode.AvalonEdit">
+      <HintPath>.\ICSharpCode.AvalonEdit.dll</HintPath>
     </Reference>
-    <Reference Include="Ionic.Zip, Version=1.9.1.8, Culture=neutral, PublicKeyToken=edbe51ad942a3f5c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Updater\Ionic.Zip.dll</HintPath>
+    <Reference Include="Ionic.Zip">
+      <HintPath>.\Ionic.Zip.dll</HintPath>
     </Reference>
     <Reference Include="NHunspell">
-      <HintPath>..\NHunspell.dll</HintPath>
+      <HintPath>.\NHunspell.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="SharpDX">
-      <HintPath>..\packages\SharpDX.2.5.0\lib\net40\SharpDX.dll</HintPath>
+      <HintPath>.\SharpDX.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.DirectSound">
-      <HintPath>..\packages\SharpDX.DirectSound.2.5.0\lib\net40\SharpDX.DirectSound.dll</HintPath>
+      <HintPath>.\SharpDX.DirectSound.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -113,14 +111,16 @@
       <RequiredTargetFramework>3.0</RequiredTargetFramework>
     </Reference>
     <Reference Include="WPFLocalizeExtension">
-      <HintPath>..\packages\WpfLocalizeExtension.2.1.3\lib\net35\WPFLocalizeExtension.dll</HintPath>
+      <HintPath>.\WPFLocalizeExtension.dll</HintPath>
     </Reference>
-    <Reference Include="WPFToolkit.Extended, Version=1.8.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Extended.Wpf.Toolkit.1.8.0\lib\net40\WPFToolkit.Extended.dll</HintPath>
+    <Reference Include="WPFToolkit">
+      <HintPath>.\WPFToolkit.dll</HintPath>
+    </Reference>
+    <Reference Include="WPFToolkit.Extended">
+      <HintPath>.\WPFToolkit.Extended.dll</HintPath>
     </Reference>
     <Reference Include="XAMLMarkupExtensions">
-      <HintPath>..\packages\XAMLMarkupExtensions.1.1.6.1\lib\net40\XAMLMarkupExtensions.dll</HintPath>
+      <HintPath>.\XAMLMarkupExtensions.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -438,17 +438,15 @@
     <Resource Include="pen.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\Hunspellx64.dll">
-      <Link>Hunspellx64.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\Hunspellx86.dll">
-      <Link>Hunspellx86.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Data\pen.ico">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <Content Include="ICSharpCode.AvalonEdit.dll" />
+    <Content Include="Ionic.Zip.dll" />
+    <Content Include="NHunspell.dll" />
+    <Content Include="SharpDX.DirectSound.dll" />
+    <Content Include="SharpDX.dll" />
+    <Content Include="WPFLocalizeExtension.dll" />
+    <Content Include="WPFToolkit.dll" />
+    <Content Include="WPFToolkit.Extended.dll" />
+    <Content Include="XAMLMarkupExtensions.dll" />
     <Resource Include="icons\download_small.png" />
     <Resource Include="icons\download_small1.png" />
     <Resource Include="icons\download_small2.png" />
@@ -461,6 +459,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Resource Include="icons\pin.png" />
+    <Content Include="Hunspellx64.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Hunspellx86.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Plugins\Plugins.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -470,6 +474,9 @@
     <Resource Include="TACR\000_TACR_logotyp-en.jpg" />
     <Resource Include="TACR\050_Alfa_logotyp.jpg" />
     <Resource Include="TACR\100_newton.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Data\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Transcription\NanoTrans.Core.csproj">

@@ -19,30 +19,6 @@
     </Window.Resources>
     <Grid>
         <TabControl Margin="4,6,6,38" Name="tabControl1" SelectedIndex="0" Height="402" Width="642">
-            <TabItem >
-                <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <Image Source="/icons/iAudio.png" />
-                        <TextBlock Text="{lex:Loc Key=WinSetupAudioTab}" Margin="2,0,0,0" VerticalAlignment="Center" />
-                    </StackPanel>
-                </TabItem.Header>
-                <Grid>
-                    <GroupBox Header="{lex:Loc Key=WinSetupAudioPlayback}" Margin="5,5,5,0" Height="99" VerticalAlignment="Top" FontWeight="Bold" >
-                        <Grid>
-                            <Label HorizontalAlignment="Left" Margin="5,9,0,0" Width="120" Height="27.723" VerticalAlignment="Top" Content="{lex:Loc Key=WinSetupOutputDevices}"/>
-                            <ComboBox Margin="119,9,12,0" Name="cbOutputAudioDevices" Height="22.723" VerticalAlignment="Top" />
-                        </Grid>
-                    </GroupBox>
-                    <GroupBox Header="{lex:Loc Key=WinSetupAudioRecording}" Margin="5,112,5,103.723" FontWeight="Bold" >
-                        <Grid>
-                            <Label HorizontalAlignment="Left" Margin="5,9,0,0" Width="120" Height="27.723" VerticalAlignment="Top" Content="{lex:Loc Key=WinSetupInputDevices}"/>
-                            <ComboBox Margin="119,9,12,0" Name="cbInputAudioDevices" Height="22.723" VerticalAlignment="Top" />
-                        </Grid>
-                    </GroupBox>
-
-                </Grid>
-            </TabItem>
-
             <TabItem Header="{lex:Loc Key=WinSetupOthersTab}">
                 <Grid>
                     <StackPanel>
@@ -88,6 +64,29 @@
                         </GroupBox>
 
                     </StackPanel>
+                </Grid>
+            </TabItem>
+            <TabItem >
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="/icons/iAudio.png" />
+                        <TextBlock Text="{lex:Loc Key=WinSetupAudioTab}" Margin="2,0,0,0" VerticalAlignment="Center" />
+                    </StackPanel>
+                </TabItem.Header>
+                <Grid>
+                    <GroupBox Header="{lex:Loc Key=WinSetupAudioPlayback}" Margin="5,5,5,0" Height="99" VerticalAlignment="Top" FontWeight="Bold" >
+                        <Grid>
+                            <Label HorizontalAlignment="Left" Margin="5,9,0,0" Width="120" Height="27.723" VerticalAlignment="Top" Content="{lex:Loc Key=WinSetupOutputDevices}"/>
+                            <ComboBox Margin="119,9,12,0" Name="cbOutputAudioDevices" Height="22.723" VerticalAlignment="Top" />
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox Header="{lex:Loc Key=WinSetupAudioRecording}" Margin="5,112,5,103.723" FontWeight="Bold" >
+                        <Grid>
+                            <Label HorizontalAlignment="Left" Margin="5,9,0,0" Width="120" Height="27.723" VerticalAlignment="Top" Content="{lex:Loc Key=WinSetupInputDevices}"/>
+                            <ComboBox Margin="119,9,12,0" Name="cbInputAudioDevices" Height="22.723" VerticalAlignment="Top" />
+                        </Grid>
+                    </GroupBox>
+
                 </Grid>
             </TabItem>
             <TabItem Header="{lex:Loc Key=WinSetupPlaybackTab}">

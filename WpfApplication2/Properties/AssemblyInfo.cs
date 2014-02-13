@@ -12,7 +12,7 @@ using System.Windows;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("TUL::Speechlab")]
 [assembly: AssemblyProduct("NanoTrans")]
-[assembly: AssemblyCopyright("Copyright � TUL::Speechlab  2012")]
+[assembly: AssemblyCopyright("Copyright Ladislav Šeps")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -51,5 +51,5 @@ using System.Windows;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.5.0.227")]
-[assembly: AssemblyFileVersion("0.5.0.227")]
+[assembly: AssemblyVersion("0.6.0.0")]
+[assembly: AssemblyFileVersion("0.6.0.0")]
