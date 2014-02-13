@@ -14,7 +14,7 @@ This publication should work as feature overview, copy (nanotrans_TSP2013.pdf) i
 
 #Used libraries
 NHunspell http://nhunspell.sourceforge.net/ ... for spellchecking  
-SharpDX http://sharpdx.org/ ... for DirectX audio  
+SharpDX http://sharpdx.org/ ... for DirectSound 
 FFmpeg executable http://www.ffmpeg.org/ ... for loading and converting nearly any media file into WAV  
 USBHIDDRIVER http://www.florian-leitner.de/index.php/projects/usb-hid-driver-library/ .. for "Pedals.exe" used for infinity foot control pedals  
 AvalonEdit https://github.com/icsharpcode/SharpDevelop/wiki/AvalonEdit ... for text editor component  
