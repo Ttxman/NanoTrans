@@ -21,8 +21,9 @@ namespace NanoTrans
 
         public static Stream GetConfigFileWriteStream()
         {
-            return File.Create(GetWritePath(ConfigFile));
+            return File.Create(EnsureDirectoryExists(GetWritePath(ConfigFile)));
         }
+
 
         private static readonly string _PluginsFile = "Plugins\\Plugins.xml";
         private static readonly string _PluginsPath= "Plugins\\";
@@ -48,7 +49,14 @@ namespace NanoTrans
         static FilePaths()
         {
             _programDirectory = new FileInfo(Application.ResourceAssembly.Location).DirectoryName;
-            _writeToAppData = !CheckWritePermissions(Path.Combine(_programDirectory,"writecheck.txt"));
+
+
+            string pfiles = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86);
+            _writeToAppData = _programDirectory.StartsWith(pfiles) || !CheckWritePermissions(Path.Combine(_programDirectory,"writecheck.txt"));
+
+            
+
+
             _AppDataPath = System.IO.Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\NanoTrans");
 
             CreateTemp();
@@ -121,6 +129,9 @@ namespace NanoTrans
         }
 
 
+        /// <summary>
+        /// if nanotrans don't have write permissons to application folder of if it is installed in program files, all configs should be stored in appdata
+        /// </summary>
         public static bool WriteToAppData
         {
             get { return _writeToAppData; }
@@ -203,22 +214,40 @@ namespace NanoTrans
         public static string GetWritePath(string relativePath)
         {
             if (_writeToAppData)
-                return Path.Combine(_AppDataPath, relativePath);
+                return EnsureDirectoryExists(Path.Combine(_AppDataPath, relativePath));
             else
-                return Path.Combine(_programDirectory, relativePath);
+                return EnsureDirectoryExists(Path.Combine(_programDirectory, relativePath));
         }
 
 
-
+        /// <summary>
+        /// creates all necessary directories on specified path
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns>null if exeption is raised during creation, else simple fall through of path parameter</returns>
+        public static string EnsureDirectoryExists(string path)
+        {
+            try
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(path));
+            }
+            catch
+            {
+                return null;
+            }
+            return path;
+        }
 
         public static bool CheckWritePermissions(string path)
         {
-            /*
+            /* not working properly
             var set = new PermissionSet(PermissionState.None);
             set.AddPermission(new FileIOPermission(FileIOPermissionAccess.AllAccess,System.IO.Path.GetDirectoryName(path)));
             set.AddPermission(new FileIOPermission(FileIOPermissionAccess.AllAccess, path));
              * 
             return set.IsSubsetOf(AppDomain.CurrentDomain.PermissionSet);*/
+
+
             try
             {
 
@@ -236,5 +265,10 @@ namespace NanoTrans
         }
 
         #endregion
+
+        public static string GetDefaultSpeakersPath()
+        {
+            return GetWritePath("Data\\SpeakersDatabase.xml");
+        }
     }
 }

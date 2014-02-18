@@ -257,7 +257,7 @@ namespace NanoTrans
             audio.OutputDeviceIndex = 0;
             audio.InputDeviceIndex = 0;
 
-            SpeakersDatabasePath = "Data\\SpeakersDatabase.xml";
+            SpeakersDatabasePath = FilePaths.GetDefaultSpeakersPath();
 
             SetupTextFontSize = 13;
 

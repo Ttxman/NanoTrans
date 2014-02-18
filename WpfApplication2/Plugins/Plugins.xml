@@ -8,7 +8,7 @@
 <Plugins>
 	<Import>
     <Plugin Name="Import Nvx" Mask="trsx v1 soubory - assembly (*.nvx)|*.nvx;" IsAssembly="true" File="NvxPlugin.dll" Class="NvxPlugin.NanoVoicePlugin" />
-    <Plugin Name="Import res" Mask="nano res soubory - assembly (*.res)|*.res;*.res00;*.res01;*.res02;*.res03;*.res04;" IsAssembly="true" File="ResPlugin.dll" Class="TrsxV1Plugin.LoadRes"/>
+    <Plugin Name="Import res" Mask="nano res soubory - assembly (*.res)|*.res;*.res??;" IsAssembly="true" File="ResPlugin.dll" Class="TrsxV1Plugin.LoadRes"/>
 	</Import>
 	<Export>
 		<Plugin Name="Export text" Mask="txt soubory (*.txt)|*.txt;" IsAssembly="false" File="ExePluginTXTexport.exe" Parameters = "-i {0} -o {1}"/>

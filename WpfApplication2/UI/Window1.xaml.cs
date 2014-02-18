@@ -177,7 +177,8 @@ namespace NanoTrans
 
             SpeakersDatabase = new AdvancedSpeakerCollection();
 
-            string fname = System.IO.Path.GetFullPath(GlobalSetup.Setup.SpeakersDatabasePath);
+
+            string fname = FilePaths.EnsureDirectoryExists(System.IO.Path.GetFullPath(GlobalSetup.Setup.SpeakersDatabasePath));
             if (fname.Contains(FilePaths.ProgramDirectory))
             {
                 if (!FilePaths.WriteToAppData)
@@ -201,7 +202,7 @@ namespace NanoTrans
             {
                 if (File.Exists(GlobalSetup.Setup.SpeakersDatabasePath))
                 {
-                    SpeakerCollection.Deserialize(GlobalSetup.Setup.SpeakersDatabasePath, SpeakersDatabase);
+                    SpeakerCollection.Deserialize(FilePaths.EnsureDirectoryExists(GlobalSetup.Setup.SpeakersDatabasePath), SpeakersDatabase);
                 }
                 else
                 {
@@ -366,7 +367,7 @@ namespace NanoTrans
                 {
                     if (!caretRefreshTimer.IsEnabled) InitializeTimer();
                     if (waveform1.WaveLength < TimeSpan.FromSeconds(30))
-                        Toolbar1Btn5_Click(TB30,null);
+                        Toolbar1Btn5_Click(TB30, null);
                 }
             }
             else if (me.BufferID == Const.ID_BUFFER_TRANSCRIBED_ELEMENT_PHONETIC)
@@ -676,7 +677,7 @@ namespace NanoTrans
 
                     foreach (var p in Transcription.EnumerateParagraphs().Where(p => p.Speaker == i))
                         p.Speaker = ss;
-                    if(!i.PinnedToDocument)
+                    if (!i.PinnedToDocument)
                         toremove.Add(i);
                 }
             }
@@ -726,7 +727,7 @@ namespace NanoTrans
 
 
         TimeSpan oldms = TimeSpan.Zero;
-        bool _setCaret= false;
+        bool _setCaret = false;
         public void SetCaretPosition(TimeSpan position, bool nastavitMedia, bool aNeskakatNaZacatekElementu)
         {
             if (!_setCaret)
@@ -1080,7 +1081,7 @@ namespace NanoTrans
             GlobalSetup.Setup = WinSetup.WinSetupShowDialog(GlobalSetup.Setup, SpeakersDatabase);
             GlobalSetup.Setup.Serialize(FilePaths.GetConfigFileWriteStream(), GlobalSetup.Setup);
             waveform1.SmallJump = TimeSpan.FromSeconds(GlobalSetup.Setup.WaveformSmallJump);
-            InitializeAudioPlayer(); 
+            InitializeAudioPlayer();
         }
 
         private void MHelp_Details_Click(object sender, RoutedEventArgs e)
@@ -1188,29 +1189,31 @@ namespace NanoTrans
 
                 if (SpeakersDatabase != null)
                 {
-                    string fname = System.IO.Path.GetFullPath(GlobalSetup.Setup.SpeakersDatabasePath);
-                    if (fname.StartsWith(FilePaths.ProgramDirectory))//check access to program files.
+
+                    try
                     {
-                        if (!FilePaths.WriteToAppData)
-                            SpeakersDatabase.Serialize(fname,true);
-                        else
-                            SpeakersDatabase.Serialize(FilePaths.AppDataDirectory + fname.Substring(FilePaths.ProgramDirectory.Length),true);
-                    }
-                    else// not in ProgramFiles - NanoTrans not installed, don't do anything
-                    {
-                        try
+                        string fname = FilePaths.EnsureDirectoryExists(System.IO.Path.GetFullPath(GlobalSetup.Setup.SpeakersDatabasePath));
+                        if (fname.StartsWith(FilePaths.ProgramDirectory))//check access to program files.
                         {
-                            SpeakersDatabase.Serialize(GlobalSetup.Setup.SpeakersDatabasePath,true);
+                            if (!FilePaths.WriteToAppData)
+                                SpeakersDatabase.Serialize(fname, true);
+                            else
+                                SpeakersDatabase.Serialize(FilePaths.AppDataDirectory + fname.Substring(FilePaths.ProgramDirectory.Length), true);
                         }
-                        catch
+                        else// not in ProgramFiles - NanoTrans not installed, don't do anything
                         {
-                            if (MessageBox.Show(Properties.Strings.MessageBoxLocalSpeakersDatabaseUnreachableSave, Properties.Strings.MessageBoxWarningCaption, MessageBoxButton.OKCancel) == MessageBoxResult.Cancel)
-                            {
-                                e.Cancel = true;
-                                return;
-                            }
+                            SpeakersDatabase.Serialize(GlobalSetup.Setup.SpeakersDatabasePath, true);
                         }
                     }
+                    catch
+                    {
+                        if (MessageBox.Show(Properties.Strings.MessageBoxLocalSpeakersDatabaseUnreachableSave, Properties.Strings.MessageBoxWarningCaption, MessageBoxButton.OKCancel) == MessageBoxResult.Cancel)
+                        {
+                            e.Cancel = true;
+                            return;
+                        }
+                    }
+
                 }
 
                 if (GlobalSetup.Setup != null)
@@ -1268,7 +1271,7 @@ namespace NanoTrans
 
 
 
-        
+
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
 

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Id="*" Manufacturer="TUL::Speechlab" UpgradeCode="{36C81A72-77C8-4BD6-9D9C-3C685DE782C3}"
+           Name="NanoTrans"
+           Version="0.6.0.0"
+           Language="1029"
+           >
+
+    <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <Feature Id="ProductFeature" Title="NanoTrans Setup" Display='expand' Level="1">
+      <ComponentGroupRef Id="ProductComponents" />
+      <ComponentGroupRef Id="ProductPlugins" />
+      <ComponentGroupRef Id="Localization_cs" />
+      <ComponentGroupRef Id="Localization_en" />
+    </Feature>
+  </Product>
+
+  <Fragment>
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="INSTALLFOLDER" Name="NanoTrans">
+          <Directory Id="Plugins" Name="Plugins" />
+          <Directory Id="Locale_cs" Name="cs" />
+          <Directory Id="Locale_en" Name="en" />
+        </Directory>
+      </Directory>
+    </Directory>
+  </Fragment>
+
+  <Fragment>
+    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+      <!-- TODO: Remove the comments around this Component element and the ComponentRef below in order to add resources to this installer. -->
+      <!-- <Component Id="ProductComponent"> -->
+      <!-- TODO: Insert files, registry keys, and other resources here. -->
+      <!-- </Component> -->
+
+      <Component Id="Hunspell" Guid="{C7951CD9-E96D-421F-8722-FD66D0591FD0}" KeyPath="yes">
+        <File Id="Hunspell86" Name="Hunspellx86.dll" Source="$(var.NanoTrans.TargetDir)\Hunspellx86.dll" />
+        <File Id="Hunspell64" Name="Hunspellx64.dll" Source="$(var.NanoTrans.TargetDir)\Hunspellx64.dll" />
+        <File Id="NHunspell" Name="NHunspell.dll" Source="$(var.NanoTrans.TargetDir)\NHunspell.dll" />
+      </Component>
+
+      <Component Id="FFmpeg" Guid="{B29C976B-6446-4E2C-9497-86E8479815AF}" KeyPath="yes">
+        <File Id="FFmpeg.exe" Name="FFmpeg.exe" Source="$(var.NanoTrans.TargetDir)FFmpeg.exe" />
+      </Component>
+
+      <Component Id="AvalonEdit" Guid="{685C6BD0-C375-4781-A15A-E750181A7FB3}" KeyPath="yes">
+        <File Id="ICSharpCode.AvalonEdit.dll" Name="ICSharpCode.AvalonEdit.dll" Source="$(var.NanoTrans.TargetDir)\ICSharpCode.AvalonEdit.dll" />
+      </Component>
+
+      <Component Id="IonicZip" Guid="{2BC869F9-CA03-45DE-BC23-50FFC67F15BA}" KeyPath="yes">
+        <File Id="Ionic.Zip.dll" Name="Ionic.Zip.dll" Source="$(var.NanoTrans.TargetDir)Ionic.Zip.dll" />
+      </Component>
+
+      <Component Id="SharpDX" Guid="{B1CD3790-715F-432B-942C-C5B749654904}" KeyPath="yes">
+        <File Id="SharpDX.DirectSound.dll" Name="SharpDX.DirectSound.dll" Source="$(var.NanoTrans.TargetDir)\SharpDX.DirectSound.dll"/>
+        <File Id="SharpDX.dll" Name="SharpDX.dll" Source="$(var.NanoTrans.TargetDir)SharpDX.dll" />
+      </Component>
+
+      <Component Id="WPFToolkit" Guid="{3CEF39EF-2761-4158-A988-E6EBD44F1B54}" KeyPath="yes">
+        <File Id="WPFToolkit.dll" Name="WPFToolkit.dll" Source="$(var.NanoTrans.TargetDir)\WPFToolkit.dll"/>
+        <File Id="WPFToolkit.Extended.dll" Name="WPFToolkit.Extended.dll" Source="$(var.NanoTrans.TargetDir)\WPFToolkit.Extended.dll"/>
+      </Component>
+
+      <Component Id="WPFLocalizeExtension" Guid="{D876FC25-E0C1-4D53-B8E2-9537BFCDA6D7}" KeyPath="yes" >
+        <File Id="WPFLocalizeExtension.dll" Name="WPFLocalizeExtension.dll" Source="$(var.NanoTrans.TargetDir)\WPFLocalizeExtension.dll"/>
+        <File Id="XAMLMarkupExtensions.dll" Name="XAMLMarkupExtensions.dll" Source="$(var.NanoTrans.TargetDir)\XAMLMarkupExtensions.dll"/>
+      </Component>
+
+      <Component Id="NanoTransCore" Guid="{7557E1B0-58C8-4B94-B92F-32BCE7933B49}" KeyPath="yes">
+        <File Id="NanoTransCore.dll" Name="NanoTransCore.dll" Source="$(var.NanoTrans.TargetDir)\NanoTransCore.dll"/>
+      </Component>
+
+      <Component Id="NanoTransUI" Guid="{667B593F-4C78-4FD5-8FB9-A0C09962718D}" KeyPath="yes">
+        <File Id="NanoTrans.exe" Name="NanoTrans.exe" Source="$(var.NanoTrans.TargetDir)\NanoTrans.exe" />
+        <File Id="NanoTrans.exe.config" Name="NanoTrans.exe.config" Source="$(var.NanoTrans.TargetDir)\NanoTrans.exe.config"/>
+      </Component>
+
+      <Component Id="TrsxSchema" Guid="{1084912F-2DE9-42F9-BDD3-934A67E0EEC8}" KeyPath="yes">
+        <File Id="TRSXSchema3.xsd" Name="TRSXSchema3.xsd" Source="$(var.NanoTrans.TargetDir)\TRSXSchema3.xsd"/>
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+
+  <Fragment>
+    <ComponentGroup Id="ProductPlugins" Directory="Plugins">
+      <Component Id="PluginList" Guid="{A0BA89A4-8097-4E57-9B38-6C62D73BE266}" KeyPath="yes">
+        <File Id="Plugins.xml" Name="Plugins.xml" Source="$(var.NanoTrans.TargetDir)\Plugins\Plugins.xml" />
+      </Component>
+
+      <Component Id="ExePluginTXTexport" Guid="{99326875-B186-4288-A7E1-BE0A11622BD2}" KeyPath="yes">
+        <File Id="ExePluginTXTexport.exe" Name="ExePluginTXTexport.exe" Source="$(var.NanoTrans.TargetDir)\Plugins\ExePluginTXTexport.exe"/>
+      </Component>
+
+      <Component Id="NvxPlugin" Guid="{7970B64C-1B1F-4C01-8C5A-C82244BC3788}" KeyPath="yes">
+        <File Id="NvxPlugin.dll" Name="NvxPlugin.dll" Source="$(var.NanoTrans.TargetDir)\Plugins\NvxPlugin.dll"/>
+      </Component>
+
+      <Component Id="ResPlugin" Guid="{95F6250E-926A-4E7E-A962-EAA14A03E098}" KeyPath="yes">
+        <File Id="ResPlugin.dll" Name="ResPlugin.dll" Source="$(var.NanoTrans.TargetDir)\Plugins\ResPlugin.dll"/>
+      </Component>
+
+    </ComponentGroup>
+  </Fragment>
+
+
+  <Fragment>
+    <ComponentGroup Id="Localization_cs" Directory="Locale_cs">
+      <Component Id="resource_cs" Guid="523F8695-9D9D-4D93-8560-9F1DC55565AF" KeyPath="yes">
+        <File Id="cs_NanoTrans.resources.dll" Name="NanoTrans.resources.dll" Source="$(var.NanoTrans.TargetDir)\cs\NanoTrans.resources.dll"/>
+      </Component>
+    </ComponentGroup>
+
+    <ComponentGroup Id="Localization_en" Directory="Locale_en">
+      <Component Id="resource_en" Guid="42F4F279-CBF9-49BF-9064-D8359C9E1F07" KeyPath="yes">
+        <File Id="en_NanoTrans.resources.dll" Name="NanoTrans.resources.dll" Source="$(var.NanoTrans.TargetDir)\en\NanoTrans.resources.dll"/>
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+
+</Wix>

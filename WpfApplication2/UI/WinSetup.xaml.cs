@@ -94,7 +94,7 @@ namespace NanoTrans
             }
 
             //setup.Localization
-            int index = AvailableCultures.Select((c, i) => new { c, i }).First(p => p.c.DisplayName == LocalizeDictionary.Instance.Culture.DisplayName).i;
+            int index = AvailableCultures.Select((c, i) => new { c, i }).FirstOrDefault(p => p.c.DisplayName == LocalizeDictionary.Instance.Culture.DisplayName).i;
             LocalizationSelection.SelectedItem = preselectionCulture = AvailableCultures[index];
 
         }
