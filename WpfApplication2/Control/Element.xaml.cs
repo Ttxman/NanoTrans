@@ -382,6 +382,9 @@ namespace NanoTrans
 
         private void TextView_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            if (e.XButton2 == MouseButtonState.Pressed && e.ChangedButton == MouseButton.XButton2)
+                SeeToPhraze(e);
+
             if (e.MiddleButton != MouseButtonState.Pressed)
                 return;
 
@@ -484,28 +487,34 @@ namespace NanoTrans
         {
             if ((Keyboard.Modifiers & ModifierKeys.Control) != 0)
             {
-                var t = editor.TextArea.TextView.GetPosition(e.GetPosition(editor));
-                if (!t.HasValue)
-                    return;
-                int pos = editor.Document.GetLineByNumber(t.Value.Line).Offset + t.Value.Column;
-                if (t.HasValue && ValueElement != null && ValueElement.IsParagraph)
+                SeeToPhraze(e);
+            }
+        }
+
+        private void SeeToPhraze(MouseButtonEventArgs e)
+        {
+            var t = editor.TextArea.TextView.GetPosition(e.GetPosition(editor));
+            if (!t.HasValue)
+                return;
+            int pos = editor.Document.GetLineByNumber(t.Value.Line).Offset + t.Value.Column;
+            if (t.HasValue && ValueElement != null && ValueElement.IsParagraph)
+            {
+                TranscriptionParagraph p = (TranscriptionParagraph)ValueElement;
+                int ps = 0;
+                foreach (var ph in p.Phrases)
                 {
-                    TranscriptionParagraph p = (TranscriptionParagraph)ValueElement;
-                    int ps = 0;
-                    foreach (var ph in p.Phrases)
+                    ps += EditPhonetics ? ph.Phonetics.Length : ph.Text.Length;
+                    if (ps > pos)
                     {
-                        ps += EditPhonetics ? ph.Phonetics.Length : ph.Text.Length;
-                        if (ps > pos)
-                        {
-                            if (SetTimeRequest != null)
-                                SetTimeRequest(ph.Begin);
-                            editor.TextArea.Caret.Location = t.Value.Location;
-                            e.Handled = true;
-                            return;
-                        }
+                        if (SetTimeRequest != null)
+                            SetTimeRequest(ph.Begin);
+                        editor.TextArea.Caret.Location = t.Value.Location;
+                        e.Handled = true;
+                        return;
                     }
                 }
             }
+            return;
         }
 
 

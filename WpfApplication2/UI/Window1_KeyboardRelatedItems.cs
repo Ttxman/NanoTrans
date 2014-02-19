@@ -179,9 +179,10 @@ namespace NanoTrans
             {
                 if (opf.FilterIndex == 1) //vsechny soubory
                 {
-                    var plugins = _ImportPlugins.Where(p => p.Mask.Split('|').Where((s, i) => i % 2 == 1).Any(s => s.Contains(System.IO.Path.GetExtension(opf.FileName)))).ToArray();
-
-
+                    var plugins = _ImportPlugins.Where(
+                        p => p.Mask.Split('|')
+                            .Where((s, i) => i % 2 == 1)
+                            .Any(s => Regex.IsMatch(System.IO.Path.GetExtension(opf.FileName),string.Join("|",s.Split(new[]{';'},StringSplitOptions.RemoveEmptyEntries).Select(r => r.Replace("*", "").Replace(".", "\\.").Replace('?', '.') + "$"))))).ToArray();
 
                     if (plugins.Length != 1)
                     {

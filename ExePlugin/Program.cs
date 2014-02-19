@@ -11,6 +11,12 @@ namespace ExePlugin
 {
     class Program
     {
+        /// <summary>
+        /// resolve dependency on nanotrans core by searching parrent directory
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
         static System.Reflection.Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
         {
             if (args.Name.StartsWith("NanoTransCore"))
@@ -41,7 +47,7 @@ namespace ExePlugin
             int o = arg.IndexOf("-o") + 1;
 
 
-            //musi to byt ve vlastni classe kvuli resolveru, jinak to padne pred resolve, ve chvili kdy se zacne vytvaret typ z nenacteny ddlky
+            //funtion have to be in 
             var e = new Exporter();
             e.ExportovatDokument(arg[i].Trim('"'), arg[o].Trim('"'), times, nonoises);
 
@@ -51,7 +57,7 @@ namespace ExePlugin
     class Exporter
     {
         public static readonly Regex ignoredGroup = new Regex(@"\[.*?\]", RegexOptions.Singleline | RegexOptions.Compiled);
-        public static readonly Regex whitespaceGroup = new Regex(@"\s\s+", RegexOptions.Singleline | RegexOptions.Compiled); 
+        public static readonly Regex whitespaceGroup = new Regex(@"\s\s+", RegexOptions.Singleline | RegexOptions.Compiled);
         /// <summary>
         /// exportuje dokument do vybraneho formatu - pokud je cesta null, zavola savedialog
         /// </summary>
@@ -105,29 +111,20 @@ namespace ExePlugin
             else
             {
                 StringBuilder sb = new StringBuilder();
-                if (data.Count > 0)
-                {
-                    TranscriptionElement e = data[0];
-                    while (e != null)
+                foreach (var item in data.EnumerateParagraphs())
+                    if (nonoises)
                     {
-                        if (e.IsParagraph)
-                        {
-                            sb.AppendLine(e.Text);
-                        }
-                        e = e.Next();
+                        var alltext = ignoredGroup.Replace(item.Text, "");
+                        alltext = whitespaceGroup.Replace(alltext, " ");
+                        if (!string.IsNullOrWhiteSpace(alltext))
+                            sb.AppendLine(alltext);
                     }
-                }
+                    else
+                    {
+                        sb.AppendLine(item.Text);
+                    }
 
-
-                string alltext = sb.ToString();
-
-                if (nonoises)
-                {
-                    alltext = ignoredGroup.Replace(alltext, "");
-                    alltext = whitespaceGroup.Replace(alltext, " ");
-                }
-
-                File.WriteAllText(vystup, alltext.Trim());
+                File.WriteAllText(vystup, sb.ToString());
             }
         }
     }

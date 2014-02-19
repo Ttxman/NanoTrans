@@ -12,6 +12,7 @@
 	</Import>
 	<Export>
 		<Plugin Name="Export text" Mask="txt soubory (*.txt)|*.txt;" IsAssembly="false" File="ExePluginTXTexport.exe" Parameters = "-i {0} -o {1}"/>
+    <Plugin Name="Export text" Mask="txt soubory bez hluků (*.txt)|*.txt;" IsAssembly="false" File="ExePluginTXTexport.exe" Parameters = "-i {0} -o {1} -nonoises"/>
 		<Plugin Name="Export text" Mask="txt soubory s časy (*.txt)|*.txt;" IsAssembly="false" File="ExePluginTXTexport.exe" Parameters = "-times -i {0} -o {1}"/>
 	</Export>
 </Plugins>
