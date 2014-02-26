@@ -359,7 +359,7 @@ namespace NanoTrans
 
         private void UpdateCustomParamsFromSpeaker()
         {
-            if(!GlobalSetup.Setup.ShowCustomParams)
+            if (!GlobalSetup.Setup.ShowCustomParams)
                 return;
             if (customparams == null || customparams.Count == 0 || ValueElement == null)
                 return;
@@ -609,39 +609,8 @@ namespace NanoTrans
             #endregion
         }
 
-        public class NonEditableBlockGenerator : VisualLineElementGenerator
-        {
-            Match FindMatch(int startOffset)
-            {
-                // fetch the end offset of the VisualLine being generated
-                int endOffset = CurrentContext.VisualLine.LastDocumentLine.EndOffset;
-                TextDocument document = CurrentContext.Document;
-                string relevantText = document.GetText(startOffset, endOffset - startOffset);
-                return ignoredGroup.Match(relevantText);
-            }
 
-            /// Gets the first offset >= startOffset where the generator wants to construct
-            /// an element.
-            /// Return -1 to signal no interest.
-            public override int GetFirstInterestedOffset(int startOffset)
-            {
-                Match m = FindMatch(startOffset);
-                return m.Success ? (startOffset + m.Index) : -1;
-            }
 
-            /// Constructs an element at the specified offset.
-            /// May return null if no element should be constructed.
-            public override VisualLineElement ConstructElement(int offset)
-            {
-                Match m = FindMatch(offset);
-                // check whether there's a match exactly at offset
-                if (m.Success && m.Index == 0)
-                {
-                    return new InlineObjectElement(m.Length, new TextBlock() { Text = m.Value });
-                }
-                return null;
-            }
-        }
 
         public class CodeCompletionData : ICompletionData
         {
@@ -1367,4 +1336,57 @@ namespace NanoTrans
             return null;
         }
     }
+
+
+    public class NonEditableBlockGenerator : VisualLineElementGenerator
+    {
+        static bool _hidneNSE = false;
+
+        /// <summary>
+        /// hide non speech events
+        /// </summary>
+        public static bool HideNSE
+        {
+            get { return _hidneNSE; }
+            set
+            {
+                _hidneNSE = value;
+            }
+        }
+
+        Match FindMatch(int startOffset)
+        {
+            // fetch the end offset of the VisualLine being generated
+            int endOffset = CurrentContext.VisualLine.LastDocumentLine.EndOffset;
+            TextDocument document = CurrentContext.Document;
+            string relevantText = document.GetText(startOffset, endOffset - startOffset);
+            return Element.ignoredGroup.Match(relevantText);
+        }
+
+        /// Gets the first offset >= startOffset where the generator wants to construct
+        /// an element.
+        /// Return -1 to signal no interest.
+        public override int GetFirstInterestedOffset(int startOffset)
+        {
+            Match m = FindMatch(startOffset);
+            return m.Success ? (startOffset + m.Index) : -1;
+        }
+
+        /// Constructs an element at the specified offset.
+        /// May return null if no element should be constructed.
+        public override VisualLineElement ConstructElement(int offset)
+        {
+            Match m = FindMatch(offset);
+            // check whether there's a match exactly at offset
+            if (m.Success && m.Index == 0)
+            {
+                if (_hidneNSE)
+                    return new InlineObjectElement(m.Length, new TextBlock() { Text = "" });
+                else
+                    return new InlineObjectElement(m.Length, new TextBlock() { Text = m.Value });
+            }
+            return null;
+        }
+    }
+
 }

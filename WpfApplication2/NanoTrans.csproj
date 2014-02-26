@@ -327,6 +327,9 @@
       <LastGenOutput>Strings.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="app.config" />
+    <None Include="MITlicense.rtf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="NanoTrans.exe.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

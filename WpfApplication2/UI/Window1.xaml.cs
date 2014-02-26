@@ -653,7 +653,7 @@ namespace NanoTrans
             }
             catch (Exception ex)
             {
-                MessageBox.Show(Properties.Strings.MessageBoxOpenTranscriptionError + ex.Message, Properties.Strings.MessageBoxErrorCaption, MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(Properties.Strings.MessageBoxOpenTranscriptionError + ex.Message + ":" + fileName, Properties.Strings.MessageBoxErrorCaption, MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
         }
@@ -1918,6 +1918,16 @@ namespace NanoTrans
             new SpeakerSynchronizer(Transcription, SpeakersDatabase).ShowDialog();
             VirtualizingListBox.SpeakerChanged();
 
+        }
+        private void Button_HideNSE_Checked(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Button_HideNSE_Click(object sender, RoutedEventArgs e)
+        {
+            Button_HideNSE.IsChecked = NonEditableBlockGenerator.HideNSE = !NonEditableBlockGenerator.HideNSE;
+            VirtualizingListBox.Reset();
         }
 
     }

@@ -110,6 +110,7 @@
                 <ToolBar Name="toolBar1" VerticalAlignment="Top" HorizontalAlignment="Left" Loaded="toolBar1_Loaded"></ToolBar>
                 <ToolBar>
                     <Button Click="Button_Click_2" VerticalAlignment="Stretch">Sync</Button>
+                    <ToggleButton Name="Button_HideNSE" VerticalAlignment="Stretch" Click="Button_HideNSE_Click" ClickMode="Press" >nse</ToggleButton>
                 </ToolBar>
             </ToolBarTray>
         </StackPanel>
