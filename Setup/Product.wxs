@@ -6,8 +6,7 @@
            Language="1029"
            Codepage="1250"
            >
-    <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" Description="NanoTrans installer" Id="*"/>
-
+    <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" Description="NanoTrans installer" Id="*" Languages="1029"/>
 
     <!--installer UI-->
     <Property Id="INSTALLLEVEL" Value="100" />
@@ -35,9 +34,8 @@
           </RegistryKey>
 
           <Shortcut Id="StartMenuShortcut" Directory="ApplicationProgramsFolder" Name="NanoTrans" WorkingDirectory="APPLICATIONFOLDER" Target="[APPLICATIONFOLDER]NanoTrans.exe"/>
-          <Shortcut Id="StartMenuUninstallShortcut" Directory="ApplicationProgramsFolder" Name="!(loc.UninstallName)" Target="[SystemFolder]msiexec.exe" Arguments="/x [ProductCode]" Description="!(loc.UninstallDescription)" />
 
-          <RemoveFolder Directory="ApplicationProgramsFolder" Id="RemoveShorcutFolder" On="uninstall" />
+        <RemoveFolder Directory="ApplicationProgramsFolder" Id="RemoveShorcutFolder" On="uninstall" />
         </Component>
       </Feature>
 
@@ -74,7 +72,7 @@
 
 
       <!--localize-->
-      <Feature Id="DesktopIcon" Title="Desktop Icon" Level="200" InstallDefault='local'>
+      <Feature Id="DesktopIcon" Title="Desktop Icon" Level="50" InstallDefault='local'>
         <Component Id="DesktopShortcut" Directory="APPLICATIONFOLDER" Guid="*">
           <RegistryValue Id="RegShortcutDesktop" Root="HKCU" Key="SOFTWARE\NanoTrans\Uninstall" Name="DesktopSC" Value="yes" Type="string" KeyPath="yes" />
         <Shortcut Id="DesktopShortcut" Directory="DesktopFolder" Name="NanoTrans" WorkingDirectory="APPLICATIONFOLDER" Target="[APPLICATIONFOLDER]NanoTrans.exe"/>
@@ -85,7 +83,6 @@
 
     </Feature>
   </Product>
-
 
   <!--directories-->
   <Fragment>
