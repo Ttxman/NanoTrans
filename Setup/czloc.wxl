@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WixLocalization Culture="cs-CZ" xmlns="http://schemas.microsoft.com/wix/2006/localization" Codepage="1250" Language="1029">
+  <String Id="MajorUpgradeError">Novější verze [ProductName] je již nainstalovaná.</String>
+  <String Id="UninstallName">Odinstalovat NanoTrans</String>
+  <String Id="UninstallDescription">Odinstalovat NanoTrans</String>
+
+  <String Id="DescTrsx">NanoTrans Přepis</String>
+  <String Id="ApplicationDescription">NanoTrans - Editor texhtových a fonetických přepisů</String>
+  <String Id="ExplorerMenuEditTrsx">Editovat přepis</String>
+  <String Id="ExplorerMenuOpenTrsx">Otevřít přepis</String>
+</WixLocalization>

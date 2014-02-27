@@ -6,10 +6,10 @@
   <Product Id="*" Manufacturer="TUL::Speechlab" UpgradeCode="{36C81A72-77C8-4BD6-9D9C-3C685DE782C3}"
            Name="$(var.PRODUCT) $(var.VERSION)"
            Version="$(var.VERSION)"
-           Language="1029"
-           Codepage="1250"
+           Language="1033"
+           Codepage="1252"
            >
-    <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" Description="NanoTrans installer" Id="*" Languages="1029"/>
+    <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" Description="NanoTrans installer" Id="*" Languages="1029,1033"/>
 
     <!--installer UI-->
     <Property Id="INSTALLLEVEL" Value="100" />

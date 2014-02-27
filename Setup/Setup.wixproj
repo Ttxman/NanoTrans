@@ -42,6 +42,7 @@
     </WixExtension>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="czloc.wxl" />
     <EmbeddedResource Include="enloc.wxl" />
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" />
