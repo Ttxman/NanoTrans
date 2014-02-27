@@ -14,7 +14,7 @@
     
         mc:Ignorable="d" 
         x:Class="NanoTrans.SpeakerSynchronizer"
-        Title="{lex:LocText SpeakersSynchronizerTitle}" Height="569" Width="859">
+        Title="{lex:LocText SpeakersSynchronizerTitle}" Height="569" Width="859" Icon="../icons/join.png">
     <Window.Resources>
         <my:SpeakerWrapperConverter x:Key="speakerWrapper" />
         <my:NullToVisibiltyConverter x:Key="nullvisconverter" />

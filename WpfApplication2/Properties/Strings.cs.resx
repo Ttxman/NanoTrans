@@ -633,4 +633,25 @@
   <data name="GlobalDefaultSpeakerAttributes" xml:space="preserve">
     <value>Komentář,Rodinný stav,Národnost,Zaměstnání</value>
   </data>
+  <data name="mainWindowHideNonSpeechEventsTooltip" xml:space="preserve">
+    <value>Skýt neřečové události</value>
+  </data>
+  <data name="mainWindowOpenSpeakerSynchronizerTooltip" xml:space="preserve">
+    <value>Synchronizace mluvčích</value>
+  </data>
+  <data name="mainWindowStatusbarAudioConversionTooltip" xml:space="preserve">
+    <value>Stav načítání multimediálního souboru</value>
+  </data>
+  <data name="mainWindowWaveformHeightAuto" xml:space="preserve">
+    <value>Automaticky nastaví měřítko vlny</value>
+  </data>
+  <data name="mainWindowWaveformHeightIn" xml:space="preserve">
+    <value>Zvětší vlnu ve směru Y</value>
+  </data>
+  <data name="mainWindowWaveformHeightOut" xml:space="preserve">
+    <value>Zmenší vlnu ve směru Y</value>
+  </data>
+  <data name="mainWindowWaveformSlowPlayback" xml:space="preserve">
+    <value>Zpomalené přehrávání</value>
+  </data>
 </root>

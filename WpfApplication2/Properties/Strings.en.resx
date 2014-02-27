@@ -633,4 +633,25 @@
   <data name="GlobalDefaultSpeakerAttributes" xml:space="preserve">
     <value>Comment,Marital status,Nationality,Employment</value>
   </data>
+  <data name="mainWindowHideNonSpeechEventsTooltip" xml:space="preserve">
+    <value>Hide Non-Speech events</value>
+  </data>
+  <data name="mainWindowOpenSpeakerSynchronizerTooltip" xml:space="preserve">
+    <value>Speaker synchronization</value>
+  </data>
+  <data name="mainWindowStatusbarAudioConversionTooltip" xml:space="preserve">
+    <value>Audio loading progress</value>
+  </data>
+  <data name="mainWindowWaveformHeightAuto" xml:space="preserve">
+    <value>Scale waveform height automatically</value>
+  </data>
+  <data name="mainWindowWaveformHeightIn" xml:space="preserve">
+    <value>Scale waveform height in</value>
+  </data>
+  <data name="mainWindowWaveformHeightOut" xml:space="preserve">
+    <value>Scale waveform height out</value>
+  </data>
+  <data name="mainWindowWaveformSlowPlayback" xml:space="preserve">
+    <value>Slowed Playback</value>
+  </data>
 </root>

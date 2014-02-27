@@ -314,7 +314,6 @@
     <Compile Include="UI\WinSetup.xaml.cs">
       <DependentUpon>WinSetup.xaml</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="Properties\Strings.sk.resx" />
     <EmbeddedResource Include="Properties\Strings.cs.resx" />
     <EmbeddedResource Include="Properties\Strings.en.resx" />
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -441,6 +440,8 @@
     <Resource Include="pen.ico" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="icons\HideNSE.png" />
+    <Resource Include="icons\join.png" />
     <Content Include="ICSharpCode.AvalonEdit.dll" />
     <Content Include="Ionic.Zip.dll" />
     <Content Include="NHunspell.dll" />

@@ -109,8 +109,12 @@
             <ToolBarTray Name="toolBarTray2" Height="28" VerticalAlignment="Top">
                 <ToolBar Name="toolBar1" VerticalAlignment="Top" HorizontalAlignment="Left" Loaded="toolBar1_Loaded"></ToolBar>
                 <ToolBar>
-                    <Button Click="Button_Click_2" VerticalAlignment="Stretch">Sync</Button>
-                    <ToggleButton Name="Button_HideNSE" VerticalAlignment="Stretch" Click="Button_HideNSE_Click" ClickMode="Press" >nse</ToggleButton>
+                    <Button Click="Button_Click_2" VerticalAlignment="Stretch" ToolTip="{lex:Loc Key=mainWindowOpenSpeakerSynchronizerTooltip}">
+                        <Image Source="/icons/join.png" Width="16" Height="16"/>
+                    </Button>
+                    <ToggleButton Name="Button_HideNSE" VerticalAlignment="Stretch" Click="Button_HideNSE_Click" ClickMode="Press">
+                        <Image Source="/icons/HideNSE.png" Width="16" Height="16" ToolTip="{lex:Loc Key=mainWindowHideNonSpeechEventsTooltip}"/>
+                    </ToggleButton>
                 </ToolBar>
             </ToolBarTray>
         </StackPanel>
@@ -199,16 +203,16 @@
                 <StackPanel Orientation="Horizontal">
                     <ToolBarTray  Name="toolBarTray1" VerticalAlignment="Top" HorizontalAlignment="Left">
                         <ToolBar>
-                            <Button Click="ToolBar2BtnPlus_Click" Focusable="False" IsTabStop="False" Name="ToolBar2BtnPlus" ToolTip="Zvětší vlnu ve směru Y">
+                            <Button Click="ToolBar2BtnPlus_Click" Focusable="False" IsTabStop="False" Name="ToolBar2BtnPlus" ToolTip="{lex:Loc Key=mainWindowWaveformHeightIn}">
                                 <Image Source="/icons/iPlus.png" />
                             </Button>
-                            <Button Click="ToolBar2BtnMinus_Click" Focusable="False" IsTabStop="False" Name="ToolBar2BtnMinus" ToolTip="Zmenší vlnu ve směru Y">
+                            <Button Click="ToolBar2BtnMinus_Click" Focusable="False" IsTabStop="False" Name="ToolBar2BtnMinus" ToolTip="{lex:Loc Key=mainWindowWaveformHeightOut}">
                                 <Image Source="/icons/iMinus.png" />
                             </Button>
-                            <ToggleButton Click="ToolBar2BtnAuto_Click" IsChecked="True" Focusable="False" IsTabStop="False" Name="ToolBar2BtnAuto" ToolTip="Automaticky nastaví měřítko vlny" ClickMode="Press">
+                            <ToggleButton Click="ToolBar2BtnAuto_Click" IsChecked="True" Focusable="False" IsTabStop="False" Name="ToolBar2BtnAuto" ToolTip="{lex:Loc Key=mainWindowWaveformHeightAuto}" ClickMode="Press">
                                 <Image Source="/icons/iAutoSize.png" />
                             </ToggleButton>
-                            <ToggleButton IsChecked="False" Name="ToolBar2BtnSlow">
+                            <ToggleButton IsChecked="False" Name="ToolBar2BtnSlow" ToolTip="{lex:Loc Key=mainWindowWaveformSlowPlayback}">
                                 <Image Source="/NanoTrans;component/icons/isnail.png" />
                             </ToggleButton>
                         </ToolBar>
@@ -272,7 +276,7 @@
                 <TextBlock Name="tbProgramStatus"/>
             </StatusBarItem>
             <StatusBarItem Grid.Column="3" Margin="1,1,15,1">
-                <ProgressBar Margin="1,1,1,1" Name="pbPrevodAudio" Value="0" Width="150" Height="15" Foreground="GreenYellow" ToolTip="Stav převodu multimediálního souboru" Visibility="Hidden" />
+                <ProgressBar Margin="1,1,1,1" Name="pbPrevodAudio" Value="0" Width="150" Height="15" Foreground="GreenYellow" ToolTip="{lex:Loc Key=mainWindowStatusbarAudioConversionTooltip}" Visibility="Hidden" />
             </StatusBarItem>
             <StatusBarItem Grid.Column="2">
                 <TextBlock Visibility="Hidden" Name="mainWindowStatusbarAudioConversionHeader" Text="{lex:Loc}"/>
