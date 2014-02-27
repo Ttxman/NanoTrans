@@ -363,7 +363,7 @@ namespace NanoTrans.Core
            
         public static void Deserialize(string filename, Transcription storage)
         {
-            using (Stream s = File.Open(filename, FileMode.Open))
+            using (Stream s = File.Open(filename, FileMode.Open, FileAccess.Read,FileShare.Read))
             {
                 Deserialize(s, storage);
                 if (storage != null)

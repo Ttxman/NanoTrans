@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?define PRODUCT="NanoTrans"?>
+<?define MAINEXE=$(var.NanoTrans.TargetFileName)?>
+<?define VERSION=!(bind.FileVersion.$(var.MAINEXE))?>  
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <Product Id="*" Manufacturer="TUL::Speechlab" UpgradeCode="{36C81A72-77C8-4BD6-9D9C-3C685DE782C3}"
-           Name="NanoTrans"
-           Version="0.6.0.0"
+           Name="$(var.PRODUCT) $(var.VERSION)"
+           Version="$(var.VERSION)"
            Language="1029"
            Codepage="1250"
            >
