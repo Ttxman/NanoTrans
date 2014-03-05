@@ -224,9 +224,7 @@ namespace NanoTrans.Core
 
             return sp;
         }
-
-
-
+        internal static CultureInfo csCulture = CultureInfo.CreateSpecificCulture("cs");
         public Speaker(XElement s)//V3 format
         {
             if (!s.CheckRequiredAtributes("id", "surname", "firstname", "sex", "lang"))
@@ -249,7 +247,7 @@ namespace NanoTrans.Core
                     break;
             }
 
-            DefaultLang = s.Attribute("lang").Value;
+            DefaultLang = s.Attribute("lang").Value.ToUpper();
 
             //merges
             this.Merges.AddRange(s.Elements("m").Select(m => new DBMerge(m.Attribute("dbid").Value, stringToDBType(m.Attribute("dbtype").Value))));
@@ -279,7 +277,7 @@ namespace NanoTrans.Core
                 }
                 catch
                 {
-                    if (DateTime.TryParse(rem, CultureInfo.CreateSpecificCulture("cs"), DateTimeStyles.None, out date))
+                    if (DateTime.TryParse(rem, csCulture, DateTimeStyles.None, out date))
                         date = TimeZoneInfo.ConvertTimeFromUtc(date, TimeZoneInfo.Local);
                     else
                         date = DateTime.Now;
@@ -349,7 +347,7 @@ namespace NanoTrans.Core
                     new XAttribute("surname",Surname),
                     new XAttribute("firstname",FirstName),
                     new XAttribute("sex",(Sex==Sexes.Male)?"m":(Sex==Sexes.Female)?"f":"x"),
-                    new XAttribute("lang",DefaultLang)
+                    new XAttribute("lang",DefaultLang.ToLower())
 
                     })
             );

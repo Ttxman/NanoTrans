@@ -294,7 +294,7 @@ namespace NanoTrans.Core
             
             if (Elements.TryGetValue("l", out bfr))
             {
-                Language = bfr;
+                Language = bfr.ToUpper();
             }
 
             Elements.Remove("b");
@@ -313,7 +313,7 @@ namespace NanoTrans.Core
                     new XAttribute("e", End), 
                     new XAttribute("a", Attributes), 
                     new XAttribute("s", InternalID), //DO NOT use _speakerID,  it is not equivalent
-                    new XAttribute("l", Language),
+                    new XAttribute("l", Language.ToLower()),
                 }),
                 Phrases.Select(p => p.Serialize())
             );
@@ -418,7 +418,7 @@ namespace NanoTrans.Core
             }
             set
             {
-                _lang = value;
+                _lang = value.ToUpper();
             }
         }
     }
