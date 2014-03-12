@@ -1380,10 +1380,14 @@ namespace NanoTrans
             // check whether there's a match exactly at offset
             if (m.Success && m.Index == 0)
             {
+                TextBlock t;
                 if (_hidneNSE)
-                    return new InlineObjectElement(m.Length, new TextBlock() { Text = "" });
+                   t= new TextBlock() { Text = "" };
                 else
-                    return new InlineObjectElement(m.Length, new TextBlock() { Text = m.Value });
+                   t= new TextBlock() { Text = m.Value };
+               
+
+                return new InlineObjectElement(m.Length, t);
             }
             return null;
         }
