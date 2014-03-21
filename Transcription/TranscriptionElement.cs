@@ -275,6 +275,8 @@ namespace NanoTrans.Core
         public IEnumerable<TranscriptionElement> EnumerateNext()
         {
             var n = Next();
+            if (n == null)
+                yield break;
             yield return n;
             while (n != null)
             {
@@ -309,6 +311,8 @@ namespace NanoTrans.Core
         public IEnumerable<TranscriptionElement> EnumerateNextSiblings()
         {
             var n = NextSibling();
+            if (n == null)
+                yield break;
             yield return n;
             while (n != null)
             {
