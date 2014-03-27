@@ -1059,10 +1059,19 @@ namespace NanoTrans.Core
             }
             else if (item is TranscriptionSection)
             {
+                if (_children.Count == 0)
+                    Add(new TranscriptionChapter());
+
                 _children[_children.Count - 1].Add(item);
             }
             else if (item is TranscriptionParagraph)
             {
+                if (_children.Count == 0)
+                    Add(new TranscriptionChapter());
+
+                if (_children[_children.Count - 1].Children.Count == 0)
+                    Add(new TranscriptionSection());
+
                 _children[_children.Count - 1].Children[_children[_children.Count - 1].Children.Count - 1].Add(item);
             }
         }
