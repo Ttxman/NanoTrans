@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="utf-8" ?>
-	<!-- soubor s pluginem: File="" - jeden soubor muze obsahovat i vice pluginu -->
-	<!-- maska souboru (normalni windows format: "nazev | maska,maska2..."): Mask="" -->
-	<!-- zastupne symboly:{0} vstupni soubor; {1} vystupni soubor; {2} temp slozka; -->
-	<!-- IsAssembly = true pokud je plugin umisteny v .NET assembly(.dll), jinak false  (pripadne pokud je v exe souboru a stejne chceme volat metodu na tride)-->
-	<!-- spusteni exe souboru s parametry: Parameters = "-z {0}" -->
+	<!-- file with plugin: File="" - one file can contain multiple plugins -->
+	<!-- file mask (windows format: "name | mask,mask2..."): Mask="" -->
+	<!-- insertion symbols:{0} input file; {1} output file; {2} temporary folder; -->
+	<!-- IsAssembly = true if plugin is in v .NET assembly(.dll), otherwise false (wih IsAssembly=true we can call static impoer export method even on executable assembly)-->
+	<!-- run exe file with parameters: Parameters = "-z {0}" -->
 
 <Plugins>
 	<Import>
-    <Plugin Name="Import Nvx" Mask="trsx v1 soubory - assembly (*.nvx)|*.nvx;" IsAssembly="true" File="NvxPlugin.dll" Class="NvxPlugin.NanoVoicePlugin" />
-    <Plugin Name="Import res" Mask="nano res soubory - assembly (*.res)|*.res;*.res??;" IsAssembly="true" File="ResPlugin.dll" Class="TrsxV1Plugin.LoadRes"/>
+    <Plugin Name="Import Nvx" Mask="trsx v1 (*.nvx)|*.nvx;" IsAssembly="true" File="NvxPlugin.dll" Class="NvxPlugin.NanoVoicePlugin" />
+    <Plugin Name="Import res" Mask="nano res (*.res)|*.res;*.res??;" IsAssembly="true" File="ResPlugin.dll" Class="TrsxV1Plugin.LoadRes"/>
+    <Plugin Name="Import srt" Mask="srt (*.srt)|*.srt;" IsAssembly="true" File="SRTPlugin.dll" Class="SRTPlugin.SRTPlugin"/>
 	</Import>
 	<Export>
 		<Plugin Name="Export text" Mask="txt soubory (*.txt)|*.txt;" IsAssembly="false" File="ExePluginTXTexport.exe" Parameters = "-i {0} -o {1}"/>
     <Plugin Name="Export text" Mask="txt soubory bez hluků (*.txt)|*.txt;" IsAssembly="false" File="ExePluginTXTexport.exe" Parameters = "-i {0} -o {1} -nonoises"/>
 		<Plugin Name="Export text" Mask="txt soubory s časy (*.txt)|*.txt;" IsAssembly="false" File="ExePluginTXTexport.exe" Parameters = "-times -i {0} -o {1}"/>
+    <Plugin Name="Export srt" Mask="srt (*.srt)|*.srt;" IsAssembly="true" File="SRTPlugin.dll" Class="SRTPlugin.SRTPlugin"/>
 	</Export>
 </Plugins>
