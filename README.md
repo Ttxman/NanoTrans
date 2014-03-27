@@ -12,7 +12,7 @@ This publication should work as feature overview, copy (nanotrans_TSP2013.pdf) i
 #If you have any question or in need of help with NanoTrans please feel free to email me.
 
 
-#Used libraries
+#Libraries used
 NHunspell http://nhunspell.sourceforge.net/ ... for spellchecking  
 SharpDX http://sharpdx.org/ ... for DirectSound 
 FFmpeg executable http://www.ffmpeg.org/ ... for loading and converting nearly any media files into WAV  
