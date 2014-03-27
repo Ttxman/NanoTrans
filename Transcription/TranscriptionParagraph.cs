@@ -37,7 +37,7 @@ namespace NanoTrans.Core
 
                 return ret;
             }
-            set { throw new NotImplementedException("pokus o vlození textu primo do odstavce"); }
+            set { throw new NotImplementedException("cannot add text directly into paragraph"); }
         }
 
 
@@ -59,7 +59,7 @@ namespace NanoTrans.Core
 
                 return ret;
             }
-            set { }
+            set { throw new NotImplementedException("cannot add phonetics directly into paragraph"); }
         }
 
         public ParagraphAttributes DataAttributes = ParagraphAttributes.None;
@@ -344,7 +344,7 @@ namespace NanoTrans.Core
             this.Speaker = aKopie.Speaker;
         }
 
-        public TranscriptionParagraph(List<TranscriptionPhrase> phrases)
+        public TranscriptionParagraph(IEnumerable<TranscriptionPhrase> phrases)
             : this()
         {
             foreach (var p in phrases)
@@ -355,6 +355,12 @@ namespace NanoTrans.Core
                 this.End = Phrases[Phrases.Count - 1].End;
             }
         }
+        public TranscriptionParagraph(params TranscriptionPhrase[] phrases)
+            : this(phrases.AsEnumerable())
+        {
+        
+        }
+
 
         public TranscriptionParagraph()
             : base()
