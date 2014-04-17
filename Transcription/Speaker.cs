@@ -270,18 +270,23 @@ namespace NanoTrans.Core
             {
                 DateTime date;
 
-                //problem with saving datetimes in local format
-                try
+                if (!string.IsNullOrWhiteSpace(rem)) //i had to load big archive with empty synchronized attribute .. this is signifcant speedup
                 {
-                    date = XmlConvert.ToDateTime(rem, XmlDateTimeSerializationMode.Local); //stored in UTC convert to local
+                    //problem with saving datetimes in local format
+                    try
+                    {
+                        date = XmlConvert.ToDateTime(rem, XmlDateTimeSerializationMode.Local); //stored in UTC convert to local
+                    }
+                    catch
+                    {
+                        if (DateTime.TryParse(rem, csCulture, DateTimeStyles.None, out date))
+                            date = TimeZoneInfo.ConvertTimeFromUtc(date, TimeZoneInfo.Local);
+                        else
+                            date = DateTime.Now;
+                    }
                 }
-                catch
-                {
-                    if (DateTime.TryParse(rem, csCulture, DateTimeStyles.None, out date))
-                        date = TimeZoneInfo.ConvertTimeFromUtc(date, TimeZoneInfo.Local);
-                    else
-                        date = DateTime.Now;
-                }
+                else
+                    date = DateTime.Now;
                 this.Synchronized = date;
             }
 
