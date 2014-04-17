@@ -1,0 +1,44 @@
+﻿<Window x:Class="NanoTrans.OnlineTranscriptionWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:my="clr-namespace:NanoTrans"
+        Title="OnlineTranscription" Height="300" Width="300" Loaded="Window_Loaded" 
+        Name="window">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="121*"/>
+            <RowDefinition Height="20"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" IsEnabled="{Binding Connected, ElementName=window}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="20"/>
+                <RowDefinition Height="20"/>
+                <RowDefinition Height="20"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="30"/>
+            </Grid.RowDefinitions>
+
+
+            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.ColumnSpan="2">
+                <TextBlock Text="Connecting to: "/>
+                <TextBlock Text="{Binding Service, ElementName=window}" />
+            </StackPanel>
+
+            <TextBlock Grid.Row="1" Grid.Column="0">Name:</TextBlock>
+            <TextBox Name="Login" Grid.Row="1" Grid.Column="1">senat</TextBox>
+
+            <TextBlock Grid.Row="2" Grid.Column="0">Password:</TextBlock>
+            <PasswordBox Name="Password" Grid.Row="2" Grid.Column="1" Password="senat2014tul!"/>
+
+            <Button Content="Login" Grid.Row="4" Grid.ColumnSpan="2" Click="Button_Click"/>
+
+        </Grid>
+
+        <ProgressBar Name="progress" Grid.Row="1" Value="100" IsIndeterminate="True" />
+
+    </Grid>
+</Window>

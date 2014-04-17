@@ -432,28 +432,8 @@ namespace NanoTrans
 
         public bool NewTranscription()
         {
-            if (Transcription != null && !Transcription.Saved)
-            {
-                MessageBoxResult mbr = MessageBox.Show(Properties.Strings.MessageBoxSaveBeforeClosing, Properties.Strings.MessageBoxQuestionCaption, MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
-                if (mbr == MessageBoxResult.Cancel || mbr == MessageBoxResult.None)
-                {
-                    return false;
-                }
-                else if (mbr == MessageBoxResult.Yes || mbr == MessageBoxResult.No)
-                {
-                    if (mbr == MessageBoxResult.Yes)
-                    {
-                        if (Transcription.FileName != null)
-                        {
-                            if (!SaveTranscription(false, Transcription.FileName)) return false;
-                        }
-                        else
-                        {
-                            if (!SaveTranscription(true, Transcription.FileName)) return false;
-                        }
-                    }
-                }
-            }
+            if (!TrySaveUnsavedChanges())
+                return false;
 
             var source = new WPFTranscription();
             var c = new TranscriptionChapter(Properties.Strings.DefaultChapterText);
@@ -477,29 +457,8 @@ namespace NanoTrans
         {
             try
             {
-                if (Transcription != null && !Transcription.Saved)
-                {
-                    MessageBoxResult mbr = MessageBox.Show(Properties.Strings.MessageBoxSaveBeforeClosing, Properties.Strings.MessageBoxQuestionCaption, MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
-                    if (mbr == MessageBoxResult.Cancel || mbr == MessageBoxResult.None)
-                    {
-                        return false;
-                    }
-                    else if (mbr == MessageBoxResult.Yes || mbr == MessageBoxResult.No)
-                    {
-                        if (mbr == MessageBoxResult.Yes)
-                        {
-                            if (Transcription.FileName != null)
-                            {
-                                if (!SaveTranscription(false, Transcription.FileName)) return false;
-                            }
-                            else
-                            {
-                                if (!SaveTranscription(true, Transcription.FileName)) return false;
-                            }
-                        }
-                    }
-                }
-
+                if (!TrySaveUnsavedChanges())
+                    return false;
 
                 if (Transcription == null) Transcription = new WPFTranscription();
                 if (useOpenDialog)
@@ -513,85 +472,7 @@ namespace NanoTrans
 
                     if (fileDialog.ShowDialog() == true)
                     {
-                        if (Transcription != null && !Transcription.Saved)
-                        {
-                            MessageBoxResult mbr = MessageBox.Show(Properties.Strings.MessageBoxSaveBeforeClosing, Properties.Strings.MessageBoxQuestionCaption, MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
-                            if (mbr == MessageBoxResult.Cancel || mbr == MessageBoxResult.None)
-                            {
-                                return false;
-                            }
-                            else if (mbr == MessageBoxResult.Yes || mbr == MessageBoxResult.No)
-                            {
-                                if (mbr == MessageBoxResult.Yes)
-                                {
-                                    if (Transcription.FileName != null)
-                                    {
-                                        if (!SaveTranscription(false, Transcription.FileName)) return false;
-                                    }
-                                    else
-                                    {
-                                        if (!SaveTranscription(true, Transcription.FileName)) return false;
-                                    }
-                                }
-                            }
-                        }
-
-                        WPFTranscription pDataSource = new WPFTranscription(fileDialog.FileName);
-
-                        if (pDataSource == null)
-                        {
-                            NewTranscription();
-                        }
-                        else
-                        {
-                            Transcription = pDataSource;
-
-
-                            Transcription.Saved = true;
-
-                            //try to load the audio file
-                            if (!string.IsNullOrEmpty(Transcription.MediaURI) && Transcription.FileName != null)
-                            {
-                                FileInfo fiA = new FileInfo(Transcription.MediaURI);
-                                string pAudioFile = null;
-                                if (fiA.Exists)
-                                {
-                                    pAudioFile = fiA.FullName;
-                                }
-                                else
-                                {
-                                    FileInfo fi = new FileInfo(Transcription.FileName);
-                                    pAudioFile = fi.Directory.FullName + "\\" + Transcription.MediaURI;
-                                }
-                                if (pAudioFile.Split(new string[] { ":\\" }, StringSplitOptions.None).Length == 2)
-                                {
-                                    FileInfo fi2 = new FileInfo(pAudioFile);
-                                    if (fi2.Exists)
-                                    {
-                                        LoadAudio(pAudioFile);
-                                    }
-                                }
-                            }
-
-                            if (Transcription.VideoFileName != null && Transcription.FileName != null)
-                            {
-                                FileInfo fi = new FileInfo(Transcription.FileName);
-                                string pVideoFile = fi.Directory.FullName + "\\" + Transcription.VideoFileName;
-                                FileInfo fi2 = new FileInfo(pVideoFile);
-                                if (fi2.Exists && (meVideo.Source == null || meVideo.Source.AbsolutePath.ToUpper() != pVideoFile.ToUpper()))
-                                {
-                                    LoadVideo(pVideoFile);
-                                }
-                            }
-
-                        }
-
-                        SynchronizeSpeakers();
-
-
-                        this.Title = Const.APP_NAME + " [" + Transcription.FileName + "]";
-                        VirtualizingListBox.ActiveTransctiption = Transcription.First(e => e.IsParagraph) ?? Transcription.First();
-                        return true;
+                        return TryLoadTranscription(fileDialog.FileName);
                     }
                     else
                     {
@@ -600,55 +481,12 @@ namespace NanoTrans
                 }
                 else
                 {
-
-                    Transcription = WPFTranscription.Deserialize(fileName);
-
-                    if (Transcription != null)
-                    {
-                        this.Title = Const.APP_NAME + " [" + Transcription.FileName + "]";
-                        //try to load the audio file
-                        if (Transcription.MediaURI != null && Transcription.FileName != null)
-                        {
-                            FileInfo fiA = new FileInfo(Transcription.MediaURI);
-                            string pAudioFile = null;
-                            if (fiA.Exists)
-                            {
-                                pAudioFile = fiA.FullName;
-                            }
-                            else
-                            {
-                                FileInfo fi = new FileInfo(Transcription.FileName);
-                                pAudioFile = fi.Directory.FullName + "\\" + Transcription.MediaURI;
-                            }
-                            if (pAudioFile.Split(new string[] { ":\\" }, StringSplitOptions.None).Length == 2)
-                            {
-
-                                FileInfo fi2 = new FileInfo(pAudioFile);
-                                if (fi2.Exists && (!oWav.Loaded || oWav.FilePath.ToUpper() != pAudioFile.ToUpper()))
-                                {
-                                    LoadAudio(pAudioFile);
-                                }
-                            }
-                        }
-
-                        if (Transcription.VideoFileName != null && Transcription.FileName != null)
-                        {
-                            FileInfo fi = new FileInfo(Transcription.FileName);
-                            string pVideoFile = fi.Directory.FullName + "\\" + Transcription.VideoFileName;
-                            FileInfo fi2 = new FileInfo(pVideoFile);
-                            if (fi2.Exists && (meVideo.Source == null || meVideo.Source.AbsolutePath.ToUpper() != pVideoFile.ToUpper()))
-                            {
-                                LoadVideo(pVideoFile);
-                            }
-                        }
-                        SynchronizeSpeakers();
-                        return true;
-                    }
-                    else
+                    if (!TryLoadTranscription(fileName))
                     {
                         NewTranscription();
-                        return false;
                     }
+
+                    return true;
                 }
             }
             catch (Exception ex)
@@ -656,6 +494,93 @@ namespace NanoTrans
                 MessageBox.Show(Properties.Strings.MessageBoxOpenTranscriptionError + ex.Message + ":" + fileName, Properties.Strings.MessageBoxErrorCaption, MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
+        }
+
+        private bool TryLoadTranscription(string fileName)
+        {
+            Transcription = WPFTranscription.Deserialize(fileName);
+
+            if (Transcription != null)
+            {
+                Transcription.Saved = true;
+                TryLoadAudioFile();
+                TryLoadVideoFile();
+                InitWindowAfterTranscriptionLoad();
+                return true;
+            }
+
+            return false;
+        }
+
+        private void InitWindowAfterTranscriptionLoad()
+        {
+            this.Title = Const.APP_NAME + " [" + Transcription.FileName + "]";
+            VirtualizingListBox.ActiveTransctiption = Transcription.First(e => e.IsParagraph) ?? Transcription.First();
+            SynchronizeSpeakers();
+        }
+
+        private void TryLoadVideoFile()
+        {
+            if (Transcription.VideoFileName != null && Transcription.FileName != null)
+            {
+                FileInfo fi = new FileInfo(Transcription.FileName);
+                string pVideoFile = fi.Directory.FullName + "\\" + Transcription.VideoFileName;
+                FileInfo fi2 = new FileInfo(pVideoFile);
+                if (fi2.Exists && (meVideo.Source == null || meVideo.Source.AbsolutePath.ToUpper() != pVideoFile.ToUpper()))
+                {
+                    LoadVideo(pVideoFile);
+                }
+            }
+        }
+
+        private void TryLoadAudioFile()
+        {
+            if (!string.IsNullOrEmpty(Transcription.MediaURI) && Transcription.FileName != null)
+            {
+                FileInfo fiA = new FileInfo(Transcription.MediaURI);
+                string pAudioFile = fiA.FullName;
+                if (!fiA.Exists)
+                {
+                    FileInfo fi = new FileInfo(Transcription.FileName);
+                    pAudioFile = fi.Directory.FullName + "\\" + Transcription.MediaURI;
+                    fiA = new FileInfo(pAudioFile);
+                }
+
+                if (fiA.Exists)
+                    LoadAudio(pAudioFile);
+            }
+        }
+
+        /// <summary>
+        /// attempt to save changes with dialog
+        /// </summary>
+        /// <returns>true when save was sucessful; false when user cancels or on error when saving</returns>
+        private bool TrySaveUnsavedChanges()
+        {
+            if (Transcription != null && !Transcription.Saved)
+            {
+                MessageBoxResult mbr = MessageBox.Show(Properties.Strings.MessageBoxSaveBeforeClosing, Properties.Strings.MessageBoxQuestionCaption, MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+                if (mbr == MessageBoxResult.Cancel || mbr == MessageBoxResult.None)
+                {
+                    return false;
+                }
+                else if (mbr == MessageBoxResult.Yes || mbr == MessageBoxResult.No)
+                {
+                    if (mbr == MessageBoxResult.Yes)
+                    {
+                        if (Transcription.FileName != null)
+                        {
+                            if (!SaveTranscription(false, Transcription.FileName)) return false;
+                        }
+                        else
+                        {
+                            if (!SaveTranscription(true, Transcription.FileName)) return false;
+                        }
+                    }
+                }
+            }
+
+            return true;
         }
 
         private void SynchronizeSpeakers()
@@ -1079,7 +1004,7 @@ namespace NanoTrans
         private void MTools_Settings_Click(object sender, RoutedEventArgs e)
         {
             GlobalSetup.Setup = WinSetup.WinSetupShowDialog(GlobalSetup.Setup, SpeakersDatabase);
-            GlobalSetup.Setup.Serialize(FilePaths.GetConfigFileWriteStream(), GlobalSetup.Setup);
+            SaveGlobalSetup();
             waveform1.SmallJump = TimeSpan.FromSeconds(GlobalSetup.Setup.WaveformSmallJump);
             InitializeAudioPlayer();
         }
@@ -1130,114 +1055,85 @@ namespace NanoTrans
         {
             if (Pedalthread != null)
                 Pedalthread.Abort();
-            if (Transcription != null && !Transcription.Saved)
+
+            if (!TrySaveUnsavedChanges() || !TrySaveSpeakersDatabase())
             {
-                MessageBoxResult mbr = MessageBox.Show(Properties.Strings.MessageBoxSaveBeforeClosing, Properties.Strings.MessageBoxQuestionCaption, MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
-                if (mbr == MessageBoxResult.Yes || mbr == MessageBoxResult.No)
-                {
-                    if (mbr == MessageBoxResult.Yes)
-                    {
-                        if (Transcription.FileName != null)
-                        {
-                            if (!SaveTranscription(false, Transcription.FileName)) e.Cancel = true;
-                        }
-                        else
-                        {
-                            if (!SaveTranscription(true, Transcription.FileName)) e.Cancel = true;
-                        }
-                    }
-
-                    if (helpWindow != null && !helpWindow.IsLoaded)
-                    {
-                        helpWindow.Close();
-                    }
-
-
-                }
-                else if (mbr == MessageBoxResult.Cancel)
-                {
-                    e.Cancel = true;
-                    return;
-                }
-
-
-            }
-            else if (helpWindow != null && helpWindow.IsLoaded)
-            {
-                helpWindow.Close();
+                e.Cancel = true;
+                return;
             }
 
 
-            if (!e.Cancel)
+            SaveGlobalSetup();
+
+            foreach (Window win in App.Current.Windows)
             {
-                if (_findDialog != null && _findDialog.IsLoaded)
-                    _findDialog.Close();
+                try { win.Close(); }
+                catch { };
+            }
 
+            if (MWP != null)
+            {
+                MWP.Dispose();
+                MWP = null;
+            }
 
-                if (MWP != null)
-                {
-                    MWP.Dispose();
-                    MWP = null;
-                }
-
-                if (oWav != null)
-                {
-                    oWav.Dispose();
-                }
-
-
-
-                if (SpeakersDatabase != null)
-                {
-
-                    try
-                    {
-                        string fname = FilePaths.EnsureDirectoryExists(System.IO.Path.GetFullPath(GlobalSetup.Setup.SpeakersDatabasePath));
-                        if (fname.StartsWith(FilePaths.ProgramDirectory))//check access to program files.
-                        {
-                            if (!FilePaths.WriteToAppData)
-                                SpeakersDatabase.Serialize(fname, true);
-                            else
-                                SpeakersDatabase.Serialize(FilePaths.AppDataDirectory + fname.Substring(FilePaths.ProgramDirectory.Length), true);
-                        }
-                        else// not in ProgramFiles - NanoTrans not installed, don't do anything
-                        {
-                            SpeakersDatabase.Serialize(GlobalSetup.Setup.SpeakersDatabasePath, true);
-                        }
-                    }
-                    catch
-                    {
-                        if (MessageBox.Show(Properties.Strings.MessageBoxLocalSpeakersDatabaseUnreachableSave, Properties.Strings.MessageBoxWarningCaption, MessageBoxButton.OKCancel) == MessageBoxResult.Cancel)
-                        {
-                            e.Cancel = true;
-                            return;
-                        }
-                    }
-
-                }
-
-                if (GlobalSetup.Setup != null)
-                {
-                    if (this.WindowState == WindowState.Normal)
-                    {
-                        GlobalSetup.Setup.WindowsPosition = new Point(this.Left, this.Top);
-                        GlobalSetup.Setup.WindowSize = new Size(this.Width, this.Height);
-                    }
-                    if (this.WindowState != WindowState.Minimized)
-                    {
-                        GlobalSetup.Setup.WindowState = this.WindowState;
-                    }
-
-                    GlobalSetup.Setup.Serialize(FilePaths.GetConfigFileWriteStream(), GlobalSetup.Setup);
-
-                }
+            if (oWav != null)
+            {
+                oWav.Dispose();
             }
 
             FilePaths.DeleteTemp();
-
             Environment.Exit(0); //Force close application
+        }
 
+        private void SaveGlobalSetup()
+        {
+            if (GlobalSetup.Setup != null)
+            {
+                if (this.WindowState == WindowState.Normal)
+                {
+                    GlobalSetup.Setup.WindowsPosition = new Point(this.Left, this.Top);
+                    GlobalSetup.Setup.WindowSize = new Size(this.Width, this.Height);
+                }
+                if (this.WindowState != WindowState.Minimized)
+                {
+                    GlobalSetup.Setup.WindowState = this.WindowState;
+                }
 
+                GlobalSetup.Setup.Serialize(FilePaths.GetConfigFileWriteStream(), GlobalSetup.Setup);
+
+            }
+        }
+
+        private bool TrySaveSpeakersDatabase()
+        {
+            if (SpeakersDatabase != null)
+            {
+
+                try
+                {
+                    string fname = FilePaths.EnsureDirectoryExists(System.IO.Path.GetFullPath(GlobalSetup.Setup.SpeakersDatabasePath));
+                    if (fname.StartsWith(FilePaths.ProgramDirectory))//check access to program files.
+                    {
+                        if (!FilePaths.WriteToAppData)
+                            SpeakersDatabase.Serialize(fname, true);
+                        else
+                            SpeakersDatabase.Serialize(FilePaths.AppDataDirectory + fname.Substring(FilePaths.ProgramDirectory.Length), true);
+                    }
+                    else// not in ProgramFiles - NanoTrans not installed, don't do anything
+                    {
+                        SpeakersDatabase.Serialize(GlobalSetup.Setup.SpeakersDatabasePath, true);
+                    }
+                }
+                catch
+                {
+                    if (MessageBox.Show(Properties.Strings.MessageBoxLocalSpeakersDatabaseUnreachableSave, Properties.Strings.MessageBoxWarningCaption, MessageBoxButton.OKCancel) == MessageBoxResult.Cancel)
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
         }
 
 
@@ -1306,11 +1202,17 @@ namespace NanoTrans
 
             string path = null;
             bool import = false;
+            bool online = false;
             if (App.Startup_ARGS != null && App.Startup_ARGS.Length > 0)
             {
                 if (App.Startup_ARGS[0] == "-i")
                 {
                     import = true;
+                    path = App.Startup_ARGS[1];
+                }
+                else if (App.Startup_ARGS[0] == "-urlapi")
+                {
+                    online = true;
                     path = App.Startup_ARGS[1];
                 }
                 else
@@ -1323,7 +1225,11 @@ namespace NanoTrans
             }
             else
             {
-                if (import)
+                if (online)
+                {
+                    LoadOnlineSource(path);
+                }
+                else if (import)
                 {
                     NewTranscription();
                     CommandImportFile.Execute(path, this);
@@ -1337,6 +1243,19 @@ namespace NanoTrans
             VirtualizingListBox.RequestPlayPause += delegate() { CommandPlayPause.Execute(null, null); };
 
 
+
+        }
+
+        private void LoadOnlineSource(string path)
+        {
+            var w = new OnlineTranscriptionWindow(path);
+            w.Owner = this;
+            if (w.ShowDialog() == true)
+            {
+
+            }
+            else
+                Close();
 
         }
 
