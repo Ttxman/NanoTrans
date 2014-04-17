@@ -43,10 +43,6 @@ namespace NanoTrans.Audio
     }
 
 
-
-    /// <summary>
-    /// trida starajici se o prevod souboru do docasnych wav a nacitani bufferu s daty pro rozpoznavani a prevod nahledovych dat vlny 
-    /// </summary>
     public class WavReader : IDisposable
     {
         public event EventHandler HaveData;    //metoda have data je udalost,kterou objekt podporuje-datovy ramec zvuku
@@ -195,237 +191,45 @@ namespace NanoTrans.Audio
         }
 
 
-
-        private void AsynchronniPrevodMultimedialnihoSouboruNaDocasne()
-        {
-            this.ZacniPrevodSouboruNaDocasneWav(_FilePath, FilePaths.TempDirectory, Const.TEMPORARY_AUDIO_FILE_LENGTH_MS);    //nastaveni bufferu
-        }
-
         /// <summary>
-        /// vytvori thread, ktery nasledne zacne s prevodem, dodelat moznost parametru????
+        /// Converts audio file to temporary waves used by nanotrans
         /// </summary>
-        public void AsynchronniPrevodMultimedialnihoSouboruNaDocasne2(string aCestaSouboru)
+        public void ConvertAudioFileToWave(string filePath)
         {
-            this._FilePath = aCestaSouboru;
+            this._FilePath = filePath;
             this._Loaded = false;
             this._Converted = false;
-            this.tPrevodNaDocasneSoubory = new Thread(AsynchronniPrevodMultimedialnihoSouboruNaDocasne) { Name = "AsynchronniPrevodMultimedialnihoSouboruNaDocasne2" };
-            this.tPrevodNaDocasneSoubory.Start(); //spusteni
+            this.tPrevodNaDocasneSoubory = new Thread(()=>this.ZacniPrevodSouboruNaDocasneWav(_FilePath, FilePaths.TempDirectory, Const.TEMPORARY_AUDIO_FILE_LENGTH_MS))
+             { Name = "conversion to wav" };
+            this.tPrevodNaDocasneSoubory.Start();
 
         }
 
 
-        /// <summary>
-        /// vytvori wav soubor z bufferu audio dat a pokusi se ho ulozit do zadane cesty
-        /// </summary>
-        /// <param name="aAudioData"></param>
-        /// <param name="aCesta"></param>
-        /// <returns></returns>
-        public static bool VytvorWavSoubor(MyBuffer16 aAudioData, string aCesta)
+        private static string NormalizeNumber(string aCislo)
         {
+            string ret = aCislo.TrimStart('0').Replace('.', ',');
+            return ret.Length > 0 ? ret : "0";
+        }
+
+        /// <summary>
+        /// returns file length
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public static TimeSpan ReturnFileLength(string path)
+        {
+            long ret = 0;
             try
             {
-                BinaryWriter output = new BinaryWriter(new FileStream(aCesta, FileMode.Create));
-
-                byte[] pHlavicka = VytvorHlavickukWav(aAudioData.Data.Length * 2);
-                output.Write(pHlavicka);
-                //
-                for (int i = 0; i < aAudioData.Data.Length; i++)
-                {
-                    output.Write(aAudioData.Data[i]);
-                }
-                output.Close();
-                return true;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-
-        }
-
-        /// <summary>
-        /// vytvori hlavicku k wavu
-        /// </summary>
-        /// <returns></returns>
-        private static byte[] VytvorHlavickukWav(int aVelikostDat)
-        {
-
-            byte[] hlavicka = new byte[44];
-            //RIFF
-            char pomocna = 'R';
-            byte[] pole1 = BitConverter.GetBytes(pomocna);
-            int pPozice = 0;
-            pole1.CopyTo(hlavicka, pPozice);
-            pPozice += pole1.Length - 1;
-            pomocna = 'I';
-            pole1 = BitConverter.GetBytes(pomocna);
-            pole1.CopyTo(hlavicka, pPozice);
-            pPozice += pole1.Length - 1;
-            pomocna = 'F';
-            pole1 = BitConverter.GetBytes(pomocna);
-            pole1.CopyTo(hlavicka, pPozice);
-            pPozice += pole1.Length - 1;
-            pomocna = 'F';
-            pole1 = BitConverter.GetBytes(pomocna);
-            pole1.CopyTo(hlavicka, pPozice);
-            pPozice += pole1.Length - 1;
-
-            //Velikost
-            pole1 = BitConverter.GetBytes(aVelikostDat + 44 - 4);
-            pole1.CopyTo(hlavicka, pPozice);
-            pPozice += pole1.Length;
-
-            //WAVEfmt            
-            //pomocna += "WAVEfmt";
-            pomocna = 'W';
-            pole1 = BitConverter.GetBytes(pomocna);
-            pole1.CopyTo(hlavicka, pPozice);
-            pPozice += pole1.Length - 1;
-            pomocna = 'A';
-            pole1 = BitConverter.GetBytes(pomocna);
-            pole1.CopyTo(hlavicka, pPozice);
-            pPozice += pole1.Length - 1;
-            pomocna = 'V';
-            pole1 = BitConverter.GetBytes(pomocna);
-            pole1.CopyTo(hlavicka, pPozice);
-            pPozice += pole1.Length - 1;
-            pomocna = 'E';
-            pole1 = BitConverter.GetBytes(pomocna);
-            pole1.CopyTo(hlavicka, pPozice);
-            pPozice += pole1.Length - 1;
-            pomocna = 'f';
-            pole1 = BitConverter.GetBytes(pomocna);
-            pole1.CopyTo(hlavicka, pPozice);
-            pPozice += pole1.Length - 1;
-            pomocna = 'm';
-            pole1 = BitConverter.GetBytes(pomocna);
-            pole1.CopyTo(hlavicka, pPozice);
-            pPozice += pole1.Length - 1;
-            pomocna = 't';
-            pole1 = BitConverter.GetBytes(pomocna);
-            pole1.CopyTo(hlavicka, pPozice);
-            pPozice += pole1.Length - 1;
-            pomocna = ' ';
-            pole1 = BitConverter.GetBytes(pomocna);
-            pole1.CopyTo(hlavicka, pPozice);
-            pPozice += pole1.Length - 1;
-
-            //do konce casti format
-            Int32 fmtPocet = 16;
-            pole1 = BitConverter.GetBytes(fmtPocet);
-            pole1.CopyTo(hlavicka, pPozice);
-            pPozice += pole1.Length;
-
-            //mono/stereo
-            short formatakanaly = 1;
-            pole1 = BitConverter.GetBytes(formatakanaly);
-            pole1.CopyTo(hlavicka, pPozice);
-            pPozice += pole1.Length;
-            pole1.CopyTo(hlavicka, pPozice);
-            pPozice += pole1.Length;
-
-            //frekvence
-            Int32 frekvence = 16000;
-            pole1 = BitConverter.GetBytes(frekvence);
-            pole1.CopyTo(hlavicka, pPozice);
-            pPozice += pole1.Length;
-
-            //prumerny pocet bitu za s
-            Int32 prumbytu = 32000;
-            pole1 = BitConverter.GetBytes(prumbytu);
-            pole1.CopyTo(hlavicka, pPozice);
-            pPozice += pole1.Length;
-
-            //velikosti vzorku
-            short velikostVzorkuB = 2;
-            short velikostVzorkub = 16;
-            pole1 = BitConverter.GetBytes(velikostVzorkuB);
-            pole1.CopyTo(hlavicka, pPozice);
-            pPozice += pole1.Length;
-            pole1 = BitConverter.GetBytes(velikostVzorkub);
-            pole1.CopyTo(hlavicka, pPozice);
-            pPozice += pole1.Length;
-
-            //data
-            pomocna = 'd';
-            pole1 = BitConverter.GetBytes(pomocna);
-            pole1.CopyTo(hlavicka, pPozice);
-            pPozice += pole1.Length - 1;
-            pomocna = 'a';
-            pole1 = BitConverter.GetBytes(pomocna);
-            pole1.CopyTo(hlavicka, pPozice);
-            pPozice += pole1.Length - 1;
-            pomocna = 't';
-            pole1 = BitConverter.GetBytes(pomocna);
-            pole1.CopyTo(hlavicka, pPozice);
-            pPozice += pole1.Length - 1;
-            pomocna = 'a';
-            pole1 = BitConverter.GetBytes(pomocna);
-            pole1.CopyTo(hlavicka, pPozice);
-            pPozice += pole1.Length - 1;
-
-            //velikost dat
-            pole1 = BitConverter.GetBytes(aVelikostDat);
-            pole1.CopyTo(hlavicka, pPozice);
-            pPozice += pole1.Length;
-
-            return hlavicka;
-
-        }
-
-
-        /// <summary>
-        /// odstrani nuly zleva stringu
-        /// </summary>
-        /// <param name="aCislo"></param>
-        /// <returns></returns>
-        private string OdstranNulyZleva(string aCislo)
-        {
-            try
-            {
-                string ret = "";
-                int i = 0;
-                while (i < aCislo.Length && aCislo[i] == '0')
-                {
-                    i++;
-                }
-
-                if (i >= aCislo.Length)
-                    return "0";
-
-                for (int j = i; j < aCislo.Length; j++)
-                {
-                    ret += aCislo[j];
-                }
-                ret = ret.Replace('.', ',');
-                return ret;
-            }
-            catch
-            {
-                return "0";
-            }
-
-        }
-
-        /// <summary>
-        /// vrati informace o delce multimedialnim souboru, -1 soubor je nepodporovany
-        /// </summary>
-        /// <param name="aCesta"></param>
-        /// <returns></returns>
-        public long VratDelkuSouboruMS(string aCesta)
-        {
-            long ret = -1;
-            try
-            {
-                long pDelka = -1;
+                long length = 0;
                 Process prInfo = new Process();
                 prInfo.StartInfo.FileName = FilePaths.FFmpegPath;
-                prInfo.StartInfo.WorkingDirectory = new FileInfo(aCesta).DirectoryName;
+                prInfo.StartInfo.WorkingDirectory = new FileInfo(path).DirectoryName;
 
                 //prPrevod.StartInfo.Arguments = "-i " + aCesta + " -y -vn -ar 16000 -ac 1 -acodec pcm_s16le -f wav -";
                 //prInfo.StartInfo.Arguments = "-i \"" + aCesta + "\" -";
-                prInfo.StartInfo.Arguments = "-i \"" + aCesta + "\"";
+                prInfo.StartInfo.Arguments = "-i \"" + path + "\"";
                 //prInfo.StartInfo.Arguments = "-i E:/prepisovac/OTV10628.xml.avi"; 
 
                 prInfo.StartInfo.RedirectStandardInput = true;
@@ -454,34 +258,107 @@ namespace NanoTrans.Audio
                     ret = 0;
                     for (int i = 0; i < pParse.Length; i++)
                     {
-                        pParse[i] = OdstranNulyZleva(pParse[i]);
+                        pParse[i] = NormalizeNumber(pParse[i]);
                     }
                     if (pParse.Length == 1)
                     {
-                        pDelka = (long)(float.Parse(pParse[0]) * 1000);
+                        length = (long)(float.Parse(pParse[0]) * 1000);
                     }
                     else if (pParse.Length == 2)
                     {
-                        pDelka = (long)(float.Parse(pParse[0]) * 1000 * 60) + (long)(float.Parse(pParse[1]) * 1000);
+                        length = (long)(float.Parse(pParse[0]) * 1000 * 60) + (long)(float.Parse(pParse[1]) * 1000);
                     }
                     else if (pParse.Length == 3)
                     {
-                        pDelka = (long)(float.Parse(pParse[0]) * 1000 * 3600) + (long)(float.Parse(pParse[1]) * 1000 * 60) + (long)(float.Parse(pParse[2]) * 1000);
+                        length = (long)(float.Parse(pParse[0]) * 1000 * 3600) + (long)(float.Parse(pParse[1]) * 1000 * 60) + (long)(float.Parse(pParse[2]) * 1000);
                     }
 
 
                 }
-                ret = pDelka;
-
-                return ret;
+                ret = length;
             }
-            catch (Exception)
+            catch
             {
-                return ret;
             }
+
+            return TimeSpan.FromMilliseconds(ret);
 
         }
 
+
+        public static byte[] GetWaveHeader(int dataSize)
+        {
+            byte[] header = new byte[44];
+            byte[] buff;
+
+            int pPozice = 0;
+            
+            //RIFF
+            buff = ASCIIEncoding.ASCII.GetBytes("RIFF");
+            buff.CopyTo(header, pPozice);
+            pPozice += buff.Length;
+
+
+            byte[] pole1;
+            //Velikost
+            buff = BitConverter.GetBytes(dataSize + 44 - 4);
+            buff.CopyTo(header, pPozice);
+            pPozice += buff.Length;
+
+            //WAVEfmt            
+            //pomocna += "WAVEfmt ";
+            buff = ASCIIEncoding.ASCII.GetBytes("WAVEfmt ");
+            buff.CopyTo(header, pPozice);
+            pPozice += buff.Length;
+
+            //do konce casti format
+            Int32 fmtPocet = 16;
+            pole1 = BitConverter.GetBytes(fmtPocet);
+            pole1.CopyTo(header, pPozice);
+            pPozice += pole1.Length;
+
+            //mono/stereo
+            short formatakanaly = 1;
+            pole1 = BitConverter.GetBytes(formatakanaly);
+            pole1.CopyTo(header, pPozice);
+            pPozice += pole1.Length;
+            pole1.CopyTo(header, pPozice);
+            pPozice += pole1.Length;
+
+            //frekvence
+            Int32 frekvence = 16000;
+            pole1 = BitConverter.GetBytes(frekvence);
+            pole1.CopyTo(header, pPozice);
+            pPozice += pole1.Length;
+
+            //prumerny pocet bitu za s
+            Int32 prumbytu = 32000;
+            pole1 = BitConverter.GetBytes(prumbytu);
+            pole1.CopyTo(header, pPozice);
+            pPozice += pole1.Length;
+
+            //velikosti vzorku
+            short velikostVzorkuB = 2;
+            short velikostVzorkub = 16;
+            pole1 = BitConverter.GetBytes(velikostVzorkuB);
+            pole1.CopyTo(header, pPozice);
+            pPozice += pole1.Length;
+            pole1 = BitConverter.GetBytes(velikostVzorkub);
+            pole1.CopyTo(header, pPozice);
+            pPozice += pole1.Length;
+
+            //data
+            buff = ASCIIEncoding.ASCII.GetBytes("data");
+            buff.CopyTo(header, pPozice);
+            pPozice += buff.Length;
+
+            //velikost dat
+            pole1 = BitConverter.GetBytes(dataSize);
+            pole1.CopyTo(header, pPozice);
+            pPozice += pole1.Length;
+
+            return header;
+        }
 
 
         //spusti prevod souboru na wav,ktery je mozno vykreslovat - skonci po naplneni zobrazovaciho bufferu, pot
@@ -493,7 +370,7 @@ namespace NanoTrans.Audio
                 //nulovani promennych
                 this.docasneZvukoveSoubory.Clear();
 
-                this._FileLengthMS = this.VratDelkuSouboruMS(aCesta);
+                this._FileLengthMS = (long)WavReader.ReturnFileLength(aCesta).TotalMilliseconds;
                 if (aCesta == null || aCestaDocasnychWAV == null || FileLengthMS <= 0) return false; //chybne nastaveni nebo delka souboru k prevodu
 
                 this.TemporaryWAVsPath = aCestaDocasnychWAV;
@@ -610,7 +487,7 @@ namespace NanoTrans.Audio
                             j = 0;
                             //zapsani skutecne hlavicky WAV
                             output.Seek(0, SeekOrigin.Begin);
-                            output.Write((VytvorHlavickukWav((Int32)output.BaseStream.Length - 44)));
+                            output.Write((GetWaveHeader((Int32)output.BaseStream.Length - 44)));
 
                             output.Close();
                             output = null;
@@ -646,7 +523,7 @@ namespace NanoTrans.Audio
                 {
                     //zapsani skutecne hlavicky WAV
                     output.Seek(0, SeekOrigin.Begin);
-                    output.Write((VytvorHlavickukWav((Int32)output.BaseStream.Length - 44)));
+                    output.Write((GetWaveHeader((Int32)output.BaseStream.Length - 44)));
 
                     output.Close();   //zavreni souboru pro zapis dat
                     output = null;

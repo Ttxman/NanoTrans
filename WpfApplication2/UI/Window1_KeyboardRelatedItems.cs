@@ -402,9 +402,9 @@ namespace NanoTrans
         private void CExportElement(object sender, ExecutedRoutedEventArgs e)
         {
             TranscriptionParagraph par = VirtualizingListBox.ActiveTransctiption as TranscriptionParagraph;
-            oWav.RamecSynchronne = true;
-            bool nacteno = oWav.NactiRamecBufferu((long)par.Begin.TotalMilliseconds, (long)par.Length.TotalMilliseconds, Const.ID_BUFFER_TRANSCRIBED_ELEMENT_PHONETIC);//)this.bPozadovanyPocatekRamce, this.bPozadovanaDelkaRamceMS, this.bIDBufferu);        
-            oWav.RamecSynchronne = false;
+            _WavReader.RamecSynchronne = true;
+            bool nacteno = _WavReader.NactiRamecBufferu((long)par.Begin.TotalMilliseconds, (long)par.Length.TotalMilliseconds, Const.ID_BUFFER_TRANSCRIBED_ELEMENT_PHONETIC);//)this.bPozadovanyPocatekRamce, this.bPozadovanaDelkaRamceMS, this.bIDBufferu);        
+            _WavReader.RamecSynchronne = false;
 
             Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
             dlg.DefaultExt = ".wav";
@@ -413,10 +413,10 @@ namespace NanoTrans
             {
                 string filename = dlg.FileName;
                 //BinaryWriter bw = new BinaryWriter(new FileStream(filename, FileMode.Create));
-                MyBuffer16 bf = new MyBuffer16(oWav.SyncBufferLoad.data.Length);
+                MyBuffer16 bf = new MyBuffer16(_WavReader.SyncBufferLoad.data.Length);
 
-                bf.Data = oWav.SyncBufferLoad.data;
-                NanoTrans.Audio.WavReader.VytvorWavSoubor(bf, filename);
+                bf.Data = _WavReader.SyncBufferLoad.data;
+                bf.SaveToWav(filename);
 
 
                 string ext = System.IO.Path.GetExtension(filename);

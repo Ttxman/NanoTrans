@@ -1,5 +1,7 @@
-﻿using System;
+﻿using NanoTrans.Audio;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace NanoTrans
@@ -166,6 +168,29 @@ namespace NanoTrans
             catch
             {
                 return new short[1];
+            }
+        }
+
+
+        internal bool SaveToWav(string filename)
+        {
+            try
+            {
+                BinaryWriter output = new BinaryWriter(new FileStream(filename, FileMode.Create));
+
+                byte[] header = WavReader.GetWaveHeader(this.Data.Length * 2);
+                output.Write(header);
+                
+                for (int i = 0; i < Data.Length; i++)
+                {
+                    output.Write(Data[i]);
+                }
+                output.Close();
+                return true;
+            }
+            catch
+            {
+                return false;
             }
         }
     }

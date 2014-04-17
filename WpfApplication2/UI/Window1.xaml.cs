@@ -70,7 +70,7 @@ namespace NanoTrans
 
         WinHelp helpWindow;                                   //okno s napovedou
 
-        private WavReader oWav = null;
+        private WavReader _WavReader = null;
 
 
 
@@ -94,10 +94,8 @@ namespace NanoTrans
                 _playbackBufferIndex = value;
 
             }
-
-
         }
-        private bool playbackStarted = false;
+
         private bool _playing = false;
         private bool Playing
         {
@@ -140,44 +138,28 @@ namespace NanoTrans
 
             //load settings
             Stream s = FilePaths.GetConfigFileReadStream();
-            if (s != null)
-                GlobalSetup.Setup = GlobalSetup.Setup.Deserialize(s);
+            if (s == null)
+                SaveGlobalSetup();
             else
-                GlobalSetup.Setup.Serialize(s, GlobalSetup.Setup);
+                GlobalSetup.Setup = GlobalSetup.Setup.Deserialize(s);
 
-            if (GlobalSetup.Setup.Locale != null)
-            {
-                LocalizeDictionary.Instance.Culture = new System.Globalization.CultureInfo(GlobalSetup.Setup.Locale);
-            }
-
-            //set window position, size and state
-            if (GlobalSetup.Setup.WindowsPosition != null)
-            {
-                if (GlobalSetup.Setup.WindowsPosition.X >= 0 && GlobalSetup.Setup.WindowsPosition.Y >= 0)
-                {
-                    this.WindowStartupLocation = WindowStartupLocation.Manual;
-                    this.Left = GlobalSetup.Setup.WindowsPosition.X;
-                    this.Top = GlobalSetup.Setup.WindowsPosition.Y;
-                }
-            }
-            if (GlobalSetup.Setup.WindowSize != null)
-            {
-                if (GlobalSetup.Setup.WindowSize.Width >= 50 && GlobalSetup.Setup.WindowSize.Height >= 50)
-                {
-                    this.Width = GlobalSetup.Setup.WindowSize.Width;
-                    this.Height = GlobalSetup.Setup.WindowSize.Height;
-                }
-            }
-
-            this.WindowState = GlobalSetup.Setup.WindowState;
-
-
-            ShowPhoneticTranscription(GlobalSetup.Setup.PhoneticsPanelHeight - 1 > 0);
-
+            LoadGlobalSetup();
 
             SpeakersDatabase = new AdvancedSpeakerCollection();
 
+            LoadSpeakersDatabase();
 
+            foreach (var item in SpeakersDatabase)
+                item.PinnedToDocument = false;
+
+            _WavReader = new WavReader();
+            _WavReader.HaveData += oWav_HaveData;
+            _WavReader.HaveFileNumber += oWav_ReportConversionProgress;
+            _WavReader.TemporaryWavesDone += new EventHandler(oWav_TemporaryWavesDone);
+        }
+
+        private void LoadSpeakersDatabase()
+        {
             string fname = FilePaths.EnsureDirectoryExists(System.IO.Path.GetFullPath(GlobalSetup.Setup.SpeakersDatabasePath));
             if (fname.Contains(FilePaths.ProgramDirectory))
             {
@@ -209,15 +191,37 @@ namespace NanoTrans
                     MessageBox.Show(Properties.Strings.MessageBoxLocalSpeakersDatabaseUnreachableLoad, Properties.Strings.MessageBoxWarningCaption, MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
             }
+        }
 
-            foreach (var item in SpeakersDatabase)
-                item.PinnedToDocument = false;
+        private void LoadGlobalSetup()
+        {
+            if (GlobalSetup.Setup.Locale != null)
+            {
+                LocalizeDictionary.Instance.Culture = new System.Globalization.CultureInfo(GlobalSetup.Setup.Locale);
+            }
 
-            oWav = new WavReader();
-            oWav.HaveData += oWav_HaveData;
-            oWav.HaveFileNumber += oWav_ReportConversionProgress;
-            oWav.TemporaryWavesDone += new EventHandler(oWav_TemporaryWavesDone);
+            //set window position, size and state
+            if (GlobalSetup.Setup.WindowsPosition != null)
+            {
+                if (GlobalSetup.Setup.WindowsPosition.X >= 0 && GlobalSetup.Setup.WindowsPosition.Y >= 0)
+                {
+                    this.WindowStartupLocation = WindowStartupLocation.Manual;
+                    this.Left = GlobalSetup.Setup.WindowsPosition.X;
+                    this.Top = GlobalSetup.Setup.WindowsPosition.Y;
+                }
+            }
+            if (GlobalSetup.Setup.WindowSize != null)
+            {
+                if (GlobalSetup.Setup.WindowSize.Width >= 50 && GlobalSetup.Setup.WindowSize.Height >= 50)
+                {
+                    this.Width = GlobalSetup.Setup.WindowSize.Width;
+                    this.Height = GlobalSetup.Setup.WindowSize.Height;
+                }
+            }
 
+            this.WindowState = GlobalSetup.Setup.WindowState;
+
+            ShowPhoneticTranscription(GlobalSetup.Setup.PhoneticsPanelHeight - 1 > 0);
         }
 
         private void menuItemWave1_SetStartToCursor_Click(object sender, RoutedEventArgs e)
@@ -281,7 +285,7 @@ namespace NanoTrans
             beginMS = -1;
             if (MWP != null)
             {
-                if (_playing && oWav != null && oWav.Loaded)
+                if (_playing && _WavReader != null && _WavReader.Loaded)
                 {
                     TimeSpan limitEndMS = new TimeSpan(-1);
                     if (PlayingSelection)
@@ -293,7 +297,7 @@ namespace NanoTrans
                     beginMS = PlaybackBufferIndex;
                     PlaybackBufferIndex += 150;
 
-                    if (PlaybackBufferIndex > oWav.FileLengthMS)
+                    if (PlaybackBufferIndex > _WavReader.FileLengthMS)
                     {
                         if (!PlayingSelection)
                         {
@@ -305,13 +309,6 @@ namespace NanoTrans
                             PlaybackBufferIndex = (int)waveform1.SelectionBegin.TotalMilliseconds;
                         }
                     }
-
-                    if (!playbackStarted)
-                    {
-                        playbackStarted = true;
-
-                    }
-
                     return bfr;
                 }
             }
@@ -340,7 +337,7 @@ namespace NanoTrans
             waveform1.ProgressHighlightEnd = TimeSpan.FromMilliseconds(e.LengthMS);
 
 
-            if (e.LengthMS >= oWav.FileLengthMS)
+            if (e.LengthMS >= _WavReader.FileLengthMS)
             {
                 ShowMessageInStatusbar(Properties.Strings.mainWindowStatusbarStatusTextConversionDone);
                 pbPrevodAudio.Visibility = Visibility.Hidden;
@@ -557,28 +554,17 @@ namespace NanoTrans
         /// <returns>true when save was sucessful; false when user cancels or on error when saving</returns>
         private bool TrySaveUnsavedChanges()
         {
-            if (Transcription != null && !Transcription.Saved)
-            {
-                MessageBoxResult mbr = MessageBox.Show(Properties.Strings.MessageBoxSaveBeforeClosing, Properties.Strings.MessageBoxQuestionCaption, MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
-                if (mbr == MessageBoxResult.Cancel || mbr == MessageBoxResult.None)
-                {
-                    return false;
-                }
-                else if (mbr == MessageBoxResult.Yes || mbr == MessageBoxResult.No)
-                {
-                    if (mbr == MessageBoxResult.Yes)
-                    {
-                        if (Transcription.FileName != null)
-                        {
-                            if (!SaveTranscription(false, Transcription.FileName)) return false;
-                        }
-                        else
-                        {
-                            if (!SaveTranscription(true, Transcription.FileName)) return false;
-                        }
-                    }
-                }
-            }
+            if (Transcription == null || Transcription.Saved)
+                return true;
+
+            MessageBoxResult mbr = MessageBox.Show(Properties.Strings.MessageBoxSaveBeforeClosing, Properties.Strings.MessageBoxQuestionCaption, MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+
+            if (mbr == MessageBoxResult.Cancel || mbr == MessageBoxResult.None) //cancel or dialog close .. saving not occured
+                return false;
+
+            if (mbr == MessageBoxResult.Yes)
+                if (!SaveTranscription(string.IsNullOrWhiteSpace(Transcription.FileName), Transcription.FileName))
+                    return false;//error during save
 
             return true;
         }
@@ -696,7 +682,7 @@ namespace NanoTrans
 
         void OnTimer(Object source, EventArgs e)
         {
-            long rozdil = (long)waveform1.WaveLength.TotalMilliseconds; //delka zobrazeni v msekundach
+            long delta = (long)waveform1.WaveLength.TotalMilliseconds; //waveform length in ms
 
             TimeSpan playpos = waveform1.CaretPosition;
             if (_playing)
@@ -744,7 +730,8 @@ namespace NanoTrans
                     SetCaretPosition(waveform1.CaretPosition, false, true);
                 }
 
-                if (Playing) SelectTextBetweenTimeOffsets(playpos);
+                if (Playing)
+                    SelectTextBetweenTimeOffsets(playpos);
             }
         }
 
@@ -762,15 +749,7 @@ namespace NanoTrans
                 openDialog.Filter = Properties.Strings.LoadAudioFilter;
                 openDialog.FilterIndex = 1;
 
-                bool pOtevrit = false;
-                if (aFileName != null && aFileName != "")
-                {
-                    FileInfo fi = new FileInfo(aFileName);
-                    if (fi.Exists)
-                    {
-                        pOtevrit = true;
-                    }
-                }
+                bool pOtevrit = File.Exists(aFileName);
 
                 if (pOtevrit || openDialog.ShowDialog() == true)
                 {
@@ -780,22 +759,18 @@ namespace NanoTrans
                         aFileName = openDialog.FileName;
                     }
 
-
-
                     FileInfo fi = new FileInfo(aFileName);
-                    if (fi != null)
-                    {
-                        Transcription.MediaURI = fi.Name;
-                    }
+                    Transcription.MediaURI = fi.Name;
+
 
                     ////////////
-                    long pDelkaSouboruMS = oWav.VratDelkuSouboruMS(aFileName);
+                    TimeSpan fileLength = WavReader.ReturnFileLength(aFileName);
 
-                    if (pDelkaSouboruMS > -1)
+                    if (fileLength > TimeSpan.Zero)
                     {
-                        if (oWav != null)
+                        if (_WavReader != null)
                         {
-                            oWav.Dispose();
+                            _WavReader.Dispose();
                         }
 
                         //nastaveni pocatku prehravani
@@ -803,17 +778,15 @@ namespace NanoTrans
 
                         waveform1.CaretPosition = TimeSpan.Zero;
                         //  pIndexBufferuVlnyProPrehrani = 0;
-                        waveform1.DataRequestCallBack = oWav.NactiRamecBufferu;
+                        waveform1.DataRequestCallBack = _WavReader.NactiRamecBufferu;
 
                         pbPrevodAudio.Value = 0;
-                        waveform1.AudioLength = TimeSpan.FromMilliseconds(pDelkaSouboruMS);
-                        TimeSpan ts = new TimeSpan(pDelkaSouboruMS * 10000);
-
-                        pbPrevodAudio.Maximum = ts.TotalMinutes - 1;
+                        waveform1.AudioLength = fileLength;
+                        pbPrevodAudio.Maximum = fileLength.TotalMinutes - 1;
                         pbPrevodAudio.Value = 0;
 
                         //start prevodu docasnych souboru
-                        oWav.AsynchronniPrevodMultimedialnihoSouboruNaDocasne2(aFileName); //spusti se thread ktery prevede soubor na temp wavy
+                        _WavReader.ConvertAudioFileToWave(aFileName); //spusti se thread ktery prevede soubor na temp wavy
                         ShowMessageInStatusbar(Properties.Strings.mainWindowStatusbarStatusTextConversionRunning);
                         pbPrevodAudio.Visibility = Visibility.Visible;
                         mainWindowStatusbarAudioConversionHeader.Visibility = Visibility.Visible;
@@ -837,12 +810,11 @@ namespace NanoTrans
                     finally
                     {
                         tbAudioFile.ToolTip = openDialog.FileName;
-
                     }
                 }
                 return true;
             }
-            catch// (Exception ex)
+            catch
             {
                 return false;
             }
@@ -866,49 +838,42 @@ namespace NanoTrans
                 Microsoft.Win32.OpenFileDialog openDialog = new Microsoft.Win32.OpenFileDialog();
                 openDialog.Title = Properties.Strings.LoadVideoTitle;
                 openDialog.Filter = Properties.Strings.LoadVideoFilter;
-                FileInfo fi = null;
-                if (aFileName != null) fi = new FileInfo(aFileName);
-                bool pOtevrit = fi != null && fi.Exists;
-                if (pOtevrit) openDialog.FileName = aFileName;
-                if (pOtevrit || openDialog.ShowDialog() == true)
+
+                bool openExisting = File.Exists(aFileName);
+
+                if (openExisting)
+                    openDialog.FileName = aFileName;
+
+                if (openExisting || openDialog.ShowDialog() == true)
                 {
                     meVideo.Source = new Uri(openDialog.FileName);
 
                     meVideo.Play();
 
                     meVideo.Position = new TimeSpan(0, 0, 0, 0, PlaybackBufferIndex);
-                    //meVideo.Position = mediaElement1.Position;
-                    //if (!playing) meVideo.Pause();
                     meVideo.IsMuted = true;
                     videoAvailable = true;
 
-                    try
-                    {
-                        tbVideoFile.Text = new FileInfo(openDialog.FileName).Name;
-                        Transcription.VideoFileName = tbVideoFile.Text;
-                    }
-                    catch
-                    {
 
-                    }
+                    tbVideoFile.Text = new FileInfo(openDialog.FileName).Name;
+                    Transcription.VideoFileName = tbVideoFile.Text;
+
                     infoPanels.SelectedIndex = 0;
 
-                    if (oWav != null && oWav.FilePath != null && oWav.FilePath != "")
+                    if (_WavReader != null && !string.IsNullOrWhiteSpace(_WavReader.FilePath))
                     {
-                        if (!pOtevrit && MessageBox.Show(Properties.Strings.MessageBoxUseVideoFileAsAudioSource, Properties.Strings.MessageBoxQuestionCaption, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                        if (!openExisting && MessageBox.Show(Properties.Strings.MessageBoxUseVideoFileAsAudioSource, Properties.Strings.MessageBoxQuestionCaption, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                         {
                             LoadAudio(openDialog.FileName);
                         }
                     }
                     else
                     {
-                        //automaticke nacteni audia
                         LoadAudio(openDialog.FileName);
                     }
 
-                    //gListVideo.ColumnDefinitions[1].Width = new GridLength(150);
-
                 }
+
                 return true;
 
             }
@@ -1077,9 +1042,9 @@ namespace NanoTrans
                 MWP = null;
             }
 
-            if (oWav != null)
+            if (_WavReader != null)
             {
-                oWav.Dispose();
+                _WavReader.Dispose();
             }
 
             FilePaths.DeleteTemp();
@@ -1794,8 +1759,6 @@ namespace NanoTrans
                         }
                         p = (TranscriptionParagraph)p.NextSibling();
                     }
-
-
                     VirtualizingListBox.Reset();
 
                 }

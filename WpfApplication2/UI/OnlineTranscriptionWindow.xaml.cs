@@ -142,11 +142,11 @@ namespace NanoTrans
 
     class OnlineTranscriptionInfo
     {
-        public string documentId;
-        public string site;
-        public string speakersAPI;
-        public string trsxDownloadURL;
-        public string responseURL;
+        public string documentId {get;set;}
+        public string site { get; set; }
+        public string speakersAPI { get; set; }
+        public string trsxDownloadURL { get; set; }
+        public string responseURL { get; set; }
     }
 
 }
