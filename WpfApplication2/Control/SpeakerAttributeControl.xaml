@@ -5,18 +5,32 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
              xmlns:my="clr-namespace:NanoTrans"
+             xmlns:core="clr-namespace:NanoTrans.Core;assembly=NanoTransCore"
              d:DesignHeight="25" d:DesignWidth="300"
              Name="control"
              >
     <UserControl.Resources>
         <ObjectDataProvider x:Key="setup" ObjectInstance="{x:Static my:GlobalSetup.Refresher}"/>
+        <ControlTemplate x:Key="ContentPresenter">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <ComboBox Name="typeselect" Grid.Column="0" SelectedItem="{Binding Name}" ItemsSource="{Binding Source={StaticResource setup}, Path=Setup.SpeakerAtributteCategories}"  Visibility="Visible"/>
+
+                <Button Name="keytext" Grid.Column="0" Content="{Binding Name}" Visibility="Hidden" />
+
+                <TextBox Grid.Column="1" Text="{Binding Value}" />
+            </Grid>
+
+            <ControlTemplate.Triggers>
+                <Trigger SourceName="typeselect" Property="SelectedItem" Value="{x:Null}">
+                    <Setter TargetName="typeselect" Property="Visibility" Value="Hidden"/>
+                    <Setter TargetName="keytext" Property="Visibility" Value="Visible"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
     </UserControl.Resources>
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="100"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-        <ComboBox Grid.Column="0" Text="{Binding ElementName=control,Path=Attribute.Name}" ItemsSource="{Binding Source={StaticResource setup}, Path=Setup.SpeakerAtributteCategories}" />
-        <TextBox Grid.Column="1" Text="{Binding ElementName=control,Path=Attribute.Value}"  />
-    </Grid>
+    <ContentControl Template="{StaticResource ContentPresenter}"/>
 </UserControl>
