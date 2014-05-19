@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NanoTrans
@@ -13,7 +14,7 @@ namespace NanoTrans
     /// <summary>
     /// Wrap NanoTrans.Core.Transcription to collection with INotifyCollectionChanged
     /// </summary>
-    public class WPFTranscription:Transcription, INotifyCollectionChanged
+    public class WPFTranscription : Transcription, INotifyCollectionChanged, INotifyPropertyChanged
     {
         new public static WPFTranscription Deserialize(string path)
         {
@@ -30,13 +31,14 @@ namespace NanoTrans
         }
         public WPFTranscription(string filename)
             : base(filename)
-        { 
-        
+        {
+
         }
 
-        public WPFTranscription():base()
-        { 
-        
+        public WPFTranscription()
+            : base()
+        {
+
         }
 
         public event NotifyCollectionChangedEventHandler CollectionChanged;
@@ -83,5 +85,31 @@ namespace NanoTrans
             return NotifyCollectionChangedAction.Reset;
         }
 
+        bool _isonline = false;
+        public bool IsOnline
+        {
+            get { return _isonline; }
+            set
+            {
+                _isonline = value;
+                if (value)
+                {
+                    this.Elements["Online"] = "True";
+                }
+                else
+                {
+                    this.Elements.Remove("Online");
+                }
+
+                if (PropertyChanged != null)
+                {
+                    PropertyChanged(this, new PropertyChangedEventArgs("IsOnline"));
+                }
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public OnlineAPI.SpeakersApi Api { get; set; }
     }
 }

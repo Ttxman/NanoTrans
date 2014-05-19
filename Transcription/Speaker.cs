@@ -270,7 +270,7 @@ namespace NanoTrans.Core
             {
                 DateTime date;
 
-                if (!string.IsNullOrWhiteSpace(rem)) //i had to load big archive with empty synchronized attribute .. this is signifcant speedup
+                if (!string.IsNullOrWhiteSpace(rem)) //i had to load big archive with empty synchronized attribute .. this is significant speedup
                 {
                     //problem with saving datetimes in local format
                     try
@@ -396,29 +396,58 @@ namespace NanoTrans.Core
         }
         #endregion
 
+
+        /// <summary>
+        /// update values from another speaker .. used for merging, probably not doing what user assumes :)
+        /// </summary>
+        /// <param name="into"></param>
+        /// <param name="from"></param>
+        public static void MergeFrom(Speaker into, Speaker from)
+        {
+            into._ID = speakersIndexCounter++;
+            into.DataBaseType = from.DataBaseType;
+            into.Surname = from.Surname;
+            into.FirstName = from.FirstName;
+            into.MiddleName = from.MiddleName;
+            into.DegreeBefore = from.DegreeBefore;
+            into.DegreeAfter = from.DegreeAfter;
+            into.DefaultLang = from.DefaultLang;
+            into.Sex = from.Sex;
+            into.ImgBase64 = from.ImgBase64;
+            into.Merges = new List<DBMerge>(from.Merges.Concat(into.Merges));
+
+            if(from.DBType!= DBType.File && into.DBID !=from.DBID)
+                into.Merges.Add(new DBMerge(from.DBID, from.DataBaseType));
+
+
+            into.Attributes = into.Attributes
+                .Concat(from.Attributes).GroupBy(a => a.Name)
+                .SelectMany(g => g.Distinct(new AttributeComparer()))
+                .ToList();
+            
+        }
+
+        private class AttributeComparer : IEqualityComparer<SpeakerAttribute>
+        {
+
+            public bool Equals(SpeakerAttribute x, SpeakerAttribute y)
+            {
+                return x.Name == y.Name && x.Value == y.Value;
+            }
+
+            public int GetHashCode(SpeakerAttribute obj)
+            {
+                return obj.Name.GetHashCode() ^ obj.Value.GetHashCode();
+            }
+        }
+
         /// <summary>
         /// copy constructor - copies all info, but with new DBID, ID ....
         /// </summary>
         /// <param name="s"></param>
-        private Speaker(Speaker aSpeaker)
+        private Speaker(Speaker s)
         {
-            _ID = speakersIndexCounter++;
-            DataBaseType = aSpeaker.DataBaseType;
-            Surname = aSpeaker.Surname;
-            FirstName = aSpeaker.FirstName;
-            MiddleName = aSpeaker.MiddleName;
-            DegreeBefore = aSpeaker.DegreeBefore;
-            DegreeAfter = aSpeaker.DegreeAfter;
-            DefaultLang = aSpeaker.DefaultLang;
-            Sex = aSpeaker.Sex;
-            ImgBase64 = aSpeaker.ImgBase64;
-            Merges = new List<DBMerge>(aSpeaker.Merges);
-
-            foreach (var a in aSpeaker.Attributes)
-            {
-                Attributes.Add(new SpeakerAttribute(a));
-            }
-
+            MergeFrom(this, s);
         }
 
         public Speaker(string aSpeakerFirstname, string aSpeakerSurname, Sexes aPohlavi, string aSpeakerFotoBase64) //constructor ktery vytvori speakera
@@ -451,9 +480,10 @@ namespace NanoTrans.Core
         string _dbid = null;
 
         /// <summary>
-        /// if not set, GUID is automatically generated on first access (when database is not API based)
-        /// if DataBaseType is DBType.API and not set - returns null
+        /// if not set, GUID is automatically generated on first read
         /// if DataBaseType is DBType.User - modification is disabled
+        /// if DataBaseType is DBType.File - processing of value is disabled
+        /// SHOULD be always UNIQUE GUID-like string (NanoTrans expects that ids from DBType.API and DBType.User can't conflict)
         /// </summary>
         public string DBID
         {
@@ -461,10 +491,7 @@ namespace NanoTrans.Core
             {
                 if (_dbid == null)
                 {
-                    if (DataBaseType == DBType.Api)
-                        return null;
-                    else
-                        _dbid = Guid.NewGuid().ToString();
+                    _dbid = Guid.NewGuid().ToString();
                 }
 
                 return _dbid;
@@ -481,6 +508,10 @@ namespace NanoTrans.Core
             }
         }
 
+        /// <summary>
+        /// alias for DataBaseType
+        /// </summary>
+        public DBType DBType { get{return this.DataBaseType;} set{this.DataBaseType = value;} }
         public DBType DataBaseType { get; set; }
 
         public DateTime Synchronized { get; set; }

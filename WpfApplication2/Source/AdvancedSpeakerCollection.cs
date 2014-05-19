@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
@@ -47,7 +48,10 @@ namespace NanoTrans
         public Speaker SynchronizeSpeaker(Speaker s)
         {
             if (s.DataBaseType == DBType.Api)
-                throw new NotImplementedException();//not yet implemented
+            {
+                var ss = new ApiSynchronizedSpeaker(s);
+                return ss;
+            }
             else if (s.DataBaseType == DBType.User && s.DBID!=null)//some user created it manually
             {
                 Speaker ls;

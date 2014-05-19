@@ -71,18 +71,14 @@ namespace NanoTrans.Core
         }
 
 
+        public Speaker GetSpeakerByDBID(string dbid)
+        {
+            return _Speakers.FirstOrDefault(s => s.DBID == dbid);
+        }
+
         public Speaker GetSpeakerByName(string fullname)
         {
-            Speaker aSpeaker = new Speaker();
-            for (int i = 0; i < this._Speakers.Count; i++)
-            {
-                if (((Speaker)_Speakers[i]).FullName == fullname)
-                {
-                    aSpeaker = ((Speaker)_Speakers[i]);
-                    return aSpeaker;
-                }
-            }
-            return null;
+            return _Speakers.FirstOrDefault(s => s.FullName == fullname);
         }
 
         /// <summary>

@@ -50,8 +50,8 @@ namespace NanoTrans
             InitializeComponent();
         }
         public delegate void SpeakerDelegate(SpeakerContainer spk);
-        public event SpeakerDelegate StoreSpeakerRequest;
-        public event SpeakerDelegate RevertSpeakerRequest;
+        public event SpeakerDelegate SaveSpeakerClick;
+        public event SpeakerDelegate RevertSpeakerClick;
 
 
 
@@ -59,14 +59,14 @@ namespace NanoTrans
 
         private void buttonRefresh_Click(object sender, RoutedEventArgs e)
         {
-            if (RevertSpeakerRequest != null)
-                RevertSpeakerRequest(this.SpeakerContainer);
+            if (RevertSpeakerClick != null)
+                RevertSpeakerClick(this.SpeakerContainer);
         }
 
         private void buttonUpdate_Click(object sender, RoutedEventArgs e)
         {
-            if (StoreSpeakerRequest != null)
-                StoreSpeakerRequest(this.SpeakerContainer);
+            if (SaveSpeakerClick != null)
+                SaveSpeakerClick(this.SpeakerContainer);
         }
 
         private void ButtonAddAttributeClick(object sender, RoutedEventArgs e)

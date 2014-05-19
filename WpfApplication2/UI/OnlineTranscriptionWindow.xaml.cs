@@ -16,6 +16,8 @@ using Newtonsoft;
 using System.Net.Http;
 using Newtonsoft.Json;
 using System.ComponentModel;
+using NanoTrans.OnlineAPI;
+using System.Xml.Linq;
 
 
 namespace NanoTrans
@@ -25,15 +27,11 @@ namespace NanoTrans
     /// </summary>
     public partial class OnlineTranscriptionWindow : Window, INotifyPropertyChanged
     {
-        private string _path;
 
-        HttpClient _client;
-
-        public OnlineTranscriptionWindow(string path)
+        public OnlineTranscriptionWindow(SpeakersApi speakersApi)
         {
             InitializeComponent();
-            Service = _path = path;
-
+            this._api = speakersApi;
         }
 
         string _status;
@@ -72,21 +70,15 @@ namespace NanoTrans
             }
         }
 
-        OnlineTranscriptionInfo nfo;
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            _client = new HttpClient();
             Status = "Connecting to data server";
             try
             {
-                //_client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", Convert.ToBase64String(ASCIIEncoding.ASCII.GetBytes( string.Format("{0}:{1}","senat","senat2014tul!"))));
-
-                string json = await _client.GetStringAsync(_path);
-                nfo = JsonConvert.DeserializeObject<OnlineTranscriptionInfo>(json);
-
+                await _api.LoadInfo();
                 Status = "Connected";
                 Connected = true;
-                Service = nfo.site;
+                Service = _api.Info.Site.AbsoluteUri;
                 progress.IsIndeterminate = false;
             }
             catch
@@ -97,9 +89,8 @@ namespace NanoTrans
             }
         }
 
-        public WPFTranscription Trans;
-
         public event PropertyChangedEventHandler PropertyChanged;
+        private SpeakersApi _api;
 
         private async void Button_Click(object sender, RoutedEventArgs e)
         {
@@ -107,46 +98,77 @@ namespace NanoTrans
             Status = "Downloading transcription";
             string message = "Authtentication failed.";
 
-            HttpResponseMessage trsxsresponse = null;
+
+
+            _api.UserName = this.Login.Text;
+            _api.Password = this.Password.Password;
             try
             {
-                _client.DefaultRequestHeaders.Authorization =
-                    new System.Net.Http.Headers.AuthenticationHeaderValue("Basic",
-                        Convert.ToBase64String(ASCIIEncoding.ASCII.GetBytes(
-                        string.Format("{0}:{1}", "senat", "senat2014tul!"))));
-                trsxsresponse = await _client.GetAsync(nfo.trsxDownloadURL);
+                await _api.Login();
             }
-            catch { message = "Error occuerd during transfer."; }
+            catch { message = "Error occured during login."; }
 
-            if (trsxsresponse == null || trsxsresponse.StatusCode == System.Net.HttpStatusCode.Forbidden) //authentication failed
+            if (!_api.LogedIn) //authentication failed
             { //authorization failed
-                MessageBox.Show(message, "Problem with download", MessageBoxButton.YesNo, MessageBoxImage.Exclamation);
+                MessageBox.Show(message, "Login failed", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 return;
             }
 
+            HttpResponseMessage trsxsresponse = await _api.GetUrl(_api.Info.TrsxDownloadURL);
+            //string what = await trsxsresponse.Content.ReadAsStringAsync();
+            if (trsxsresponse.StatusCode != System.Net.HttpStatusCode.OK)
+            {
+                string mes = await trsxsresponse.Content.ReadAsStringAsync();
+                MessageBox.Show("Problem with download", "Problem with download", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                return;
+            }
 
-            Trans = WPFTranscription.Deserialize(await trsxsresponse.Content.ReadAsStreamAsync());
+            try
+            {
+                _api.Trans = WPFTranscription.Deserialize(await trsxsresponse.Content.ReadAsStreamAsync());
+                _api.Trans.IsOnline = true;
+                _api.Trans.Api = _api;
 
-            if (string.IsNullOrWhiteSpace(Trans.MediaURI))
-                try { Trans.MediaURI = Trans.Meta.Element("stream").Element("url").Value; }
+                _api.Trans.Meta.Add(JsonConvert.DeserializeXNode(JsonConvert.SerializeObject(_api.Info),"OnlineInfo").Root);
+                _api.Trans.FileName = _api.Info.ResponseURL.AbsolutePath;
+            }
+            catch
+            {
+                MessageBox.Show("document is in wrong format", "document is in wrong format", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(_api.Trans.MediaURI))
+                try { _api.Trans.MediaURI = _api.Trans.Meta.Element("stream").Element("url").Value; }
                 catch { };
 
-            Trans.DocumentID = nfo.documentId;
+            _api.Trans.DocumentID = _api.Info.DocumentId;
+            Status = "Loading speakers from databse";
 
+            var sp1 = await _api.ListSpeakers(_api.Trans.Speakers.Select(s => s.DBID));
+            var respeakers = sp1.ToArray();
+
+            for (int i = 0; i < respeakers.Length; i++)
+            {
+                var replacement = respeakers[i];
+                var dbs = _api.Trans.Speakers.GetSpeakerByDBID(replacement.DBID);
+                if (dbs != null)
+                {
+                    replacement.PinnedToDocument = dbs.PinnedToDocument | replacement.PinnedToDocument;
+                    if (replacement.MainID != null)
+                        replacement.DBID = replacement.MainID;
+
+                    _api.Trans.ReplaceSpeaker(dbs, respeakers[i]);
+                }
+            }
 
             this.DialogResult = true;
+            
             Close();
         }
     }
 
 
-    class OnlineTranscriptionInfo
-    {
-        public string documentId {get;set;}
-        public string site { get; set; }
-        public string speakersAPI { get; set; }
-        public string trsxDownloadURL { get; set; }
-        public string responseURL { get; set; }
-    }
+
 
 }

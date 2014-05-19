@@ -61,14 +61,14 @@
                 <clr:String>Žena</clr:String>
             </ComboBox>
             <ComboBox ItemsSource="{x:Static core:Speaker.Langs}" SelectedItem="{Binding ElementName=Control,Path=SpeakerContainer.Language}" Margin="5,0,5,5" Grid.Column="1" />
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Visibility="{Binding IsEnabled, ElementName=Control, Converter={StaticResource boolvisconverter}}" >
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" IsEnabled="{Binding ElementName=Control,Path=SpeakerContainer.IsOnline,UpdateSourceTrigger=PropertyChanged,TargetNullValue=false}" >
                 <Button Name="buttonUpdate" HorizontalAlignment="Left" Margin="5,5,5,5" IsEnabled="{Binding ElementName=Control,Path=SpeakerContainer.Changed,UpdateSourceTrigger=PropertyChanged,TargetNullValue=false}" Click="buttonUpdate_Click">
                     <StackPanel>
                         <Image Width="50" Height="50" Source="/NanoTrans;component/icons/save_small.png" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         <TextBlock FontWeight="Bold" Text="{lex:LocText SpeakerDetailsOnlineSave}" HorizontalAlignment="Center" />
                     </StackPanel>
                 </Button>
-                <Button HorizontalAlignment="Left" Name="buttonRefresh" Margin="5,5,5,5" Click="buttonRefresh_Click">
+                <Button HorizontalAlignment="Left" Name="buttonRefresh" Margin="5,5,5,5" IsEnabled="{Binding ElementName=Control,Path=SpeakerContainer.IsOnline,UpdateSourceTrigger=PropertyChanged,TargetNullValue=false}" Click="buttonRefresh_Click">
                     <StackPanel >
                         <Image Width="50" Height="50" Source="/NanoTrans;component/icons/download_small2.png" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         <TextBlock FontWeight="Bold" Text="{lex:LocText SpeakerDetailsOnlineReload}" HorizontalAlignment="Center" />
@@ -77,10 +77,10 @@
             </StackPanel>
         </StackPanel>
         <Label Grid.Row="1" FontWeight="Bold" Content="{lex:LocText SpeakerDetailsLabelAttributes}"/>
-        <ListBox HorizontalContentAlignment="Stretch" Name="AttributeList" ScrollViewer.CanContentScroll="False" Grid.ColumnSpan="2" Grid.Row="2" ItemsSource="{Binding ElementName=Control,Path=SpeakerContainer.Attributes,UpdateSourceTrigger=PropertyChanged}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+        <ListBox HorizontalContentAlignment="Stretch" Name="AttributeList" ScrollViewer.CanContentScroll="True" Grid.ColumnSpan="2" Grid.Row="2" ItemsSource="{Binding ElementName=Control,Path=SpeakerContainer.Attributes,UpdateSourceTrigger=PropertyChanged}" ScrollViewer.HorizontalScrollBarVisibility="Auto">
             <ListBox.Resources>
                 <DataTemplate DataType="{x:Type my:SpeakerAttributeContainer}">
-                    <my:SpeakerAttributeControl Attribute="{Binding}" GotFocus="SpeakerAttributeControl_GotFocus" />
+                    <my:SpeakerAttributeControl Content="{Binding}" GotFocus="SpeakerAttributeControl_GotFocus" />
                 </DataTemplate>
             </ListBox.Resources>
         </ListBox>

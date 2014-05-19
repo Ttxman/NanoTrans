@@ -244,34 +244,26 @@ namespace NanoTrans.Core
         }
 
         /// <summary>
-        /// Remove speaker from all paragraphs (Paragraphs will return default Speaker.DefaultSpeaker)
+        /// Remove speaker from all paragraphs (Paragraphs will return default Speaker.DefaultSpeaker) and from internal database (if not pinned)
         /// </summary>
-        /// <param name="aSpeaker"></param>
+        /// <param name="speaker"></param>
         /// <returns></returns>
-        public bool RemoveSpeaker(Speaker aSpeaker)
+        public bool RemoveSpeaker(Speaker speaker)
         {
             try
             {
-                if (aSpeaker.FullName != null && aSpeaker.FullName != "")
+                if (speaker.FullName != null && speaker.FullName != "")
                 {
-                    if (this._speakers.RemoveSpeaker(aSpeaker))
+                    if (this._speakers.Contains(speaker))
                     {
+                        if (!speaker.PinnedToDocument)
+                            _speakers.Remove(speaker);
+
                         Saved = false;
-                        for (int k = 0; k < Chapters.Count; k++)
-                        {
-                            for (int l = 0; l < ((TranscriptionChapter)Chapters[k]).Sections.Count; l++)
-                            {
-                                for (int m = 0; m < ((TranscriptionSection)((TranscriptionChapter)Chapters[k]).Sections[l]).Paragraphs.Count; m++)
-                                {
-                                    if (Chapters[k].Sections[l].Paragraphs[m].Speaker == aSpeaker)
-                                    {
-                                        Chapters[k].Sections[l].Paragraphs[m].Speaker = Speaker.DefaultSpeaker;
-                                    }
-                                }
+                        foreach (var p in EnumerateParagraphs())
+                            if (p.Speaker == speaker)
+                                p.Speaker = Speaker.DefaultSpeaker;
 
-                            }
-
-                        }
                         Saved = false;
                         return true;
                     }
@@ -285,6 +277,26 @@ namespace NanoTrans.Core
             {
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Replace speaker in all paragraphs and in databse
+        /// </summary>
+        /// <param name="aSpeaker"></param>
+        /// <returns></returns>
+        public void ReplaceSpeaker(Speaker toReplace, Speaker replacement)
+        {
+            if (_speakers.Contains(toReplace))
+            {
+                _speakers.Remove(toReplace);
+                if (!_speakers.Contains(replacement))
+                    _speakers.Add(replacement);
+            }
+
+            foreach (var p in EnumerateParagraphs())
+                if (p.Speaker == toReplace)
+                    p.Speaker = replacement;
+
         }
 
         public bool Serialize(string filename, bool savecompleteSpeakers = false)
@@ -308,8 +320,7 @@ namespace NanoTrans.Core
             }
         }
 
-
-        public bool Serialize(Stream datastream, bool SaveSpeakersDetailed = false)
+        public XDocument Serialize(bool SaveSpeakersDetailed = false)
         {
             ReindexSpeakers();
             XElement pars = new XElement("transcription", Elements.Select(e => new XAttribute(e.Key, e.Value)).Union(new[] { 
@@ -330,6 +341,14 @@ namespace NanoTrans.Core
                     pars
                 );
 
+            return xdoc;
+        }
+
+
+        public bool Serialize(Stream datastream, bool SaveSpeakersDetailed = false)
+        {
+
+            XDocument xdoc = Serialize(SaveSpeakersDetailed);
             xdoc.Save(datastream);
             return true;
         }
@@ -346,7 +365,7 @@ namespace NanoTrans.Core
         private XElement SerializeSpeakers(bool SaveSpeakersDetailed)
         {
             var speakers = this.EnumerateParagraphs().Select(p => p.Speaker).Where(s => s != Speaker.DefaultSpeaker && s.ID != Speaker.DefaultID)
-                            .Concat(_speakers.Where(s=>s.PinnedToDocument))
+                            .Concat(_speakers.Where(s => s.PinnedToDocument))
                             .Distinct()
                 .ToList();
             return new SpeakerCollection(speakers).Serialize(SaveSpeakersDetailed);
@@ -359,11 +378,11 @@ namespace NanoTrans.Core
             Deserialize(filename, tr);
             return tr;
         }
-        
-           
+
+
         public static void Deserialize(string filename, Transcription storage)
         {
-            using (Stream s = File.Open(filename, FileMode.Open, FileAccess.Read,FileShare.Read))
+            using (Stream s = File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 Deserialize(s, storage);
                 if (storage != null)

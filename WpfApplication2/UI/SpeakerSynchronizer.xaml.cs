@@ -42,7 +42,7 @@ namespace NanoTrans
                 .OrderBy(s => s.Surname)
                 .ThenBy(s => s.FirstName)
                 .ThenBy(s => s.MiddleName)
-                .Select(s => new SpeakerPair { Speaker1 = new SpeakerContainer(s) { IsDocument = true } })
+                .Select(s => new SpeakerPair { Speaker1 = new SpeakerContainer(s) })
                 .ToList();
 
             //Join speakers from document with speakers from localDB by fullname and order pairs
@@ -131,7 +131,7 @@ namespace NanoTrans
                     foreach (var p in _pairs.Where(pa => pa.Speaker2 == null))
                     {
                         var n = new SpeakerContainer(p.Speaker1.Speaker.Copy());
-                        n.IsLocal = true;
+                        n.Speaker.DataBaseType = DBType.User;
                         _speakersDatabase.Add(n.Speaker);
                         p.Speaker2 = n;
                     }
@@ -242,7 +242,7 @@ namespace NanoTrans
             if (value == null)
                 return null;
             if (value is Speaker)
-                return new SpeakerContainer(value as Speaker) { IsLocal = true };
+                return new SpeakerContainer(value as Speaker);
 
 
             throw new ArgumentException();

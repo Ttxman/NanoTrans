@@ -30,6 +30,8 @@ using NanoTrans.Audio;
 using NanoTrans.Core;
 using System.Windows.Controls.Primitives;
 using WPFLocalizeExtension.Engine;
+using System.Threading.Tasks;
+using NanoTrans.OnlineAPI;
 
 namespace NanoTrans
 {
@@ -146,11 +148,6 @@ namespace NanoTrans
             LoadGlobalSetup();
 
             SpeakersDatabase = new AdvancedSpeakerCollection();
-
-            LoadSpeakersDatabase();
-
-            foreach (var item in SpeakersDatabase)
-                item.PinnedToDocument = false;
 
             _WavReader = new WavReader();
             _WavReader.HaveData += oWav_HaveData;
@@ -495,18 +492,24 @@ namespace NanoTrans
 
         private bool TryLoadTranscription(string fileName)
         {
-            Transcription = WPFTranscription.Deserialize(fileName);
+            var trans = WPFTranscription.Deserialize(fileName);
 
-            if (Transcription != null)
+            if (trans != null)
             {
-                Transcription.Saved = true;
-                TryLoadAudioFile();
-                TryLoadVideoFile();
-                InitWindowAfterTranscriptionLoad();
+                LoadTranscription(trans);
                 return true;
             }
 
             return false;
+        }
+
+        private void LoadTranscription(WPFTranscription trans)
+        {
+            Transcription = trans;
+            Transcription.Saved = true;
+            TryLoadAudioFile();
+            TryLoadVideoFile();
+            InitWindowAfterTranscriptionLoad();
         }
 
         private void InitWindowAfterTranscriptionLoad()
@@ -532,7 +535,11 @@ namespace NanoTrans
 
         private void TryLoadAudioFile()
         {
-            if (!string.IsNullOrEmpty(Transcription.MediaURI) && Transcription.FileName != null)
+            if (Transcription.IsOnline)
+            {
+                //TODO:
+            }
+            else if (!string.IsNullOrEmpty(Transcription.MediaURI) && Transcription.FileName != null)
             {
                 FileInfo fiA = new FileInfo(Transcription.MediaURI);
                 string pAudioFile = fiA.FullName;
@@ -577,6 +584,8 @@ namespace NanoTrans
                 item.PinnedToDocument = false;
 
             var toremove = new List<Speaker>();
+            var toadd = new List<Speaker>();
+
             foreach (Speaker i in Transcription.Speakers)
             {
                 Speaker ss = SpeakersDatabase.SynchronizeSpeaker(i);
@@ -588,20 +597,25 @@ namespace NanoTrans
 
                     foreach (var p in Transcription.EnumerateParagraphs().Where(p => p.Speaker == i))
                         p.Speaker = ss;
-                    if (!i.PinnedToDocument)
-                        toremove.Add(i);
+
+                    toremove.Add(i);
+                    if (!Transcription.Speakers.Contains(ss))
+                        toadd.Add(ss);
                 }
             }
 
             foreach (var s in toremove)
                 Transcription.Speakers.Remove(s);
-        }
 
+            foreach (var item in toadd)
+                Transcription.Speakers.Add(item);
+        }
 
         public bool SaveTranscription(bool useSaveDialog, string jmenoSouboru)
         {
             try
             {
+
                 string savePath = Transcription.FileName;
                 if (useSaveDialog)
                 {
@@ -620,18 +634,24 @@ namespace NanoTrans
                         return false;
                 }
 
-                if (Transcription.Serialize(savePath, GlobalSetup.Setup.SaveWholeSpeaker))
+                if (Transcription.IsOnline && !useSaveDialog)
+                {
+                    return _api.UploadTranscription(Transcription).Result;
+                }
+                else if (Transcription.Serialize(savePath, GlobalSetup.Setup.SaveWholeSpeaker))
                 {
                     this.Title = Const.APP_NAME + " [" + Transcription.FileName + "]";
                     return true;
                 }
                 return false;
+
             }
             catch (Exception ex)
             {
                 MessageBox.Show(Properties.Strings.MessageBoxSaveTranscriptionError + ex.Message, Properties.Strings.MessageBoxErrorCaption, MessageBoxButton.OK, MessageBoxImage.Error);
-                return false;
             }
+
+            return false;
         }
 
 
@@ -1047,6 +1067,9 @@ namespace NanoTrans
                 _WavReader.Dispose();
             }
 
+            if (_api != null)
+                _api.Cancel();
+
             FilePaths.DeleteTemp();
             Environment.Exit(0); //Force close application
         }
@@ -1136,6 +1159,11 @@ namespace NanoTrans
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
 
+            LoadSpeakersDatabase();
+
+            foreach (var item in SpeakersDatabase)
+                item.PinnedToDocument = false;
+
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
 
             InitCommands();
@@ -1211,17 +1239,16 @@ namespace NanoTrans
 
         }
 
+        SpeakersApi _api = null;
         private void LoadOnlineSource(string path)
         {
-            var w = new OnlineTranscriptionWindow(path);
-            w.Owner = this;
-            if (w.ShowDialog() == true)
+            _api = new SpeakersApi(path, this);
+            if (_api.TryLogin(this) == true)
             {
-
+                LoadTranscription(_api.Trans);
             }
             else
                 Close();
-
         }
 
 
