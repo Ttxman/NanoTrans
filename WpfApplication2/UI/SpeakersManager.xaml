@@ -58,7 +58,7 @@
             </StackPanel.Resources>
             <CheckBox IsChecked="{Binding ElementName=manager,Path=SpeakerProvider.ShowLocal}" Content="{lex:LocText SpeakersManagerCheckboxLocalSpeakers}"/>
             <CheckBox IsChecked="{Binding ElementName=manager,Path=SpeakerProvider.ShowDocument}" Content="{lex:LocText SpeakersManagerCheckboxDocumentSpeakers}"/>
-            <CheckBox IsChecked="{Binding ElementName=manager,Path=SpeakerProvider.ShowOnline}" IsEnabled="{Binding ElementName=manager,Path=SpeakerProvider.OnlineAccesible }" Content="{lex:LocText SpeakersManagerCheckboxOnlineSpeakers}"/>
+            <CheckBox IsChecked="{Binding ElementName=manager,Path=SpeakerProvider.ShowOnline}" IsEnabled="{Binding ElementName=manager,Path=SpeakerProvider.IsOnline }" Content="{lex:LocText SpeakersManagerCheckboxOnlineSpeakers}"/>
             <CheckBox Name="showMiniatures" IsChecked="{Binding ElementName=manager,Path=ShowMiniatures}" Content="{lex:LocText SpeakersManagerCheckboxShowMiniatures}"/>
         </StackPanel>
 
@@ -73,9 +73,9 @@
                 <GroupStyle HeaderTemplate="{StaticResource groupingHeaderTemplate}" ContainerStyle="{StaticResource ContainerStyle}"/>
             </ListBox.GroupStyle>
             <ListBox.ContextMenu>
-                <ContextMenu>
-                    <MenuItem Header="{lex:BLoc Key=NanoTrans:Strings:SpeakersManagerContextMenuMerge}" Click="MenuItem_MergeSpeakers"/>
-                    <MenuItem Header="{lex:BLoc Key=NanoTrans:Strings:SpeakersManagerContextMenuDelete}" Click="MenuItem_DeleteSpeaker"/>
+                <ContextMenu DataContext="{Binding RelativeSource={RelativeSource Self}, Path=PlacementTarget.DataContext}">
+                    <MenuItem Header="{lex:BLoc Key=NanoTrans:Strings:SpeakersManagerContextMenuMerge}" Click="MenuItem_MergeSpeakers" IsEnabled="{Binding Path=SelectedSpeakerContainer.IsOffline}"/>
+                    <MenuItem Header="{lex:BLoc Key=NanoTrans:Strings:SpeakersManagerContextMenuDelete}" Click="MenuItem_DeleteSpeaker" IsEnabled="{Binding Path=SelectedSpeakerContainer.IsOffline}"/>
                     <MenuItem Header="{lex:BLoc Key=NanoTrans:Strings:SpeakersManagerContextMenuNew}" Click="MenuItem_NewSpeaker"/>
                     <MenuItem Header="{lex:BLoc Key=NanoTrans:Strings:SpeakersManagerContextMenuReplace}" Click="MenuItemReplaceSpeaker_Click"/>
                 </ContextMenu>

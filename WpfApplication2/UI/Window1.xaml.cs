@@ -137,7 +137,6 @@ namespace NanoTrans
         public Window1()
         {
             InitializeComponent();
-
             //load settings
             Stream s = FilePaths.GetConfigFileReadStream();
             if (s == null)
@@ -636,7 +635,13 @@ namespace NanoTrans
 
                 if (Transcription.IsOnline && !useSaveDialog)
                 {
-                    return _api.UploadTranscription(Transcription).Result;
+                    using (var wc = new WaitCursor())
+                    {
+                        var x = new Task<bool>(()=> _api.UploadTranscription(Transcription).Result);
+                        x.ConfigureAwait(false);
+                        x.Start();
+                        return x.Result;
+                    }
                 }
                 else if (Transcription.Serialize(savePath, GlobalSetup.Setup.SaveWholeSpeaker))
                 {
@@ -781,11 +786,8 @@ namespace NanoTrans
 
                     FileInfo fi = new FileInfo(aFileName);
                     Transcription.MediaURI = fi.Name;
-
-
                     ////////////
-                    TimeSpan fileLength = WavReader.ReturnFileLength(aFileName);
-
+                    TimeSpan fileLength = WavReader.ReturnAudioLength(aFileName);
                     if (fileLength > TimeSpan.Zero)
                     {
                         if (_WavReader != null)

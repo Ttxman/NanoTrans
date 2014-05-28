@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows;
@@ -185,6 +186,11 @@ namespace NanoTrans
             get { return Speaker.DataBaseType == DBType.Api; }
         }
 
+        public bool IsOffline
+        {
+            get { return !IsOnline; }
+        }
+
         public string Language
         {
             get
@@ -338,7 +344,8 @@ namespace NanoTrans
     /// </summary>
     public partial class SpeakersManager : Window, INotifyPropertyChanged
     {
-        public Speaker SelectedSpeaker;
+        public Speaker SelectedSpeaker{get; set;}
+        public SpeakerContainer SelectedSpeakerContainer{get; set;}
         SpeakerCollection _documentSpeakers;
         bool _editable = true;
         bool _changed = false;
@@ -450,6 +457,7 @@ namespace NanoTrans
         }
         private void ButtonCancel_Click(object sender, RoutedEventArgs e)
         {
+            preventDoublecheck = false;
             this.Close();
         }
 
@@ -462,6 +470,7 @@ namespace NanoTrans
 
         private void ButtonOK_Click(object sender, RoutedEventArgs e)
         {
+            preventDoublecheck = false;
             _transcription.Saved = false;
             this.DialogResult = true;
             this.Close();
@@ -472,6 +481,7 @@ namespace NanoTrans
             FilterTBox.Focus();
         }
 
+        //TODO: translate
         private void MenuItem_DeleteSpeaker(object sender, RoutedEventArgs e)
         {
             var selectedSpeaker = ((SpeakerContainer)SpeakersBox.SelectedValue).Speaker;
@@ -553,8 +563,22 @@ namespace NanoTrans
         }
         private void MenuItem_NewSpeaker(object sender, RoutedEventArgs e)
         {
-            Speaker sp = new Speaker("-----", "-----", Speaker.Sexes.X, null) { DataBaseType = DBType.User };
+
+            Speaker sp;
+
+            if (_speakerProvider.IsOnline)
+                sp = new ApiSynchronizedSpeaker("-----", "-----", Speaker.Sexes.X) 
+                { 
+                    IsSaved = false,
+                    DataBaseType= DBType.Api,
+                };
+            else
+                sp = new Speaker("-----", "-----", Speaker.Sexes.X, null) { DataBaseType = DBType.User }; ;
+
+
             SpeakerProvider.AddLocalSpeaker(sp);
+
+
             SpeakerProvider.View.Refresh();
 
             var ss = SpeakerProvider.GetContainerForSpeaker(sp);
@@ -623,25 +647,54 @@ namespace NanoTrans
         private void SpeakersBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (SpeakersBox.SelectedItem == null)
+            {
                 SelectedSpeaker = null;
+                SelectedSpeakerContainer = null;
+            }
             else
-                SelectedSpeaker = ((SpeakerContainer)SpeakersBox.SelectedItem).Speaker;
+            {
+                SelectedSpeakerContainer = (SpeakerContainer)SpeakersBox.SelectedItem;
+                SelectedSpeaker = SelectedSpeakerContainer.Speaker;
+            }
         }
         private void SpeakerSmall_speakermodified()
         {
             SpeakerChanged = true;
         }
 
+        bool preventDoublecheck = false;
         private void manager_Closing(object sender, CancelEventArgs e)
         {
-            this.SpeakerProvider.CloseConnection();
+            if (preventDoublecheck)
+                return;
+            preventDoublecheck = true;
+            Task<bool> t = new Task<bool>(() => this.SpeakerProvider.CloseConnection().Result);
+            t.ConfigureAwait(false);
+            t.Start();
+            if (!t.Result)
+            {
+                e.Cancel = true;
+            }
+
         }
 
         private async void SpeakerDetails_SaveSpeakerClick(SpeakerContainer spk)
         {
             using (var wc = new WaitCursor())
             {
-                await _transcription.Api.UpdateSpeaker(spk.Speaker);
+                ApiSynchronizedSpeaker ss = spk.Speaker as ApiSynchronizedSpeaker;
+                if (ss == null)
+                    return;
+                if (ss.IsSaved)
+                {
+                    if (await _transcription.Api.UpdateSpeaker(ss))
+                        spk.Changed = false;
+                }
+                else
+                {
+                    if (await _transcription.Api.AddSpeaker(ss))
+                        spk.Changed = false;
+                }
             }
         }
     }
@@ -663,7 +716,7 @@ namespace NanoTrans
             _api = api;
             if (_api != null)
             {
-                _loadingTimer = new Timer(1000);
+                _loadingTimer = new System.Timers.Timer(1000);
                 _loadingTimer.AutoReset = false;
                 _loadingTimer.Elapsed += _loadingTimer_Elapsed;
 
@@ -749,7 +802,7 @@ namespace NanoTrans
             }
         }
 
-        Timer _loadingTimer;
+        System.Timers.Timer _loadingTimer;
         bool _loadingFilterChanged = false;
 
 
@@ -788,49 +841,82 @@ namespace NanoTrans
         }
 
         List<ApiSynchronizedSpeaker> _onlineSpeakers = new List<ApiSynchronizedSpeaker>();
-        private void UpdateOnlineSpeakers(IEnumerable<ApiSynchronizedSpeaker> speakerst)
+        private async void UpdateOnlineSpeakers(IEnumerable<ApiSynchronizedSpeaker> speakerst)
         {
-
-            var ToRemove = new HashSet<string>(_onlineSpeakers.Except(speakerst,new SpeakerComparer()).Select(s=>s.DBID));
-            var ToRemoveCont = _allSpeakers.Where(c => ToRemove.Contains(c.Speaker.DBID));
-
-            foreach (var item in ToRemoveCont.Where(c=>c.Changed))
+            using (var wc = new WaitCursor())
             {
-                OnlineSpeakerHaveUsavedChanges(item.Speaker);
+                var ToRemove = new HashSet<string>(_onlineSpeakers.Except(speakerst, new SpeakerComparer()).Select(s => s.DBID));
+                var ToRemoveCont = _allSpeakers.Where(c => ToRemove.Contains(c.Speaker.DBID));
+
+
+                await SaveOnlineSpeakersUsavedChanges(ToRemoveCont.Where(c => c.Changed).Select(c => c.Speaker));
+
+
+                _allSpeakers.RemoveAll(sc => ToRemove.Contains(sc.Speaker.DBID));//remove online items missing from this search
+
+                var ToUpdate = _allSpeakers
+                    .Where(sc => sc.Speaker.DataBaseType != DBType.File)
+                    .Join(speakerst, sc => sc.Speaker.DBID, s => s.DBID, (sc, s) => Tuple.Create(sc, s))
+                    .ToArray();
+
+                foreach (var item in ToUpdate)
+                {
+                    Speaker.MergeFrom(item.Item1.Speaker, item.Item2);
+                    item.Item1.UpdateBindings();
+                }
+
+                var ToAdd = speakerst.Except(ToUpdate.Select(t => t.Item2));
+                _allSpeakers.AddRange(ToAdd.Select(s => new SpeakerContainer(s)));
+
+
+                var DoNotRemove = new HashSet<string>(speakerst
+                    .Except(_localSpeakers
+                        .Concat(_documentSpeakers)
+                        .Where(s => s.GetType() == typeof(ApiSynchronizedSpeaker))
+                        .Cast<ApiSynchronizedSpeaker>())
+                        .Select(s => s.DBID));
+
+                _onlineSpeakers = speakerst.Where(s => !DoNotRemove.Contains(s.DBID)).ToList();
             }
-
-
-            _allSpeakers.RemoveAll(sc=>ToRemove.Contains(sc.Speaker.DBID));//remove online items missing from this search
-
-            var ToUpdate = _allSpeakers
-                .Where(sc=>sc.Speaker.DataBaseType!= DBType.File)
-                .Join(speakerst,sc=>sc.Speaker.DBID,s=>s.DBID,(sc,s)=>Tuple.Create(sc,s))
-                .ToArray();
-
-            foreach (var item in ToUpdate)
-            {
-                Speaker.MergeFrom(item.Item1.Speaker, item.Item2);
-                item.Item1.UpdateBindings();
-            }
-
-            var ToAdd = speakerst.Except(ToUpdate.Select(t => t.Item2));
-            _allSpeakers.AddRange(ToAdd.Select(s => new SpeakerContainer(s)));
-
-            
-            var DoNotRemove = new HashSet<string>(speakerst
-                .Except(_localSpeakers
-                    .Concat(_documentSpeakers)
-                    .Where(s=>s.GetType() == typeof(ApiSynchronizedSpeaker))
-                    .Cast<ApiSynchronizedSpeaker>())
-                    .Select(s=>s.DBID));
-
-            _onlineSpeakers = speakerst.Where(s=>!DoNotRemove.Contains(s.DBID)).ToList();
-
         }
 
-        private void OnlineSpeakerHaveUsavedChanges(Speaker speaker)
+        /// <summary>
+        /// returns false if user cancels
+        /// </summary>
+        /// <param name="speaker"></param>
+        /// <returns></returns>
+        private async Task<bool> SaveOnlineSpeakersUsavedChanges(IEnumerable<Speaker> unsavedSpeakers, bool useMessagebox = true)
         {
-            throw new NotImplementedException();
+            if (unsavedSpeakers.Count() <= 0)
+                return true;
+
+            bool update = !useMessagebox;
+            if (useMessagebox)
+            {
+                var result = MessageBox.Show("Nekterí mluvčí obsahují změny, které nebyly uloženy do centrálního úložiště. \n Uložit všechny?", "Uložit změny?", MessageBoxButton.YesNoCancel, MessageBoxImage.Question, MessageBoxResult.Cancel);
+
+                if (result != MessageBoxResult.Cancel)
+                {
+                    if (result == MessageBoxResult.Yes)
+                        update = true;
+                }
+            }
+
+
+
+            if (update)
+            {
+                foreach (ApiSynchronizedSpeaker speaker in unsavedSpeakers)
+                {
+                    if (speaker.IsSaved)
+                        await _api.UpdateSpeaker(speaker);
+                    else
+                        await _api.AddSpeaker(speaker);
+                }
+
+                return true;
+            }
+            return false;
         }
 
 
@@ -867,7 +953,10 @@ namespace NanoTrans
         private bool _showLocal = true;
         private bool _showOnline = true;
 
-        public bool OnlineAccesible
+        /// <summary>
+        /// Is connected to online storage?
+        /// </summary>
+        public bool IsOnline
         {
             get { return _api != null; }
         }
@@ -940,6 +1029,13 @@ namespace NanoTrans
             }
         }
 
+        internal void AddOnlineSpeaker(ApiSynchronizedSpeaker sp)
+        {
+            _onlineSpeakers.Add(sp);
+            _allSpeakers.Add(new SpeakerContainer(_documentSpeakers, sp));
+            View.Refresh();
+        }
+
         internal void AddLocalSpeaker(Speaker sp)
         {
             _localSpeakers.Add(sp);
@@ -990,15 +1086,14 @@ namespace NanoTrans
                 PropertyChanged(this, new PropertyChangedEventArgs("Filter"));
         }
 
-        internal void CloseConnection()
+        internal async Task<bool> CloseConnection()
         {
             if (_api != null)
             {
-                foreach (var item in _allSpeakers.Where(sc=>sc.IsOnline && sc.Changed))
-                {
-                    OnlineSpeakerHaveUsavedChanges(item.Speaker);
-                }
+                return await SaveOnlineSpeakersUsavedChanges(_allSpeakers.Where(sc => sc.IsOnline && sc.Changed).Select(sc => sc.Speaker));
             }
+
+            return true;
         }
     }
 }

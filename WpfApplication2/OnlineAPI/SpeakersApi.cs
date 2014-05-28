@@ -87,11 +87,7 @@ namespace NanoTrans.OnlineAPI
 
         public async Task<HttpResponseMessage> PostAsync(Uri url, XDocument data)
         {
-            var content = new FormUrlEncodedContent(new[]
-            {
-                new KeyValuePair<string, string>("content",data.ToString(SaveOptions.DisableFormatting)),
-                new KeyValuePair<string, string>("documentId",data.ToString(SaveOptions.DisableFormatting)),
-            });
+            var content = new StringContent(data.ToString(SaveOptions.DisableFormatting));
 
             content.Headers.ContentType.MediaType = "application/xml";
             return await PostAsync(url, content);
@@ -104,6 +100,7 @@ namespace NanoTrans.OnlineAPI
 
             if (r.StatusCode == System.Net.HttpStatusCode.Unauthorized)
             {
+                throw new NotImplementedException();
                 TryLogin(_owner);
             }
 
@@ -135,11 +132,11 @@ namespace NanoTrans.OnlineAPI
         {
             var apiurl = new Uri(Info.SpeakersAPI, @"speaker/get");
             var data = new JObject();
-            data.Add("speakerId", new JArray(p));
+            data.Add("id", p);
             var resp = await PostAsync(apiurl, data);
             string json = await(resp).Content.ReadAsStringAsync();
-            var jo = (JObject)JObject.Parse(json).GetValue("speaker");
-            return ParseSpeaker(jo);
+            var jo = JObject.Parse(json);
+            return ParseSpeakers(jo).First();
         }
 
 
@@ -154,13 +151,41 @@ namespace NanoTrans.OnlineAPI
             return ParseSpeakers(jo).ToArray();
         }
 
-        internal async Task UpdateSpeaker(Speaker speaker)
+        internal async Task<bool> UpdateSpeaker(ApiSynchronizedSpeaker speaker)
         {
-            var apiurl = new Uri(Info.SpeakersAPI, @"/speaker/edit");
+            var apiurl = new Uri(Info.SpeakersAPI, @"v1/speaker/edit");
             var data = SerializeSpeaker(speaker);
             var resp = await PostAsync(apiurl, data);
             string json = await(resp).Content.ReadAsStringAsync();
             var jo = (JObject)JObject.Parse(json);
+            if (jo["updated"] == null || !jo["updated"].ToObject<bool>())
+            {
+                MessageBox.Show("Update Failed", "Update Failed", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+            return true;
+        }
+
+
+        internal async Task<bool> AddSpeaker(ApiSynchronizedSpeaker speaker)
+        {
+            var apiurl = new Uri(Info.SpeakersAPI, @"v1/speaker/add");
+            var data = SerializeSpeaker(speaker);
+            data.Remove("id");
+            var resp = await PostAsync(apiurl, data);
+            string json = await(resp).Content.ReadAsStringAsync();
+            var jo = (JObject)JObject.Parse(json);
+
+            if (jo["id"] == null)
+            {
+                MessageBox.Show("save faled", "Update Failed", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            speaker.DBID = jo["id"].ToObject<string>();
+            speaker.IsSaved = true;
+
+            return true;
         }
 
 
@@ -193,11 +218,25 @@ namespace NanoTrans.OnlineAPI
 
             var id = s["dbid"];
             s.Remove("dbid");
-            s.Add("speakerId", id);
+            s.Add("id", id);
 
             s["sex"] = (speaker.Sex == Speaker.Sexes.Male) ? "MALE" : (speaker.Sex == Speaker.Sexes.Female) ? "FEMALE" : "UNKNOWN";
             s["lang"] = s["defaultlang"];
             s.Remove("defaultlang");
+
+
+            if (s["degreebefore"] != null)
+            {
+                s["degreeBefore"] = s["degreebefore"];
+                s.Remove("degreebefore");
+            }
+
+            if (s["degreeafter"] != null)
+            {
+                s["degreeAfter"] = s["degreeafter"];
+                s.Remove("degreeafter");
+            }
+
             
             //var itm = item["id"];
             //item.Remove("id");
@@ -260,18 +299,13 @@ namespace NanoTrans.OnlineAPI
             var resultMessage = await GetUrl(Info.LoginURL, Tuple.Create("username", UserName), Tuple.Create("password", Password));
             var data = await resultMessage.Content.ReadAsStringAsync();
             var resultJson = JObject.Parse(data);
-
             CheckForErrors(resultJson);
-
-            if (!(bool)resultJson["valid"])
-                throw new ApiException("Invalid login");
-
             LogedIn = true;
         }
 
         private void CheckForErrors(JObject resultJson)
         {
-            if (resultJson["actionErrors"].HasValues || resultJson["fieldErrors"].HasValues)
+            if (resultJson["valid"] == null || !resultJson["valid"].ToObject<bool>())
             {
                 throw new ApiException(resultJson.ToString());
             }
@@ -292,6 +326,12 @@ namespace NanoTrans.OnlineAPI
             {
                // var wind = new OnlineTranscriptionWindow(this) { Owner = this._owner };
                 hm = await PostAsync(_info.ResponseURL, Transcription.Serialize());
+                if (hm.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    MessageBox.Show("chyba připojení k serveru");
+                    return false;
+                }
+
                 return true;
             }
             catch
@@ -307,8 +347,5 @@ namespace NanoTrans.OnlineAPI
                 return _abortSource.Token;
             }
         }
-
-
-
     }
 }

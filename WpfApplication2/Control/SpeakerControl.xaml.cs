@@ -73,6 +73,7 @@ namespace NanoTrans
         {
             SpeakerAttribute sa = new SpeakerAttribute("", GlobalSetup.Setup.SpeakerAtributteCategories[0], "");
             SpeakerContainer.Speaker.Attributes.Add(sa);
+            SpeakerContainer.Changed = true;
             SpeakerContainer.RefreshAttributes();
 
         }
@@ -84,12 +85,18 @@ namespace NanoTrans
             {
                 SpeakerContainer.Speaker.Attributes.Remove(a.SpeakerAttribute);
                 SpeakerContainer.RefreshAttributes();
+                SpeakerContainer.Changed = true;
             }
         }
 
         private void SpeakerAttributeControl_GotFocus(object sender, RoutedEventArgs e)
         {
             AttributeList.SelectedItem = (sender as SpeakerAttributeControl).Attribute;
+        }
+
+        private void SpeakerAttributeControl_ContentChanged(object sender, RoutedEventArgs e)
+        {
+            SpeakerContainer.Changed = true;
         }
     }
 

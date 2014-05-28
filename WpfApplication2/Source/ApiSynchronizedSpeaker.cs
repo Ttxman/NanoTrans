@@ -12,9 +12,22 @@ namespace NanoTrans
         public string MainID { get; set; }
         public ApiSynchronizedSpeaker()
         { }
+
+        public ApiSynchronizedSpeaker(string firstname, string surname,Sexes sex )
+            : base(firstname,surname,sex,null)
+        {
+        }
+
         public ApiSynchronizedSpeaker(Speaker copy):base(copy.Serialize())
         { 
         }
+        bool _saved = true;
 
+        public bool IsSaved
+        {
+            get { return _saved; }
+            set { _saved = value; }
+        }
+        
     }
 }
