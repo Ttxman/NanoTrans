@@ -23,6 +23,7 @@ using System.Text.RegularExpressions;
 using dbg = System.Diagnostics.Debug;
 using Microsoft.Win32;
 using NanoTrans.Core;
+using NanoTrans.Audio;
 
 
 namespace NanoTrans
@@ -402,33 +403,27 @@ namespace NanoTrans
         private void CExportElement(object sender, ExecutedRoutedEventArgs e)
         {
             TranscriptionParagraph par = VirtualizingListBox.ActiveTransctiption as TranscriptionParagraph;
-            _WavReader.RamecSynchronne = true;
-            bool nacteno = _WavReader.NactiRamecBufferu((long)par.Begin.TotalMilliseconds, (long)par.Length.TotalMilliseconds, Const.ID_BUFFER_TRANSCRIBED_ELEMENT_PHONETIC);//)this.bPozadovanyPocatekRamce, this.bPozadovanaDelkaRamceMS, this.bIDBufferu);        
-            _WavReader.RamecSynchronne = false;
+
+            var data = _WavReader.NactiRamecBufferu(par.Begin, par.End);    
+
 
             Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
             dlg.DefaultExt = ".wav";
             dlg.Filter = "wav soubory (.wav)|*.wav";
             if (dlg.ShowDialog() == true)
             {
-                string filename = dlg.FileName;
-                //BinaryWriter bw = new BinaryWriter(new FileStream(filename, FileMode.Create));
-                MyBuffer16 bf = new MyBuffer16(_WavReader.SyncBufferLoad.data.Length);
+                WavReader.SaveToWav(dlg.FileName, data);
 
-                bf.Data = _WavReader.SyncBufferLoad.data;
-                bf.SaveToWav(filename);
-
-
-                string ext = System.IO.Path.GetExtension(filename);
-                filename = filename.Substring(0, filename.Length - ext.Length);
-                string textf = filename + ".txt";
+                string ext = System.IO.Path.GetExtension(dlg.FileName);
+                dlg.FileName = dlg.FileName.Substring(0, dlg.FileName.Length - ext.Length);
+                string textf = dlg.FileName + ".txt";
 
                 File.WriteAllBytes(textf, win1250.GetBytes(par.Text));
 
 
                 if (!string.IsNullOrEmpty(par.Phonetics))
                 {
-                    textf = filename + ".phn";
+                    textf = dlg.FileName + ".phn";
                     File.WriteAllBytes(textf, win1250.GetBytes(par.Phonetics));
                 }
             }

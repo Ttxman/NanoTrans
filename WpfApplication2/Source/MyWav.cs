@@ -7,6 +7,7 @@ using System.Windows;
 
 using System.Diagnostics;
 using System.Threading;
+using System.Globalization;
 
 namespace NanoTrans.Audio
 {
@@ -45,6 +46,30 @@ namespace NanoTrans.Audio
 
     public class WavReader : IDisposable
     {
+
+        internal static bool SaveToWav(string filename, short[] Data)
+        {
+            try
+            {
+                BinaryWriter output = new BinaryWriter(new FileStream(filename, FileMode.Create));
+
+                byte[] header = WavReader.GetWaveHeader(Data.Length * 2);
+                output.Write(header);
+
+                for (int i = 0; i < Data.Length; i++)
+                {
+                    output.Write(Data[i]);
+                }
+                output.Close();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+
         public event EventHandler HaveData;    //metoda have data je udalost,kterou objekt podporuje-datovy ramec zvuku
         public event EventHandler HaveFileNumber; //metoda podporujici objekt
         public event EventHandler TemporaryWavesDone;
@@ -65,28 +90,8 @@ namespace NanoTrans.Audio
         /// delka prevedeneho souboru v MS
         /// </summary>
         public long FileLengthMS { get { return _FileLengthMS; } }
-        public AudioBufferEventArgs SyncBufferLoad = null;
 
 
-        private bool _BufferuIsLoading;
-        /// <summary>
-        /// informace zda dochazi k nacitani bufferu pro zobrazeni
-        /// </summary>
-        public bool BufferuIsLoading
-        {
-            get
-            {
-                if (_BufferuIsLoading)
-                {
-                    if (this.tNacitaniBufferu1 == null || this.tNacitaniBufferu1.ThreadState != System.Threading.ThreadState.Running)
-                    {
-                        return false;
-                    }
-
-                }
-                return _BufferuIsLoading;
-            }
-        }
         public UInt32 Frequency { get; set; }
         public UInt16 SampleSize { get; set; }
         public long SampleCount { get; set; }
@@ -119,11 +124,7 @@ namespace NanoTrans.Audio
         /// thread pro prevod docasnych souboru
         /// </summary>
         private Thread tPrevodNaDocasneSoubory = null;
-        private Thread tNacitaniBufferu1 = null;
-        /// <summary>
-        /// thred c2 pro nacteni bufferu
-        /// </summary>
-        private Thread tNacitaniBufferu2 = null;
+
         /// <summary>
         /// process pro spusteni ffmeg na prevod wav souboru
         /// </summary>
@@ -147,13 +148,6 @@ namespace NanoTrans.Audio
 
 
 
-
-        private void AsynchronousFrameLoad()
-        {
-            this.NactiRamecBufferu(this.bPozadovanyPocatekRamce, this.bPozadovanaDelkaRamceMS, this.bIDBufferu);
-        }
-
-
         private void SetNewFrameStartTime(long aCasMS, long aDelkaMS, int aIDBufferu)  //zavolat pred spustenim nacitani ramce, pote spustit thread
         {
             if (aCasMS < 0)
@@ -163,32 +157,9 @@ namespace NanoTrans.Audio
             this.bPozadovanyPocatekRamce = aCasMS;
             this.bPozadovanaDelkaRamceMS = aDelkaMS;
             this.bIDBufferu = aIDBufferu;
-            this._BufferuIsLoading = true;
         }
-        /// <summary>
-        /// vytvori thread, ktery nasledne zacne snacitanim do bufferu, aIDBufferu-aby bylo venku videt,pro ktery buffer jsou tato data
-        /// </summary>
-        public void AsynchronousFrameLoad2(long aCasMS, long aDelkaMS, int aIDBufferu)
-        {
-            SetNewFrameStartTime(aCasMS, aDelkaMS, aIDBufferu);
-            if (aIDBufferu == Const.ID_BUFFER_TRANSCRIBED_ELEMENT_PHONETIC)
-            {
-                this.tNacitaniBufferu2 = new Thread(AsynchronousFrameLoad) { Name = "AsynchronniNacteniRamce2()" };
-                this.tNacitaniBufferu2.Start();
-            }
-            if (aIDBufferu == Const.ID_BUFFER_TRANSCRBED_ELEMENT)
-            {
-                this.tNacitaniBufferu2 = new Thread(AsynchronousFrameLoad);
-                this.tNacitaniBufferu2.Start();
-            }
-            else if (aIDBufferu == Const.ID_BUFFER_WAVEFORMVISIBLE)
-            {
 
-                this.tNacitaniBufferu1 = new Thread(AsynchronousFrameLoad);
-                this.tNacitaniBufferu1.Start();
-            }
 
-        }
 
 
         /// <summary>
@@ -199,92 +170,43 @@ namespace NanoTrans.Audio
             this._FilePath = filePath;
             this._Loaded = false;
             this._Converted = false;
-            this.tPrevodNaDocasneSoubory = new Thread(()=>this.ZacniPrevodSouboruNaDocasneWav(_FilePath, FilePaths.TempDirectory, Const.TEMPORARY_AUDIO_FILE_LENGTH_MS))
-             { Name = "conversion to wav" };
+            this.tPrevodNaDocasneSoubory = new Thread(() => this.ZacniPrevodSouboruNaDocasneWav(_FilePath, FilePaths.TempDirectory, Const.TEMPORARY_AUDIO_FILE_LENGTH_MS)) { Name = "conversion to wav" };
             this.tPrevodNaDocasneSoubory.Start();
 
         }
 
-
-        private static string NormalizeNumber(string aCislo)
-        {
-            string ret = aCislo.TrimStart('0').Replace('.', ',');
-            return ret.Length > 0 ? ret : "0";
-        }
 
         /// <summary>
         /// returns file length
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        public static TimeSpan ReturnFileLength(string path)
+        public static TimeSpan ReturnAudioLength(string path)
         {
-            long ret = 0;
-            try
-            {
-                long length = 0;
-                Process prInfo = new Process();
-                prInfo.StartInfo.FileName = FilePaths.FFmpegPath;
-                prInfo.StartInfo.WorkingDirectory = new FileInfo(path).DirectoryName;
+            Process prInfo = new Process();
+            prInfo.StartInfo.FileName = FilePaths.FFmpegPath;
+            prInfo.StartInfo.WorkingDirectory = new FileInfo(path).DirectoryName;
+            prInfo.StartInfo.Arguments = "-i \"" + path + "\"";
 
-                //prPrevod.StartInfo.Arguments = "-i " + aCesta + " -y -vn -ar 16000 -ac 1 -acodec pcm_s16le -f wav -";
-                //prInfo.StartInfo.Arguments = "-i \"" + aCesta + "\" -";
-                prInfo.StartInfo.Arguments = "-i \"" + path + "\"";
-                //prInfo.StartInfo.Arguments = "-i E:/prepisovac/OTV10628.xml.avi"; 
+            prInfo.StartInfo.RedirectStandardInput = true;
+            prInfo.StartInfo.RedirectStandardOutput = true;
+            prInfo.StartInfo.RedirectStandardError = true;
+            prInfo.StartInfo.UseShellExecute = false;
+            prInfo.StartInfo.CreateNoWindow = true;
+            prInfo.Start();
 
-                prInfo.StartInfo.RedirectStandardInput = true;
-                prInfo.StartInfo.RedirectStandardOutput = true;
-                prInfo.StartInfo.RedirectStandardError = true;
-                prInfo.StartInfo.UseShellExecute = false;
-                prInfo.StartInfo.CreateNoWindow = true;
+            string pZprava = prInfo.StandardError.ReadToEnd();
+            prInfo.Close();
+            string durheader = "Duration: ";
+            int pIndex = pZprava.IndexOf(durheader);
 
+            var index2 = pZprava.IndexOf(',', pIndex);
+            string timestamp = pZprava.Substring(pIndex + durheader.Length, index2 - durheader.Length - pIndex);
 
-                prInfo.Start();
-
-                string pZprava = prInfo.StandardError.ReadToEnd();
-
-                prInfo.Close();
-                int pIndex = pZprava.IndexOf("Duration: ");
-                if (pIndex > 0)
-                {
-                    string pDuration = "";
-                    for (int i = pIndex + 10; i < pZprava.Length; i++)
-                    {
-                        if (pZprava[i] == ',') break;
-                        pDuration += pZprava[i];
-                    }
-                    char[] p = { ':' };
-                    string[] pParse = pDuration.Split(p);
-                    ret = 0;
-                    for (int i = 0; i < pParse.Length; i++)
-                    {
-                        pParse[i] = NormalizeNumber(pParse[i]);
-                    }
-                    if (pParse.Length == 1)
-                    {
-                        length = (long)(float.Parse(pParse[0]) * 1000);
-                    }
-                    else if (pParse.Length == 2)
-                    {
-                        length = (long)(float.Parse(pParse[0]) * 1000 * 60) + (long)(float.Parse(pParse[1]) * 1000);
-                    }
-                    else if (pParse.Length == 3)
-                    {
-                        length = (long)(float.Parse(pParse[0]) * 1000 * 3600) + (long)(float.Parse(pParse[1]) * 1000 * 60) + (long)(float.Parse(pParse[2]) * 1000);
-                    }
-
-
-                }
-                ret = length;
-            }
-            catch
-            {
-            }
-
-            return TimeSpan.FromMilliseconds(ret);
+            var ts = TimeSpan.Parse(timestamp, CultureInfo.InvariantCulture);
+            return ts;
 
         }
-
 
         public static byte[] GetWaveHeader(int dataSize)
         {
@@ -292,7 +214,7 @@ namespace NanoTrans.Audio
             byte[] buff;
 
             int pPozice = 0;
-            
+
             //RIFF
             buff = ASCIIEncoding.ASCII.GetBytes("RIFF");
             buff.CopyTo(header, pPozice);
@@ -369,9 +291,11 @@ namespace NanoTrans.Audio
             {
                 //nulovani promennych
                 this.docasneZvukoveSoubory.Clear();
+                this._FileLengthMS = (long)WavReader.ReturnAudioLength(aCesta).TotalMilliseconds;
 
-                this._FileLengthMS = (long)WavReader.ReturnFileLength(aCesta).TotalMilliseconds;
-                if (aCesta == null || aCestaDocasnychWAV == null || FileLengthMS <= 0) return false; //chybne nastaveni nebo delka souboru k prevodu
+
+                if (aCesta == null || aCestaDocasnychWAV == null || FileLengthMS <= 0)
+                    return false; //chybne nastaveni nebo delka souboru k prevodu
 
                 this.TemporaryWAVsPath = aCestaDocasnychWAV;
                 this.docasneZvukoveSoubory = new List<string>();
@@ -386,10 +310,7 @@ namespace NanoTrans.Audio
                 prPrevod = new Process();
                 prPrevod.StartInfo.FileName = FilePaths.FFmpegPath;
                 prPrevod.StartInfo.WorkingDirectory = new FileInfo(aCesta).DirectoryName;
-                //-f s16le bez hlavicky
-                //prPrevod.StartInfo.Arguments = "-i " + aCesta + " -y -vn -ar 16000 -ac 1 -acodec pcm_s16le -f wav -";
                 prPrevod.StartInfo.Arguments = "-i \"" + aCesta + "\" -y -vn -ar 16000 -ac 1 -acodec pcm_s16le -f s16le -"; //nova data bez hlavicky
-
                 prPrevod.StartInfo.RedirectStandardInput = true;
                 prPrevod.StartInfo.RedirectStandardOutput = true;
                 prPrevod.StartInfo.RedirectStandardError = false;
@@ -398,7 +319,6 @@ namespace NanoTrans.Audio
 
 
                 prPrevod.Start();
-
                 //nacteni hlavicky - a alokovani pomocnych bufferu pro tuto operaci cteni
 
                 byte[] buffer2 = new byte[4096];
@@ -410,8 +330,6 @@ namespace NanoTrans.Audio
 
                 this.SampleSize = 2;
 
-                //pPocetVzorku = this.VelikostZobrazovacihoBufferu;   //pozor!! skutecna delka souboru je jina!!!!je nastavena az po prevodu
-                ///pPocetVzorku = MyKONST.DELKA_VYCHOZIHO_ZOBRAZOVACIHO_BUFFERU_MS * (this.pFrekvence / 1000);
                 long pPocetVzorku2Delta = Const.DELKA_PRVNIHO_RAMCE_ZOBRAZOVACIHO_BUFFERU_MS * (this.Frequency / 1000);
                 SampleCount = pPocetVzorku2Delta;
                 long pPocetVzorku2 = Const.DISPLAY_BUFFER_LENGTH_MS * (this.Frequency / 1000);
@@ -428,14 +346,12 @@ namespace NanoTrans.Audio
                 //prvni docasny wav soubor tmp
                 pIndexDocasneho = 0;
                 docasneZvukoveSoubory.Add(TemporaryWAVsPath + pIndexDocasneho.ToString() + ".wav");
-
                 output = new BinaryWriter(new FileStream(docasneZvukoveSoubory[pIndexDocasneho], FileMode.Create));
                 Stream outputbase = output.BaseStream;
                 //prazdna hlavicka
                 byte[] pPrazdnaHlavicka = new byte[44];
                 output.Write(pPrazdnaHlavicka);
                 //
-
 
                 long pPocetNactenychVzorkuCelkem = 0;
 
@@ -577,263 +493,92 @@ namespace NanoTrans.Audio
             }
         }
 
-
-
-        public bool RamecSynchronne = false;
-        /// <summary>
-        /// nacte ramec bufferu od dane casove pozice s nastavenou delkou a posle ho ven z tridy pomoci havedata/nebo ho pouze ulozi do vnitrni hodnoty
-        /// </summary>
-        /// <param name="aPocatekMS"></param>
-        /// <param name="aDelkaMS"></param>
-        /// <param name="aBuffer"></param>
-        /// <returns></returns>
-        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
-        public bool NactiRamecBufferu(long aPocatekMS, long aDelkaMS, int aIDBufferu)
-        {
-            BinaryReader input = null;
-            try
-            {
-                TimeSpan bufferstart = TimeSpan.FromMilliseconds(aPocatekMS);
-                TimeSpan bufferLen = TimeSpan.FromMilliseconds(aDelkaMS);
-
-                this._BufferuIsLoading = true;
-                if (this.Loaded)
-                {
-                    if (aPocatekMS > this.FileLengthMS) return false; //pozadavek o vraceni dat mimo soubor
-                    if (aPocatekMS + aDelkaMS > this.FileLengthMS)
-                    {
-                        aDelkaMS = this.FileLengthMS - aPocatekMS;
-                    }
-
-                    this.bIDBufferu = aIDBufferu;
-                    int j = 0;  //index pro vystupni data
-                    int delkadocasnehoMS = (int)(this.delkaDocasnehoWav / this.Frequency) * 1000;
-
-                    int pIndexDocasneho = (int)aPocatekMS / delkadocasnehoMS;
-
-                    if ((pIndexDocasneho >= 0) && (pIndexDocasneho < this.docasneZvukoveSoubory.Count - 1 || (pIndexDocasneho < this.docasneZvukoveSoubory.Count && this.Converted)))
-                    {
-                        if (pIndexDocasneho >= docasneZvukoveSoubory.Count - 1 && !this.Converted)
-                        {
-                            //pokus o cteni souboru dalsich nez jsou prevedeny
-                            this._BufferuIsLoading = false;
-                            return false;
-
-                        }
-                        FileInfo pfi = new FileInfo(docasneZvukoveSoubory[pIndexDocasneho]);
-                        //long pPocetVzorkuDocasneho = this.delkaDocasnehoWav / 1000 * this.pFrekvence;   //pocet vzorku v docasnem souboru
-                        long pPocetVzorkuDocasneho = (pfi.Length - 44) / 2;
-                        long pPocetVzorkuNacist = aDelkaMS * (Frequency / 1000);
-                        int pPocatecniIndexVSouboru = (int)((aPocatekMS - pIndexDocasneho * ((double)delkaDocasnehoWav / this.Frequency * 1000)) * (Frequency / 1000)) * this.SampleSize + 44;
-                        int pNacistDat = (int)(pPocetVzorkuDocasneho - pPocatecniIndexVSouboru / this.SampleSize) + 22;
-                        bool hotovo = false;
-                        this._LoadedData = new short[pPocetVzorkuNacist];  //nove pole nacitanych obektu
-
-
-                        long pPocetNactenych = 0;
-                        while (!hotovo)
-                        {
-                            input = new BinaryReader(new FileStream(docasneZvukoveSoubory[pIndexDocasneho], FileMode.Open, FileAccess.Read, FileShare.Read));
-
-                            if (input != null)
-                            {
-
-                                pIndexDocasneho++;
-                                int pCount = (int)(pNacistDat) * this.SampleSize;
-
-                                byte[] pBuffer = new byte[pCount];
-                                input.BaseStream.Seek(pPocatecniIndexVSouboru, SeekOrigin.Begin);
-
-                                pPocetNactenych += input.Read(pBuffer, 0, pCount);
-                                input.Close();
-                                input = null;
-
-
-                                //prevod do pole nacitanych dat
-                                //TODO:(x) --- Buffer.BlockCopy(pBuffer, 0, pDataNacitana, j * 2, pCount);
-
-                                for (int i = 0; i < pCount / 2; i++)
-                                {
-                                    this._LoadedData[j] = BitConverter.ToInt16(pBuffer, i * this.SampleSize);
-                                    j++;
-                                    if (j >= pPocetVzorkuNacist)
-                                    {
-                                        //prevod dokoncen
-                                        hotovo = true;
-                                        break;
-                                    }
-                                }
-
-                                if (pIndexDocasneho >= docasneZvukoveSoubory.Count - 1 && !this.Converted)
-                                {
-                                    //pokus o nacteni pozuzivaneho souboru behem prevodu
-                                    this._BufferuIsLoading = false;
-                                    return false;
-                                }
-
-                                if (pIndexDocasneho < docasneZvukoveSoubory.Count)
-                                {
-                                    pfi = new FileInfo(docasneZvukoveSoubory[pIndexDocasneho]);
-                                    pPocetVzorkuDocasneho = (pfi.Length - 44) / 2;
-                                    pPocatecniIndexVSouboru = 44;
-                                    pNacistDat = (int)(pPocetVzorkuDocasneho - pPocatecniIndexVSouboru);
-                                }
-                                else
-                                {
-                                    hotovo = true;
-
-                                }
-
-
-                            }
-
-
-                        }
-
-
-
-                        AudioBufferEventArgs e = new AudioBufferEventArgs(this._LoadedData, this._LoadedData.Length, aPocatekMS, aPocatekMS + aDelkaMS, aIDBufferu);
-                        if (HaveData != null && RamecSynchronne == false)
-                        {
-                            /*BinaryWriter bw = new BinaryWriter(new FileStream("C:\\buffer.pcm", FileMode.Create));
-                            foreach (short s in pDataNacitana)
-                                bw.Write(s);
-                            bw.Close();*/
-                            HaveData(this, e); // nacten ramec k zvuku a poslani tohoto ramce ven z tridy pomoci e
-                        }
-                        else
-                        {
-                            SyncBufferLoad = e;
-                            RamecSynchronne = false;
-                        }
-                        this._BufferuIsLoading = false;   //nacitani bufferu bylo dokonceno
-                        return true;
-                    }
-
-                }
-                this._BufferuIsLoading = false;
-                return false;
-            }
-            catch //(Exception ex)
-            {
-                if (input != null)
-                {
-                    input.Close();
-                    input = null;
-                }
-
-                //MessageBox.Show("Chyba pri nacitani dalsich ramcu: " + ex.Message);
-                this._BufferuIsLoading = false;
-                return false;
-            }
-
-        }
-
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
         public short[] NactiRamecBufferu(TimeSpan begin, TimeSpan end)
         {
+            if (!this.Loaded || begin.TotalMilliseconds >= this.FileLengthMS)
+                return null;
+
+            TimeSpan bufferstart = begin;
+            TimeSpan bufferLen = end - begin;
+            long aPocatekMS = (long)begin.TotalMilliseconds;
+            long aDelkaMS = (long)bufferLen.TotalMilliseconds;
+
+            aDelkaMS = (aPocatekMS + aDelkaMS > this.FileLengthMS) ? this.FileLengthMS - aPocatekMS : aDelkaMS;
+
             short[] data = null;
             try
             {
-                TimeSpan bufferstart = begin;
-                TimeSpan bufferLen = end - begin;
-                long aPocatekMS = (long)begin.TotalMilliseconds;
-                long aDelkaMS = (long)bufferLen.TotalMilliseconds;
-                this._BufferuIsLoading = true;
-                if (this.Loaded)
+                int j = 0;  //index pro vystupni data
+                int delkadocasnehoMS = (int)(this.delkaDocasnehoWav / this.Frequency) * 1000;
+                int pIndexDocasneho = (int)aPocatekMS / delkadocasnehoMS;
+
+                if ((pIndexDocasneho >= 0) && (pIndexDocasneho < this.docasneZvukoveSoubory.Count - 1 || (pIndexDocasneho < this.docasneZvukoveSoubory.Count && this.Converted)))
                 {
-                    if (aPocatekMS > this.FileLengthMS) return null; //pozadavek o vraceni dat mimo soubor
-                    if (aPocatekMS + aDelkaMS > this.FileLengthMS)
+                    if (pIndexDocasneho >= docasneZvukoveSoubory.Count - 1 && !this.Converted)
+                        //pokus o cteni souboru dalsich nez jsou prevedeny
+                        return null;
+
+                    FileInfo pfi = new FileInfo(docasneZvukoveSoubory[pIndexDocasneho]);
+                    //long pPocetVzorkuDocasneho = this.delkaDocasnehoWav / 1000 * this.pFrekvence;   //pocet vzorku v docasnem souboru
+                    long pPocetVzorkuDocasneho = (pfi.Length - 44) / 2;
+                    long pPocetVzorkuNacist = aDelkaMS * (Frequency / 1000);
+                    int pPocatecniIndexVSouboru = (int)((aPocatekMS - pIndexDocasneho * ((double)delkaDocasnehoWav / this.Frequency * 1000)) * (Frequency / 1000)) * this.SampleSize + 44;
+                    int pNacistDat = (int)(pPocetVzorkuDocasneho - pPocatecniIndexVSouboru / this.SampleSize) + 22;
+                    data = new short[pPocetVzorkuNacist];  //nove pole nacitanych obektu
+
+                    long pPocetNactenych = 0;
+                    while (true)
                     {
-                        aDelkaMS = this.FileLengthMS - aPocatekMS;
-                    }
-
-                    int j = 0;  //index pro vystupni data
-                    int delkadocasnehoMS = (int)(this.delkaDocasnehoWav / this.Frequency) * 1000;
-
-                    int pIndexDocasneho = (int)aPocatekMS / delkadocasnehoMS;
-
-                    if ((pIndexDocasneho >= 0) && (pIndexDocasneho < this.docasneZvukoveSoubory.Count - 1 || (pIndexDocasneho < this.docasneZvukoveSoubory.Count && this.Converted)))
-                    {
-                        if (pIndexDocasneho >= docasneZvukoveSoubory.Count - 1 && !this.Converted)
+                        using (BinaryReader input = new BinaryReader(new FileStream(docasneZvukoveSoubory[pIndexDocasneho], FileMode.Open, FileAccess.Read, FileShare.Read)))
                         {
-                            //pokus o cteni souboru dalsich nez jsou prevedeny
-                            this._BufferuIsLoading = false;
-                            return null;
 
-                        }
-                        FileInfo pfi = new FileInfo(docasneZvukoveSoubory[pIndexDocasneho]);
-                        //long pPocetVzorkuDocasneho = this.delkaDocasnehoWav / 1000 * this.pFrekvence;   //pocet vzorku v docasnem souboru
-                        long pPocetVzorkuDocasneho = (pfi.Length - 44) / 2;
-                        long pPocetVzorkuNacist = aDelkaMS * (Frequency / 1000);
-                        int pPocatecniIndexVSouboru = (int)((aPocatekMS - pIndexDocasneho * ((double)delkaDocasnehoWav / this.Frequency * 1000)) * (Frequency / 1000)) * this.SampleSize + 44;
-                        int pNacistDat = (int)(pPocetVzorkuDocasneho - pPocatecniIndexVSouboru / this.SampleSize) + 22;
-                        bool hotovo = false;
-                        data = new short[pPocetVzorkuNacist];  //nove pole nacitanych obektu
+                            pIndexDocasneho++;
 
+                            int pCount = (int)(pNacistDat) * this.SampleSize;
 
-                        long pPocetNactenych = 0;
-                        while (!hotovo)
-                        {
-                            using (BinaryReader input = new BinaryReader(new FileStream(docasneZvukoveSoubory[pIndexDocasneho], FileMode.Open, FileAccess.Read, FileShare.Read)))
+                            byte[] pBuffer = new byte[pCount];
+
+                            input.BaseStream.Seek(pPocatecniIndexVSouboru, SeekOrigin.Begin);
+
+                            pPocetNactenych += input.Read(pBuffer, 0, pCount);
+                            input.Close();
+
+                            //prevod do pole nacitanych dat
+
+                            int cnt = (pBuffer.Length / 2 < data.Length - j) ? pBuffer.Length : (data.Length - j) * 2;
+                            Buffer.BlockCopy(pBuffer, 0, data, j * 2, cnt);
+                            j += pBuffer.Length / 2;
+                            if (j >= pPocetVzorkuNacist)
+                                break;
+                            
+
+                            if (pIndexDocasneho >= docasneZvukoveSoubory.Count - 1 && !this.Converted)
+                                return null;
+
+                            if (pIndexDocasneho < docasneZvukoveSoubory.Count)
                             {
+                                pfi = new FileInfo(docasneZvukoveSoubory[pIndexDocasneho]);
+                                pPocetVzorkuDocasneho = (pfi.Length - 44) / 2;
+                                pPocatecniIndexVSouboru = 44;
+                                pNacistDat = (int)(pPocetVzorkuDocasneho - pPocatecniIndexVSouboru);
+                            }
+                            else
+                            {
+                                break;
 
-                                pIndexDocasneho++;
-                                int pCount = (int)(pNacistDat) * this.SampleSize;
-
-                                byte[] pBuffer = new byte[pCount];
-
-                                input.BaseStream.Seek(pPocatecniIndexVSouboru, SeekOrigin.Begin);
-
-                                pPocetNactenych += input.Read(pBuffer, 0, pCount);
-                                input.Close();
-
-                                //prevod do pole nacitanych dat
-
-                                int cnt = (pBuffer.Length / 2 < data.Length - j) ? pBuffer.Length : (data.Length - j) * 2;
-                                Buffer.BlockCopy(pBuffer, 0, data, j * 2, cnt);
-                                j += pBuffer.Length / 2;
-                                if (j >= pPocetVzorkuNacist)
-                                {
-                                    //prevod dokoncen
-                                    hotovo = true;
-                                    break;
-                                }
-
-                                if (pIndexDocasneho >= docasneZvukoveSoubory.Count - 1 && !this.Converted)
-                                {
-                                    //pokus o nacteni pozuzivaneho souboru behem prevodu
-                                    this._BufferuIsLoading = false;
-                                    return null;
-                                }
-
-                                if (pIndexDocasneho < docasneZvukoveSoubory.Count)
-                                {
-                                    pfi = new FileInfo(docasneZvukoveSoubory[pIndexDocasneho]);
-                                    pPocetVzorkuDocasneho = (pfi.Length - 44) / 2;
-                                    pPocatecniIndexVSouboru = 44;
-                                    pNacistDat = (int)(pPocetVzorkuDocasneho - pPocatecniIndexVSouboru);
-                                }
-                                else
-                                {
-                                    hotovo = true;
-
-                                }
                             }
                         }
                     }
-
                 }
-                this._BufferuIsLoading = false;
+
+
             }
             catch
-            { 
-                data = null;
+            {
+                return null;
             }
-            finally 
-            { 
-                this._BufferuIsLoading = false;
-            }
+
             return data;
         }
 
@@ -853,15 +598,6 @@ namespace NanoTrans.Audio
                     tPrevodNaDocasneSoubory.Abort();
                     tPrevodNaDocasneSoubory.Join();
 
-                }
-                if (this.tNacitaniBufferu1 != null && tNacitaniBufferu1.ThreadState == System.Threading.ThreadState.Running)
-                {
-                    tNacitaniBufferu1.Abort();
-                    if (tNacitaniBufferu2 != null && tNacitaniBufferu2.ThreadState == System.Threading.ThreadState.Running)
-                    {
-                        tNacitaniBufferu2.Abort();
-                        tNacitaniBufferu2.Join();
-                    }
                 }
                 //zruseni procesu prevodu souboru na wav
                 if (prPrevod != null && !prPrevod.HasExited)

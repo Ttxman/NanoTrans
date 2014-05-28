@@ -37,6 +37,8 @@ namespace NanoTrans
         public short[] Data;
 
         private object datalock = new object();
+
+
         public MyBuffer16(long aDelkaBufferuMS)
         {
             this.Loaded = false;
@@ -44,20 +46,6 @@ namespace NanoTrans
             this._EndMS = 0;
             lock(datalock)
                 Data = new short[(int)aDelkaBufferuMS * (1600 / 1000)];
-        }
-
-        public bool ClearBuffer()
-        {
-            this.Loaded = false;
-            lock (datalock)
-            {
-                Data = new short[0];
-            }
-
-            this._StartMS = 0;
-            this._EndMS = 0;
-
-            return true;
         }
 
 
@@ -118,7 +106,6 @@ namespace NanoTrans
 
         }
 
-
         public short[] CopyFromBuffer(TimeSpan from, TimeSpan to, TimeSpan max)
         {
             try
@@ -170,64 +157,6 @@ namespace NanoTrans
                 return new short[1];
             }
         }
-
-
-        internal bool SaveToWav(string filename)
-        {
-            try
-            {
-                BinaryWriter output = new BinaryWriter(new FileStream(filename, FileMode.Create));
-
-                byte[] header = WavReader.GetWaveHeader(this.Data.Length * 2);
-                output.Write(header);
-                
-                for (int i = 0; i < Data.Length; i++)
-                {
-                    output.Write(Data[i]);
-                }
-                output.Close();
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
     }
 
-
-
-    public class WaveformBuffer
-    {
-        private long _BeginMS;
-        public long BeginMS
-        {
-            get { return _BeginMS; }
-        }
-
-        private long _EndMS;
-        public long EndMS
-        {
-            get { return _EndMS; }
-        }
-
-        public long LengthMS
-        {
-            get { return EndMS - BeginMS; }
-        }
- 
-        public bool Loaded { get; set; }
-        public float[] DataF;
-
-
-        public bool Clear()
-        {
-            DataF = new float[DataF.Length];
-            this._BeginMS = -1;
-            this._EndMS = -1;
-
-            this.Loaded = false;
-            return true;
-        }
-    }
 }
