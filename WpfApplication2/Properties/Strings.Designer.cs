@@ -448,6 +448,15 @@ namespace NanoTrans.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Downloading media file.
+        /// </summary>
+        public static string mainWindowStatusbarStatusMediaDownloading {
+            get {
+                return ResourceManager.GetString("mainWindowStatusbarStatusMediaDownloading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Conversion done!.
         /// </summary>
         public static string mainWindowStatusbarStatusTextConversionDone {

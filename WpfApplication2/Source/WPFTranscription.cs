@@ -1,4 +1,6 @@
 ﻿using NanoTrans.Core;
+using NanoTrans.OnlineAPI;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -20,6 +22,7 @@ namespace NanoTrans
         {
             var t = new WPFTranscription();
             Transcription.Deserialize(path, t);
+            t.IsOnline = t.Elements["Online"] == "True";
             return t;
         }
 
@@ -107,6 +110,28 @@ namespace NanoTrans
                 }
             }
         }
+
+        public OnlineTranscriptionInfo OnlineInfo
+        {
+            get
+            {
+                if (!IsOnline)
+                    return null;
+
+                return JObject.Parse(Meta.Element("OnlineInfo").Value).ToObject<OnlineTranscriptionInfo>();
+            }
+            set
+            {
+                if (value == null)
+                {
+                    var elm = Meta.Element("OnlineInfo");
+                    if(elm!=null)
+                        elm.Remove();
+                }
+                Meta.SetElementValue("OnlineInfo",JObject.FromObject(value).ToString());
+            }
+        }
+
 
         public event PropertyChangedEventHandler PropertyChanged;
 

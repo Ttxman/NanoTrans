@@ -130,7 +130,7 @@ namespace NanoTrans
                 _api.Trans.Api = _api;
 
                 _api.Trans.Meta.Add(JsonConvert.DeserializeXNode(JsonConvert.SerializeObject(_api.Info),"OnlineInfo").Root);
-                _api.Trans.FileName = _api.Info.ResponseURL.AbsolutePath;
+                //_api.Trans.FileName = _api.Info.ResponseURL.AbsolutePath;
             }
             catch
             {

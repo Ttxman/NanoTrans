@@ -655,4 +655,7 @@ Show Video</value>
   <data name="mainWindowWaveformSlowPlayback" xml:space="preserve">
     <value>Slowed Playback</value>
   </data>
+  <data name="mainWindowStatusbarStatusMediaDownloading" xml:space="preserve">
+    <value>Downloading media file</value>
+  </data>
 </root>

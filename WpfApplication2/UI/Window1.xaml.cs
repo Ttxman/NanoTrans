@@ -328,7 +328,7 @@ namespace NanoTrans
 
         private void ShowConversionProgress(AudioBufferEventArgs2 e)
         {
-            pbPrevodAudio.Value = e.FileNumber;
+            pbStatusbarBrogress.Value = e.FileNumber;
             waveform1.ProgressHighlightBegin = TimeSpan.Zero;
             waveform1.ProgressHighlightEnd = TimeSpan.FromMilliseconds(e.LengthMS);
 
@@ -336,7 +336,7 @@ namespace NanoTrans
             if (e.LengthMS >= _WavReader.FileLengthMS)
             {
                 ShowMessageInStatusbar(Properties.Strings.mainWindowStatusbarStatusTextConversionDone);
-                pbPrevodAudio.Visibility = Visibility.Hidden;
+                pbStatusbarBrogress.Visibility = Visibility.Hidden;
                 mainWindowStatusbarAudioConversionHeader.Visibility = Visibility.Hidden;
             }
 
@@ -423,9 +423,9 @@ namespace NanoTrans
         }
         #endregion
 
-        public bool NewTranscription()
+        public async Task<bool> NewTranscription()
         {
-            if (!TrySaveUnsavedChanges())
+            if (!await TrySaveUnsavedChanges())
                 return false;
 
             var source = new WPFTranscription();
@@ -446,11 +446,11 @@ namespace NanoTrans
 
 
 
-        public bool OpenTranscription(bool useOpenDialog, string fileName)
+        public async Task<bool> OpenTranscription(bool useOpenDialog, string fileName)
         {
             try
             {
-                if (!TrySaveUnsavedChanges())
+                if (! await TrySaveUnsavedChanges())
                     return false;
 
                 if (Transcription == null) Transcription = new WPFTranscription();
@@ -496,10 +496,36 @@ namespace NanoTrans
             if (trans != null)
             {
                 LoadTranscription(trans);
+                if (trans.IsOnline)
+                {
+                    _api = new SpeakersApi(trans.OnlineInfo.OriginalURL.ToString(), this);
+                    _api.Trans = trans;
+                    _api.Info = trans.OnlineInfo;
+                    LoadOnlineSetting();
+                }
                 return true;
             }
 
             return false;
+        }
+        SpeakersApi _api = null;
+
+        private void LoadOnlineSource(string path)
+        {
+            _api = new SpeakersApi(path, this);
+            if (_api.TryLogin(this) == true)
+            {
+                LoadOnlineSetting();
+            }
+            else
+                Close();
+        }
+
+        private void LoadOnlineSetting()
+        {
+            LoadTranscription(_api.Trans);
+            Transcription.FileName = _api.Info.TrsxUploadURL.ToString();
+            Transcription.OnlineInfo = _api.Info;
         }
 
         private void LoadTranscription(WPFTranscription trans)
@@ -536,7 +562,7 @@ namespace NanoTrans
         {
             if (Transcription.IsOnline)
             {
-                //TODO:
+                LoadAudioOnline();
             }
             else if (!string.IsNullOrEmpty(Transcription.MediaURI) && Transcription.FileName != null)
             {
@@ -558,7 +584,7 @@ namespace NanoTrans
         /// attempt to save changes with dialog
         /// </summary>
         /// <returns>true when save was sucessful; false when user cancels or on error when saving</returns>
-        private bool TrySaveUnsavedChanges()
+        private async Task<bool> TrySaveUnsavedChanges()
         {
             if (Transcription == null || Transcription.Saved)
                 return true;
@@ -569,7 +595,7 @@ namespace NanoTrans
                 return false;
 
             if (mbr == MessageBoxResult.Yes)
-                if (!SaveTranscription(string.IsNullOrWhiteSpace(Transcription.FileName), Transcription.FileName))
+                if (! await SaveTranscription(string.IsNullOrWhiteSpace(Transcription.FileName), Transcription.FileName))
                     return false;//error during save
 
             return true;
@@ -610,7 +636,7 @@ namespace NanoTrans
                 Transcription.Speakers.Add(item);
         }
 
-        public bool SaveTranscription(bool useSaveDialog, string jmenoSouboru)
+        public async Task<bool> SaveTranscription(bool useSaveDialog, string jmenoSouboru)
         {
             try
             {
@@ -637,10 +663,7 @@ namespace NanoTrans
                 {
                     using (var wc = new WaitCursor())
                     {
-                        var x = new Task<bool>(()=> _api.UploadTranscription(Transcription).Result);
-                        x.ConfigureAwait(false);
-                        x.Start();
-                        return x.Result;
+                       var onl = await _api.UploadTranscription(Transcription);
                     }
                 }
                 else if (Transcription.Serialize(savePath, GlobalSetup.Setup.SaveWholeSpeaker))
@@ -760,12 +783,33 @@ namespace NanoTrans
             }
         }
 
+
         /// <summary>
         /// spusti proceduru pro nacitani videa, pokud je zadana cesta, pokusi se nacist dany soubor
         /// </summary>
+        private async Task LoadAudioOnline()
+        {
+            try
+            {
+                ShowMessageInStatusbar(Properties.Strings.mainWindowStatusbarStatusMediaDownloading);
+                pbStatusbarBrogress.Visibility = System.Windows.Visibility.Visible;
+                pbStatusbarBrogress.IsIndeterminate = true;
+                var filename= System.IO.Path.Combine(FilePaths.TempDirectory,System.IO.Path.GetFileName(Transcription.MediaURI));
+                await _api.DownloadFile(Transcription.MediaURI,filename);
+                LoadAudio(filename);
+            }
+            catch
+            {
+            }
+
+        }
+
+        /// <summary>
+        /// Try to load audio file, if not found open openfile dialog
+        /// </summary>
         /// <param name="aFileName"></param>
         /// <returns></returns>
-        private bool LoadAudio(string aFileName)
+        private bool LoadAudio(string aFileName, bool skipCheck = false)
         {
             try
             {
@@ -774,7 +818,7 @@ namespace NanoTrans
                 openDialog.Filter = Properties.Strings.LoadAudioFilter;
                 openDialog.FilterIndex = 1;
 
-                bool pOtevrit = File.Exists(aFileName);
+                bool pOtevrit = File.Exists(aFileName) || skipCheck;
 
                 if (pOtevrit || openDialog.ShowDialog() == true)
                 {
@@ -802,15 +846,15 @@ namespace NanoTrans
                         //  pIndexBufferuVlnyProPrehrani = 0;
                         waveform1.DataRequestCallBack = _WavReader.NactiRamecBufferu;
 
-                        pbPrevodAudio.Value = 0;
+                        pbStatusbarBrogress.Value = 0;
                         waveform1.AudioLength = fileLength;
-                        pbPrevodAudio.Maximum = fileLength.TotalMinutes - 1;
-                        pbPrevodAudio.Value = 0;
+                        pbStatusbarBrogress.Maximum = fileLength.TotalMinutes - 1;
+                        pbStatusbarBrogress.Value = 0;
 
                         //start prevodu docasnych souboru
                         _WavReader.ConvertAudioFileToWave(aFileName); //spusti se thread ktery prevede soubor na temp wavy
                         ShowMessageInStatusbar(Properties.Strings.mainWindowStatusbarStatusTextConversionRunning);
-                        pbPrevodAudio.Visibility = Visibility.Visible;
+                        pbStatusbarBrogress.Visibility = Visibility.Visible;
                         mainWindowStatusbarAudioConversionHeader.Visibility = Visibility.Visible;
                         /////////////
                     }
@@ -1038,12 +1082,12 @@ namespace NanoTrans
         }
 
 
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private async void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             if (Pedalthread != null)
                 Pedalthread.Abort();
 
-            if (!TrySaveUnsavedChanges() || !TrySaveSpeakersDatabase())
+            if (! await TrySaveUnsavedChanges() || !TrySaveSpeakersDatabase())
             {
                 e.Cancel = true;
                 return;
@@ -1241,17 +1285,7 @@ namespace NanoTrans
 
         }
 
-        SpeakersApi _api = null;
-        private void LoadOnlineSource(string path)
-        {
-            _api = new SpeakersApi(path, this);
-            if (_api.TryLogin(this) == true)
-            {
-                LoadTranscription(_api.Trans);
-            }
-            else
-                Close();
-        }
+
 
 
         private void menuFileExportClick(object sender, RoutedEventArgs e)

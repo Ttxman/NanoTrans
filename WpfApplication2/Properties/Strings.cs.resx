@@ -654,4 +654,7 @@
   <data name="mainWindowWaveformSlowPlayback" xml:space="preserve">
     <value>Zpomalené přehrávání</value>
   </data>
+  <data name="mainWindowStatusbarStatusMediaDownloading" xml:space="preserve">
+    <value>Stahuji audio soubor</value>
+  </data>
 </root>

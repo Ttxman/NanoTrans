@@ -52,10 +52,8 @@ namespace NanoTrans
 
         public void Dispose()
         {
-            if (_previousCursor != null)
-            {
-                Mouse.OverrideCursor = _previousCursor;
-            }
+
+            Mouse.OverrideCursor = _previousCursor;
             InstanceCounter--;
         }
 
