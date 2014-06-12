@@ -1187,10 +1187,11 @@ namespace NanoTrans.Core
         {
             get
             {
-                return null;
+                throw new NotImplementedException();
             }
             set
             {
+                throw new NotImplementedException();
             }
         }
 
@@ -1198,10 +1199,11 @@ namespace NanoTrans.Core
         {
             get
             {
-                return null;
+                throw new NotImplementedException();
             }
             set
             {
+                throw new NotImplementedException();
             }
         }
 
@@ -1235,6 +1237,11 @@ namespace NanoTrans.Core
         public IEnumerable<TranscriptionParagraph> EnumerateParagraphs()
         {
             return this.Where(p => p.IsParagraph).Cast<TranscriptionParagraph>();
+        }
+
+        public override string InnerText
+        {
+            get { return string.Join("\r\n", Children.Select(c => c.Text)); }
         }
     }
 }

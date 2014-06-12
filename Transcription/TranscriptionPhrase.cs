@@ -241,6 +241,14 @@ namespace NanoTrans.Core
                 throw new NotSupportedException();
             }
         }
+
+        public override string InnerText
+        {
+            get
+            {
+                return Text;
+            }
+        }
     }
 
 }

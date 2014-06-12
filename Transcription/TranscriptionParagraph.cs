@@ -427,6 +427,11 @@ namespace NanoTrans.Core
                 _lang = value.ToUpper();
             }
         }
+
+        public override string InnerText
+        {
+            get { return Text; }
+        }
     }
 
 }

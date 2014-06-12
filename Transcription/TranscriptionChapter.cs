@@ -32,10 +32,11 @@ namespace NanoTrans.Core
         {
             get
             {
-                return null;
+                throw new NotImplementedException();
             }
             set
             {
+                throw new NotImplementedException();
             }
         }
 
@@ -145,6 +146,11 @@ namespace NanoTrans.Core
         }
 
 
+
+        public override string InnerText
+        {
+            get { return name + "\r\n" + string.Join("\r\n", Children.Select(c => c.Text)); }
+        }
     }
 
 

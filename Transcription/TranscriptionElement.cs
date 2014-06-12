@@ -79,10 +79,19 @@ namespace NanoTrans.Core
         public event EventHandler BeginChanged;
         public event EventHandler EndChanged;
 
+
         public abstract string Text
         {
             get;
             set;
+        }
+
+        /// <summary>
+        /// Text of element including text of children
+        /// </summary>
+        public abstract string InnerText
+        {
+            get;
         }
 
         public abstract string Phonetics
@@ -149,7 +158,6 @@ namespace NanoTrans.Core
         {
             get { return Children.Count > 0; }
         }
-
 
 
         public abstract int AbsoluteIndex
