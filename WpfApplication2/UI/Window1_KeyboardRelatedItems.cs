@@ -608,34 +608,34 @@ namespace NanoTrans
             }
 
         }
-        private void CCreateNewTranscription(object sender, ExecutedRoutedEventArgs e)
+        private async void CCreateNewTranscription(object sender, ExecutedRoutedEventArgs e)
         {
-            NewTranscription();
+             await NewTranscription();
         }
 
-        private void COpenTranscription(object sender, ExecutedRoutedEventArgs e)
+        private async void COpenTranscription(object sender, ExecutedRoutedEventArgs e)
         {
-            OpenTranscription(true, "");
+            await OpenTranscription(true, "");
         }
 
-        private void CSaveTranscription(object sender, ExecutedRoutedEventArgs e)
+        private async void CSaveTranscription(object sender, ExecutedRoutedEventArgs e)
         {
             if (Transcription != null)
             {
                 if (Transcription.FileName != null)
                 {
-                    SaveTranscription(false, Transcription.FileName);
+                    await SaveTranscription(false, Transcription.FileName);
                 }
                 else
                 {
-                    SaveTranscription(true, Transcription.FileName);
+                    await SaveTranscription(true, Transcription.FileName);
                 }
             }
         }
 
-        private void CSaveTranscriptionAs(object sender, ExecutedRoutedEventArgs e)
+        private async void CSaveTranscriptionAs(object sender, ExecutedRoutedEventArgs e)
         {
-            SaveTranscription(true, "");
+            await SaveTranscription(true, "");
         }
 
         private void CAbout(object sender, ExecutedRoutedEventArgs e)

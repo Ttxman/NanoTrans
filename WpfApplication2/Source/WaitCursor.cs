@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading;
 
 namespace NanoTrans
 {
@@ -39,22 +41,23 @@ namespace NanoTrans
 
         public WaitCursor()
         {
-            try
-            {
-                _previousCursor = Mouse.OverrideCursor;
-                Mouse.OverrideCursor = Cursors.Wait;
-            }
-            catch { }
-            InstanceCounter++;
+            Application.Current.Dispatcher.Invoke(() =>
+                {
+                    _previousCursor = Mouse.OverrideCursor;
+                    Mouse.OverrideCursor = Cursors.Wait;
+                    InstanceCounter++;
+                });
         }
 
         #region IDisposable Members
 
         public void Dispose()
         {
-
-            Mouse.OverrideCursor = _previousCursor;
-            InstanceCounter--;
+            Application.Current.Dispatcher.Invoke(() =>
+                {
+                    Mouse.OverrideCursor = _previousCursor;
+                    InstanceCounter--;
+                });
         }
 
         #endregion

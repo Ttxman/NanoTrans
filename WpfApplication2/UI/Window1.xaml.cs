@@ -476,7 +476,7 @@ namespace NanoTrans
                 {
                     if (!TryLoadTranscription(fileName))
                     {
-                        NewTranscription();
+                        await NewTranscription();
                     }
 
                     return true;
@@ -558,11 +558,11 @@ namespace NanoTrans
             }
         }
 
-        private void TryLoadAudioFile()
+        private async void TryLoadAudioFile()
         {
             if (Transcription.IsOnline)
             {
-                LoadAudioOnline();
+                await LoadAudioOnline();
             }
             else if (!string.IsNullOrEmpty(Transcription.MediaURI) && Transcription.FileName != null)
             {
@@ -1202,7 +1202,7 @@ namespace NanoTrans
 
 
 
-        private void Window_Loaded(object sender, RoutedEventArgs e)
+        private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
 
             LoadSpeakersDatabase();
@@ -1260,7 +1260,7 @@ namespace NanoTrans
 
             if (path == null)
             {
-                NewTranscription();
+                await NewTranscription();
             }
             else
             {
@@ -1270,11 +1270,11 @@ namespace NanoTrans
                 }
                 else if (import)
                 {
-                    NewTranscription();
+                    await NewTranscription();
                     CommandImportFile.Execute(path, this);
                 }
                 else
-                    OpenTranscription(false, path);
+                    await OpenTranscription(false, path);
             }
 
             VirtualizingListBox.RequestTimePosition += delegate(out TimeSpan value) { value = waveform1.CaretPosition; };
@@ -1504,7 +1504,7 @@ namespace NanoTrans
             CommandNormalizeParagraph.Execute(null, this);
         }
 
-        private void Window_Drop(object sender, DragEventArgs e)
+        private async void Window_Drop(object sender, DragEventArgs e)
         {
             string[] p = e.Data.GetFormats();
             for (int i = 0; i < p.Length; i++)
@@ -1512,7 +1512,7 @@ namespace NanoTrans
                 if (p[i].ToLower() == "filenamew")
                 {
                     string[] o = (string[])e.Data.GetData(p[i]);
-                    OpenTranscription(false, o[0].ToString());
+                    await OpenTranscription(false, o[0].ToString());
                 }
             }
 

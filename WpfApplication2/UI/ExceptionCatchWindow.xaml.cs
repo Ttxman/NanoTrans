@@ -28,9 +28,9 @@ namespace NanoTrans
             textBox1.Text = e.ToString()+"\n\n"+ e.Message;
         }
 
-        private void buttonSaveAndRestart_Click(object sender, RoutedEventArgs e)
+        private async void buttonSaveAndRestart_Click(object sender, RoutedEventArgs e)
         {
-            _parent.SaveTranscription(true, _parent.Transcription.FileName);
+            await _parent.SaveTranscription(true, _parent.Transcription.FileName);
             System.Diagnostics.Process.Start(Application.ResourceAssembly.Location);
             Application.Current.Shutdown();
         }
