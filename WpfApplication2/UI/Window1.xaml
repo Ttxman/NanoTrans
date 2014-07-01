@@ -12,11 +12,12 @@
         
     Title="NanoTrans" Height="758" Width="867" Closing="Window_Closing"
     ResizeMode="CanResizeWithGrip" Loaded="Window_Loaded" WindowStartupLocation="CenterScreen" PreviewKeyUp="Window_PreviewKeyUp" Icon="../icons/pen.ico" IsEnabled="True" AllowDrop="True" Drop="Window_Drop"
-    xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase" MouseDown="Window_MouseDown">
+    xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase" MouseDown="Window_MouseDown"
+    Name="window"
+        DataContext="{Binding RelativeSource={RelativeSource Self}}"
+        >
     <Window.Resources>
-        <!--ObjectDataProvider x:Key="MyStringData" 
-                        ObjectType="{x:Type local:MyStrings}" /-->
-        <!--local:MySubtitlesData x:Key="myDataSource"/-->
+
     </Window.Resources>
     <Grid Name="d" Height="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <Grid.ColumnDefinitions>
@@ -107,14 +108,59 @@
                 </MenuItem>
             </Menu>
             <ToolBarTray Name="toolBarTray2" Height="28" VerticalAlignment="Top">
-                <ToolBar Name="toolBar1" VerticalAlignment="Top" HorizontalAlignment="Left" Loaded="toolBar1_Loaded"></ToolBar>
-                <ToolBar>
+                <ToolBarTray.Resources>
+                    <Style TargetType="{x:Type Button}" x:Key="{x:Static ToolBar.ButtonStyleKey}">
+                        <Style.Resources>
+                            <Style TargetType="Image">
+                                <Style.Triggers>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter Property="Opacity" Value="0.5" />
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Style.Resources>
+                    </Style>
+                </ToolBarTray.Resources>
+                <ToolBar Name="toolBar1" VerticalAlignment="Top" HorizontalAlignment="Left" Loaded="toolBar1_Loaded" BandIndex="0"></ToolBar>
+                <ToolBar BandIndex="1">
                     <Button Click="Button_Click_2" VerticalAlignment="Stretch" ToolTip="{lex:Loc Key=mainWindowOpenSpeakerSynchronizerTooltip}">
                         <Image Source="/icons/join.png" Width="16" Height="16"/>
                     </Button>
                     <ToggleButton Name="Button_HideNSE" VerticalAlignment="Stretch" Click="Button_HideNSE_Click" ClickMode="Press">
                         <Image Source="/icons/HideNSE.png" Width="16" Height="16" ToolTip="{lex:Loc Key=mainWindowHideNonSpeechEventsTooltip}"/>
                     </ToggleButton>
+                </ToolBar>
+                <ToolBar BandIndex="2">
+                    <Button VerticalAlignment="Stretch" DataContext="{Binding ElementName=window}" IsEnabled="{Binding ElementName=window, Path=IsPreviousTranscriptionAvailable}" Click="Button_Click_1">
+                        <Button.ToolTip>
+                            <ToolTip>
+                                <TextBlock>
+                                    <TextBlock.Text>
+                                        <MultiBinding StringFormat="{}{0}: {1}">
+                                            <lex:BLoc Key="NanoTrans:Strings:mainWindowPreviousTranscriptionTooltip"></lex:BLoc>
+                                            <Binding Path="PlacementTarget.DataContext.PreviousTranscriptionName" RelativeSource="{RelativeSource AncestorType={x:Type ToolTip}}"></Binding>
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                            </ToolTip>
+                        </Button.ToolTip>
+                        <Image Source="/icons/direction_left.png" Width="16" Height="16"/>
+                    </Button>
+                    <Button VerticalAlignment="Stretch" DataContext="{Binding ElementName=window}" IsEnabled="{Binding ElementName=window, Path=IsNextTranscriptionAvailable}" Click="Button_Click_3">
+                        <Button.ToolTip>
+                            <ToolTip>
+                                <TextBlock>
+                                    <TextBlock.Text>
+                                        <MultiBinding StringFormat="{}{0}: {1}">
+                                            <lex:BLoc Key="NanoTrans:Strings:mainWindowNextTranscriptionTooltip"></lex:BLoc>
+                                            <Binding Path="PlacementTarget.DataContext.NextTranscriptionName" RelativeSource="{RelativeSource AncestorType={x:Type ToolTip}}"></Binding>
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                            </ToolTip>
+                        </Button.ToolTip>
+                        <Image Source="/icons/direction_right.png" Width="16" Height="16"/>
+                    </Button>
                 </ToolBar>
             </ToolBarTray>
         </StackPanel>
@@ -226,7 +272,7 @@
                             <ToggleButton Name="TB180" Click="Toolbar1Btn5_Click" Focusable="False" IsTabStop="False" Tag="180000">3m</ToggleButton>
                         </ToolBar>
                     </ToolBarTray>
-                    <TextBox Name="tbAudioFile" Background="LightGoldenrodYellow" IsReadOnly="False" IsEnabled="True" Width="250" Focusable="True" IsTabStop="True"></TextBox>
+                    <TextBox Name="tbAudioFile" Background="LightGoldenrodYellow" IsReadOnly="False" IsEnabled="True"  Focusable="True" IsTabStop="True" Width="250">asdfa</TextBox>
                     <Button Name="loadAudioButton" Click="button1_Click" VerticalAlignment="Top" Focusable="False" IsTabStop="False" HorizontalAlignment="Left">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Margin="4" Name="mainWindowLoadAudioButtonText" Text="{lex:Loc}"/>

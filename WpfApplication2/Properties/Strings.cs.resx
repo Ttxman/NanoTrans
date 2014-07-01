@@ -460,7 +460,7 @@
     <value>Importovat soubor</value>
   </data>
   <data name="FileDialogLoadTranscriptionFilter" xml:space="preserve">
-    <value>Soubory titulků (*.trsx)|*.trsx|Všechny soubory (*.*)|*.*</value>
+    <value>Soubory titulků (*.trsx;*.tlst)|*.trsx;*.tlst|Všechny soubory (*.*)|*.*</value>
   </data>
   <data name="FileDialogLoadTranscriptionTitle" xml:space="preserve">
     <value>Otevřít soubor s titulky...</value>
@@ -656,5 +656,11 @@
   </data>
   <data name="mainWindowStatusbarStatusMediaDownloading" xml:space="preserve">
     <value>Stahuji audio soubor</value>
+  </data>
+  <data name="mainWindowNextTranscriptionTooltip" xml:space="preserve">
+    <value>Další přepis</value>
+  </data>
+  <data name="mainWindowPreviousTranscriptionTooltip" xml:space="preserve">
+    <value>Předchozí přepis</value>
   </data>
 </root>

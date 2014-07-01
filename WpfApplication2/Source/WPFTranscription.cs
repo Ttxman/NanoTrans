@@ -22,7 +22,7 @@ namespace NanoTrans
         {
             var t = new WPFTranscription();
             Transcription.Deserialize(path, t);
-            t.IsOnline = t.Elements["Online"] == "True";
+            t.IsOnline = t.Elements.ContainsKey("Online") && t.Elements["Online"] == "True";
             return t;
         }
 

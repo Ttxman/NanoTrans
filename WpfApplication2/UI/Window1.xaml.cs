@@ -32,6 +32,8 @@ using System.Windows.Controls.Primitives;
 using WPFLocalizeExtension.Engine;
 using System.Threading.Tasks;
 using NanoTrans.OnlineAPI;
+using System.Runtime.CompilerServices;
+using System.ComponentModel;
 
 namespace NanoTrans
 {
@@ -41,6 +43,50 @@ namespace NanoTrans
     /// 
     public partial class Window1 : Window, System.ComponentModel.INotifyPropertyChanged
     {
+
+        private void OnPropertyChanged([CallerMemberName]string caller = null)
+        {
+            if (PropertyChanged != null)
+                PropertyChanged(this, new PropertyChangedEventArgs(caller));
+        }
+
+        #region transcription walking
+        List<FileInfo> _TranscriptionList = new List<FileInfo>();
+        int _transcriptionIndex = 0;
+        public bool IsPreviousTranscriptionAvailable
+        {
+            get { return _transcriptionIndex > 0; }
+        }
+
+        public bool IsNextTranscriptionAvailable
+        {
+            get { return _transcriptionIndex < _TranscriptionList.Count - 1; }
+        }
+
+        public string TranscriptionName
+        {
+            get { return _TranscriptionList[_transcriptionIndex].Name; }
+        }
+
+        public string PreviousTranscriptionName
+        {
+            get { return (IsPreviousTranscriptionAvailable) ? _TranscriptionList[_transcriptionIndex - 1].Name : ""; }
+        }
+        public string NextTranscriptionName
+        {
+            get { return (IsNextTranscriptionAvailable) ? _TranscriptionList[_transcriptionIndex + 1].Name : ""; }
+        }
+
+        void TranscriptionListChanged()
+        {
+            OnPropertyChanged("IsPreviousTranscriptionAvailable");
+            OnPropertyChanged("IsNextTranscriptionAvailable");
+            OnPropertyChanged("TranscriptionName");
+            OnPropertyChanged("PreviousTranscriptionName");
+            OnPropertyChanged("NextTranscriptionName");
+        }
+
+        #endregion
         //timer pro posuvnik videa....
         private DispatcherTimer caretRefreshTimer = new DispatcherTimer();
 
@@ -56,8 +102,7 @@ namespace NanoTrans
                 if (_transcription != null)
                     _transcription.SubtitlesChanged += _SubtitlesChanged;
 
-                if (PropertyChanged != null)
-                    PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs("Transcription"));
+                OnPropertyChanged();
 
             }
         }
@@ -136,6 +181,7 @@ namespace NanoTrans
 
         public Window1()
         {
+            this.DataContext = this;
             InitializeComponent();
             //load settings
             Stream s = FilePaths.GetConfigFileReadStream();
@@ -440,6 +486,11 @@ namespace NanoTrans
             Transcription = source;
             SynchronizeSpeakers();
             VirtualizingListBox.ActiveTransctiption = p;
+
+            _TranscriptionList.Clear();
+            _transcriptionIndex = 0;
+            TranscriptionListChanged();
+
             return true;
         }
 
@@ -450,7 +501,7 @@ namespace NanoTrans
         {
             try
             {
-                if (! await TrySaveUnsavedChanges())
+                if (!await TrySaveUnsavedChanges())
                     return false;
 
                 if (Transcription == null) Transcription = new WPFTranscription();
@@ -489,13 +540,36 @@ namespace NanoTrans
             }
         }
 
-        private bool TryLoadTranscription(string fileName)
+        private bool TryLoadTranscription(string fileName, bool listing = false)
         {
+            var ext = System.IO.Path.GetExtension(fileName);
+            if (ext == ".tlst") //list of transcriptions
+            {
+                _TranscriptionList = File.ReadAllLines(fileName).Select(l => new FileInfo(l)).ToList();
+                _transcriptionIndex = 0;
+                fileName = _TranscriptionList[_transcriptionIndex].FullName;
+                TranscriptionListChanged();
+            }
+            else if (!listing)
+            {
+                _TranscriptionList.Clear();
+                var dir = new DirectoryInfo(System.IO.Path.GetDirectoryName(fileName));
+                _TranscriptionList = dir.GetFiles("*" + ext).ToList();
+                _transcriptionIndex = _TranscriptionList.FindIndex(f => f.FullName == fileName);
+                TranscriptionListChanged();
+
+            }
+            else //moving through list
+            {
+                _transcriptionIndex = _TranscriptionList.FindIndex(f => f.FullName == fileName);
+                TranscriptionListChanged();
+            }
+
             var trans = WPFTranscription.Deserialize(fileName);
 
             if (trans != null)
             {
-                LoadTranscription(trans);
+
                 if (trans.IsOnline)
                 {
                     _api = new SpeakersApi(trans.OnlineInfo.OriginalURL.ToString(), this);
@@ -503,6 +577,7 @@ namespace NanoTrans
                     _api.Info = trans.OnlineInfo;
                     LoadOnlineSetting();
                 }
+                LoadTranscription(trans);
                 return true;
             }
 
@@ -595,7 +670,7 @@ namespace NanoTrans
                 return false;
 
             if (mbr == MessageBoxResult.Yes)
-                if (! await SaveTranscription(string.IsNullOrWhiteSpace(Transcription.FileName), Transcription.FileName))
+                if (!await SaveTranscription(string.IsNullOrWhiteSpace(Transcription.FileName), Transcription.FileName))
                     return false;//error during save
 
             return true;
@@ -663,7 +738,7 @@ namespace NanoTrans
                 {
                     using (var wc = new WaitCursor())
                     {
-                       var onl = await _api.UploadTranscription(Transcription);
+                        var onl = await _api.UploadTranscription(Transcription);
                     }
                 }
                 else if (Transcription.Serialize(savePath, GlobalSetup.Setup.SaveWholeSpeaker))
@@ -794,8 +869,8 @@ namespace NanoTrans
                 ShowMessageInStatusbar(Properties.Strings.mainWindowStatusbarStatusMediaDownloading);
                 pbStatusbarBrogress.Visibility = System.Windows.Visibility.Visible;
                 pbStatusbarBrogress.IsIndeterminate = true;
-                var filename= System.IO.Path.Combine(FilePaths.TempDirectory,System.IO.Path.GetFileName(Transcription.MediaURI));
-                await _api.DownloadFile(Transcription.MediaURI,filename);
+                var filename = System.IO.Path.Combine(FilePaths.TempDirectory, System.IO.Path.GetFileName(Transcription.MediaURI));
+                await _api.DownloadFile(Transcription.MediaURI, filename);
                 LoadAudio(filename);
             }
             catch
@@ -1087,7 +1162,7 @@ namespace NanoTrans
             if (Pedalthread != null)
                 Pedalthread.Abort();
 
-            if (! await TrySaveUnsavedChanges() || !TrySaveSpeakersDatabase())
+            if (!await TrySaveUnsavedChanges() || !TrySaveSpeakersDatabase())
             {
                 e.Cancel = true;
                 return;
@@ -1873,6 +1948,17 @@ namespace NanoTrans
         {
             Button_HideNSE.IsChecked = NonEditableBlockGenerator.HideNSE = !NonEditableBlockGenerator.HideNSE;
             VirtualizingListBox.Reset();
+        }
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+            TryLoadTranscription(_TranscriptionList[_transcriptionIndex - 1].FullName,true);
+            
+        }
+
+        private void Button_Click_3(object sender, RoutedEventArgs e)
+        {
+            TryLoadTranscription(_TranscriptionList[_transcriptionIndex + 1].FullName,true);
         }
 
     }

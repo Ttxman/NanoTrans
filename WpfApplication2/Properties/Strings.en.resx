@@ -460,7 +460,7 @@
     <value>Import file</value>
   </data>
   <data name="FileDialogLoadTranscriptionFilter" xml:space="preserve">
-    <value>Transcription Files (*.trsx)|*.trsx|All Files (*.*)|*.*</value>
+    <value>Transcription Files (*.trsx;*.tlst)|*.trsx;*.tlst|All Files (*.*)|*.*</value>
   </data>
   <data name="FileDialogLoadTranscriptionTitle" xml:space="preserve">
     <value>Open transcription file ...</value>
@@ -656,5 +656,11 @@
   </data>
   <data name="mainWindowStatusbarStatusMediaDownloading" xml:space="preserve">
     <value>Downloading media file</value>
+  </data>
+  <data name="mainWindowNextTranscriptionTooltip" xml:space="preserve">
+    <value>Next Transcription</value>
+  </data>
+  <data name="mainWindowPreviousTranscriptionTooltip" xml:space="preserve">
+    <value>Previous Transcription</value>
   </data>
 </root>

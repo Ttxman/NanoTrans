@@ -471,6 +471,8 @@
   <ItemGroup>
     <Resource Include="icons\HideNSE.png" />
     <Resource Include="icons\join.png" />
+    <Resource Include="icons\direction_left.png" />
+    <Resource Include="icons\direction_right.png" />
     <Content Include="ICSharpCode.AvalonEdit.dll" />
     <Content Include="Ionic.Zip.dll" />
     <Content Include="NHunspell.dll" />
