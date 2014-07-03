@@ -90,7 +90,7 @@ namespace NanoTrans.Audio
         /// delka prevedeneho souboru v MS
         /// </summary>
         public long FileLengthMS { get { return _FileLengthMS; } }
-        public TimeSpan FileLength {get { return TimeSpan.FromMilliseconds(_FileLengthMS); } }
+        public TimeSpan FileLength { get { return TimeSpan.FromMilliseconds(_FileLengthMS); } }
 
         public UInt32 Frequency { get; set; }
         public UInt16 SampleSize { get; set; }
@@ -116,7 +116,7 @@ namespace NanoTrans.Audio
         private long bPozadovanaDelkaRamceMS;
         private int bIDBufferu;
 
-        private List<string> docasneZvukoveSoubory = new List<string>();
+        private List<string> temporaryWaveFiles = new List<string>();
         private long delkaDocasnehoWav = 0;
         private long delkaDocasnehoWavMS = 0;
 
@@ -293,7 +293,7 @@ namespace NanoTrans.Audio
             try
             {
                 //nulovani promennych
-                this.docasneZvukoveSoubory.Clear();
+                this.temporaryWaveFiles.Clear();
                 this._FileLengthMS = (long)WavReader.ReturnAudioLength(aCesta).TotalMilliseconds;
 
 
@@ -301,7 +301,7 @@ namespace NanoTrans.Audio
                     return false; //chybne nastaveni nebo delka souboru k prevodu
 
                 this.TemporaryWAVsPath = aCestaDocasnychWAV;
-                this.docasneZvukoveSoubory = new List<string>();
+                this.temporaryWaveFiles = new List<string>();
 
                 delkaDocasnehoWav = (aDelkaJednohoSouboruMS / 1000) * this.Frequency;  //pocet vzorku v 1 docasnem souboru
                 this.delkaDocasnehoWavMS = aDelkaJednohoSouboruMS;
@@ -348,8 +348,8 @@ namespace NanoTrans.Audio
 
                 //prvni docasny wav soubor tmp
                 pIndexDocasneho = 0;
-                docasneZvukoveSoubory.Add(TemporaryWAVsPath + pIndexDocasneho.ToString() + ".wav");
-                output = new BinaryWriter(new FileStream(docasneZvukoveSoubory[pIndexDocasneho], FileMode.Create));
+                temporaryWaveFiles.Add(TemporaryWAVsPath + pIndexDocasneho.ToString() + ".wav");
+                output = new BinaryWriter(new FileStream(temporaryWaveFiles[pIndexDocasneho], FileMode.Create));
                 Stream outputbase = output.BaseStream;
                 //prazdna hlavicka
                 byte[] pPrazdnaHlavicka = new byte[44];
@@ -366,9 +366,7 @@ namespace NanoTrans.Audio
                 {
                     //Termination
                     if (Interlocked.CompareExchange(ref _conversionStopper, 1, 1) == 1)
-                    {
                         return false;
-                    }
 
 
                     pPocetNactenych = outstream.Read(buffer2, 0, buffer2.Length);
@@ -413,15 +411,17 @@ namespace NanoTrans.Audio
                             output.Seek(0, SeekOrigin.Begin);
                             output.Write((GetWaveHeader((Int32)output.BaseStream.Length - 44)));
 
-                            output.Close();
+                            output.Dispose();
                             output = null;
                             pIndexDocasneho++;
-                            docasneZvukoveSoubory.Add(TemporaryWAVsPath + pIndexDocasneho.ToString() + ".wav");
+                            temporaryWaveFiles.Add(TemporaryWAVsPath + pIndexDocasneho.ToString() + ".wav");
 
                             AudioBufferEventArgs2 e2 = new AudioBufferEventArgs2(pIndexDocasneho, (pIndexDocasneho + 1) * this.delkaDocasnehoWavMS);
                             if (HaveFileNumber != null)
                                 HaveFileNumber(this, e2);
-                            output = new BinaryWriter(new FileStream(docasneZvukoveSoubory[pIndexDocasneho], FileMode.Create));
+                            if (Interlocked.CompareExchange(ref _conversionStopper, 1, 1) == 1)
+                                return false;
+                            output = new BinaryWriter(new FileStream(temporaryWaveFiles[pIndexDocasneho], FileMode.Create));
                             outputbase = output.BaseStream;
                             //pridani hlavicky-prazdne-zatim-pozdeji dodelat
                             output.Write(pPrazdnaHlavicka);
@@ -439,6 +439,9 @@ namespace NanoTrans.Audio
                     // zapsani bufferu jako bytu..
                     outputbase.Write(buffer2, writeoffset * 2, writecnt * 2);
                 }
+
+                if (Interlocked.CompareExchange(ref _conversionStopper, 1, 1) == 1)
+                    return false;
 
                 prPrevod.Close();
                 prPrevod = null;
@@ -497,13 +500,15 @@ namespace NanoTrans.Audio
                 return false;
             }
             finally
-            { 
-            
+            {
+                if (output != null)
+                    output.Dispose();
             }
         }
 
-        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
-        public short[] NactiRamecBufferu(TimeSpan begin, TimeSpan end)
+        object _AudioDataWriteLocker = new object();
+
+        public short[] LoadaudioDataBuffer(TimeSpan begin, TimeSpan end)
         {
             if (!this.Loaded || begin.TotalMilliseconds >= this.FileLengthMS)
                 return null;
@@ -522,13 +527,13 @@ namespace NanoTrans.Audio
                 int delkadocasnehoMS = (int)(this.delkaDocasnehoWav / this.Frequency) * 1000;
                 int pIndexDocasneho = (int)aPocatekMS / delkadocasnehoMS;
 
-                if ((pIndexDocasneho >= 0) && (pIndexDocasneho < this.docasneZvukoveSoubory.Count - 1 || (pIndexDocasneho < this.docasneZvukoveSoubory.Count && this.Converted)))
+                if ((pIndexDocasneho >= 0) && (pIndexDocasneho < this.temporaryWaveFiles.Count - 1 || (pIndexDocasneho < this.temporaryWaveFiles.Count && this.Converted)))
                 {
-                    if (pIndexDocasneho >= docasneZvukoveSoubory.Count - 1 && !this.Converted)
+                    if (pIndexDocasneho >= temporaryWaveFiles.Count - 1 && !this.Converted)
                         //pokus o cteni souboru dalsich nez jsou prevedeny
                         return null;
 
-                    FileInfo pfi = new FileInfo(docasneZvukoveSoubory[pIndexDocasneho]);
+                    FileInfo pfi = new FileInfo(temporaryWaveFiles[pIndexDocasneho]);
                     //long pPocetVzorkuDocasneho = this.delkaDocasnehoWav / 1000 * this.pFrekvence;   //pocet vzorku v docasnem souboru
                     long pPocetVzorkuDocasneho = (pfi.Length - 44) / 2;
                     long pPocetVzorkuNacist = aDelkaMS * (Frequency / 1000);
@@ -537,9 +542,10 @@ namespace NanoTrans.Audio
                     data = new short[pPocetVzorkuNacist];  //nove pole nacitanych obektu
 
                     long pPocetNactenych = 0;
+
                     while (true)
                     {
-                        using (BinaryReader input = new BinaryReader(new FileStream(docasneZvukoveSoubory[pIndexDocasneho], FileMode.Open, FileAccess.Read, FileShare.Read)))
+                        using (BinaryReader input = new BinaryReader(new FileStream(temporaryWaveFiles[pIndexDocasneho], FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
                         {
 
                             pIndexDocasneho++;
@@ -560,14 +566,14 @@ namespace NanoTrans.Audio
                             j += pBuffer.Length / 2;
                             if (j >= pPocetVzorkuNacist)
                                 break;
-                            
 
-                            if (pIndexDocasneho >= docasneZvukoveSoubory.Count - 1 && !this.Converted)
+
+                            if (pIndexDocasneho >= temporaryWaveFiles.Count - 1 && !this.Converted)
                                 return null;
 
-                            if (pIndexDocasneho < docasneZvukoveSoubory.Count)
+                            if (pIndexDocasneho < temporaryWaveFiles.Count)
                             {
-                                pfi = new FileInfo(docasneZvukoveSoubory[pIndexDocasneho]);
+                                pfi = new FileInfo(temporaryWaveFiles[pIndexDocasneho]);
                                 pPocetVzorkuDocasneho = (pfi.Length - 44) / 2;
                                 pPocatecniIndexVSouboru = 44;
                                 pNacistDat = (int)(pPocetVzorkuDocasneho - pPocatecniIndexVSouboru);
@@ -579,9 +585,8 @@ namespace NanoTrans.Audio
                             }
                         }
                     }
+
                 }
-
-
             }
             catch
             {
@@ -611,14 +616,17 @@ namespace NanoTrans.Audio
                 if (this.tPrevodNaDocasneSoubory != null && this.tPrevodNaDocasneSoubory.ThreadState == System.Threading.ThreadState.Running)
                 {
                     Interlocked.Exchange(ref _conversionStopper, 1);
-                    tPrevodNaDocasneSoubory.Join(1000);
-
-                    if (tPrevodNaDocasneSoubory.ThreadState != System.Threading.ThreadState.Stopped)
+                    lock (_AudioDataWriteLocker)
                     {
-                        tPrevodNaDocasneSoubory.Abort();
-                        tPrevodNaDocasneSoubory.Join();
+                        tPrevodNaDocasneSoubory.Join(1000);
+
+                        if (tPrevodNaDocasneSoubory.ThreadState != System.Threading.ThreadState.Stopped)
+                        {
+                            tPrevodNaDocasneSoubory.Abort();
+                            tPrevodNaDocasneSoubory.Join();
+                        }
+                        tPrevodNaDocasneSoubory = null;
                     }
-                    tPrevodNaDocasneSoubory = null;
                 }
 
                 //zruseni procesu prevodu souboru na wav
@@ -630,28 +638,32 @@ namespace NanoTrans.Audio
 
                 //smazani vsech docasnych souboru z temp adresare
 
-                FileInfo fi = new FileInfo(FilePaths.TempDirectory);
-                FileInfo[] pSoubory = fi.Directory.GetFiles("*.wav");
-                foreach (FileInfo i in pSoubory)
+                lock (_AudioDataWriteLocker)
                 {
-                    try
+                    FileInfo fi = new FileInfo(FilePaths.TempDirectory);
+                    FileInfo[] pSoubory = fi.Directory.GetFiles("*.wav");
+                    foreach (FileInfo i in pSoubory)
                     {
-                        i.Delete();
+                        try
+                        {
+                            i.Delete();
+                        }
+                        catch //(Exception ex)
+                        {
+                        }
                     }
-                    catch //(Exception ex)
-                    {
-                    }
-                }
 
-                //uvodni nastaveni promennych
-                this._Converted = false;
-                this._Loaded = false;
-                ///this._dataProVykresleniNahleduVlny = null;
-                this.docasneZvukoveSoubory.Clear();
+                    //uvodni nastaveni promennych
+                    this._Converted = false;
+                    this._Loaded = false;
+
+                    this.temporaryWaveFiles.Clear();
+                }
             }
             catch// (Exception ex)
             {
             }
+
         }
 
         public void Dispose()

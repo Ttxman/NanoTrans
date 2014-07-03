@@ -376,7 +376,7 @@ namespace NanoTrans
         private void oWav_ReportConversionProgress(object sender, EventArgs e)
         {
             AudioBufferEventArgs2 e2 = (AudioBufferEventArgs2)e;
-            this.Dispatcher.Invoke(DispatcherPriority.Normal, new Action<AudioBufferEventArgs2>(ShowConversionProgress), e2);
+            this.Dispatcher.InvokeAsync(() => ShowConversionProgress(e2));
         }
 
         private void oWav_TemporaryWavesDone(object sender, EventArgs e)
@@ -932,7 +932,7 @@ namespace NanoTrans
 
                         waveform1.CaretPosition = TimeSpan.Zero;
                         //  pIndexBufferuVlnyProPrehrani = 0;
-                        waveform1.DataRequestCallBack = _WavReader.NactiRamecBufferu;
+                        waveform1.DataRequestCallBack = _WavReader.LoadaudioDataBuffer;
 
                         pbStatusbarBrogress.Value = 0;
                         waveform1.AudioLength = fileLength;
@@ -1186,8 +1186,9 @@ namespace NanoTrans
 
             foreach (Window win in App.Current.Windows)
             {
-                try { win.Close(); }
-                catch { };
+                if (win != this)
+                    try { win.Close(); }
+                    catch { };
             }
 
             if (MWP != null)
