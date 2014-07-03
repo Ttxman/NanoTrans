@@ -51,6 +51,7 @@ namespace NanoTrans
 
         public bool ScaleAutomaticaly { get; set; }
 
+
         private long _CaretPositionMS;
         public long CaretPositionMS 
         { 
@@ -60,8 +61,6 @@ namespace NanoTrans
             } 
             set
             {
-
-
                 _CaretPositionMS = value; 
             } 
         } 

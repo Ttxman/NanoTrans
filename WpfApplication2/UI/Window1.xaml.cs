@@ -52,7 +52,19 @@ namespace NanoTrans
 
         #region transcription walking
         List<FileInfo> _TranscriptionList = new List<FileInfo>();
+
+        public List<FileInfo> TranscriptionList
+        {
+            get { return _TranscriptionList; }
+        }
+
         int _transcriptionIndex = 0;
+
+        public int TranscriptionIndex
+        {
+            get { return _transcriptionIndex; }
+            set { _transcriptionIndex = value; }
+        }
         public bool IsPreviousTranscriptionAvailable
         {
             get { return _transcriptionIndex > 0; }
@@ -84,6 +96,8 @@ namespace NanoTrans
             OnPropertyChanged("TranscriptionName");
             OnPropertyChanged("PreviousTranscriptionName");
             OnPropertyChanged("NextTranscriptionName");
+            OnPropertyChanged("TranscriptionList");
+            OnPropertyChanged("TranscriptionIndex");
         }
 
         #endregion
@@ -101,7 +115,6 @@ namespace NanoTrans
                 _transcription = value;
                 if (_transcription != null)
                     _transcription.SubtitlesChanged += _SubtitlesChanged;
-
                 OnPropertyChanged();
 
             }
@@ -327,7 +340,7 @@ namespace NanoTrans
             beginMS = -1;
             if (MWP != null)
             {
-                if (_playing && _WavReader != null && _WavReader.Loaded)
+                if (_playing && _WavReader.Loaded)
                 {
                     TimeSpan limitEndMS = new TimeSpan(-1);
                     if (PlayingSelection)
@@ -335,15 +348,13 @@ namespace NanoTrans
                         limitEndMS = waveform1.SelectionEnd;
                     }
 
-                    short[] bfr = waveform1.GetAudioData(TimeSpan.FromMilliseconds(PlaybackBufferIndex), TimeSpan.FromMilliseconds(150), limitEndMS);
-                    beginMS = PlaybackBufferIndex;
-                    PlaybackBufferIndex += 150;
 
-                    if (PlaybackBufferIndex > _WavReader.FileLengthMS)
+                    if (MWP.PlayPosition >= _WavReader.FileLength)
                     {
                         if (!PlayingSelection)
                         {
                             Playing = false;
+                            SetCaretPosition(_WavReader.FileLength);
                             PlaybackBufferIndex = 0;
                         }
                         else
@@ -351,6 +362,11 @@ namespace NanoTrans
                             PlaybackBufferIndex = (int)waveform1.SelectionBegin.TotalMilliseconds;
                         }
                     }
+
+                    short[] bfr = waveform1.GetAudioData(TimeSpan.FromMilliseconds(PlaybackBufferIndex), TimeSpan.FromMilliseconds(150), limitEndMS);
+                    beginMS = PlaybackBufferIndex;
+                    PlaybackBufferIndex += 150;
+
                     return bfr;
                 }
             }
@@ -762,7 +778,7 @@ namespace NanoTrans
 
         TimeSpan oldms = TimeSpan.Zero;
         bool _setCaret = false;
-        public void SetCaretPosition(TimeSpan position, bool nastavitMedia, bool aNeskakatNaZacatekElementu)
+        public void SetCaretPosition(TimeSpan position)
         {
             if (!_setCaret)
             {
@@ -839,7 +855,7 @@ namespace NanoTrans
                     Playing = false;
 
                     oldms = TimeSpan.Zero;
-                    SetCaretPosition(waveform1.SelectionBegin, true, true);
+                    SetCaretPosition(waveform1.SelectionBegin);
 
                     playpos = waveform1.CaretPosition;
 
@@ -850,7 +866,7 @@ namespace NanoTrans
                 }
                 else
                 {
-                    SetCaretPosition(waveform1.CaretPosition, false, true);
+                    SetCaretPosition(waveform1.CaretPosition);
                 }
 
                 if (Playing)
@@ -909,10 +925,7 @@ namespace NanoTrans
                     TimeSpan fileLength = WavReader.ReturnAudioLength(aFileName);
                     if (fileLength > TimeSpan.Zero)
                     {
-                        if (_WavReader != null)
-                        {
-                            _WavReader.Dispose();
-                        }
+                        _WavReader.Stop();
 
                         //nastaveni pocatku prehravani
                         Playing = false;
@@ -1001,7 +1014,7 @@ namespace NanoTrans
 
                     infoPanels.SelectedIndex = 0;
 
-                    if (_WavReader != null && !string.IsNullOrWhiteSpace(_WavReader.FilePath))
+                    if (!string.IsNullOrWhiteSpace(_WavReader.FilePath))
                     {
                         if (!openExisting && MessageBox.Show(Properties.Strings.MessageBoxUseVideoFileAsAudioSource, Properties.Strings.MessageBoxQuestionCaption, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                         {
@@ -1183,10 +1196,8 @@ namespace NanoTrans
                 MWP = null;
             }
 
-            if (_WavReader != null)
-            {
-                _WavReader.Dispose();
-            }
+
+            _WavReader.Stop();
 
             if (_api != null)
                 _api.Cancel();
@@ -1472,7 +1483,7 @@ namespace NanoTrans
                         Pedalthread = null;
                     }
 
-                }));
+                })) { Name = "Pedals" };
 
                 p.Exited += (sender, e) =>
                 {
@@ -1540,14 +1551,14 @@ namespace NanoTrans
             {
                 GlobalSetup.Setup.PhoneticsPanelHeight = Math.Abs(GlobalSetup.Setup.PhoneticsPanelHeight);
 
-                d.RowDefinitions[1].Height = new GridLength(GlobalSetup.Setup.PhoneticsPanelHeight);
+                gridSplitter1.Visibility = gphoneticTranscription.Visibility = Visibility.Visible;
 
                 return true;
             }
             else
             {
                 GlobalSetup.Setup.PhoneticsPanelHeight = -Math.Abs(GlobalSetup.Setup.PhoneticsPanelHeight);
-                d.RowDefinitions[1].Height = new GridLength(0);
+                gridSplitter1.Visibility = gphoneticTranscription.Visibility = Visibility.Collapsed;
                 return false;
             }
         }
@@ -1660,7 +1671,7 @@ namespace NanoTrans
 
         #endregion
 
-        private void waveform1_SliderPositionChanged(object sender, Waveform.TimeSpanEventArgs e)
+        private void waveform1_SliderPositionChanged(object sender, WaveForm.TimeSpanEventArgs e)
         {
             if (!Playing)
             {
@@ -1676,7 +1687,7 @@ namespace NanoTrans
 
             }
         }
-        private void waveform1_CaretPostionChanged(object sender, Waveform.TimeSpanEventArgs e)
+        private void waveform1_CaretPostionChanged(object sender, WaveForm.TimeSpanEventArgs e)
         {
             if (!Playing)
             {
@@ -1703,7 +1714,7 @@ namespace NanoTrans
             }
         }
 
-        private void waveform1_CaretPostionChangedByUser(object sender, Waveform.TimeSpanEventArgs e)
+        private void waveform1_CaretPostionChangedByUser(object sender, WaveForm.TimeSpanEventArgs e)
         {
             if (Playing)
             {
@@ -1732,14 +1743,14 @@ namespace NanoTrans
             SelectTextBetweenTimeOffsets(e.Value);
         }
 
-        private void waveform1_ParagraphClick(object sender, Waveform.MyTranscriptionElementEventArgs e)
+        private void waveform1_ParagraphClick(object sender, WaveForm.MyTranscriptionElementEventArgs e)
         {
             VirtualizingListBox.ActiveTransctiption = e.Value;
             waveform1.SelectionBegin = e.Value.Begin;
             waveform1.SelectionEnd = e.Value.End;
         }
 
-        private void waveform1_ParagraphDoubleClick(object sender, Waveform.MyTranscriptionElementEventArgs e)
+        private void waveform1_ParagraphDoubleClick(object sender, WaveForm.MyTranscriptionElementEventArgs e)
         {
             VirtualizingListBox.ActiveTransctiption = e.Value;
             CommandAssignSpeaker.Execute((TranscriptionParagraph)e.Value, null);
@@ -1765,9 +1776,10 @@ namespace NanoTrans
         {
             if (VirtualizingListBox.ActiveTransctiption == null)
                 return;
+
             phoneticTranscription.ValueElement = VirtualizingListBox.ActiveTransctiption;
             phoneticTranscription.IsEnabled = true;
-            SetCaretPosition(VirtualizingListBox.ActiveTransctiption.Begin, true, true);
+            SetCaretPosition(VirtualizingListBox.ActiveTransctiption.Begin);
         }
 
         private void VirtualizingListBox_SetTimeRequest(TimeSpan obj)
@@ -1775,7 +1787,7 @@ namespace NanoTrans
             if (Playing)
                 CommandPlayPause.Execute(null, null);
 
-            SetCaretPosition(obj, true, true);
+            SetCaretPosition(obj);
             SelectTextBetweenTimeOffsets(obj);
         }
 
@@ -1952,13 +1964,21 @@ namespace NanoTrans
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            TryLoadTranscription(_TranscriptionList[_transcriptionIndex - 1].FullName,true);
-            
+            TryLoadTranscription(_TranscriptionList[_transcriptionIndex - 1].FullName, true);
+
         }
 
         private void Button_Click_3(object sender, RoutedEventArgs e)
         {
-            TryLoadTranscription(_TranscriptionList[_transcriptionIndex + 1].FullName,true);
+            TryLoadTranscription(_TranscriptionList[_transcriptionIndex + 1].FullName, true);
+        }
+
+        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var box = sender as ComboBox;
+            if (box.SelectedIndex < 0)
+                return;
+            TryLoadTranscription(_TranscriptionList[box.SelectedIndex].FullName, true);
         }
 
     }

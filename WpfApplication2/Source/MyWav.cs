@@ -90,7 +90,7 @@ namespace NanoTrans.Audio
         /// delka prevedeneho souboru v MS
         /// </summary>
         public long FileLengthMS { get { return _FileLengthMS; } }
-
+        public TimeSpan FileLength {get { return TimeSpan.FromMilliseconds(_FileLengthMS); } }
 
         public UInt32 Frequency { get; set; }
         public UInt16 SampleSize { get; set; }
@@ -170,6 +170,7 @@ namespace NanoTrans.Audio
             this._FilePath = filePath;
             this._Loaded = false;
             this._Converted = false;
+            _conversionStopper = 0;
             this.tPrevodNaDocasneSoubory = new Thread(() => this.ZacniPrevodSouboruNaDocasneWav(_FilePath, FilePaths.TempDirectory, Const.TEMPORARY_AUDIO_FILE_LENGTH_MS)) { Name = "conversion to wav" };
             this.tPrevodNaDocasneSoubory.Start();
 
@@ -283,6 +284,8 @@ namespace NanoTrans.Audio
         }
 
 
+
+        public int _conversionStopper = 0;
         //spusti prevod souboru na wav,ktery je mozno vykreslovat - skonci po naplneni zobrazovaciho bufferu, pot
         public bool ZacniPrevodSouboruNaDocasneWav(string aCesta, string aCestaDocasnychWAV, long aDelkaJednohoSouboruMS)
         {
@@ -361,7 +364,12 @@ namespace NanoTrans.Audio
                 Stream outstream = prPrevod.StandardOutput.BaseStream;
                 for (i = 0; pPocetNactenych > 0; )
                 {
-                    //musime dat vlaknu sanci se ukoncit
+                    //Termination
+                    if (Interlocked.CompareExchange(ref _conversionStopper, 1, 1) == 1)
+                    {
+                        return false;
+                    }
+
 
                     pPocetNactenych = outstream.Read(buffer2, 0, buffer2.Length);
                     Buffer.BlockCopy(buffer2, 0, buffer2s, 0, pPocetNactenych);
@@ -464,8 +472,6 @@ namespace NanoTrans.Audio
                     //pokusne pridano
                     this.SampleCount = i;
 
-
-
                     if (HaveData != null)
                         HaveData(this, e); // nacten ramec k zobrazeni a poslani tohoto ramce ven z tridy pomoci e
                 }
@@ -487,9 +493,12 @@ namespace NanoTrans.Audio
                 this._Converted = true; //i pres spadnuti je nacteni ok, doresit preteceni indexu!!!!!!
                 if (TemporaryWavesDone != null && !(ex is ThreadAbortException))
                     TemporaryWavesDone(this, new EventArgs());
-                //MessageBox.Show("Načítání a převod audio souboru se nezdařily..."+ ex.Message);
 
                 return false;
+            }
+            finally
+            { 
+            
             }
         }
 
@@ -587,23 +596,36 @@ namespace NanoTrans.Audio
         /// <summary>
         /// zrusi vsechny procesy a thredy, ale trida je pripravena pro nove zpracovani souboru
         /// </summary>
-        public void Dispose()
+        public void Stop()
         {
             try
             {
 
-                //zruseni threadu
-                if (this.tPrevodNaDocasneSoubory != null && this.tPrevodNaDocasneSoubory.ThreadState == System.Threading.ThreadState.Running)
-                {
-                    tPrevodNaDocasneSoubory.Abort();
-                    tPrevodNaDocasneSoubory.Join();
-
-                }
                 //zruseni procesu prevodu souboru na wav
                 if (prPrevod != null && !prPrevod.HasExited)
                 {
                     prPrevod.Kill();
+                }
+
+                //zruseni threadu
+                if (this.tPrevodNaDocasneSoubory != null && this.tPrevodNaDocasneSoubory.ThreadState == System.Threading.ThreadState.Running)
+                {
+                    Interlocked.Exchange(ref _conversionStopper, 1);
+                    tPrevodNaDocasneSoubory.Join(1000);
+
+                    if (tPrevodNaDocasneSoubory.ThreadState != System.Threading.ThreadState.Stopped)
+                    {
+                        tPrevodNaDocasneSoubory.Abort();
+                        tPrevodNaDocasneSoubory.Join();
+                    }
+                    tPrevodNaDocasneSoubory = null;
+                }
+
+                //zruseni procesu prevodu souboru na wav
+                if (prPrevod != null && !prPrevod.HasExited)
+                {
                     prPrevod.WaitForExit();
+                    prPrevod = null;
                 }
 
                 //smazani vsech docasnych souboru z temp adresare
@@ -632,6 +654,10 @@ namespace NanoTrans.Audio
             }
         }
 
+        public void Dispose()
+        {
+            Stop();
+        }
         #endregion
     }
 }

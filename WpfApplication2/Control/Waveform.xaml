@@ -1,39 +1,75 @@
-﻿<UserControl x:Class="NanoTrans.Waveform"
+﻿<UserControl x:Class="NanoTrans.WaveForm"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+                xmlns:lex="http://wpflocalizeextension.codeplex.com"
+                lex:LocalizeDictionary.DesignCulture="cs"
+                lex:LocalizeDictionary.IncludeInvariantCulture="False"
+                lex:ResxLocalizationProvider.DefaultAssembly="NanoTrans"
+                lex:ResxLocalizationProvider.DefaultDictionary="Strings"
              mc:Ignorable="d" 
              xmlns:my="clr-namespace:NanoTrans"
-             d:DesignHeight="164" d:DesignWidth="970" SizeChanged="UserControl_SizeChanged" Unloaded="UserControl_Unloaded">
+             d:DesignHeight="164" d:DesignWidth="976"
+             SizeChanged="UserControl_SizeChanged" Unloaded="UserControl_Unloaded"
+             Name="control"
+             >
 
     <UserControl.Resources>
         <ObjectDataProvider x:Key="provider" ObjectInstance="{x:Static my:GlobalSetup.Refresher}"/>
+        <my:TimespanToHourStringConverter x:Key="tsConverter" />
+        <my:TimespanToMilisecondsConverter x:Key="tsmsConverter" />
     </UserControl.Resources>
-    
-    <Grid SizeChanged="Grid_SizeChanged" Loaded="Grid_Loaded">
-        <Grid Margin="-1,29,1,0" Name="grid1" ShowGridLines="False" Background="AntiqueWhite" MouseDown="myImage_MouseLeftButtonDown" SizeChanged="grid1_SizeChanged" Unloaded="grid1_Unloaded">
-            <Grid Height="21" Margin="0,0,0,0" Name="gridTimeline" VerticalAlignment="Bottom" Background="LightGreen" Grid.ColumnSpan="2"></Grid>
-            <Image Margin="0,22,0,19" Name="myImage" MouseDown="myImage_MouseLeftButtonDown" MouseUp="myImage_MouseUp" MouseMove="myImage_MouseMove" Stretch="UniformToFill" />
-            <Rectangle Fill="DarkGreen" HorizontalAlignment="Left" Margin="0,0,0,0" Name="rectangle1" Stroke="Black" Width="2" Focusable="False" IsHitTestVisible="False" />
-            <Label Background="LightGray" HorizontalAlignment="Left" Margin="24.038,0,0,19" Name="rectangle2" Width="67" OpacityMask="Cyan" HorizontalContentAlignment="Center" Opacity="0.6" IsHitTestVisible="True" Visibility="Visible" MouseMove="rectangle2_MouseMove" MouseLeftButtonDown="rectangle2_MouseLeftButtonDown" MouseLeftButtonUp="rectangle2_MouseLeftButtonUp" ></Label>
-            <Button VerticalAlignment="Bottom" HorizontalAlignment="Left" Height="20" Margin="0,0,0,0" Click="btMoveLeft_Click" Name="btMoveLeft" Focusable="False" IsHitTestVisible="True" IsTabStop="False">
+
+    <Grid Name="wavegrid"  SizeChanged="Grid_SizeChanged" Loaded="Grid_Loaded" Background="AntiqueWhite">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="21"/>
+        </Grid.RowDefinitions>
+
+        <Grid VerticalAlignment="Top" Background="White">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" Focusable="False" Name="btPlayPause" Click="btPrehratZastavit_Click" HorizontalAlignment="Left" BorderThickness="2" BorderBrush="Black" Height="23" Width="23" VerticalAlignment="Bottom">
+                <Image Name="iPlayPause">
+                    <Image.Style>
+                        <Style TargetType="Image">
+                            <Setter Property="Source" Value="../icons/iPlay.png"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ElementName=control, Path=Playing}" Value="True">
+                                    <Setter Property="Source" Value="../icons/iPause.png" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Image.Style>
+                </Image>
+            </Button>
+            <Label Grid.Column="1" Name="lAudioPosition" Height="24" FontSize="12" FontWeight="Bold" Content="{Binding ElementName=control, Path=CaretPosition,Converter={StaticResource ResourceKey=tsConverter}}"/>
+            <Slider Grid.Column="2" Name="slMediaPosition" PreviewMouseLeftButtonUp="slMediaPosition_PreviewMouseUp"  ValueChanged="slMediaPosition_ValueChanged" IsMoveToPointEnabled="True" IsTabStop="False" Focusable="False" IsSelectionRangeEnabled="True" Foreground="Black" Background="Transparent" BorderBrush="Transparent" BorderThickness="0" Maximum="{Binding ElementName=control, Path=AudioLength, Converter={StaticResource tsmsConverter}}"  />
+            <Label Grid.Column="3" Name="lAudioLength" FontSize="11" FontWeight="Normal" HorizontalAlignment="Right" ToolTip="{lex:Loc Key=WaveformTooltipAudioLength}" Content="{Binding ElementName=control, Path=AudioLength,Converter={StaticResource ResourceKey=tsConverter}}"/>
+        </Grid>
+
+
+        <Grid Grid.Row="2" Name="grid1" ShowGridLines="False" MouseDown="myImage_MouseLeftButtonDown" SizeChanged="grid1_SizeChanged" Unloaded="grid1_Unloaded">
+            <Image Name="myImage" Source="{Binding ElementName=control, Path=WaveFormImage}" MouseDown="myImage_MouseLeftButtonDown" MouseUp="myImage_MouseUp" MouseMove="myImage_MouseMove" Stretch="Fill" />
+            <Rectangle Fill="DarkGreen" HorizontalAlignment="Left" Margin="{Binding ElementName=control,Path=CaretMargin}" Name="caretRectangle" Stroke="Black" Width="2" Focusable="False" IsHitTestVisible="False" />
+            <Rectangle Stretch="Fill" Fill="LightGray" Margin="{Binding ElementName=control,Path=SelectionMargin}" Name="selectionRectangle" OpacityMask="Cyan" Opacity="0.6" Visibility="Visible" MouseMove="rectangle2_MouseMove" MouseLeftButtonDown="rectangle2_MouseLeftButtonDown" />
+        </Grid>
+
+        <Grid Grid.Row="3" Name="gridTimeline" VerticalAlignment="Bottom">
+            <my:TimeLine Background="LightGreen" Begin="{Binding ElementName=control,Path=WaveBegin}" End="{Binding ElementName=control,Path=WaveEnd}"></my:TimeLine>
+            <Button VerticalAlignment="Bottom" HorizontalAlignment="Left" Height="20" Click="btMoveLeft_Click" Name="btMoveLeft" Focusable="False" IsHitTestVisible="True" IsTabStop="False">
                 <Image Source="../icons/iPlay.png" IsHitTestVisible="False" FlowDirection="RightToLeft" />
             </Button>
-            <Button VerticalAlignment="Bottom" HorizontalAlignment="Right" Height="20" Margin="0,0,0,0" Click="btMoveRight_Click" Name="btMoveRight" Focusable="False" IsHitTestVisible="True" IsTabStop="False">
+            <Button VerticalAlignment="Bottom" HorizontalAlignment="Right" Height="20" Click="btMoveRight_Click" Name="btMoveRight" Focusable="False" IsHitTestVisible="True" IsTabStop="False">
                 <Image Source="../icons/iPlay.png" IsHitTestVisible="False" />
             </Button>
-        </Grid>
-        <Grid Height="26" VerticalAlignment="Top" Margin="0,0
-              ,0,0">
-            <StackPanel Orientation="Horizontal" Height="25" Margin="0,0,0,0" VerticalAlignment="Bottom">
-                <Button Focusable="False" Name="btPlayPause" Click="btPrehratZastavit_Click" HorizontalAlignment="Left" BorderThickness="2" BorderBrush="Black" Height="23" Width="23" Margin="0,0,0,0" VerticalAlignment="Bottom">
-                    <Image Name="iPlayPause" Source="../icons/iPlay.png" />
-                </Button>
-                <Label Name="lAudioPosition" Margin="0,0,0,0" Height="24" Width="84.436" FontSize="12" FontWeight="Bold">0:00:00,00</Label>
-            </StackPanel>
-            <Slider Name="slMediaPosition" PreviewMouseLeftButtonUp="slMediaPosition_PreviewMouseUp" PreviewMouseLeftButtonDown="slMediaPosition_MouseDown" PreviewMouseDown="slMediaPosition_MouseDown" ValueChanged="slMediaPosition_ValueChanged" LostMouseCapture="slMediaPosition_LostMouseCapture" IsMoveToPointEnabled="True" IsTabStop="False" Focusable="False" IsSelectionRangeEnabled="True" Foreground="Black" Background="Transparent" BorderBrush="Transparent" BorderThickness="0" Margin="110,4,52,0" Maximum="1000" />
-            <Label Name="lAudioLength" FontSize="11" FontWeight="Normal" HorizontalAlignment="Right" Margin="0,1" ToolTip="Celková délka audio souboru [h:mm:ss]">0:00:00</Label>
         </Grid>
     </Grid>
 </UserControl>

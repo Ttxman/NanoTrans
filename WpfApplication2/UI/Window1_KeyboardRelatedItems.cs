@@ -486,13 +486,13 @@ namespace NanoTrans
 
                     if ((waveform1.SelectionBegin - waveform1.SelectionEnd).Duration() > TimeSpan.FromMilliseconds(100))
                     {
-                        SetCaretPosition(waveform1.SelectionBegin, true, false);
+                        SetCaretPosition(waveform1.SelectionBegin);
                     }
                     else
                     {
                         TranscriptionElement par = VirtualizingListBox.ActiveTransctiption;
                         TimeSpan konec = par.End + TimeSpan.FromMilliseconds(5);
-                        SetCaretPosition(konec, true, true);
+                        SetCaretPosition(konec);
                         waveform1.SelectionBegin = konec;
                         waveform1.SelectionEnd = konec + TimeSpan.FromMilliseconds(120000);
                     }
@@ -542,13 +542,13 @@ namespace NanoTrans
 
         private void CSmallJumpRight(object sender, ExecutedRoutedEventArgs e)
         {
-            SetCaretPosition(waveform1.CaretPosition + waveform1.SmallJump, true, true);
+            SetCaretPosition(waveform1.CaretPosition + waveform1.SmallJump);
             SelectTextBetweenTimeOffsets(waveform1.CaretPosition);
         }
 
         private void CSmallJumpLeft(object sender, ExecutedRoutedEventArgs e)
         {
-            SetCaretPosition(waveform1.CaretPosition - waveform1.SmallJump, true, true);
+            SetCaretPosition(waveform1.CaretPosition - waveform1.SmallJump);
             SelectTextBetweenTimeOffsets(waveform1.CaretPosition);
         }
 

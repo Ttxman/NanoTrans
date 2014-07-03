@@ -105,7 +105,20 @@ namespace NanoTrans
         {
 
             TranscriptionElement val = (TranscriptionElement)e.NewValue;
+
+
+
             Element el = (Element)d;
+
+            if (el.EditPhonetics && val!=null && !val.IsParagraph)
+            {
+                val = null;
+            }
+
+
+
+            el.IsEnabled = val != null;
+
             el._Element = val;
 
             if (el.ValueElement != null)

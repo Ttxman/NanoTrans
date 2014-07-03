@@ -663,4 +663,7 @@
   <data name="mainWindowPreviousTranscriptionTooltip" xml:space="preserve">
     <value>Předchozí přepis</value>
   </data>
+  <data name="WaveformTooltipAudioLength" xml:space="preserve">
+    <value>Celková délka audio souboru [h:mm:ss]</value>
+  </data>
 </root>

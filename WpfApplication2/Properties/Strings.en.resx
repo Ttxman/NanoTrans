@@ -663,4 +663,7 @@
   <data name="mainWindowPreviousTranscriptionTooltip" xml:space="preserve">
     <value>Previous Transcription</value>
   </data>
+  <data name="WaveformTooltipAudioLength" xml:space="preserve">
+    <value>Total length of audio file [h:mm:ss]</value>
+  </data>
 </root>

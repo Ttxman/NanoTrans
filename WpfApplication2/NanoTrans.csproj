@@ -164,6 +164,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Control\TimeLine.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UI\DownloadOneFileWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -240,6 +244,9 @@
     </Compile>
     <Compile Include="Control\SpeakerSmall.xaml.cs">
       <DependentUpon>SpeakerSmall.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Control\TimeLine.xaml.cs">
+      <DependentUpon>TimeLine.xaml</DependentUpon>
     </Compile>
     <Compile Include="OnlineAPI\ApiException.cs" />
     <Compile Include="OnlineAPI\OnlineTranscriptionInfo.cs" />

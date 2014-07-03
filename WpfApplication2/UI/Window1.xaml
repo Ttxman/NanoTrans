@@ -19,17 +19,16 @@
     <Window.Resources>
 
     </Window.Resources>
-    <Grid Name="d" Height="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="845*"/>
-            <ColumnDefinition Width="14*"/>
-        </Grid.ColumnDefinitions>
+    <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="260*" />
-            <RowDefinition Height="134"/>
-            <RowDefinition Height="236" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="160"/>
+            <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
-        <StackPanel Orientation="Vertical" Grid.ColumnSpan="2">
+        <StackPanel Orientation="Vertical" Grid.ColumnSpan="2" Grid.Row="0">
             <Menu Name="menu1" Height="22" VerticalAlignment="Top" HorizontalAlignment="Stretch">
                 <MenuItem Header="{lex:Loc}" Focusable="True" Tag="10" Name="menuFile">
                     <MenuItem Header="{lex:Loc}" InputGestureText="Ctrl+N" Click="MFile_new_Click" Name="menuFileNewTranscription">
@@ -161,10 +160,11 @@
                         </Button.ToolTip>
                         <Image Source="/icons/direction_right.png" Width="16" Height="16"/>
                     </Button>
+                    <ComboBox MaxWidth="300" ItemsSource="{Binding ElementName=window, Path=TranscriptionList}" SelectedIndex="{Binding ElementName=window, Path=TranscriptionIndex}" SelectionChanged="ComboBox_SelectionChanged"></ComboBox>
                 </ToolBar>
             </ToolBarTray>
         </StackPanel>
-        <Grid Margin="0,55,0,5" Name="gListVideo" Grid.ColumnSpan="2">
+        <Grid Margin="0,5,0,5" Name="gListVideo" Grid.ColumnSpan="2" Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="500.77*" />
                 <ColumnDefinition Width="300" />
@@ -205,8 +205,17 @@
                             <TextBlock Text="{lex:Loc}" Margin="2,0,0,0" VerticalAlignment="Center" Name="infoPanelsVideoHeader" />
                         </StackPanel>
                     </TabItem.Header>
-                    <Grid Grid.Column="1" Margin="1,0,1,1" Name="grid2" HorizontalAlignment="Stretch" Focusable="False">
-                        <Grid Name="gVideoPouze" Margin="0,0,0,29" Background="Black">
+                    <Grid Grid.Column="1" Name="grid2" HorizontalAlignment="Stretch" Focusable="False">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="50"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Grid Name="gVideoPouze" Background="Black" Grid.Row="0" Grid.ColumnSpan="2">
                             <Grid.ContextMenu>
                                 <ContextMenu>
                                     <MenuItem Header="{lex:BLoc Key=NanoTrans:Strings:VideoContextMenuTakeSnapshot}" Click="menuItemVideoTakePicture_Click"/>
@@ -215,9 +224,10 @@
                             <MediaElement Name="meVideo" LoadedBehavior="Manual" Stretch="Uniform" IsMuted="True" />
                         </Grid>
 
-                        <Button Height="20" Margin="0,2,0,0" Name="btCloseVideo" VerticalAlignment="Top" Padding="0,0,1,1" Click="btCloseVideo_Click" HorizontalAlignment="Right" Width="20" Focusable="False" IsTabStop="False">X</Button>
-                        <TextBox Margin="0,0,50,0" Name="tbVideoFile" Background="LightGoldenrodYellow" IsReadOnly="True" IsEnabled="True" Focusable="False" IsTabStop="False" Height="24.557" VerticalAlignment="Bottom"></TextBox>
-                        <Button Name="btOpenVideo" Click="button6_Click" Margin="0,0,0.053,1.226" Height="23.331" VerticalAlignment="Bottom" Focusable="False" IsTabStop="False" HorizontalAlignment="Right" Width="44">
+                        <Button Height="20" Margin="0,2,0,0" Name="btCloseVideo" VerticalAlignment="Top" Padding="0,0,1,1" Click="btCloseVideo_Click" HorizontalAlignment="Right" Width="20" Focusable="False" IsTabStop="False" Grid.Column="1">X</Button>
+
+                        <TextBox Name="tbVideoFile" Background="LightGoldenrodYellow" IsReadOnly="True" IsEnabled="True" Focusable="False" IsTabStop="False" Height="25" VerticalAlignment="Bottom" Grid.Row="1" Grid.Column="0"></TextBox>
+                        <Button Name="btOpenVideo" Click="button6_Click" Height="24" VerticalAlignment="Bottom" Focusable="False" IsTabStop="False" HorizontalAlignment="Right" Width="44" Grid.Row="1" Grid.Column="1">
                             <StackPanel Orientation="Horizontal">
                                 <Image Source="/icons/iOtevrit.png"/>
                                 <TextBlock Text="..." Margin="2,0,0,0" VerticalAlignment="Center" />
@@ -229,22 +239,22 @@
             </TabControl>
         </Grid>
 
-        <GridSplitter Margin="0,0,0,0" Name="gridSplitter1" Height="5" VerticalAlignment="Bottom" Grid.Row="0" Focusable="False" IsTabStop="False" Grid.IsSharedSizeScope="False" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" ResizeBehavior="CurrentAndNext" ShowsPreview="True" Grid.ColumnSpan="2" />
-        <Grid Name="gFonetickyPrepis" Grid.Row="1" Margin="0,0,0,8" Grid.ColumnSpan="2">
+        <GridSplitter Margin="0,0,0,0" Name="gridSplitter1" Height="5" VerticalAlignment="Bottom" Grid.Row="1" Focusable="False" IsTabStop="False" Grid.IsSharedSizeScope="False" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" ResizeBehavior="CurrentAndNext" ShowsPreview="True" Grid.ColumnSpan="2" />
+        <Grid Name="gphoneticTranscription" Grid.Row="2" Margin="0,0,0,8" Grid.ColumnSpan="2">
             <Grid VerticalAlignment="Stretch">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="21"/>
                 </Grid.ColumnDefinitions>
                 <Border Grid.Column="0" BorderThickness="1" BorderBrush="LightBlue" VerticalAlignment="Stretch">
-                    <local:Element x:Name="phoneticTranscription" Margin="1,1,1,1" IsEnabled="False" VerticalAlignment="Stretch" />
+                    <local:Element x:Name="phoneticTranscription" IsEnabled="False" VerticalAlignment="Stretch" MinHeight="70" />
                 </Border>
                 <Button HorizontalAlignment="Right" Focusable="False" Height="20" IsTabStop="False" Padding="0,0,1,1" Width="20" VerticalAlignment="Top" Name="btZavritFonPrepis" Click="btClosePhoneticsPanel_Click" Grid.Column="1">X</Button>
             </Grid>
         </Grid>
 
 
-        <GroupBox Header="{lex:Loc}" Name="mainWindowAudioPanelHeader" Grid.Row="2" VerticalAlignment="Top" Grid.ColumnSpan="2" Margin="2">
+        <GroupBox Header="{lex:Loc}" Name="mainWindowAudioPanelHeader" Grid.Row="3" VerticalAlignment="Top" Grid.ColumnSpan="2">
             <Grid>
                 <StackPanel Orientation="Horizontal">
                     <ToolBarTray  Name="toolBarTray1" VerticalAlignment="Top" HorizontalAlignment="Left">
@@ -272,7 +282,7 @@
                             <ToggleButton Name="TB180" Click="Toolbar1Btn5_Click" Focusable="False" IsTabStop="False" Tag="180000">3m</ToggleButton>
                         </ToolBar>
                     </ToolBarTray>
-                    <TextBox Name="tbAudioFile" Background="LightGoldenrodYellow" IsReadOnly="False" IsEnabled="True"  Focusable="True" IsTabStop="True" Width="250">asdfa</TextBox>
+                    <TextBox Name="tbAudioFile" Background="LightGoldenrodYellow" IsReadOnly="False" IsEnabled="True"  Focusable="True" IsTabStop="True" MinWidth="250" MaxWidth="400" />
                     <Button Name="loadAudioButton" Click="button1_Click" VerticalAlignment="Top" Focusable="False" IsTabStop="False" HorizontalAlignment="Left">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Margin="4" Name="mainWindowLoadAudioButtonText" Text="{lex:Loc}"/>
@@ -283,12 +293,14 @@
             </Grid>
         </GroupBox>
 
-        <local:Waveform Grid.Row="2" Margin="3,52,1,26" x:Name="waveform1" PlayPauseClick="waveform1_PlayPauseClick" 
+        <local:WaveForm x:Name="waveform1" PlayPauseClick="waveform1_PlayPauseClick" 
                         SliderPositionChanged="waveform1_SliderPositionChanged"
                         CaretPostionChangedByUser="waveform1_CaretPostionChangedByUser" ParagraphClick="waveform1_ParagraphClick" 
                         ParagraphDoubleClick="waveform1_ParagraphDoubleClick" CaretPostionChanged="waveform1_CaretPostionChanged" 
-                        Transcription="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:Window1}},Path=Transcription}" Grid.ColumnSpan="2">
-            <local:Waveform.ContextMenu>
+                        Transcription="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:Window1}},Path=Transcription}" 
+                        Grid.ColumnSpan="2"
+                        Grid.Row="4">
+            <local:WaveForm.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="{lex:BLoc Key=NanoTrans:Strings:WaveformContextMenuSetStart}" InputGestureText="Ctrl+Home" Click="menuItemVlna1_SetStart_Click"/>
                     <MenuItem Header="{lex:BLoc Key=NanoTrans:Strings:WaveformContextMenuSetEnd}" InputGestureText="Ctrl+End" Click="menuItemVlna1_SetEnd_Click" />
@@ -297,10 +309,10 @@
                     <Separator/>
                     <MenuItem Header="{lex:BLoc Key=NanoTrans:Strings:WaveformContextMenuSetStartToCursor}" Click="menuItemWave1_SetStartToCursor_Click" />
                 </ContextMenu>
-            </local:Waveform.ContextMenu>
-        </local:Waveform>
+            </local:WaveForm.ContextMenu>
+        </local:WaveForm>
 
-        <StatusBar  Name="statusBar1" VerticalAlignment="Bottom" Grid.Row="2" HorizontalAlignment="Stretch" Grid.ColumnSpan="2">
+        <StatusBar  Name="statusBar1" VerticalAlignment="Bottom" Grid.Row="5" HorizontalAlignment="Stretch" Grid.ColumnSpan="2">
             <StatusBar.ItemsPanel>
                 <ItemsPanelTemplate>
                     <Grid>
