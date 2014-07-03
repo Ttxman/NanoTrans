@@ -70,7 +70,7 @@ namespace NanoTrans
             double shortStep = Math.Round(length / 30);
             if (shortStep < 1) shortStep = 1;
             double step = Math.Round(length / 5);
-            double firstMarkBegin = beginms / 1000;
+
             int length_S = (int)Math.Round(length);
 
             if (length_S < 6)
@@ -104,13 +104,8 @@ namespace NanoTrans
                 shortStep = 5;
 
             }
-            while (firstMarkBegin % step != 0 && firstMarkBegin > 0)
-            {
-                firstMarkBegin--;
-            }
 
-
-
+            double firstMarkBegin = Math.Ceiling(beginms / 1000 / step) * step;
             if (step < 1) step = 1;
 
             if (Math.Abs((int)step - 5) == 1)
@@ -143,7 +138,7 @@ namespace NanoTrans
                 TimeSpan ts = new TimeSpan((long)(firstMarkBegin * 1000 + i * 1000) * 10000);
 
                 Label lX = new Label();
-                lX.Content = Math.Floor(ts.TotalMinutes).ToString() + "m : " + ts.Seconds.ToString("D2") + "s";
+                lX.Content = Math.Floor(ts.TotalMinutes).ToString() + "m:" + ts.Seconds.ToString("D2") + "s";
                 lX.Margin = new Thickness(pozice - 32, 0, 0, 0);
                 lX.Padding = new Thickness(0, 5, 0, 0);
 
