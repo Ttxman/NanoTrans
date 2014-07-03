@@ -57,7 +57,9 @@
 
 
         <Grid Grid.Row="2" Name="grid1" ShowGridLines="False" MouseDown="myImage_MouseLeftButtonDown" SizeChanged="grid1_SizeChanged" Unloaded="grid1_Unloaded">
-            <Image Name="myImage" Source="{Binding ElementName=control, Path=WaveFormImage}" MouseDown="myImage_MouseLeftButtonDown" MouseUp="myImage_MouseUp" MouseMove="myImage_MouseMove" Stretch="Fill" />
+            <Grid Name="gridImage">
+                <Image Name="myImage" Source="{Binding ElementName=control, Path=WaveFormImage}" MouseDown="myImage_MouseLeftButtonDown" MouseUp="myImage_MouseUp" MouseMove="myImage_MouseMove" Stretch="Fill" />
+            </Grid>
             <Rectangle Fill="DarkGreen" HorizontalAlignment="Left" Margin="{Binding ElementName=control,Path=CaretMargin}" Name="caretRectangle" Stroke="Black" Width="2" Focusable="False" IsHitTestVisible="False" />
             <Rectangle Stretch="Fill" Fill="LightGray" Margin="{Binding ElementName=control,Path=SelectionMargin}" Name="selectionRectangle" OpacityMask="Cyan" Opacity="0.6" Visibility="Visible" MouseMove="rectangle2_MouseMove" MouseLeftButtonDown="rectangle2_MouseLeftButtonDown" />
         </Grid>

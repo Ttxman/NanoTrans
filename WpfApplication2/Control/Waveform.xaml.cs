@@ -447,7 +447,7 @@ namespace NanoTrans
 
             if (notbuffered)
             {
-                myImage.Source = null;
+                WaveFormImage = null;
                 return;
             }
 
@@ -508,7 +508,7 @@ namespace NanoTrans
                     double max = short.MinValue;
 
                     long pos = bg + i * sampleGroupCount;
-                    for (long k = pos; k < pos + sampleGroupCount; k++)
+                    for (long k = pos; k < pos + sampleGroupCount && k < wave.audioBuffer.Data.Length; k++)
                     {
                         short val = wave.audioBuffer.Data[k];
                         if (val < min)
@@ -577,7 +577,7 @@ namespace NanoTrans
                     myGeometryGroup.Children.Add(new LineGeometry(new Point(i, wavemax[i]), new Point(i, wavemin[i])));
 
                 //scale height
-                double imageheight = myImage.ActualHeight;
+                double imageheight = gridImage.ActualHeight;
 
                 GeometryDrawing myGeometryDrawing = new GeometryDrawing(Brushes.Red, new Pen(Brushes.Red, 1), myGeometryGroup);
 
@@ -605,8 +605,11 @@ namespace NanoTrans
 
 
                 //myDrawingGroup.
-                WaveFormImage = new DrawingImage(myDrawingGroup);
+                var img = new DrawingImage(myDrawingGroup);
+                img.Freeze();
+                WaveFormImage = img;
                 invalidate_waveform = false;
+                InvalidateSpeakers();
             }
             catch// (Exception ex)
             {
