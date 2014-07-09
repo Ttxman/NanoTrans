@@ -558,6 +558,7 @@ namespace NanoTrans
 
         private bool TryLoadTranscription(string fileName, bool listing = false)
         {
+            TranscriptionIsLoading = true;
             var ext = System.IO.Path.GetExtension(fileName);
             if (ext == ".tlst") //list of transcriptions
             {
@@ -591,12 +592,19 @@ namespace NanoTrans
                     _api = new SpeakersApi(trans.OnlineInfo.OriginalURL.ToString(), this);
                     _api.Trans = trans;
                     _api.Info = trans.OnlineInfo;
-                    LoadOnlineSetting();
+                    LoadOnlineSetting();//contains LoadTranscription(....);
                 }
-                LoadTranscription(trans);
+                else
+                {
+                    LoadTranscription(trans);
+                }
+
+                TranscriptionIsLoading = false;
+
                 return true;
             }
 
+            TranscriptionIsLoading = false;
             return false;
         }
         SpeakersApi _api = null;
@@ -1986,10 +1994,12 @@ namespace NanoTrans
         private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var box = sender as ComboBox;
-            if (box.SelectedIndex < 0)
+            if (box.SelectedIndex < 0 || TranscriptionIsLoading)
                 return;
             TryLoadTranscription(_TranscriptionList[box.SelectedIndex].FullName, true);
         }
 
+
+        public bool TranscriptionIsLoading { get; set; }
     }
 }

@@ -615,7 +615,9 @@ namespace NanoTrans
 
         private async void COpenTranscription(object sender, ExecutedRoutedEventArgs e)
         {
+            e.Handled = true;
             await OpenTranscription(true, "");
+            
         }
 
         private async void CSaveTranscription(object sender, ExecutedRoutedEventArgs e)
