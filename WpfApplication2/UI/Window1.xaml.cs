@@ -617,6 +617,7 @@ namespace NanoTrans
             LoadTranscription(_api.Trans);
             Transcription.FileName = _api.Info.TrsxUploadURL.ToString();
             Transcription.OnlineInfo = _api.Info;
+           
         }
 
         private void LoadTranscription(WPFTranscription trans)
@@ -920,7 +921,8 @@ namespace NanoTrans
                     }
 
                     FileInfo fi = new FileInfo(aFileName);
-                    Transcription.MediaURI = fi.Name;
+                    if(!Transcription.IsOnline)
+                        Transcription.MediaURI = fi.Name;
                     ////////////
                     TimeSpan fileLength = WavReader.ReturnAudioLength(aFileName);
                     if (fileLength > TimeSpan.Zero)
@@ -1836,7 +1838,10 @@ namespace NanoTrans
 
                 foreach (var imp in imports.Where(i => i.Attribute("IsAssembly").Value.ToLower() == "true"))
                 {
-                    Assembly a = Assembly.LoadFrom(System.IO.Path.Combine(path, imp.Attribute("File").Value));
+                    var asspath = System.IO.Path.Combine(path, imp.Attribute("File").Value);
+                    if (!File.Exists(asspath))
+                        continue;
+                    Assembly a = Assembly.LoadFrom(asspath);
                     Type ptype = a.GetType(imp.Attribute("Class").Value);
                     MethodInfo mi = ptype.GetMethod("Import", BindingFlags.Static | BindingFlags.Public);
                     Func<Stream, Transcription, bool> act = (Func<Stream, Transcription, bool>)Delegate.CreateDelegate(typeof(Func<Stream, Transcription, bool>), mi);
@@ -1852,7 +1857,11 @@ namespace NanoTrans
 
                 foreach (var exp in exports.Where(e => e.Attribute("IsAssembly").Value.ToLower() == "true"))
                 {
-                    Assembly a = Assembly.LoadFrom(System.IO.Path.Combine(path, exp.Attribute("File").Value));
+                    var asspath = System.IO.Path.Combine(path, exp.Attribute("File").Value);
+                    if (!File.Exists(asspath))
+                        continue;
+
+                    Assembly a = Assembly.LoadFrom(asspath);
                     Type ptype = a.GetType(exp.Attribute("Class").Value);
                     MethodInfo mi = ptype.GetMethod("Export", BindingFlags.Static | BindingFlags.Public);
                     Func<Transcription, Stream, bool> act = (Func<Transcription, Stream, bool>)Delegate.CreateDelegate(typeof(Func<Transcription, Stream, bool>), mi);
