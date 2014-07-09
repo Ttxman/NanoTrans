@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:bal="http://schemas.microsoft.com/wix/BalExtension">
+	<Bundle Name="!(bind.packageName.Setup)" Version="!(bind.packageVersion.Setup)" Manufacturer="TUL::Speechlab" UpgradeCode="24b15a0b-5aeb-49c4-92e9-130611a9ad7d">
+    <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.HyperlinkLicense">
+      <bal:WixStandardBootstrapperApplication SuppressOptionsUI="yes" LicenseUrl="" />
+    </BootstrapperApplicationRef>
+		<Chain>
+      <PackageGroupRef Id="NetFx45Web" />
+      <MsiPackage Id="Setup" SourceFile="D:\NanoTrans\Setup\bin\Release\cs-CZ\NanoTransSetup.msi" DisplayInternalUI="yes"/>
+		</Chain>
+	</Bundle>
+</Wix>
