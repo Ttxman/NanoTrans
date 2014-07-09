@@ -8,4 +8,6 @@
   <String Id="ApplicationDescription">NanoTrans - Editor texhtových a fonetických přepisů</String>
   <String Id="ExplorerMenuEditTrsx">Editovat přepis</String>
   <String Id="ExplorerMenuOpenTrsx">Otevřít přepis</String>
+
+  <String Id="ProtocolFriendlyName">NanoTrans URL</String>
 </WixLocalization>

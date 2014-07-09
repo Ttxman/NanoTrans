@@ -70,6 +70,14 @@
           <!-- Extend to the "open with" list + Win7 jump menu pinning  *****working -->
           <RegistryValue Root="HKLM" Key="SOFTWARE\Classes\Applications\NanoTrans.exe\SupportedTypes" Name=".trsx" Value="" Type="string" />
           <RegistryValue Root="HKLM" Key="SOFTWARE\Classes\Applications\NanoTrans.exe\shell\open\command" Value="&quot;[APPLICATIONFOLDER]NanoTrans.exe&quot; %1" Type="string" />
+
+
+          <!-- trsx: url protocol   -->
+          <RegistryValue Root="HKCR" Key="trsx" Value="!(loc.ProtocolFriendlyName)" Type="string" />
+          <RegistryValue Root="HKCR" Key="trsx" Name="FriendlyTypeName" Value="!(loc.ProtocolFriendlyName)" Type="string" />
+          <RegistryValue Root="HKCR" Key="trsx" Name="URL Protocol" Value="" Type="string" />
+          <RegistryValue Root="HKCR" Key="trsx\DefaultIcon" Value="[APPLICATIONFOLDER]NanoTrans.exe,0" Type="string" />
+          <RegistryValue Root="HKCR" Key="trsx\shell\open\command" Value="&quot;[APPLICATIONFOLDER]NanoTrans.exe&quot; -urlapi &quot;%1&quot;" Type="string" />
         </Component>
       </Feature>
 
@@ -113,6 +121,8 @@
         <File Id="Hunspell86" Name="Hunspellx86.dll" Source="$(var.NanoTrans.TargetDir)\Hunspellx86.dll" />
         <File Id="Hunspell64" Name="Hunspellx64.dll" Source="$(var.NanoTrans.TargetDir)\Hunspellx64.dll" />
         <File Id="NHunspell" Name="NHunspell.dll" Source="$(var.NanoTrans.TargetDir)\NHunspell.dll" />
+        
+        <File Id="Newtonsoft.Json" Name="Newtonsoft.Json.dll" Source="$(var.NanoTrans.TargetDir)\Newtonsoft.Json.dll" />
 
         <File Id="FFmpeg.exe" Name="FFmpeg.exe" Source="$(var.NanoTrans.TargetDir)FFmpeg.exe" />
 
@@ -155,6 +165,10 @@
 
       <Component Id="ResPlugin" Guid="{A080C06D-43C9-47A0-A594-D2DAF8C0CD46}" KeyPath="yes">
         <File Id="ResPlugin.dll" Name="ResPlugin.dll" Source="$(var.NanoTrans.TargetDir)\Plugins\ResPlugin.dll"/>
+      </Component>
+
+      <Component Id="SrtPlugin" Guid="{63B13EC6-45AA-4B76-A338-16990D3D23CE}" KeyPath="yes">
+        <File Id="SrtPlugin.dll" Name="SrtPlugin.dll" Source="$(var.NanoTrans.TargetDir)\Plugins\SrtPlugin.dll"/>
       </Component>
 
     </ComponentGroup>

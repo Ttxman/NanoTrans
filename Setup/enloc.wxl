@@ -8,4 +8,5 @@
   <String Id="ApplicationDescription">NanoTrans - Editor for Orthographic and Phonetic Transcriptions</String>
   <String Id="ExplorerMenuEditTrsx">Edit Transcription</String>
   <String Id="ExplorerMenuOpenTrsx">OpenTranscription</String>
+  <String Id="ProtocolFriendlyName">NanoTrans URL</String>
 </WixLocalization>
