@@ -922,7 +922,7 @@ namespace NanoTrans
 
                     FileInfo fi = new FileInfo(aFileName);
                     if(!Transcription.IsOnline)
-                        Transcription.MediaURI = fi.Name;
+                        Transcription.MediaURI = fi.FullName;
                     ////////////
                     TimeSpan fileLength = WavReader.ReturnAudioLength(aFileName);
                     if (fileLength > TimeSpan.Zero)
