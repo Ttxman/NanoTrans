@@ -392,10 +392,19 @@ namespace NanoTrans
         {
             pbStatusbarBrogress.Value = e.FileNumber;
             waveform1.ProgressHighlightBegin = TimeSpan.Zero;
-            waveform1.ProgressHighlightEnd = TimeSpan.FromMilliseconds(e.LengthMS);
+            waveform1.ProgressHighlightEnd = TimeSpan.FromMilliseconds(e.ProcessedMS);
+
+            var databegin = TimeSpan.FromMilliseconds(e.FileNumber * Const.TEMPORARY_AUDIO_FILE_LENGTH_MS);
+            var dataend = TimeSpan.FromMilliseconds(e.ProcessedMS);
+
+            var half = TimeSpan.FromMilliseconds(Const.DISPLAY_BUFFER_LENGTH_MS /2);
+
+            if (databegin <= waveform1.CaretPosition + half && dataend >= waveform1.CaretPosition - half) //load occured in displayed chunk -> redraw
+                waveform1.AudioBufferCheck(waveform1.CaretPosition, true);
 
 
-            if (e.LengthMS >= _WavReader.FileLengthMS)
+
+            if (e.ProcessedMS >= _WavReader.FileLengthMS)//done
             {
                 ShowMessageInStatusbar(Properties.Strings.mainWindowStatusbarStatusTextConversionDone);
                 pbStatusbarBrogress.Visibility = Visibility.Hidden;
@@ -937,11 +946,11 @@ namespace NanoTrans
                     {
                         _WavReader.Stop();
 
-                        //nastaveni pocatku prehravani
+
                         Playing = false;
 
                         waveform1.CaretPosition = TimeSpan.Zero;
-                        //  pIndexBufferuVlnyProPrehrani = 0;
+
                         waveform1.DataRequestCallBack = _WavReader.LoadaudioDataBuffer;
 
                         pbStatusbarBrogress.Value = 0;
@@ -949,8 +958,7 @@ namespace NanoTrans
                         pbStatusbarBrogress.Maximum = fileLength.TotalMinutes - 1;
                         pbStatusbarBrogress.Value = 0;
 
-                        //start prevodu docasnych souboru
-                        _WavReader.ConvertAudioFileToWave(aFileName); //spusti se thread ktery prevede soubor na temp wavy
+                        _WavReader.ConvertAudioFileToWave(aFileName); //conversion to wav chunks in separate thread 
                         ShowMessageInStatusbar(Properties.Strings.mainWindowStatusbarStatusTextConversionRunning);
                         pbStatusbarBrogress.Visibility = Visibility.Visible;
                         mainWindowStatusbarAudioConversionHeader.Visibility = Visibility.Visible;

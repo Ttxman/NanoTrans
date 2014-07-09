@@ -53,8 +53,6 @@ namespace NanoTrans
         {
             try
             {
-                
-                //this.SmazBuffer();
                 this._StartMS = beginMS;
                 this._EndMS = endMS;
 

@@ -1261,7 +1261,7 @@ namespace NanoTrans
         TimeSpan requestedBegin = TimeSpan.Zero;
         TimeSpan requestedEnd = TimeSpan.Zero;
         private object wavelock = new object();
-        private void AudioBufferCheck(TimeSpan value)
+        internal void AudioBufferCheck(TimeSpan value, bool force=false )
         {
             TimeSpan half = new TimeSpan(Const.DISPLAY_BUFFER_LENGTH.Ticks / 2);
 
@@ -1281,14 +1281,12 @@ namespace NanoTrans
             if (outercheckB < TimeSpan.Zero || AudioBufferBegin <= TimeSpan.FromMilliseconds(10))
                 outercheckB = TimeSpan.Zero;
 
-            if (
-                (value > innercheckE ||
-                value < innercheckB)  //nevejdeme se do nacteneho
-
-                                &&
-
-                (bufferProcessThread == null || (value > outercheckE ||
-                value < outercheckB))) // nenacitame, nebo se nevejdeme se ani do nacitaneho
+            if ((
+                (value > innercheckE || value < innercheckB)  //nevejdeme se do nacteneho
+                && (bufferProcessThread == null || (value > outercheckE ||value < outercheckB)))
+                || force
+                
+                ) // nenacitame, nebo se nevejdeme se ani do nacitaneho
             {
 
                 System.Diagnostics.Debug.WriteLine("check" + value);
@@ -1334,9 +1332,15 @@ namespace NanoTrans
                             short[] data = this.DataRequestCallBack(begin, end);
                             lock (wavelock)
                             {
-                                wave.audioBuffer.CopyDataToBuffer(data, (long)begin.TotalMilliseconds, (long)end.TotalMilliseconds);
+                                if (data != null)
+                                {
+                                    var len = data.Length / 16; //ms
+                                    end = begin + TimeSpan.FromMilliseconds(len);
+                                }
+                                wave.audioBuffer.CopyDataToBuffer(data, (long)begin.TotalMilliseconds, (long)(end.TotalMilliseconds));
                                 bufferProcessThread = null;
                             }
+
                             if (AutomaticProgressHighlight)
                             {
                                 this.Dispatcher.Invoke((Action)(() =>

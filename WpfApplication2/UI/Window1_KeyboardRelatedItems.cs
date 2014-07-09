@@ -403,7 +403,6 @@ namespace NanoTrans
         private void CExportElement(object sender, ExecutedRoutedEventArgs e)
         {
             TranscriptionParagraph par = VirtualizingListBox.ActiveTransctiption as TranscriptionParagraph;
-
             var data = _WavReader.LoadaudioDataBuffer(par.Begin, par.End);    
 
 

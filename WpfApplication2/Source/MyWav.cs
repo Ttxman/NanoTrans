@@ -32,14 +32,14 @@ namespace NanoTrans.Audio
 
     public class AudioBufferEventArgs2 : EventArgs            //upravene eventargs pro predani cisla souboru dale
     {
-        public AudioBufferEventArgs2(int fileNumber, long lengthMS)
+        public AudioBufferEventArgs2(int fileNumber, long endMS)
         {
             this.FileNumber = fileNumber;
-            this.LengthMS = lengthMS;
+            this.ProcessedMS = endMS;
         }
 
         public int FileNumber;
-        public long LengthMS;
+        public long ProcessedMS;
 
     }
 
@@ -171,7 +171,7 @@ namespace NanoTrans.Audio
             this._Loaded = false;
             this._Converted = false;
             _conversionStopper = 0;
-            this.tPrevodNaDocasneSoubory = new Thread(() => this.ZacniPrevodSouboruNaDocasneWav(_FilePath, FilePaths.TempDirectory, Const.TEMPORARY_AUDIO_FILE_LENGTH_MS)) { Name = "conversion to wav" };
+            this.tPrevodNaDocasneSoubory = new Thread(() => this.WaveChunksConversion(_FilePath, FilePaths.TempDirectory, Const.TEMPORARY_AUDIO_FILE_LENGTH_MS)) { Name = "conversion to wav" };
             this.tPrevodNaDocasneSoubory.Start();
 
         }
@@ -287,7 +287,7 @@ namespace NanoTrans.Audio
 
         public int _conversionStopper = 0;
         //spusti prevod souboru na wav,ktery je mozno vykreslovat - skonci po naplneni zobrazovaciho bufferu, pot
-        public bool ZacniPrevodSouboruNaDocasneWav(string aCesta, string aCestaDocasnychWAV, long aDelkaJednohoSouboruMS)
+        public bool WaveChunksConversion(string aCesta, string aCestaDocasnychWAV, long aDelkaJednohoSouboruMS)
         {
             BinaryWriter output = null;
             try
@@ -352,8 +352,8 @@ namespace NanoTrans.Audio
                 output = new BinaryWriter(new FileStream(temporaryWaveFiles[pIndexDocasneho], FileMode.Create));
                 Stream outputbase = output.BaseStream;
                 //prazdna hlavicka
-                byte[] pPrazdnaHlavicka = new byte[44];
-                output.Write(pPrazdnaHlavicka);
+                byte[] emptyHeader = new byte[44];
+                output.Write(emptyHeader);
                 //
 
                 long pPocetNactenychVzorkuCelkem = 0;
@@ -379,7 +379,7 @@ namespace NanoTrans.Audio
                         dato = buffer2s[k];
                         pPocetNactenychVzorkuCelkem++;
 
-                        if (i == SampleCount) //nacten ramec prvni ramec
+                        if (i == SampleCount) //first wave chunk completed.. -> show them
                         {
                             //poslani zpravy s daty bufferu
                             AudioBufferEventArgs e = new AudioBufferEventArgs(this._LoadedData, this._LoadedData.Length, 0, SampleCount / this.Frequency * 1000, Const.ID_BUFFER_WAVEFORMVISIBLE);
@@ -424,7 +424,7 @@ namespace NanoTrans.Audio
                             output = new BinaryWriter(new FileStream(temporaryWaveFiles[pIndexDocasneho], FileMode.Create));
                             outputbase = output.BaseStream;
                             //pridani hlavicky-prazdne-zatim-pozdeji dodelat
-                            output.Write(pPrazdnaHlavicka);
+                            output.Write(emptyHeader);
                             //
                         }
 
@@ -541,7 +541,7 @@ namespace NanoTrans.Audio
                     int pNacistDat = (int)(pPocetVzorkuDocasneho - pPocatecniIndexVSouboru / this.SampleSize) + 22;
                     data = new short[pPocetVzorkuNacist];  //nove pole nacitanych obektu
 
-                    long pPocetNactenych = 0;
+                    long bytesLoaded = 0;
 
                     while (true)
                     {
@@ -556,7 +556,7 @@ namespace NanoTrans.Audio
 
                             input.BaseStream.Seek(pPocatecniIndexVSouboru, SeekOrigin.Begin);
 
-                            pPocetNactenych += input.Read(pBuffer, 0, pCount);
+                            bytesLoaded += input.Read(pBuffer, 0, pCount);
                             input.Close();
 
                             //prevod do pole nacitanych dat
@@ -569,7 +569,11 @@ namespace NanoTrans.Audio
 
 
                             if (pIndexDocasneho >= temporaryWaveFiles.Count - 1 && !this.Converted)
-                                return null;
+                            {
+                                var x = new short[bytesLoaded / sizeof(short)];
+                                Buffer.BlockCopy(data, 0, x, 0, (int)bytesLoaded);
+                                return x;
+                            }
 
                             if (pIndexDocasneho < temporaryWaveFiles.Count)
                             {
