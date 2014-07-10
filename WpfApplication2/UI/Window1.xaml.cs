@@ -397,7 +397,7 @@ namespace NanoTrans
             var databegin = TimeSpan.FromMilliseconds(e.FileNumber * Const.TEMPORARY_AUDIO_FILE_LENGTH_MS);
             var dataend = TimeSpan.FromMilliseconds(e.ProcessedMS);
 
-            var half = TimeSpan.FromMilliseconds(Const.DISPLAY_BUFFER_LENGTH_MS /2);
+            var half = TimeSpan.FromMilliseconds(Const.DISPLAY_BUFFER_LENGTH_MS / 2);
 
             if (databegin <= waveform1.CaretPosition + half && dataend >= waveform1.CaretPosition - half) //load occured in displayed chunk -> redraw
                 waveform1.AudioBufferCheck(waveform1.CaretPosition, true);
@@ -634,7 +634,7 @@ namespace NanoTrans
             LoadTranscription(_api.Trans);
             Transcription.FileName = _api.Info.TrsxUploadURL.ToString();
             Transcription.OnlineInfo = _api.Info;
-           
+
         }
 
         private void LoadTranscription(WPFTranscription trans)
@@ -938,7 +938,7 @@ namespace NanoTrans
                     }
 
                     FileInfo fi = new FileInfo(aFileName);
-                    if(!Transcription.IsOnline)
+                    if (!Transcription.IsOnline)
                         Transcription.MediaURI = fi.FullName;
                     ////////////
                     TimeSpan fileLength = WavReader.ReturnAudioLength(aFileName);
@@ -1371,6 +1371,14 @@ namespace NanoTrans
             {
                 if (online)
                 {
+                    if (path.StartsWith("trsx://"))
+                        path = path.Substring(7);
+
+                    if (path.StartsWith("trsx:"))
+                        path = path.Substring(5);
+
+
+
                     LoadOnlineSource(path);
                 }
                 else if (import)
