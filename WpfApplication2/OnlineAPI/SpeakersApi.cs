@@ -361,7 +361,7 @@ namespace NanoTrans.OnlineAPI
 
             var data = new JObject();
             data["id"] = Transcription.DocumentID;
-            data["transcriptFileId "] = resp["id"];
+            data["transcriptFileId"] = resp["id"];
 
             hm = await PostAsync(apiurl,data);
 
