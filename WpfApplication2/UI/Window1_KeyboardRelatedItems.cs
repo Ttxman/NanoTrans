@@ -413,7 +413,7 @@ namespace NanoTrans
                 TranscriptionParagraph par = VirtualizingListBox.ActiveTransctiption as TranscriptionParagraph;
                 var data = _WavReader.LoadaudioDataBuffer(par.Begin, par.End);
 
-                if (FilePaths.QuickSaveDirectory == null)
+                if (FilePaths.QuickSaveDirectory == null || !Directory.Exists(FilePaths.QuickSaveDirectory))
                 {
                     MessageBox.Show(Properties.Strings.QuickSavePathNotSpecifiedError, Properties.Strings.QuickSavePathNotSpecifiedError, MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
