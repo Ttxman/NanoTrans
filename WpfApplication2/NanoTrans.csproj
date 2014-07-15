@@ -251,7 +251,6 @@
     <Compile Include="OnlineAPI\ApiException.cs" />
     <Compile Include="OnlineAPI\OnlineTranscriptionInfo.cs" />
     <Compile Include="OnlineAPI\SpeakersApi.cs" />
-    <Compile Include="Settings.cs" />
     <Compile Include="Source\AdvancedSpeakerCollection.cs" />
     <Compile Include="Source\ApiSynchronizedSpeaker.cs" />
     <Compile Include="Source\ButtonClickCommand.cs" />
