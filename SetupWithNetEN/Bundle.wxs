@@ -6,7 +6,7 @@
     </BootstrapperApplicationRef>
 		<Chain>
       <PackageGroupRef Id="NetFx45Web" />
-      <MsiPackage Id="Setup" SourceFile="D:\NanoTrans\Setup\bin\Release\en-us\NanoTransSetup.msi" DisplayInternalUI="yes"/>
+      <MsiPackage Id="Setup" SourceFile="D:\NanoTrans\Setup\bin\Release\en-us\NanoTransSetup.msi" DisplayInternalUI="yes" />
 		</Chain>
 	</Bundle>
 </Wix>

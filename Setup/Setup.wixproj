@@ -17,6 +17,7 @@
     <DefineConstants>Debug</DefineConstants>
     <SuppressAllWarnings>False</SuppressAllWarnings>
     <Pedantic>False</Pedantic>
+    <SuppressSpecificWarnings>69</SuppressSpecificWarnings>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <OutputPath>bin\$(Configuration)\</OutputPath>

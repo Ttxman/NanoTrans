@@ -6,15 +6,14 @@
   <Product Id="*" Manufacturer="TUL::Speechlab" UpgradeCode="{36C81A72-77C8-4BD6-9D9C-3C685DE782C3}"
            Name="$(var.PRODUCT) $(var.VERSION)"
            Version="$(var.VERSION)"
-           Language="1033"
-           Codepage="1252"
+           Language="!(loc.LANG)"
            >
-    <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" Description="NanoTrans installer" Id="*" Languages="1029,1033"/>
+    <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" Description="NanoTrans installer" Id="*" Languages="!(loc.LANG)" />
 
     <!--installer UI-->
     <Property Id="INSTALLLEVEL" Value="100" />
     <Property Id="WixAppFolder" Value="WixPerMachineFolder" />
-    <Property Id="ApplicationFolderName" Value="My Application Folder" />
+    <Property Id="ApplicationFolderName" Value="NanoTrans" />
     <UIRef Id="WixUI_FeatureTree" />
     <UIRef Id="WixUI_ErrorProgressText" />
     <!--localize-->

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <WixLocalization Culture="en-us" xmlns="http://schemas.microsoft.com/wix/2006/localization" Codepage="1252" Language="1033">
+  <String Id="LANG">1033</String>
   <String Id="MajorUpgradeError">A newer version of [ProductName] is already installed.</String>
   <String Id="UninstallName">Uninstall NanoTrans</String>
   <String Id="UninstallDescription">Uninstall NanoTrans</String>
