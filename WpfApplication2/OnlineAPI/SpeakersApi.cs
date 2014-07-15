@@ -119,7 +119,16 @@ namespace NanoTrans.OnlineAPI
             var apiurl = new Uri(Info.SpeakerAPI_URL, @"v1/speaker/list");
             var data = new JObject();
             data.Add("ids", new JArray(guids.ToArray()));
-            string json = await (await PostAsync(apiurl, data)).Content.ReadAsStringAsync();
+            var cont  = await PostAsync(apiurl, data);
+
+            if (cont.StatusCode != HttpStatusCode.OK)
+            {
+                MessageBox.Show("API Error", "Error",MessageBoxButton.OK);
+                return null;
+            }
+
+
+            string json = await cont.Content.ReadAsStringAsync();
             var jo = JObject.Parse(json);
 
             return ParseSpeakers(jo).ToArray(); ;
