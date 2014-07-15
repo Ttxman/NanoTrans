@@ -762,6 +762,7 @@ namespace NanoTrans
                     if (fileDialog.ShowDialog() == true)
                     {
                         savePath = fileDialog.FileName;
+                        Transcription.Saved = true;
                     }
                     else
                         return false;
@@ -772,11 +773,15 @@ namespace NanoTrans
                     using (var wc = new WaitCursor())
                     {
                         var onl = await _api.UploadTranscription(Transcription);
+                        Transcription.Saved = onl;
+                        return onl;
+                            
                     }
                 }
                 else if (Transcription.Serialize(savePath, GlobalSetup.Setup.SaveWholeSpeaker))
                 {
                     this.Title = Const.APP_NAME + " [" + Transcription.FileName + "]";
+                    Transcription.Saved = true;
                     return true;
                 }
                 return false;
