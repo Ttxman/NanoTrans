@@ -215,8 +215,7 @@ namespace NanoTrans
 
         private void LoadSpeakersDatabase()
         {
-            string fname = FilePaths.EnsureDirectoryExists(System.IO.Path.GetFullPath(GlobalSetup.Setup.SpeakersDatabasePath));
-            if (fname.Contains(FilePaths.ProgramDirectory))
+            if (Directory.Exists(GlobalSetup.Setup.SpeakersDatabasePath) && GlobalSetup.Setup.SpeakersDatabasePath.Contains(FilePaths.ProgramDirectory))
             {
                 if (!FilePaths.WriteToAppData)
                 {
@@ -224,7 +223,7 @@ namespace NanoTrans
                 }
                 else
                 {
-                    string fname2 = System.IO.Path.Combine(FilePaths.AppDataDirectory, fname.Substring(FilePaths.ProgramDirectory.Length));
+                    string fname2 = System.IO.Path.Combine(FilePaths.AppDataDirectory, GlobalSetup.Setup.SpeakersDatabasePath.Substring(FilePaths.ProgramDirectory.Length));
                     if (File.Exists(fname2))
                     {
                         SpeakerCollection.Deserialize(fname2, SpeakersDatabase);
