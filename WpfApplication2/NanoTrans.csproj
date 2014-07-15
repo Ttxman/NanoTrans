@@ -317,9 +317,8 @@
   <ItemGroup>
     <Compile Include="Source\AudioBuffers.cs" />
     <Compile Include="Source\MyKONST.cs" />
-    <Compile Include="Source\GlobalSetup.cs" />
     <Compile Include="Source\WaveformData.cs" />
-    <Compile Include="Source\MyWav.cs" />
+    <Compile Include="Source\WavReader.cs" />
     <Compile Include="Source\DXWavePlayer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
@@ -329,10 +328,13 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Properties\Setting.User.cs">
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="UI\Window1_waveformRelated.cs">
       <DependentUpon>Window1.xaml</DependentUpon>
@@ -369,7 +371,7 @@
     </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
+      <Generator>PublicSettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />

@@ -197,15 +197,26 @@ namespace NanoTrans
             }
         }
 
+
+
+
+
         public TimeSpan SmallJump
         {
-            get { return TimeSpan.FromMilliseconds(wave.ShortJumpMS); }
-            set
-            {
-                wave.ShortJumpMS = (long)value.TotalMilliseconds;
-                InvalidateWaveform();
-                OnPropertyChanged();
-            }
+            get { return (TimeSpan)GetValue(SmallJumpProperty); }
+            set { SetValue(SmallJumpProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for SmallJump.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty SmallJumpProperty =
+            DependencyProperty.Register("SmallJump", typeof(TimeSpan), typeof(WaveForm), new PropertyMetadata(TimeSpan.FromMilliseconds(5), OnSmallJumpChanged));
+
+
+        private static void OnSmallJumpChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            WaveForm dd = (WaveForm)d;
+            dd.wave.ShortJumpMS = (long)((TimeSpan)e.NewValue).TotalMilliseconds;
+            dd.InvalidateWaveform();
         }
 
         public double Scale

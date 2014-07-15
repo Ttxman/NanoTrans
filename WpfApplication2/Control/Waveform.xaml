@@ -16,7 +16,6 @@
              >
 
     <UserControl.Resources>
-        <ObjectDataProvider x:Key="provider" ObjectInstance="{x:Static my:GlobalSetup.Refresher}"/>
         <my:TimespanToHourStringConverter x:Key="tsConverter" />
         <my:TimespanToMilisecondsConverter x:Key="tsmsConverter" />
     </UserControl.Resources>

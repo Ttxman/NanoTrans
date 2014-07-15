@@ -80,13 +80,6 @@
                             <ComboBox Margin="119,9,12,0" Name="cbOutputAudioDevices" Height="22.723" VerticalAlignment="Top" />
                         </Grid>
                     </GroupBox>
-                    <GroupBox Header="{lex:Loc Key=WinSetupAudioRecording}" Margin="5,112,5,103.723" FontWeight="Bold" >
-                        <Grid>
-                            <Label HorizontalAlignment="Left" Margin="5,9,0,0" Width="120" Height="27.723" VerticalAlignment="Top" Content="{lex:Loc Key=WinSetupInputDevices}"/>
-                            <ComboBox Margin="119,9,12,0" Name="cbInputAudioDevices" Height="22.723" VerticalAlignment="Top" />
-                        </Grid>
-                    </GroupBox>
-
                 </Grid>
             </TabItem>
             <TabItem Header="{lex:Loc Key=WinSetupPlaybackTab}">
@@ -105,7 +98,7 @@
                         <Label Grid.Row="1" Margin="-2,0,0,0" HorizontalAlignment="Left" Width="197" Height="25" VerticalAlignment="Top" Content="{lex:Loc Key=WinSetupJumpLength}"/>
                         <tk:DecimalUpDown Grid.Row="1" Grid.Column="1" FormatString="F2" Margin="6,0,0,0" DefaultValue="0.66" Maximum="20" Minimum="0.5" Value="1" Increment="0.05" HorizontalAlignment="Left" Width="65" Height="23" VerticalAlignment="Top" Name="UpDownJump" ></tk:DecimalUpDown>
                         <Label Grid.Row="1" Grid.Column="1" Content="s" Height="25" HorizontalAlignment="Left" Margin="69,0,0,0" VerticalAlignment="Top" Width="19" Grid.RowSpan="2" />
-                        <Label Grid.Column="1" Content="krát" Height="25" HorizontalAlignment="Left" Margin="69,0,0,0" VerticalAlignment="Top" Width="50" />
+                        <Label Grid.Column="1" Content="x" Height="25" HorizontalAlignment="Left" Margin="69,0,0,0" VerticalAlignment="Top" Width="50" />
                     </Grid>
                 </GroupBox>
             </TabItem>

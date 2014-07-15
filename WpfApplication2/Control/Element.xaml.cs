@@ -21,6 +21,7 @@ using ICSharpCode.AvalonEdit.Indentation;
 using System.IO;
 using NanoTrans.Core;
 using System.ComponentModel;
+using NanoTrans.Properties;
 
 namespace NanoTrans
 {
@@ -155,7 +156,7 @@ namespace NanoTrans
                 el.textbegin.Visibility = Visibility.Visible;
                 el.textend.Visibility = Visibility.Visible;
                 el.stackPanelAttributes.Visibility = Visibility.Visible;
-                el.Background = GlobalSetup.Setup.ParagraphBackground;
+                el.Background = Settings.Default.ParagraphBackground;
                 Element.RefreshSpeakerButton(el, p);
                 el.checkBox1.Visibility = Visibility.Visible;
                 el.checkBox1.IsChecked = ((TranscriptionParagraph)val).trainingElement;
@@ -166,7 +167,7 @@ namespace NanoTrans
                 el.textbegin.Visibility = Visibility.Collapsed;
                 el.textend.Visibility = Visibility.Collapsed;
                 el.stackPanelAttributes.Visibility = Visibility.Collapsed;
-                el.Background = GlobalSetup.Setup.SectionBackground;
+                el.Background = Settings.Default.SectionBackground;
                 el.buttonSpeaker.Visibility = Visibility.Collapsed;
                 el.checkBox1.Visibility = Visibility.Collapsed;
             }
@@ -176,7 +177,7 @@ namespace NanoTrans
                 el.textbegin.Visibility = Visibility.Collapsed;
                 el.textend.Visibility = Visibility.Collapsed;
                 el.stackPanelAttributes.Visibility = Visibility.Collapsed;
-                el.Background = GlobalSetup.Setup.ChapterBackground;
+                el.Background = Settings.Default.ChapterBackground;
                 el.buttonSpeaker.Visibility = Visibility.Collapsed;
                 el.checkBox1.Visibility = Visibility.Collapsed;
             }
@@ -185,7 +186,7 @@ namespace NanoTrans
                 el.textbegin.Visibility = Visibility.Visible;
                 el.textend.Visibility = Visibility.Visible;
                 el.stackPanelAttributes.Visibility = Visibility.Visible;
-                el.Background = GlobalSetup.Setup.ParagraphBackground;
+                el.Background = Settings.Default.ParagraphBackground;
                 el.buttonSpeaker.Visibility = Visibility.Visible;
                 el.checkBox1.Visibility = Visibility.Visible;
                 el.checkBox1.IsChecked = false;
@@ -256,9 +257,9 @@ namespace NanoTrans
 
                         TranscriptionParagraph par = ValueElement as TranscriptionParagraph;
                         if (par != null && (par.DataAttributes & at) != 0)
-                            r.Fill = GlobalSetup.Setup.GetPAttributeColor(at);
+                            r.Fill = Settings.Default.GetPAttributeColor(at);
                         else
-                            r.Fill = GlobalSetup.Setup.GetPAttributeBgColor(at);
+                            r.Fill = Settings.Default.GetPAttributeBgColor(at);
                         r.MouseLeftButtonDown += new MouseButtonEventHandler(attributes_MouseLeftButtonDown);
                         r.Tag = at;
                         stackPanelAttributes.Children.Add(r);
@@ -282,11 +283,11 @@ namespace NanoTrans
                     attr = (ParagraphAttributes)r.Tag;
                     if ((par.DataAttributes & attr) != 0)
                     {
-                        r.Fill = GlobalSetup.Setup.GetPAttributeColor(attr);
+                        r.Fill = Settings.Default.GetPAttributeColor(attr);
                     }
                     else
                     {
-                        r.Fill = GlobalSetup.Setup.GetPAttributeBgColor(attr);
+                        r.Fill = Settings.Default.GetPAttributeBgColor(attr);
                     }
                 }
             }
@@ -372,7 +373,7 @@ namespace NanoTrans
 
         private void UpdateCustomParamsFromSpeaker()
         {
-            if (!GlobalSetup.Setup.ShowCustomParams)
+            if (!Settings.Default.ShowCustomParams)
                 return;
             if (customparams == null || customparams.Count == 0 || ValueElement == null)
                 return;
@@ -565,7 +566,7 @@ namespace NanoTrans
                 completionWindow.ResizeMode = ResizeMode.NoResize;
                 // provide AvalonEdit with the data:
                 IList<ICompletionData> data = completionWindow.CompletionList.CompletionData;
-                foreach (string s in GlobalSetup.Setup.NonSpeechEvents)
+                foreach (string s in Settings.Default.NonSpeechEvents)
                     data.Add(new CodeCompletionData(s));
 
                 completionWindow.Show();
@@ -647,7 +648,7 @@ namespace NanoTrans
                 lb2.Padding = t;
 
                 int maxcnt = 0;
-                foreach (string s2 in GlobalSetup.Setup.NonSpeechEvents)
+                foreach (string s2 in Settings.Default.NonSpeechEvents)
                 {
                     if (text != s2)
                     {

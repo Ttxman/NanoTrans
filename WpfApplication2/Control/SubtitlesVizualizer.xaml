@@ -3,16 +3,16 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:props="clr-namespace:NanoTrans.Properties"
              mc:Ignorable="d" 
              d:DesignHeight="283" d:DesignWidth="677"
              xmlns:my="clr-namespace:NanoTrans"
              Name="Vizualizer" Loaded="Vizualizer_Loaded" PreviewKeyDown="Vizualizer_PreviewKeyDown">
     
     <UserControl.Resources>
-        <ObjectDataProvider x:Key="provider" ObjectInstance="{x:Static my:GlobalSetup.Refresher}"/>
     </UserControl.Resources>
     <Grid>
-        <ListBox Name="listbox" ItemsSource="{Binding Transcription, ElementName=Vizualizer}" Background="{Binding Source={StaticResource provider},Path=Setup.ParagraphBackground}"
+        <ListBox Name="listbox" ItemsSource="{Binding Transcription, ElementName=Vizualizer}" Background="{Binding Source={x:Static props:Settings.Default}, Path=ParagraphBackground}"
             VirtualizingPanel.ScrollUnit="Pixel" 
             VirtualizingPanel.IsVirtualizing="True" 
             VirtualizingPanel.CacheLength="2,3" 

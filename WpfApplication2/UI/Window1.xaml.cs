@@ -34,6 +34,7 @@ using System.Threading.Tasks;
 using NanoTrans.OnlineAPI;
 using System.Runtime.CompilerServices;
 using System.ComponentModel;
+using NanoTrans.Properties;
 
 namespace NanoTrans
 {
@@ -196,12 +197,6 @@ namespace NanoTrans
         {
             this.DataContext = this;
             InitializeComponent();
-            //load settings
-            Stream s = FilePaths.GetConfigFileReadStream();
-            if (s == null)
-                SaveGlobalSetup();
-            else
-                GlobalSetup.Setup = GlobalSetup.Setup.Deserialize(s);
 
             LoadGlobalSetup();
 
@@ -215,30 +210,30 @@ namespace NanoTrans
 
         private void LoadSpeakersDatabase()
         {
-            if (Directory.Exists(GlobalSetup.Setup.SpeakersDatabasePath) && GlobalSetup.Setup.SpeakersDatabasePath.Contains(FilePaths.ProgramDirectory))
+            if (Directory.Exists(Settings.Default.SpeakersDatabasePath) && Settings.Default.SpeakersDatabasePath.Contains(FilePaths.ProgramDirectory))
             {
                 if (!FilePaths.WriteToAppData)
                 {
-                    SpeakerCollection.Deserialize(GlobalSetup.Setup.SpeakersDatabasePath, SpeakersDatabase);
+                    SpeakerCollection.Deserialize(Settings.Default.SpeakersDatabasePath, SpeakersDatabase);
                 }
                 else
                 {
-                    string fname2 = System.IO.Path.Combine(FilePaths.AppDataDirectory, GlobalSetup.Setup.SpeakersDatabasePath.Substring(FilePaths.ProgramDirectory.Length));
+                    string fname2 = System.IO.Path.Combine(FilePaths.AppDataDirectory, Settings.Default.SpeakersDatabasePath.Substring(FilePaths.ProgramDirectory.Length));
                     if (File.Exists(fname2))
                     {
                         SpeakerCollection.Deserialize(fname2, SpeakersDatabase);
                     }
-                    else if (File.Exists(GlobalSetup.Setup.SpeakersDatabasePath))
+                    else if (File.Exists(Settings.Default.SpeakersDatabasePath))
                     {
-                        SpeakerCollection.Deserialize(GlobalSetup.Setup.SpeakersDatabasePath, SpeakersDatabase);
+                        SpeakerCollection.Deserialize(Settings.Default.SpeakersDatabasePath, SpeakersDatabase);
                     }
                 }
             }
             else
             {
-                if (File.Exists(GlobalSetup.Setup.SpeakersDatabasePath))
+                if (File.Exists(Settings.Default.SpeakersDatabasePath))
                 {
-                    SpeakerCollection.Deserialize(FilePaths.EnsureDirectoryExists(GlobalSetup.Setup.SpeakersDatabasePath), SpeakersDatabase);
+                    SpeakerCollection.Deserialize(FilePaths.EnsureDirectoryExists(Settings.Default.SpeakersDatabasePath), SpeakersDatabase);
                 }
                 else
                 {
@@ -249,33 +244,33 @@ namespace NanoTrans
 
         private void LoadGlobalSetup()
         {
-            if (GlobalSetup.Setup.Locale != null)
+            if (Settings.Default.Locale != null)
             {
-                LocalizeDictionary.Instance.Culture = new System.Globalization.CultureInfo(GlobalSetup.Setup.Locale);
+                LocalizeDictionary.Instance.Culture = new System.Globalization.CultureInfo(Settings.Default.Locale);
             }
 
             //set window position, size and state
-            if (GlobalSetup.Setup.WindowsPosition != null)
+            if (Settings.Default.WindowsPosition != null)
             {
-                if (GlobalSetup.Setup.WindowsPosition.X >= 0 && GlobalSetup.Setup.WindowsPosition.Y >= 0)
+                if (Settings.Default.WindowsPosition.X >= 0 && Settings.Default.WindowsPosition.Y >= 0)
                 {
                     this.WindowStartupLocation = WindowStartupLocation.Manual;
-                    this.Left = GlobalSetup.Setup.WindowsPosition.X;
-                    this.Top = GlobalSetup.Setup.WindowsPosition.Y;
+                    this.Left = Settings.Default.WindowsPosition.X;
+                    this.Top = Settings.Default.WindowsPosition.Y;
                 }
             }
-            if (GlobalSetup.Setup.WindowSize != null)
+            if (Settings.Default.WindowSize != null)
             {
-                if (GlobalSetup.Setup.WindowSize.Width >= 50 && GlobalSetup.Setup.WindowSize.Height >= 50)
+                if (Settings.Default.WindowSize.Width >= 50 && Settings.Default.WindowSize.Height >= 50)
                 {
-                    this.Width = GlobalSetup.Setup.WindowSize.Width;
-                    this.Height = GlobalSetup.Setup.WindowSize.Height;
+                    this.Width = Settings.Default.WindowSize.Width;
+                    this.Height = Settings.Default.WindowSize.Height;
                 }
             }
 
-            this.WindowState = GlobalSetup.Setup.WindowState;
+            this.WindowState = Settings.Default.WindowState;
 
-            ShowPhoneticTranscription(GlobalSetup.Setup.PhoneticsPanelHeight - 1 > 0);
+            ShowPhoneticTranscription(Settings.Default.PhoneticsPanelHeight - 1 > 0);
         }
 
         private void menuItemWave1_SetStartToCursor_Click(object sender, RoutedEventArgs e)
@@ -778,7 +773,7 @@ namespace NanoTrans
                             
                     }
                 }
-                else if (Transcription.Serialize(savePath, GlobalSetup.Setup.SaveWholeSpeaker))
+                else if (Transcription.Serialize(savePath, Settings.Default.SaveWholeSpeaker))
                 {
                     this.Title = Const.APP_NAME + " [" + Transcription.FileName + "]";
                     Transcription.Saved = true;
@@ -1079,7 +1074,7 @@ namespace NanoTrans
                     MWP.Dispose();
                     MWP = null;
                 }
-                MWP = new DXWavePlayer(GlobalSetup.Setup.audio.OutputDeviceIndex, 4800, ReadAudioDataFromWaveform);
+                MWP = new DXWavePlayer(Settings.Default.OutputDeviceIndex, 4800, ReadAudioDataFromWaveform);
                 return true;
             }
             catch
@@ -1144,9 +1139,9 @@ namespace NanoTrans
 
         private void MTools_Settings_Click(object sender, RoutedEventArgs e)
         {
-            GlobalSetup.Setup = WinSetup.WinSetupShowDialog(GlobalSetup.Setup, SpeakersDatabase);
+            var win = new WinSetup(SpeakersDatabase);
+            win.Show();
             SaveGlobalSetup();
-            waveform1.SmallJump = TimeSpan.FromSeconds(GlobalSetup.Setup.WaveformSmallJump);
             InitializeAudioPlayer();
         }
 
@@ -1231,21 +1226,7 @@ namespace NanoTrans
 
         private void SaveGlobalSetup()
         {
-            if (GlobalSetup.Setup != null)
-            {
-                if (this.WindowState == WindowState.Normal)
-                {
-                    GlobalSetup.Setup.WindowsPosition = new Point(this.Left, this.Top);
-                    GlobalSetup.Setup.WindowSize = new Size(this.Width, this.Height);
-                }
-                if (this.WindowState != WindowState.Minimized)
-                {
-                    GlobalSetup.Setup.WindowState = this.WindowState;
-                }
-
-                GlobalSetup.Setup.Serialize(FilePaths.GetConfigFileWriteStream(), GlobalSetup.Setup);
-
-            }
+            Settings.Default.Save();
         }
 
         private bool TrySaveSpeakersDatabase()
@@ -1255,7 +1236,7 @@ namespace NanoTrans
 
                 try
                 {
-                    string fname = FilePaths.EnsureDirectoryExists(System.IO.Path.GetFullPath(GlobalSetup.Setup.SpeakersDatabasePath));
+                    string fname = FilePaths.EnsureDirectoryExists(System.IO.Path.GetFullPath(Settings.Default.SpeakersDatabasePath));
                     if (fname.StartsWith(FilePaths.ProgramDirectory))//check access to program files.
                     {
                         if (!FilePaths.WriteToAppData)
@@ -1265,7 +1246,7 @@ namespace NanoTrans
                     }
                     else// not in ProgramFiles - NanoTrans not installed, don't do anything
                     {
-                        SpeakersDatabase.Serialize(GlobalSetup.Setup.SpeakersDatabasePath, true);
+                        SpeakersDatabase.Serialize(Settings.Default.SpeakersDatabasePath, true);
                     }
                 }
                 catch
@@ -1580,7 +1561,7 @@ namespace NanoTrans
 
             if (show)
             {
-                GlobalSetup.Setup.PhoneticsPanelHeight = Math.Abs(GlobalSetup.Setup.PhoneticsPanelHeight);
+                Settings.Default.PhoneticsPanelHeight = Math.Abs(Settings.Default.PhoneticsPanelHeight);
 
                 gridSplitter1.Visibility = gphoneticTranscription.Visibility = Visibility.Visible;
 
@@ -1588,7 +1569,7 @@ namespace NanoTrans
             }
             else
             {
-                GlobalSetup.Setup.PhoneticsPanelHeight = -Math.Abs(GlobalSetup.Setup.PhoneticsPanelHeight);
+                Settings.Default.PhoneticsPanelHeight = -Math.Abs(Settings.Default.PhoneticsPanelHeight);
                 gridSplitter1.Visibility = gphoneticTranscription.Visibility = Visibility.Collapsed;
                 return false;
             }
@@ -1655,8 +1636,8 @@ namespace NanoTrans
 
         private void toolBar1_Loaded(object sender, RoutedEventArgs e)
         {
-            GlobalSetup.Setup.PropertyChanged += Setup_PropertyChanged;
-            Setup_PropertyChanged(GlobalSetup.Setup, new System.ComponentModel.PropertyChangedEventArgs("NonSpeechEvents"));
+            Settings.Default.PropertyChanged += Setup_PropertyChanged;
+            Setup_PropertyChanged(Settings.Default, new System.ComponentModel.PropertyChangedEventArgs("NonSpeechEvents"));
         }
 
         void Setup_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -1665,7 +1646,7 @@ namespace NanoTrans
                 return;
             toolBar1.Items.Clear();
             int index = 1;
-            foreach (string s in GlobalSetup.Setup.NonSpeechEvents)
+            foreach (string s in Settings.Default.NonSpeechEvents)
             {
                 Button b = new Button();
                 b.Content = s;

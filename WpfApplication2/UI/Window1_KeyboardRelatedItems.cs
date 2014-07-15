@@ -24,6 +24,7 @@ using dbg = System.Diagnostics.Debug;
 using Microsoft.Win32;
 using NanoTrans.Core;
 using NanoTrans.Audio;
+using NanoTrans.Properties;
 
 
 namespace NanoTrans
@@ -508,7 +509,7 @@ namespace NanoTrans
                 if ((Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift || ToolBar2BtnSlow.IsChecked == true)
                 {
                     adjustspeed = true;
-                    meVideo.SpeedRatio = GlobalSetup.Setup.SlowedPlaybackSpeed;
+                    meVideo.SpeedRatio = Settings.Default.SlowedPlaybackSpeed;
                 }
                 else
                 {
@@ -551,7 +552,7 @@ namespace NanoTrans
                 Playing = true;
 
                 if (adjustspeed)
-                    MWP.Play(GlobalSetup.Setup.SlowedPlaybackSpeed);
+                    MWP.Play(Settings.Default.SlowedPlaybackSpeed);
                 else
                     MWP.Play();
 

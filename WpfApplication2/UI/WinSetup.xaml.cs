@@ -17,81 +17,79 @@ using NanoTrans.Core;
 using System.Globalization;
 using System.Diagnostics;
 using WPFLocalizeExtension.Engine;
+using NanoTrans.Properties;
+using System.ComponentModel;
 
 namespace NanoTrans
 {
     /// <summary>
     /// Interaction logic for WinSetup.xaml
     /// </summary>
-    public partial class WinSetup : Window
+    public partial class WinSetup : Window , INotifyPropertyChanged
     {
-        public GlobalSetup _setup;
+
+        private void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName]string caller = null)
+        {
+            if (PropertyChanged != null)
+                PropertyChanged(this, new PropertyChangedEventArgs(caller));
+        }
+
         private SpeakerCollection _speakersDatabase;
 
-        public WinSetup(GlobalSetup setup, SpeakerCollection speakerDB)
+        public Settings Setup
         {
-            _setup = setup;
+            get { return Settings.Default; }
+        }
+
+        public WinSetup(SpeakerCollection speakerDB)
+        {
             _speakersDatabase = speakerDB;
             InitializeComponent();
 
-            if (setup != null)
+            //audio
+            cbOutputAudioDevices.Items.Clear();
+            string[] devices = DXWavePlayer.DeviceNamesOUT;
+            if (devices != null)
             {
-                //audio
-                cbOutputAudioDevices.Items.Clear();
-                string[] devices = DXWavePlayer.DeviceNamesOUT;
-                if (devices != null)
+                foreach (string s in devices)
                 {
-                    foreach (string s in devices)
-                    {
-                        cbOutputAudioDevices.Items.Add(s);
-                    }
+                    cbOutputAudioDevices.Items.Add(s);
                 }
-                if (_setup.audio.OutputDeviceIndex < cbOutputAudioDevices.Items.Count) cbOutputAudioDevices.SelectedIndex = _setup.audio.OutputDeviceIndex;
+            }
+            if (Setup.OutputDeviceIndex < cbOutputAudioDevices.Items.Count) cbOutputAudioDevices.SelectedIndex = Setup.OutputDeviceIndex;
 
-                cbInputAudioDevices.Items.Clear();
-                if (devices != null)
+
+            string path = Setup.SpeakersDatabasePath;
+            try
+            {
+                if (!path.Contains(":")) //absolute
                 {
-                    foreach (string s in devices)
-                    {
-                        cbInputAudioDevices.Items.Add(s);
-                    }
+                    path = Setup.SpeakersDatabasePath;
                 }
-                if (_setup.audio.InputDeviceIndex < cbInputAudioDevices.Items.Count) cbInputAudioDevices.SelectedIndex = _setup.audio.InputDeviceIndex;
-
-                string path = setup.SpeakersDatabasePath;
-                try
-                {
-                    if (!path.Contains(":")) //absolute
-                    {
-                        path = setup.SpeakersDatabasePath;
-                    }
-                    path = new FileInfo(path).FullName;
-
-                }
-                finally
-                {
-                    tbSpeakerDBPath.Text = path;
-                }
-
-
-                tbTextSize.Text = setup.SetupTextFontSize.ToString();
-                chbShowSpeakerImage.IsChecked = setup.ShowSpeakerImage;
-                slSpeakerImageSize.Value = setup.MaxSpeakerImageWidth;
-
-
-
-                //playback
-
-                decimal val = (decimal)setup.SlowedPlaybackSpeed;
-                if (val >= UpDownSpeed.Minimum.Value && val <= UpDownSpeed.Maximum.Value)
-                    UpDownSpeed.Value = val;
-
-                val = (decimal)(setup.WaveformSmallJump);
-                if (val >= UpDownJump.Minimum.Value && val <= UpDownJump.Maximum.Value)
-                    UpDownJump.Value = val;
-
+                path = new FileInfo(path).FullName;
 
             }
+            finally
+            {
+                tbSpeakerDBPath.Text = path;
+            }
+
+
+            tbTextSize.Text = Setup.SetupTextFontSize.ToString();
+            chbShowSpeakerImage.IsChecked = Setup.ShowSpeakerImage;
+            slSpeakerImageSize.Value = Setup.MaxSpeakerImageWidth;
+
+
+
+            //playback
+
+            decimal val = (decimal)Setup.SlowedPlaybackSpeed;
+            if (val >= UpDownSpeed.Minimum.Value && val <= UpDownSpeed.Maximum.Value)
+                UpDownSpeed.Value = val;
+
+            val = (decimal)(Setup.WaveformSmallJump);
+            if (val >= UpDownJump.Minimum.Value && val <= UpDownJump.Maximum.Value)
+                UpDownJump.Value = val;
 
             //setup.Localization
             int index = AvailableCultures.Select((c, i) => new { c, i }).FirstOrDefault(p => p.c.DisplayName == LocalizeDictionary.Instance.Culture.DisplayName).i;
@@ -125,37 +123,21 @@ namespace NanoTrans
             if (LocalizationSelection.SelectedItem != null)
             {
                 LocalizeDictionary.Instance.Culture = (CultureInfo)LocalizationSelection.SelectedItem;
-                _setup.Locale = LocalizeDictionary.Instance.Culture.IetfLanguageTag;
+                Setup.Locale = LocalizeDictionary.Instance.Culture.IetfLanguageTag;
+
             }
-        }
-
-        public static GlobalSetup WinSetupShowDialog(GlobalSetup aNastaveni, SpeakerCollection aDatabazeMluvcich)
-        {
-            WinSetup ws = new WinSetup(aNastaveni, aDatabazeMluvcich);
-            ws.ShowDialog();
-
-            return ws._setup;
         }
 
         private void btOK_Click(object sender, RoutedEventArgs e)
         {
             //properties on setup are from very old version and not binded... all items have to be saved manually
-
-            //audio
-            _setup.audio.OutputDeviceIndex = cbOutputAudioDevices.SelectedIndex;
-            if (_setup.audio.OutputDeviceIndex < 0) _setup.audio.OutputDeviceIndex = 0;
-
-            _setup.audio.InputDeviceIndex = cbInputAudioDevices.SelectedIndex;
-            if (_setup.audio.InputDeviceIndex < 0) _setup.audio.InputDeviceIndex = 0;
-
-
             //spaker database
-            _setup.SpeakersDatabasePath = tbSpeakerDBPath.Text;
+            Setup.SpeakersDatabasePath= tbSpeakerDBPath.Text;
 
             //fonts
             try
             {
-                _setup.SetupTextFontSize = double.Parse(tbTextSize.Text);
+                Setup.SetupTextFontSize = double.Parse(tbTextSize.Text);
             }
             catch
             {
@@ -163,12 +145,12 @@ namespace NanoTrans
             }
 
             //image
-            _setup.ShowSpeakerImage = (bool)chbShowSpeakerImage.IsChecked;
-            _setup.MaxSpeakerImageWidth = slSpeakerImageSize.Value;
+            Setup.ShowSpeakerImage = (bool)chbShowSpeakerImage.IsChecked;
+            Setup.MaxSpeakerImageWidth = slSpeakerImageSize.Value;
 
             //playback
-            _setup.SlowedPlaybackSpeed = (double)UpDownSpeed.Value;
-            _setup.WaveformSmallJump = (double)UpDownJump.Value;
+            Setup.SlowedPlaybackSpeed = (double)UpDownSpeed.Value;
+            Setup.WaveformSmallJump = (double)UpDownJump.Value;
 
             this.Close();
         }
@@ -180,7 +162,7 @@ namespace NanoTrans
             fileDialog.Title = Properties.Strings.FileDialogLoadSpeakersDatabaseTitle;
             fileDialog.Filter = string.Format(Properties.Strings.FileDialogLoadSpeakersDatabaseFilter, "*.xml", "*.xml");
 
-            FileInfo fi = new FileInfo(_setup.SpeakersDatabasePath);
+            FileInfo fi = new FileInfo(Setup.SpeakersDatabasePath);
             if (fi != null && fi.Directory.Exists)
                 fileDialog.InitialDirectory = fi.DirectoryName;
             else fileDialog.InitialDirectory = FilePaths.DefaultDirectory;
@@ -200,7 +182,7 @@ namespace NanoTrans
                     _speakersDatabase.Serialize();
                 }
 
-                tbSpeakerDBPath.Text = _setup.SpeakersDatabasePath = fileDialog.FileName;
+                tbSpeakerDBPath.Text = Setup.SpeakersDatabasePath = fileDialog.FileName;
             }
         }
 
@@ -285,7 +267,7 @@ namespace NanoTrans
             }
         }
 
-
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 
     public class CollapseOnNullConverter : IValueConverter

@@ -14,6 +14,7 @@ using System.Windows.Shapes;
 using System.Globalization;
 using NanoTrans.Core;
 using System.IO;
+using NanoTrans.Properties;
 
 namespace NanoTrans
 {
@@ -71,7 +72,7 @@ namespace NanoTrans
 
         private void ButtonAddAttributeClick(object sender, RoutedEventArgs e)
         {
-            SpeakerAttribute sa = new SpeakerAttribute("", GlobalSetup.Setup.SpeakerAtributteCategories[0], "");
+            SpeakerAttribute sa = new SpeakerAttribute("", Settings.Default.SpeakerAtributteCategories[0], "");
             SpeakerContainer.Speaker.Attributes.Add(sa);
             SpeakerContainer.Changed = true;
             SpeakerContainer.RefreshAttributes();

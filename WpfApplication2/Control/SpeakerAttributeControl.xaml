@@ -10,14 +10,14 @@
              Name="control"
              >
     <UserControl.Resources>
-        <ObjectDataProvider x:Key="setup" ObjectInstance="{x:Static my:GlobalSetup.Refresher}"/>
+
         <ControlTemplate x:Key="ContentPresenter">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="100"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <ComboBox Name="typeselect" Grid.Column="0" SelectedItem="{Binding Name}" ItemsSource="{Binding Source={StaticResource setup}, Path=Setup.SpeakerAtributteCategories}"  Visibility="Visible"/>
+                <ComboBox Name="typeselect" Grid.Column="0" SelectedItem="{Binding Name}" ItemsSource="{Binding Source={StaticResource setup}, Path=SpeakerAtributteCategories}"  Visibility="Visible"/>
                 <Button Name="keytext" Grid.Column="0" Content="{Binding Name}" Visibility="Hidden" />
                 <TextBox Grid.Column="1" Text="{Binding Value}" />
             </Grid>

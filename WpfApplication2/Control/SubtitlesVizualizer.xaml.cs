@@ -20,6 +20,7 @@ using System.Collections;
 using System.Windows.Threading;
 using System.Diagnostics;
 using NanoTrans.Core;
+using NanoTrans.Properties;
 
 namespace NanoTrans
 {
@@ -445,7 +446,7 @@ namespace NanoTrans
                 listbox.SelectedItem = el;
 
                 //events may not be active yet
-                if (elm.Background != GlobalSetup.Setup.ActiveParagraphBackground)
+                if (elm.Background != Settings.Default.ActiveParagraphBackground)
                 {
                     elm.editor.Focus();
                     ColorizeBackground(el);
@@ -489,14 +490,14 @@ namespace NanoTrans
             {
                 if (elem.ValueElement == focused)
                 {
-                    elem.Background = GlobalSetup.Setup.ActiveParagraphBackground;
+                    elem.Background = Settings.Default.ActiveParagraphBackground;
                 }
                 else
                 {
                     if (elem.ValueElement is TranscriptionSection)
-                        elem.Background = GlobalSetup.Setup.SectionBackground;
+                        elem.Background = Settings.Default.SectionBackground;
                     else if (elem.ValueElement is TranscriptionChapter)
-                        elem.Background = GlobalSetup.Setup.ChapterBackground;
+                        elem.Background = Settings.Default.ChapterBackground;
                     else
                         elem.Background = null;
                 }
