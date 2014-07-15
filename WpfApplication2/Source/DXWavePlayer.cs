@@ -336,7 +336,7 @@ namespace NanoTrans
             }
 
         }
-
+        [System.Diagnostics.DebuggerNonUserCode]
         private void DataRequestThread()
         {
             try
