@@ -61,6 +61,7 @@ namespace NanoTrans
         public static RoutedCommand CommandDeleteElement = new RoutedCommand();
         public static RoutedCommand CommandAssignSpeaker = new RoutedCommand();
         public static RoutedCommand CommandExportElement = new RoutedCommand();
+        public static RoutedCommand CommandQuickExportElement = new RoutedCommand();
 
         public static RoutedCommand CommandAssignElementStart = new RoutedCommand();
         public static RoutedCommand CommandAssignElementEnd = new RoutedCommand();
@@ -102,6 +103,7 @@ namespace NanoTrans
             this.CommandBindings.Add(new CommandBinding(CommandDeleteElement, CDeleteElement));
             this.CommandBindings.Add(new CommandBinding(CommandAssignSpeaker, CAssignSpeaker));
             this.CommandBindings.Add(new CommandBinding(CommandExportElement, CExportElement));
+            this.CommandBindings.Add(new CommandBinding(CommandQuickExportElement, CQuickExportElement));
             this.CommandBindings.Add(new CommandBinding(CommandAssignElementStart, CAssignElementStart));
             this.CommandBindings.Add(new CommandBinding(CommandAssignElementEnd, CAssignElementEnd));
             this.CommandBindings.Add(new CommandBinding(CommandAssignElementTimeSelection, CAssignElementTimeSelection));
@@ -129,7 +131,9 @@ namespace NanoTrans
             CommandNewChapter.InputGestures.Add(new KeyGesture(Key.F4));
             CommandDeleteElement.InputGestures.Add(new KeyGesture(Key.Delete, ModifierKeys.Shift));
             CommandAssignSpeaker.InputGestures.Add(new KeyGesture(Key.M, ModifierKeys.Control));
-            CommandExportElement.InputGestures.Add(new KeyGesture(Key.X, ModifierKeys.Control | ModifierKeys.Shift));
+
+            CommandExportElement.InputGestures.Add(new KeyGesture(Key.X, ModifierKeys.Control | ModifierKeys.Alt));
+            CommandQuickExportElement.InputGestures.Add(new KeyGesture(Key.X, ModifierKeys.Control | ModifierKeys.Alt| ModifierKeys.Shift));
 
             CommandFindDialog.InputGestures.Add(new KeyGesture(Key.F, ModifierKeys.Control));
             CommandFindDialog.InputGestures.Add(new KeyGesture(Key.F3));
@@ -183,7 +187,7 @@ namespace NanoTrans
                     var plugins = _ImportPlugins.Where(
                         p => p.Mask.Split('|')
                             .Where((s, i) => i % 2 == 1)
-                            .Any(s => Regex.IsMatch(System.IO.Path.GetExtension(opf.FileName),string.Join("|",s.Split(new[]{';'},StringSplitOptions.RemoveEmptyEntries).Select(r => r.Replace("*", "").Replace(".", "\\.").Replace('?', '.') + "$"))))).ToArray();
+                            .Any(s => Regex.IsMatch(System.IO.Path.GetExtension(opf.FileName), string.Join("|", s.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries).Select(r => r.Replace("*", "").Replace(".", "\\.").Replace('?', '.') + "$"))))).ToArray();
 
                     if (plugins.Length != 1)
                     {
@@ -392,7 +396,7 @@ namespace NanoTrans
             smtop = mgr.Top;
 
             if (mgr.SpeakerChanged)//refresh all sepakers
-            { 
+            {
                 var pinned = SpeakersDatabase.Where(s => s.PinnedToDocument);
                 Transcription.Speakers.AddRange(pinned.Except(Transcription.Speakers));
             }
@@ -400,10 +404,52 @@ namespace NanoTrans
             VirtualizingListBox.SpeakerChanged(VirtualizingListBox.ActiveElement);
         }
 
+
+        private void CQuickExportElement(object sender, ExecutedRoutedEventArgs e)
+        {
+            using (new WaitCursor())
+            {
+                TranscriptionParagraph par = VirtualizingListBox.ActiveTransctiption as TranscriptionParagraph;
+                var data = _WavReader.LoadaudioDataBuffer(par.Begin, par.End);
+
+                if (FilePaths.QuickSaveDirectory == null)
+                {
+                    MessageBox.Show(Properties.Strings.QuickSavePathNotSpecifiedError, Properties.Strings.QuickSavePathNotSpecifiedError, MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                DirectoryInfo nfo = new DirectoryInfo(FilePaths.QuickSaveDirectory);
+                
+                int index = 0;
+                var pars = nfo.GetFiles("*.wav").Where(p => p.Name.StartsWith("paragraph_")).ToArray();
+
+                if(pars.Count() > 0)
+                    index = 1+(int)pars.Max(p => { int res = 0; int.TryParse(System.IO.Path.GetFileNameWithoutExtension(p.Name.Substring(10)), out res); return res; });
+
+                var basename = System.IO.Path.Combine(nfo.FullName, "paragraph_"+index);
+                WavReader.SaveToWav(basename + ".wav", data);
+                string textf = basename + ".txt";
+                //File.WriteAllBytes(textf, win1250.GetBytes());
+
+                File.WriteAllText(textf, par.Text, win1250);
+
+                if (!string.IsNullOrEmpty(par.Phonetics))
+                {
+                    textf = basename + ".phn";
+                    File.WriteAllText(textf, par.Phonetics, win1250);
+                    //File.WriteAllBytes(textf, win1250.GetBytes(par.Phonetics));
+                }
+
+                SystemSounds.Asterisk.Play();
+
+            }
+        }
+
+
         private void CExportElement(object sender, ExecutedRoutedEventArgs e)
         {
             TranscriptionParagraph par = VirtualizingListBox.ActiveTransctiption as TranscriptionParagraph;
-            var data = _WavReader.LoadaudioDataBuffer(par.Begin, par.End);    
+            var data = _WavReader.LoadaudioDataBuffer(par.Begin, par.End);
 
 
             Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
@@ -609,14 +655,14 @@ namespace NanoTrans
         }
         private async void CCreateNewTranscription(object sender, ExecutedRoutedEventArgs e)
         {
-             await NewTranscription();
+            await NewTranscription();
         }
 
         private async void COpenTranscription(object sender, ExecutedRoutedEventArgs e)
         {
             e.Handled = true;
             await OpenTranscription(true, "");
-            
+
         }
 
         private async void CSaveTranscription(object sender, ExecutedRoutedEventArgs e)

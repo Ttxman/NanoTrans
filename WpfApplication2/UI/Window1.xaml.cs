@@ -1697,7 +1697,6 @@ namespace NanoTrans
                 ms.Close();
                 Back_data.Add(ms.ToArray());
             }
-
         }
 
         #endregion
@@ -2021,5 +2020,11 @@ namespace NanoTrans
 
 
         public bool TranscriptionIsLoading { get; set; }
+
+        private void Button_Click_4(object sender, RoutedEventArgs e)
+        {
+            FilePaths.SelectFolderDialog(false);
+            tbQuickSavePath.Text = FilePaths.QuickSaveDirectory;
+        }
     }
 }

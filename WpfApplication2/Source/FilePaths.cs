@@ -5,6 +5,7 @@ using System.Text;
 using System.IO;
 using System.Windows;
 using System.Threading;
+using Microsoft.Win32;
 
 namespace NanoTrans
 {
@@ -270,5 +271,27 @@ namespace NanoTrans
         {
             return GetWritePath("Data\\SpeakersDatabase.xml");
         }
+
+
+
+        static string _SaveDirectory = null;
+        public static string QuickSaveDirectory
+        {
+            get { return _SaveDirectory; }
+        }
+
+
+        public static string SelectFolderDialog(bool ovewriteprompt = true)
+        {
+            SaveFileDialog sd = new SaveFileDialog();
+            sd.OverwritePrompt = ovewriteprompt;
+            if (sd.ShowDialog() == true)
+            {
+                _SaveDirectory = Path.GetDirectoryName(sd.FileName);
+            }
+
+            return _SaveDirectory;
+        }
+
     }
 }
