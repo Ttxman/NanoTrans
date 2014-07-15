@@ -205,7 +205,7 @@ namespace NanoTrans.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Transcription Files (*.trsx)|*.trsx|All Files (*.*)|*.*.
+        ///   Looks up a localized string similar to Transcription Files (*.trsx;*.tlst)|*.trsx;*.tlst|All Files (*.*)|*.*.
         /// </summary>
         public static string FileDialogLoadTranscriptionFilter {
             get {
@@ -421,11 +421,29 @@ namespace NanoTrans.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Next Transcription.
+        /// </summary>
+        public static string mainWindowNextTranscriptionTooltip {
+            get {
+                return ResourceManager.GetString("mainWindowNextTranscriptionTooltip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Speaker synchronization.
         /// </summary>
         public static string mainWindowOpenSpeakerSynchronizerTooltip {
             get {
                 return ResourceManager.GetString("mainWindowOpenSpeakerSynchronizerTooltip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Previous Transcription.
+        /// </summary>
+        public static string mainWindowPreviousTranscriptionTooltip {
+            get {
+                return ResourceManager.GetString("mainWindowPreviousTranscriptionTooltip", resourceCulture);
             }
         }
         
@@ -736,8 +754,7 @@ namespace NanoTrans.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 
-        ///Show Video.
+        ///   Looks up a localized string similar to Show Video.
         /// </summary>
         public static string menuToolsVideoShow {
             get {
@@ -1021,6 +1038,24 @@ namespace NanoTrans.Properties {
         public static string PickOneDialogOKButton {
             get {
                 return ResourceManager.GetString("PickOneDialogOKButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Quick save path is not specified.
+        /// </summary>
+        public static string QuickSavePathNotSpecifiedError {
+            get {
+                return ResourceManager.GetString("QuickSavePathNotSpecifiedError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Save Path:.
+        /// </summary>
+        public static string SavePathName {
+            get {
+                return ResourceManager.GetString("SavePathName", resourceCulture);
             }
         }
         
@@ -1453,6 +1488,15 @@ namespace NanoTrans.Properties {
         public static string WaveformContextMenuSetStartToCursor {
             get {
                 return ResourceManager.GetString("WaveformContextMenuSetStartToCursor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Total length of audio file [h:mm:ss].
+        /// </summary>
+        public static string WaveformTooltipAudioLength {
+            get {
+                return ResourceManager.GetString("WaveformTooltipAudioLength", resourceCulture);
             }
         }
         

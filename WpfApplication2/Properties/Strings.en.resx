@@ -666,4 +666,10 @@
   <data name="WaveformTooltipAudioLength" xml:space="preserve">
     <value>Total length of audio file [h:mm:ss]</value>
   </data>
+  <data name="SavePathName" xml:space="preserve">
+    <value>Save Path:</value>
+  </data>
+  <data name="QuickSavePathNotSpecifiedError" xml:space="preserve">
+    <value>Quick save path is not specified</value>
+  </data>
 </root>

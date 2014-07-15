@@ -223,8 +223,7 @@
     <value>Video</value>
   </data>
   <data name="menuToolsVideoShow" xml:space="preserve">
-    <value>
-Show Video</value>
+    <value>Show Video</value>
   </data>
   <data name="MessageBoxAudioFormatError" xml:space="preserve">
     <value>Audio file format cannot be opened. The file is corrupted or  in an invalid format.</value>
@@ -461,7 +460,7 @@ Show Video</value>
     <value>Import file</value>
   </data>
   <data name="FileDialogLoadTranscriptionFilter" xml:space="preserve">
-    <value>Transcription Files (*.trsx)|*.trsx|All Files (*.*)|*.*</value>
+    <value>Transcription Files (*.trsx;*.tlst)|*.trsx;*.tlst|All Files (*.*)|*.*</value>
   </data>
   <data name="FileDialogLoadTranscriptionTitle" xml:space="preserve">
     <value>Open transcription file ...</value>
@@ -657,5 +656,20 @@ Show Video</value>
   </data>
   <data name="mainWindowStatusbarStatusMediaDownloading" xml:space="preserve">
     <value>Downloading media file</value>
+  </data>
+  <data name="mainWindowNextTranscriptionTooltip" xml:space="preserve">
+    <value>Next Transcription</value>
+  </data>
+  <data name="mainWindowPreviousTranscriptionTooltip" xml:space="preserve">
+    <value>Previous Transcription</value>
+  </data>
+  <data name="WaveformTooltipAudioLength" xml:space="preserve">
+    <value>Total length of audio file [h:mm:ss]</value>
+  </data>
+  <data name="SavePathName" xml:space="preserve">
+    <value>Save Path:</value>
+  </data>
+  <data name="QuickSavePathNotSpecifiedError" xml:space="preserve">
+    <value>Quick save path is not specified</value>
   </data>
 </root>
