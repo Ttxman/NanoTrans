@@ -23,11 +23,11 @@
         </Grid.ColumnDefinitions>
 
         <StackPanel Orientation="Vertical" Grid.Column="0">
-            <Button Name="buttonSpeaker" MinWidth="80" HorizontalAlignment="Left" MinHeight="26" MaxHeight="26" FontSize="{Binding Source={x:Static props:Settings.Default}, Path=Setup.SetupOthersFontSize}" Content="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}, Path=ValueElement, Converter={StaticResource SpeakerConverter}}" Click="ButtonSpeaker_Click" Height="26" VerticalAlignment="Top" />
+            <Button Name="buttonSpeaker" MinWidth="80" HorizontalAlignment="Left" MinHeight="26" MaxHeight="26" FontSize="{Binding Source={x:Static props:Settings.Default}, Path=SetupOthersFontSize}" Content="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}, Path=ValueElement, Converter={StaticResource SpeakerConverter}}" Click="ButtonSpeaker_Click" Height="26" VerticalAlignment="Top" />
             <StackPanel Orientation="Horizontal">
                 <StackPanel Orientation="Vertical" Margin="1,1,2,1">
-                    <TextBlock Name="textbegin" VerticalAlignment="Top" HorizontalAlignment="Left" Visibility="Collapsed" Foreground="Green" FontSize="{Binding Source={x:Static props:Settings.Default}, Path=Setup.SetupOthersFontSize}"/>
-                    <TextBlock Name="textend" VerticalAlignment="Top" HorizontalAlignment="Left" Foreground="Red" FontSize="{Binding Source={x:Static props:Settings.Default}, Path=Setup.SetupOthersFontSize}"/>
+                    <TextBlock Name="textbegin" VerticalAlignment="Top" HorizontalAlignment="Left" Visibility="Collapsed" Foreground="Green" FontSize="{Binding Source={x:Static props:Settings.Default}, Path=SetupOthersFontSize}"/>
+                    <TextBlock Name="textend" VerticalAlignment="Top" HorizontalAlignment="Left" Foreground="Red" FontSize="{Binding Source={x:Static props:Settings.Default}, Path=SetupOthersFontSize}"/>
                 </StackPanel>
                 <TextBlock Name="textBlockLanguage" Margin="1,3,3,3" VerticalAlignment="Center" Visibility="{Binding Visibility,ElementName=buttonSpeaker}" Text="{Binding ElementLanguage,Mode=OneWay,RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}"/>
             </StackPanel>
@@ -35,7 +35,7 @@
         <WrapPanel Name="CustomParams" MaxWidth="135" Grid.Column="1"/>
         <StackPanel SnapsToDevicePixels="True" Grid.Column="2" Name="stackPanelAttributes" Background="LightBlue" Width="16" MinHeight="36"/>
 
-        <sd:TextEditor Grid.Column="3" x:Name="editor" BorderThickness="0" Panel.ZIndex="100" FontSize="{Binding Source={x:Static props:Settings.Default}, Path=Setup.SetupTextFontSize}"
+        <sd:TextEditor Grid.Column="3" x:Name="editor" BorderThickness="0" Panel.ZIndex="100" FontSize="{Binding Source={x:Static props:Settings.Default}, Path=SetupTextFontSize}"
                        PreviewKeyDown="editor_PreviewKeyDown" 
                        SnapsToDevicePixels="False" WordWrap="True" 
                        PreviewKeyUp="editor_PreviewKeyUp" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" OverridesDefaultStyle="true">

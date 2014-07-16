@@ -20,8 +20,8 @@
     <Setting Name="SlowedPlaybackSpeedStore" Type="System.Double" Scope="User">
       <Value Profile="(Default)">0.8</Value>
     </Setting>
-    <Setting Name="WaveformSmallJumpStore" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">5</Value>
+    <Setting Name="WaveformSmallJumpStore" Type="System.TimeSpan" Scope="User">
+      <Value Profile="(Default)">00:00:00.0050000</Value>
     </Setting>
     <Setting Name="SetupTextFontSizeStore" Type="System.Double" Scope="User">
       <Value Profile="(Default)">13</Value>
@@ -48,22 +48,22 @@
       <Value Profile="(Default)">----</Value>
     </Setting>
     <Setting Name="ParagraphBackgroundStore" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+      <Value Profile="(Default)">AliceBlue</Value>
     </Setting>
     <Setting Name="SectionBackgroundStore" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+      <Value Profile="(Default)">LightGreen</Value>
     </Setting>
     <Setting Name="ChapterBackgroundStore" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+      <Value Profile="(Default)">LightPink</Value>
     </Setting>
     <Setting Name="ActiveParagraphBackgroundStore" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+      <Value Profile="(Default)">AntiqueWhite</Value>
     </Setting>
     <Setting Name="PhoneticParagraphBackgroundStore" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+      <Value Profile="(Default)">AliceBlue</Value>
     </Setting>
     <Setting Name="PhoneticParagraphDisabledBackgroundStore" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+      <Value Profile="(Default)">LightGray</Value>
     </Setting>
   </Settings>
 </SettingsFile>

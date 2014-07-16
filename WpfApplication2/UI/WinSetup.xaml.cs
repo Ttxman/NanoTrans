@@ -36,7 +36,7 @@ namespace NanoTrans
 
         private SpeakerCollection _speakersDatabase;
 
-        public Settings Setup
+        public Settings Settings
         {
             get { return Settings.Default; }
         }
@@ -56,15 +56,15 @@ namespace NanoTrans
                     cbOutputAudioDevices.Items.Add(s);
                 }
             }
-            if (Setup.OutputDeviceIndex < cbOutputAudioDevices.Items.Count) cbOutputAudioDevices.SelectedIndex = Setup.OutputDeviceIndex;
+            if (Settings.OutputDeviceIndex < cbOutputAudioDevices.Items.Count) cbOutputAudioDevices.SelectedIndex = Settings.OutputDeviceIndex;
 
 
-            string path = Setup.SpeakersDatabasePath;
+            string path = Settings.SpeakersDatabasePath;
             try
             {
                 if (!path.Contains(":")) //absolute
                 {
-                    path = Setup.SpeakersDatabasePath;
+                    path = Settings.SpeakersDatabasePath;
                 }
                 path = new FileInfo(path).FullName;
 
@@ -75,23 +75,22 @@ namespace NanoTrans
             }
 
 
-            tbTextSize.Text = Setup.SetupTextFontSize.ToString();
-            chbShowSpeakerImage.IsChecked = Setup.ShowSpeakerImage;
-            slSpeakerImageSize.Value = Setup.MaxSpeakerImageWidth;
+            tbTextSize.Text = Settings.SetupTextFontSize.ToString();
+            chbShowSpeakerImage.IsChecked = Settings.ShowSpeakerImage;
+            slSpeakerImageSize.Value = Settings.MaxSpeakerImageWidth;
 
 
 
             //playback
 
-            decimal val = (decimal)Setup.SlowedPlaybackSpeed;
+            decimal val = (decimal)Settings.SlowedPlaybackSpeed;
             if (val >= UpDownSpeed.Minimum.Value && val <= UpDownSpeed.Maximum.Value)
                 UpDownSpeed.Value = val;
 
-            val = (decimal)(Setup.WaveformSmallJump);
+            val = (decimal)(Settings.WaveformSmallJump.TotalMilliseconds);
             if (val >= UpDownJump.Minimum.Value && val <= UpDownJump.Maximum.Value)
                 UpDownJump.Value = val;
 
-            //setup.Localization
             int index = AvailableCultures.Select((c, i) => new { c, i }).FirstOrDefault(p => p.c.DisplayName == LocalizeDictionary.Instance.Culture.DisplayName).i;
             LocalizationSelection.SelectedItem = preselectionCulture = AvailableCultures[index];
 
@@ -123,7 +122,7 @@ namespace NanoTrans
             if (LocalizationSelection.SelectedItem != null)
             {
                 LocalizeDictionary.Instance.Culture = (CultureInfo)LocalizationSelection.SelectedItem;
-                Setup.Locale = LocalizeDictionary.Instance.Culture.IetfLanguageTag;
+                Settings.Locale = LocalizeDictionary.Instance.Culture.IetfLanguageTag;
 
             }
         }
@@ -132,12 +131,12 @@ namespace NanoTrans
         {
             //properties on setup are from very old version and not binded... all items have to be saved manually
             //spaker database
-            Setup.SpeakersDatabasePath= tbSpeakerDBPath.Text;
+            Settings.SpeakersDatabasePath= tbSpeakerDBPath.Text;
 
             //fonts
             try
             {
-                Setup.SetupTextFontSize = double.Parse(tbTextSize.Text);
+                Settings.SetupTextFontSize = double.Parse(tbTextSize.Text);
             }
             catch
             {
@@ -145,12 +144,12 @@ namespace NanoTrans
             }
 
             //image
-            Setup.ShowSpeakerImage = (bool)chbShowSpeakerImage.IsChecked;
-            Setup.MaxSpeakerImageWidth = slSpeakerImageSize.Value;
+            Settings.ShowSpeakerImage = (bool)chbShowSpeakerImage.IsChecked;
+            Settings.MaxSpeakerImageWidth = slSpeakerImageSize.Value;
 
             //playback
-            Setup.SlowedPlaybackSpeed = (double)UpDownSpeed.Value;
-            Setup.WaveformSmallJump = (double)UpDownJump.Value;
+            Settings.SlowedPlaybackSpeed = (double)UpDownSpeed.Value;
+            Settings.WaveformSmallJump = TimeSpan.FromMilliseconds((double)UpDownJump.Value);
 
             this.Close();
         }
@@ -162,7 +161,7 @@ namespace NanoTrans
             fileDialog.Title = Properties.Strings.FileDialogLoadSpeakersDatabaseTitle;
             fileDialog.Filter = string.Format(Properties.Strings.FileDialogLoadSpeakersDatabaseFilter, "*.xml", "*.xml");
 
-            FileInfo fi = new FileInfo(Setup.SpeakersDatabasePath);
+            FileInfo fi = new FileInfo(Settings.SpeakersDatabasePath);
             if (fi != null && fi.Directory.Exists)
                 fileDialog.InitialDirectory = fi.DirectoryName;
             else fileDialog.InitialDirectory = FilePaths.DefaultDirectory;
@@ -182,7 +181,7 @@ namespace NanoTrans
                     _speakersDatabase.Serialize();
                 }
 
-                tbSpeakerDBPath.Text = Setup.SpeakersDatabasePath = fileDialog.FileName;
+                tbSpeakerDBPath.Text = Settings.SpeakersDatabasePath = fileDialog.FileName;
             }
         }
 

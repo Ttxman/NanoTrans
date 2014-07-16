@@ -147,7 +147,7 @@ namespace NanoTrans.Properties
                 OnPropertyChanged();
             }
         }
-        public double WaveformSmallJump
+        public TimeSpan WaveformSmallJump
         {
             get
             {
@@ -378,16 +378,6 @@ namespace NanoTrans.Properties
 
             if (string.IsNullOrEmpty(SpeakersDatabasePathStore))
                 SpeakersDatabasePathStore = FilePaths.GetDefaultSpeakersPath();
-
-            SaveWholeSpeaker = false;
-
-            ParagraphBackground = Brushes.AliceBlue;
-            ActiveParagraphBackground = Brushes.AntiqueWhite;
-            PhoneticParagraphBackground = Brushes.AliceBlue;
-            PhoneticParagraphDisabledBackground = Brushes.LightGray;
-            SectionBackground = Brushes.LightGreen;
-            ChapterBackground = Brushes.LightPink;
-
             LocalizeDictionary.Instance.PropertyChanged += LocalizationInstance_PropertyChanged;
         }
 

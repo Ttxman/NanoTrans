@@ -97,10 +97,10 @@ namespace NanoTrans.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("5")]
-        public double WaveformSmallJumpStore {
+        [global::System.Configuration.DefaultSettingValueAttribute("00:00:00.0050000")]
+        public global::System.TimeSpan WaveformSmallJumpStore {
             get {
-                return ((double)(this["WaveformSmallJumpStore"]));
+                return ((global::System.TimeSpan)(this["WaveformSmallJumpStore"]));
             }
             set {
                 this["WaveformSmallJumpStore"] = value;
@@ -205,7 +205,7 @@ namespace NanoTrans.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.DefaultSettingValueAttribute("AliceBlue")]
         public string ParagraphBackgroundStore {
             get {
                 return ((string)(this["ParagraphBackgroundStore"]));
@@ -217,7 +217,7 @@ namespace NanoTrans.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.DefaultSettingValueAttribute("LightGreen")]
         public string SectionBackgroundStore {
             get {
                 return ((string)(this["SectionBackgroundStore"]));
@@ -229,7 +229,7 @@ namespace NanoTrans.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.DefaultSettingValueAttribute("LightPink")]
         public string ChapterBackgroundStore {
             get {
                 return ((string)(this["ChapterBackgroundStore"]));
@@ -241,7 +241,7 @@ namespace NanoTrans.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.DefaultSettingValueAttribute("AntiqueWhite")]
         public string ActiveParagraphBackgroundStore {
             get {
                 return ((string)(this["ActiveParagraphBackgroundStore"]));
@@ -253,7 +253,7 @@ namespace NanoTrans.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.DefaultSettingValueAttribute("AliceBlue")]
         public string PhoneticParagraphBackgroundStore {
             get {
                 return ((string)(this["PhoneticParagraphBackgroundStore"]));
@@ -265,7 +265,7 @@ namespace NanoTrans.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.DefaultSettingValueAttribute("LightGray")]
         public string PhoneticParagraphDisabledBackgroundStore {
             get {
                 return ((string)(this["PhoneticParagraphDisabledBackgroundStore"]));
