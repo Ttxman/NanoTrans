@@ -736,7 +736,7 @@ namespace NanoTrans
             }
             else
             {
-                if (MessageBox.Show(Properties.Strings.MessageBoxSearchTryFromBegining, Properties.Strings.MessageBoxSearchCaption, MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes)
+                if (MessageBox.Show(Properties.Strings.MessageBoxSearchTryFromBegining, Properties.Strings.MessageBoxSearchCaption, MessageBoxButton.OKCancel, MessageBoxImage.Information) == MessageBoxResult.OK)
                 {
                     var first = _transcription.First();
                     VirtualizingListBox.ActiveTransctiption = first;

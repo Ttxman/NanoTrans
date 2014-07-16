@@ -31,11 +31,15 @@ namespace NanoTrans
         {
             _parent = parent;
             InitializeComponent();
+            textBox1.Text = lastSearched;
         }
+
+        static string lastSearched = "";
 
         bool searching = false;
         public void SearchNext()
-        { 
+        {
+            lastSearched = textBox1.Text;
             _parent.FindNext(textBox1.Text,checkBox2.IsChecked == true,checkBox1.IsChecked == true, checkBox3.IsChecked == true);
             searching = true;
             _parent.VirtualizingListBox.UpdateLayout();
