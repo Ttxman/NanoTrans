@@ -24,10 +24,7 @@ WPFToolkit.Extended http://wpftoolkit.codeplex.com/releases/view/94810 ... for a
 
 
 #Warnings!!!
-1. Automatic versioning is broken by the transition from SVN to GIT.
-2. Updater and Update Builder is not working because 1
-3. Installer was removed due to severe changes in project structure
-4. You can currently download (from settings) only czech spellchecker definitions (for other languages you have to   download it manually and load zip)
+1. You can currently download (from settings) only czech spellchecker definitions (for other languages you have to   download it manually and load zip)
 
 
 #Todo
