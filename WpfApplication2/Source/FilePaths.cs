@@ -284,6 +284,7 @@ namespace NanoTrans
         public static string SelectFolderDialog(bool ovewriteprompt = true)
         {
             SaveFileDialog sd = new SaveFileDialog();
+            sd.FileName = "dummy name";
             sd.OverwritePrompt = ovewriteprompt;
             if (sd.ShowDialog() == true)
             {
