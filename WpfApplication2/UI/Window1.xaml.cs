@@ -2004,7 +2004,7 @@ namespace NanoTrans
         {
             FilePaths.SelectFolderDialog(false);
             tbQuickSavePath.Text = System.IO.Path.GetDirectoryName(FilePaths.QuickSaveDirectory);
-            tbQuickSaveName.Text = System.IO.Path.GetFileName(FilePaths.QuickSaveDirectory);
+            tbQuickSaveName.Text = "\\" + System.IO.Path.GetFileName(FilePaths.QuickSaveDirectory);
         }
     }
 }
