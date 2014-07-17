@@ -35,6 +35,7 @@ using NanoTrans.OnlineAPI;
 using System.Runtime.CompilerServices;
 using System.ComponentModel;
 using NanoTrans.Properties;
+using System.Collections.ObjectModel;
 
 namespace NanoTrans
 {
@@ -52,11 +53,16 @@ namespace NanoTrans
         }
 
         #region transcription walking
-        List<FileInfo> _TranscriptionList = new List<FileInfo>();
+        ObservableCollection<FileInfo> _TranscriptionList = new ObservableCollection<FileInfo>();
 
-        public List<FileInfo> TranscriptionList
+        public ObservableCollection<FileInfo> TranscriptionList
         {
             get { return _TranscriptionList; }
+            private set 
+            { 
+                _TranscriptionList =value ;
+                OnPropertyChanged();
+            }
         }
 
         int _transcriptionIndex = 0;
@@ -64,8 +70,18 @@ namespace NanoTrans
         public int TranscriptionIndex
         {
             get { return _transcriptionIndex; }
-            set { _transcriptionIndex = value; }
+            set 
+            { 
+                _transcriptionIndex = value;
+                OnPropertyChanged();
+                OnPropertyChanged("IsPreviousTranscriptionAvailable");
+                OnPropertyChanged("IsNextTranscriptionAvailable");
+                OnPropertyChanged("TranscriptionName");
+                OnPropertyChanged("PreviousTranscriptionName");
+                OnPropertyChanged("NextTranscriptionName");
+            }
         }
+
         public bool IsPreviousTranscriptionAvailable
         {
             get { return _transcriptionIndex > 0; }
@@ -88,17 +104,6 @@ namespace NanoTrans
         public string NextTranscriptionName
         {
             get { return (IsNextTranscriptionAvailable) ? _TranscriptionList[_transcriptionIndex + 1].Name : ""; }
-        }
-
-        void TranscriptionListChanged()
-        {
-            OnPropertyChanged("IsPreviousTranscriptionAvailable");
-            OnPropertyChanged("IsNextTranscriptionAvailable");
-            OnPropertyChanged("TranscriptionName");
-            OnPropertyChanged("PreviousTranscriptionName");
-            OnPropertyChanged("NextTranscriptionName");
-            OnPropertyChanged("TranscriptionList");
-            OnPropertyChanged("TranscriptionIndex");
         }
 
         #endregion
@@ -506,9 +511,7 @@ namespace NanoTrans
             SynchronizeSpeakers();
             VirtualizingListBox.ActiveTransctiption = p;
 
-            _TranscriptionList.Clear();
-            _transcriptionIndex = 0;
-            TranscriptionListChanged();
+            TranscriptionList.Clear();
 
             return true;
         }
@@ -565,24 +568,19 @@ namespace NanoTrans
             var ext = System.IO.Path.GetExtension(fileName);
             if (ext == ".tlst") //list of transcriptions
             {
-                _TranscriptionList = File.ReadAllLines(fileName).Select(l => new FileInfo(l)).ToList();
-                _transcriptionIndex = 0;
-                fileName = _TranscriptionList[_transcriptionIndex].FullName;
-                TranscriptionListChanged();
+                TranscriptionList = new ObservableCollection<FileInfo>(File.ReadAllLines(fileName).Select(l => new FileInfo(l)));
+                TranscriptionIndex = 0;
+                fileName = TranscriptionList[TranscriptionIndex].FullName;
             }
             else if (!listing)
             {
-                _TranscriptionList.Clear();
                 var dir = new DirectoryInfo(System.IO.Path.GetDirectoryName(fileName));
-                _TranscriptionList = dir.GetFiles("*" + ext).ToList();
-                _transcriptionIndex = _TranscriptionList.FindIndex(f => f.FullName == fileName);
-                TranscriptionListChanged();
-
+                TranscriptionList = new ObservableCollection<FileInfo>(dir.GetFiles("*" + ext));
+                TranscriptionIndex = TranscriptionList.ToList().FindIndex(f => f.FullName == fileName);
             }
             else //moving through list
             {
-                _transcriptionIndex = _TranscriptionList.FindIndex(f => f.FullName == fileName);
-                TranscriptionListChanged();
+                TranscriptionIndex = TranscriptionList.ToList().FindIndex(f => f.FullName == fileName);
             }
 
             var trans = WPFTranscription.Deserialize(fileName);
@@ -770,7 +768,7 @@ namespace NanoTrans
                         var onl = await _api.UploadTranscription(Transcription);
                         Transcription.Saved = onl;
                         return onl;
-                            
+
                     }
                 }
                 else if (Transcription.Serialize(savePath, Settings.Default.SaveWholeSpeaker))
