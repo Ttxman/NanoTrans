@@ -32,6 +32,7 @@ namespace NanoTrans
             _parent = parent;
             InitializeComponent();
             textBox1.Text = lastSearched;
+            textBox1.SelectAll();
         }
 
         static string lastSearched = "";
