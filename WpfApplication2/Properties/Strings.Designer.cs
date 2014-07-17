@@ -772,6 +772,15 @@ namespace NanoTrans.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Transcription cannot be loaded.
+        /// </summary>
+        public static string MessageBoxCannotLoadTranscription {
+            get {
+                return ResourceManager.GetString("MessageBoxCannotLoadTranscription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cannot capture a speaker miniature, video is not loaded-.
         /// </summary>
         public static string MessageBoxCannotTakeSnapshotVideoNotLoaded {

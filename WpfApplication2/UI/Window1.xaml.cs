@@ -58,9 +58,9 @@ namespace NanoTrans
         public ObservableCollection<FileInfo> TranscriptionList
         {
             get { return _TranscriptionList; }
-            private set 
-            { 
-                _TranscriptionList =value ;
+            private set
+            {
+                _TranscriptionList = value;
                 OnPropertyChanged();
             }
         }
@@ -70,8 +70,8 @@ namespace NanoTrans
         public int TranscriptionIndex
         {
             get { return _transcriptionIndex; }
-            set 
-            { 
+            set
+            {
                 _transcriptionIndex = value;
                 OnPropertyChanged();
                 OnPropertyChanged("IsPreviousTranscriptionAvailable");
@@ -519,46 +519,55 @@ namespace NanoTrans
 
 
 
-        public async Task<bool> OpenTranscription(bool useOpenDialog, string fileName)
+        public async Task OpenTranscription(bool useOpenDialog, string fileName, bool listing = false)
         {
             try
             {
                 if (!await TrySaveUnsavedChanges())
-                    return false;
+                    return;//cancel
 
-                if (Transcription == null) Transcription = new WPFTranscription();
-                if (useOpenDialog)
+                if (Transcription == null)
+                    Transcription = new WPFTranscription();
+
+                bool loadedsucessfuly = false;
+
+                if (listing)
+                {
+                    loadedsucessfuly = TryLoadTranscription(fileName, listing);
+                }
+                else if (useOpenDialog)
                 {
                     Microsoft.Win32.OpenFileDialog fileDialog = new Microsoft.Win32.OpenFileDialog();
 
                     fileDialog.Title = Properties.Strings.FileDialogLoadTranscriptionTitle;
                     fileDialog.Filter = Properties.Strings.FileDialogLoadTranscriptionFilter;
-                    //fileDialog.FilterIndex = 1;
                     fileDialog.RestoreDirectory = true;
 
                     if (fileDialog.ShowDialog() == true)
                     {
-                        return TryLoadTranscription(fileDialog.FileName);
+                        loadedsucessfuly = TryLoadTranscription(fileDialog.FileName);
                     }
                     else
                     {
-                        return false;
+                        return; //cancel loading
                     }
                 }
                 else
                 {
-                    if (!TryLoadTranscription(fileName))
-                    {
-                        await NewTranscription();
-                    }
-
-                    return true;
+                    loadedsucessfuly = TryLoadTranscription(fileName);
                 }
+
+
+                if (!loadedsucessfuly)
+                {
+                    MessageBox.Show(Properties.Strings.MessageBoxCannotLoadTranscription, Properties.Strings.MessageBoxCannotLoadTranscription,MessageBoxButton.OK,MessageBoxImage.Information);
+                    await NewTranscription();
+                }
+
             }
             catch (Exception ex)
             {
                 MessageBox.Show(Properties.Strings.MessageBoxOpenTranscriptionError + ex.Message + ":" + fileName, Properties.Strings.MessageBoxErrorCaption, MessageBoxButton.OK, MessageBoxImage.Error);
-                return false;
             }
         }
 
@@ -578,10 +587,12 @@ namespace NanoTrans
                 TranscriptionList = new ObservableCollection<FileInfo>(dir.GetFiles("*" + ext));
                 TranscriptionIndex = TranscriptionList.ToList().FindIndex(f => f.FullName == fileName);
             }
-            else //moving through list
+            else if (listing) //moving through list
             {
                 TranscriptionIndex = TranscriptionList.ToList().FindIndex(f => f.FullName == fileName);
             }
+            else
+                return false;
 
             var trans = WPFTranscription.Deserialize(fileName);
 
@@ -1978,23 +1989,24 @@ namespace NanoTrans
             VirtualizingListBox.Reset();
         }
 
-        private void Button_Click_1(object sender, RoutedEventArgs e)
+        private async void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            TryLoadTranscription(_TranscriptionList[_transcriptionIndex - 1].FullName, true);
+            await OpenTranscription(false, _TranscriptionList[_transcriptionIndex - 1].FullName, true);
 
         }
 
-        private void Button_Click_3(object sender, RoutedEventArgs e)
+        private async void Button_Click_3(object sender, RoutedEventArgs e)
         {
-            TryLoadTranscription(_TranscriptionList[_transcriptionIndex + 1].FullName, true);
+            await OpenTranscription(false, _TranscriptionList[_transcriptionIndex + 1].FullName, true);
         }
 
-        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var box = sender as ComboBox;
             if (box.SelectedIndex < 0 || TranscriptionIsLoading)
                 return;
-            TryLoadTranscription(_TranscriptionList[box.SelectedIndex].FullName, true);
+
+            await OpenTranscription(false, _TranscriptionList[box.SelectedIndex].FullName, true);
         }
 
 

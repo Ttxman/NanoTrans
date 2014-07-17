@@ -672,4 +672,7 @@
   <data name="QuickSavePathNotSpecifiedError" xml:space="preserve">
     <value>Cesta pro rychlé ukádání není nastavena</value>
   </data>
+  <data name="MessageBoxCannotLoadTranscription" xml:space="preserve">
+    <value>Nelze načíst přepis</value>
+  </data>
 </root>

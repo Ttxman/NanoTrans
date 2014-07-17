@@ -672,4 +672,7 @@
   <data name="QuickSavePathNotSpecifiedError" xml:space="preserve">
     <value>Quick save path is not specified</value>
   </data>
+  <data name="MessageBoxCannotLoadTranscription" xml:space="preserve">
+    <value>Transcription cannot be loaded</value>
+  </data>
 </root>
