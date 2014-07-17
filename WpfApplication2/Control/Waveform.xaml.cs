@@ -712,8 +712,8 @@ namespace NanoTrans
                                     speaker.Cursor = Cursors.Arrow;
                                     if (pText != null && pText != "") speaker.ToolTip = speaker.Content;
                                     speaker.Tag = pParagraph;
-                                    speaker.Click += new RoutedEventHandler(pMluvci_Click);
-                                    speaker.MouseDoubleClick += new MouseButtonEventHandler(pMluvci_MouseDoubleClick);
+                                    speaker.Click += new RoutedEventHandler(pSpeaker_Click);
+                                    speaker.MouseDoubleClick += new MouseButtonEventHandler(pSepaker_MouseDoubleClick);
 
 
                                     DockPanel dp = new DockPanel() { LastChildFill = true, Margin = new Thickness(0, 0, 0, 0) };
@@ -756,7 +756,7 @@ namespace NanoTrans
                                     dp.Children.Add(dp2);
                                     speaker.Content = dp;
 
-                                    speaker.SizeChanged += new SizeChangedEventHandler(pMluvci_SizeChanged);
+                                    speaker.SizeChanged += new SizeChangedEventHandler(pSpeaker_SizeChanged);
 
                                     //speaker.SetValue(Grid.RowProperty, 1);
                                     this.speakerButtons.Add(speaker);
@@ -766,28 +766,29 @@ namespace NanoTrans
                     }
                 }
 
+                //TODO: change speaker adding that int not require wavegrid.UpdateLayout();
                 TranscriptionParagraph previous = null;
                 TranscriptionParagraph next = null;
                 for (int i = 0; i < this.speakerButtons.Count; i++)
                 {
-                    Button pMluvci = this.speakerButtons[i];
-                    Grid.SetRow(pMluvci, 1);
-                    Grid.SetColumn(pMluvci, 0);
-                    TranscriptionParagraph pPar = pMluvci.Tag as TranscriptionParagraph;
+                    Button pSpeaker = this.speakerButtons[i];
+                    Grid.SetRow(pSpeaker, 1);
+                    Grid.SetColumn(pSpeaker, 0);
+                    TranscriptionParagraph pPar = pSpeaker.Tag as TranscriptionParagraph;
                     if (i < this.speakerButtons.Count - 1)
                     {
                         next = this.speakerButtons[i + 1].Tag as TranscriptionParagraph;
                     }
                     if (previous != null && previous.End > pPar.Begin && speakerButtons[i - 1].Margin.Top < 5)
                     {
-                        wavegrid.Children.Add(pMluvci);
+                        wavegrid.Children.Add(pSpeaker);
 
                         wavegrid.UpdateLayout();
-                        pMluvci.Margin = new Thickness(pMluvci.Margin.Left, pMluvci.ActualHeight, pMluvci.Margin.Right, pMluvci.Margin.Bottom);
+                        pSpeaker.Margin = new Thickness(pSpeaker.Margin.Left, pSpeaker.ActualHeight, pSpeaker.Margin.Right, pSpeaker.Margin.Bottom);
                     }
                     else
                     {
-                        wavegrid.Children.Add(pMluvci);
+                        wavegrid.Children.Add(pSpeaker);
                     }
 
                     previous = pPar;
@@ -822,7 +823,7 @@ namespace NanoTrans
         }
 
 
-        void pMluvci_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        void pSepaker_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             TranscriptionParagraph pTag = (sender as Button).Tag as TranscriptionParagraph;
             if (ParagraphDoubleClick != null)
@@ -833,7 +834,7 @@ namespace NanoTrans
 
 
 
-        void pMluvci_SizeChanged(object sender, SizeChangedEventArgs e)
+        void pSpeaker_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             if (sender is Button)
             {
@@ -848,7 +849,7 @@ namespace NanoTrans
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void pMluvci_Click(object sender, RoutedEventArgs e)
+        void pSpeaker_Click(object sender, RoutedEventArgs e)
         {
 
             TranscriptionParagraph pTag = (sender as Button).Tag as TranscriptionParagraph;
@@ -1231,8 +1232,6 @@ namespace NanoTrans
                         ElementChanged(this, new MyTranscriptionElementEventArgs(current));
                 }
             }
-
-
         }
 
 
