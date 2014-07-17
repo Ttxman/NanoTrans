@@ -35,6 +35,7 @@ namespace NanoTrans
             {
                 wave.BeginMS = (long)value.TotalMilliseconds;
                 InvalidateWaveform();
+                InvalidateSpeakers();
                 OnPropertyChanged();
             }
         }
@@ -46,6 +47,7 @@ namespace NanoTrans
             {
                 wave.EndMS = (long)value.TotalMilliseconds;
                 InvalidateWaveform();
+                InvalidateSpeakers();
                 OnPropertyChanged();
             }
         }
@@ -57,6 +59,7 @@ namespace NanoTrans
             {
                 wave.SetWaveLength((long)value.TotalMilliseconds);
                 InvalidateWaveform();
+                InvalidateSpeakers();
                 OnPropertyChanged();
             }
         }
@@ -620,7 +623,6 @@ namespace NanoTrans
                 img.Freeze();
                 WaveFormImage = img;
                 invalidate_waveform = false;
-                InvalidateSpeakers();
             }
             catch// (Exception ex)
             {
