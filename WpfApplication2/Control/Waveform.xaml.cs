@@ -467,6 +467,8 @@ namespace NanoTrans
 
             double begin = wave.BeginMS;
             double end = wave.EndMS;
+
+            //TODO: remove TryCatch
             try
             {
                 if (this.Dispatcher.Thread != System.Threading.Thread.CurrentThread)
@@ -641,6 +643,7 @@ namespace NanoTrans
         private List<Button> speakerButtons = new List<Button>();
         private void iInvalidateSpeakers()
         {
+            //TODO: remove try catch
             try
             {
                 Transcription transc = _subtitlesData;
