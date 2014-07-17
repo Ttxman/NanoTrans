@@ -1146,6 +1146,8 @@ namespace NanoTrans
                 return;
 
             int ix = speakerButtons.IndexOf(b);
+            if (ix < 0)
+                return;
 
             Button bp = (ix == 0) ? null : speakerButtons[ix - 1];
             Button bn = (ix == speakerButtons.Count - 1) ? null : speakerButtons[ix + 1];
