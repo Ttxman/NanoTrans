@@ -2003,7 +2003,8 @@ namespace NanoTrans
         private void Button_Click_4(object sender, RoutedEventArgs e)
         {
             FilePaths.SelectFolderDialog(false);
-            tbQuickSavePath.Text = FilePaths.QuickSaveDirectory;
+            tbQuickSavePath.Text = System.IO.Path.GetDirectoryName(FilePaths.QuickSaveDirectory);
+            tbQuickSaveName.Text = System.IO.Path.GetFileName(FilePaths.QuickSaveDirectory);
         }
     }
 }

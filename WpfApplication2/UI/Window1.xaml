@@ -163,9 +163,16 @@
                     </Button>
                     <ComboBox MaxWidth="300" ItemsSource="{Binding ElementName=window, Path=TranscriptionList}" SelectedIndex="{Binding ElementName=window, Path=TranscriptionIndex}" SelectionChanged="ComboBox_SelectionChanged"></ComboBox>
                 </ToolBar>
-                <ToolBar BandIndex="3" >
+                <ToolBar BandIndex="3">
                     <Label Content="{lex:Loc Key=SavePathName}"/>
-                    <TextBlock VerticalAlignment="Center" Name="tbQuickSavePath"  TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" MaxWidth="300"></TextBlock>
+                    <Grid MaxWidth="300">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock VerticalAlignment="Center" Name="tbQuickSavePath" TextTrimming="CharacterEllipsis" Grid.Column="0"></TextBlock>
+                        <TextBlock VerticalAlignment="Center" Name="tbQuickSaveName" Grid.Column="1"></TextBlock>
+                    </Grid>
                     <Button Click="Button_Click_4">sp</Button>
                 </ToolBar>
             </ToolBarTray>
