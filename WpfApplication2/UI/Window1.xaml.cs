@@ -698,7 +698,7 @@ namespace NanoTrans
         /// <returns>true when save was sucessful; false when user cancels or on error when saving</returns>
         private async Task<bool> TrySaveUnsavedChanges()
         {
-            if (Transcription == null || Transcription.Saved)
+            if (Transcription == null || Transcription.Saved || (Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift)
                 return true;
 
             MessageBoxResult mbr = MessageBox.Show(Properties.Strings.MessageBoxSaveBeforeClosing, Properties.Strings.MessageBoxQuestionCaption, MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
