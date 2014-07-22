@@ -8,6 +8,7 @@ using System.IO;
 
 namespace NanoTrans
 {
+    //TODO: remove class
     public static class Const
     {
         public const string APP_NAME = "NanoTrans";

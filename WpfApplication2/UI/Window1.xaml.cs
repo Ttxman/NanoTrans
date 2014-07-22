@@ -828,17 +828,10 @@ namespace NanoTrans
             }
         }
 
-        private void VyberFonetikuMeziCasovymiZnackami(TimeSpan aPoziceKurzoru)
+        private void SelectTextBetweenTimeOffsets(TimeSpan cursorPosition)
         {
-            phoneticTranscription.HiglightedPostion = aPoziceKurzoru;
-        }
-
-
-        private void SelectTextBetweenTimeOffsets(TimeSpan aPoziceKurzoru)
-        {
-            VirtualizingListBox.HiglightedPostion = aPoziceKurzoru;
-
-            VyberFonetikuMeziCasovymiZnackami(aPoziceKurzoru);
+            VirtualizingListBox.HiglightedPostion = cursorPosition;
+            phoneticTranscription.HiglightedPostion = cursorPosition;
         }
 
         public void InitializeTimer()
@@ -1199,12 +1192,14 @@ namespace NanoTrans
         }
 
 
-        private async void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             if (Pedalthread != null)
                 Pedalthread.Abort();
 
-            if (!await TrySaveUnsavedChanges() || !TrySaveSpeakersDatabase())
+            var res = AsyncHelpers.RunSync(() => TrySaveUnsavedChanges());
+
+            if (!res || !TrySaveSpeakersDatabase())
             {
                 e.Cancel = true;
                 return;
