@@ -144,7 +144,7 @@ namespace NanoTrans
             _api.Trans.DocumentID = _api.Info.DocumentId;
             Status = "Loading speakers from databse";
 
-            var sp1 = await _api.ListSpeakers(_api.Trans.Speakers.Select(s => s.DBID));
+            var sp1 = await _api.ListSpeakers(_api.Trans.Speakers.Where(s=>s.DBType == Core.DBType.Api).Select(s => s.DBID));
             var respeakers = sp1.ToArray();
 
             for (int i = 0; i < respeakers.Length; i++)
