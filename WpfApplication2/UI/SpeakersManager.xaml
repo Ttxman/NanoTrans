@@ -109,9 +109,11 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="2*"/>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Button Click="ButtonOK_Click" Content="{lex:LocText SpeakersManagerButtonOK}" Grid.Column="0"/>
-                <Button Click="ButtonCancel_Click" Content="{lex:LocText SpeakersManagerButtonCancel}" Grid.Column="1"/>
+                <Button Click="ButtonOKAll_Click" Content="{lex:LocText SpeakersManagerButtonOKAll}" Grid.Column="1"/>
+                <Button Click="ButtonCancel_Click" Content="{lex:LocText SpeakersManagerButtonCancel}" Grid.Column="2"/>
             </Grid>
         </StackPanel>
         <my:SpeakerControl Margin="5,0,0,0" x:Name="SpeakerDetails" Grid.Row="2" Grid.Column="1" SpeakerContainer="{Binding ElementName=SpeakersBox,Path=SelectedItem}" IsEnabled="{Binding ElementName=manager,Path=Editable}" Grid.RowSpan="3" RevertSpeakerClick="SpeakerDetails_RevertSpeakerRequest" SaveSpeakerClick="SpeakerDetails_SaveSpeakerClick"  />

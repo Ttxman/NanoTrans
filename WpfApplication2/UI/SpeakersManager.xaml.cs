@@ -292,34 +292,6 @@ namespace NanoTrans
         }
 
 
-        private void MenuItemReplaceSpeaker_Click(object sender, RoutedEventArgs e)
-        {
-            var selectedSpeaker = ((SpeakerContainer)SpeakersBox.SelectedValue).Speaker;
-            SpeakersManager sm2 = new SpeakersManager(selectedSpeaker, _transcription, _documentSpeakers, _localSpeakers)
-            {
-                MessageLabel = "Vyberte mluvčího kterým v přepisu nahradíte:",
-                Message = selectedSpeaker.FullName,
-                Editable = false,
-                SelectMany = false
-            };
-
-
-
-            if (sm2.ShowDialog() == true)
-            {
-                _transcription.Saved = false;
-                var speaker = ((SpeakerContainer)sm2.SpeakersBox.SelectedValue).Speaker;
-                if (MessageBox.Show(string.Format("Opravdu chcete v prepisu nahradit mluvčího \"{0}\" mluvčím  \"{1}\"?", selectedSpeaker.FullName, speaker.FullName), "Nahrazení mluvčího", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
-                {
-                    foreach (TranscriptionParagraph tp in _transcription.EnumerateParagraphs())
-                    {
-                        if (tp.Speaker == selectedSpeaker)
-                            tp.Speaker = speaker;
-                    }
-                }
-            }
-        }
-
         private async void SpeakerDetails_RevertSpeakerRequest(SpeakerContainer spk)
         {
             using (var wc = new WaitCursor())
@@ -400,6 +372,40 @@ namespace NanoTrans
                         spk.Changed = false;
                 }
             }
+        }
+
+
+        private void MenuItemReplaceSpeaker_Click(object sender, RoutedEventArgs e)
+        {
+            var selectedSpeaker = ((SpeakerContainer)SpeakersBox.SelectedValue).Speaker;
+            SpeakersManager sm2 = new SpeakersManager(selectedSpeaker, _transcription, _documentSpeakers, _localSpeakers)
+            {
+                MessageLabel = Properties.Strings.SpeakersManagerSpeakerSelectLabel,
+                Message = selectedSpeaker.FullName,
+                Editable = false,
+                SelectMany = false
+            };
+
+
+
+            if (sm2.ShowDialog() == true)
+            {
+                _transcription.Saved = false;
+                var speaker = ((SpeakerContainer)sm2.SpeakersBox.SelectedValue).Speaker;
+                if (MessageBox.Show(string.Format(Properties.Strings.SpeakersManagerSpeakerReplaceDialogQuestionFormat, selectedSpeaker.FullName, speaker.FullName), Properties.Strings.SpeakersManagerSpeakerReplaceDialogCaption, MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                {
+                    foreach (TranscriptionParagraph tp in _transcription.EnumerateParagraphs())
+                    {
+                        if (tp.Speaker == selectedSpeaker)
+                            tp.Speaker = speaker;
+                    }
+                }
+            }
+        }
+
+        private void ButtonOKAll_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 

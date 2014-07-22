@@ -1213,11 +1213,20 @@ namespace NanoTrans.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to OK.
+        ///   Looks up a localized string similar to Replace.
         /// </summary>
         public static string SpeakersManagerButtonOK {
             get {
                 return ResourceManager.GetString("SpeakersManagerButtonOK", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Replace all.
+        /// </summary>
+        public static string SpeakersManagerButtonOKAll {
+            get {
+                return ResourceManager.GetString("SpeakersManagerButtonOKAll", resourceCulture);
             }
         }
         
@@ -1299,6 +1308,33 @@ namespace NanoTrans.Properties {
         public static string SpeakersManagerLabelSearch {
             get {
                 return ResourceManager.GetString("SpeakersManagerLabelSearch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Replace speaker.
+        /// </summary>
+        public static string SpeakersManagerSpeakerReplaceDialogCaption {
+            get {
+                return ResourceManager.GetString("SpeakersManagerSpeakerReplaceDialogCaption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Replace speaker &quot;{0}&quot; with &quot;{1}&quot;?.
+        /// </summary>
+        public static string SpeakersManagerSpeakerReplaceDialogQuestionFormat {
+            get {
+                return ResourceManager.GetString("SpeakersManagerSpeakerReplaceDialogQuestionFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Select speaker that will replace:.
+        /// </summary>
+        public static string SpeakersManagerSpeakerSelectLabel {
+            get {
+                return ResourceManager.GetString("SpeakersManagerSpeakerSelectLabel", resourceCulture);
             }
         }
         

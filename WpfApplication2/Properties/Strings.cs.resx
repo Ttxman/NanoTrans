@@ -571,7 +571,7 @@
     <value>Nový mluvčí</value>
   </data>
   <data name="SpeakersManagerButtonOK" xml:space="preserve">
-    <value>OK</value>
+    <value>Nahradit</value>
   </data>
   <data name="SpeakersManagerCheckboxDocumentSpeakers" xml:space="preserve">
     <value>Mluvčí z přepisu</value>
@@ -674,5 +674,17 @@
   </data>
   <data name="MessageBoxCannotLoadTranscription" xml:space="preserve">
     <value>Nelze načíst přepis</value>
+  </data>
+  <data name="SpeakersManagerButtonOKAll" xml:space="preserve">
+    <value>Nahradit vše</value>
+  </data>
+  <data name="SpeakersManagerSpeakerReplaceDialogCaption" xml:space="preserve">
+    <value>Nahrazení mluvčího</value>
+  </data>
+  <data name="SpeakersManagerSpeakerReplaceDialogQuestionFormat" xml:space="preserve">
+    <value>Opravdu chcete v prepisu nahradit mluvčího "{0}" mluvčím  "{1}"?</value>
+  </data>
+  <data name="SpeakersManagerSpeakerSelectLabel" xml:space="preserve">
+    <value>Vyberte mluvčího kterým v přepisu nahradíte:</value>
   </data>
 </root>
