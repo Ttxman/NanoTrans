@@ -4,7 +4,6 @@ using System.Globalization;
 using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
-using System.Xml.Serialization;
 
 
 namespace NanoTrans.Core
@@ -73,30 +72,35 @@ namespace NanoTrans.Core
             }
         }
 
-        [XmlIgnore]
+
+        public static string GetFullName(string FirstName, string MiddleName, string Surname)
+        {
+            string pJmeno = "";
+            if (FirstName != null && FirstName.Length > 0)
+            {
+                pJmeno += FirstName;
+            }
+            if (MiddleName != null && MiddleName.Length > 0)
+            {
+                pJmeno += " " + MiddleName;
+            }
+
+            if (Surname != null && Surname.Length > 0)
+            {
+                if (pJmeno.Length > 0) pJmeno += " ";
+                pJmeno += Surname;
+            }
+
+            if (string.IsNullOrEmpty(pJmeno))
+                pJmeno = "---";
+            return pJmeno;
+        }
+
         public string FullName
         {
             get
             {
-                string pJmeno = "";
-                if (FirstName != null && FirstName.Length > 0)
-                {
-                    pJmeno += FirstName;
-                }
-                if (MiddleName != null && MiddleName.Length > 0)
-                {
-                    pJmeno += " " + MiddleName;
-                }
-
-                if (Surname != null && Surname.Length > 0)
-                {
-                    if (pJmeno.Length > 0) pJmeno += " ";
-                    pJmeno += Surname;
-                }
-
-                if (string.IsNullOrEmpty(pJmeno))
-                    pJmeno = "---";
-                return pJmeno;
+                return GetFullName(this.FirstName, this.MiddleName, this.Surname);
             }
         }
 
@@ -172,7 +176,6 @@ namespace NanoTrans.Core
 
 
         public static readonly List<string> Langs = new List<string> { "CZ", "SK", "RU", "HR", "PL", "EN", "DE", "ES", "IT", "CU", "--" };
-        [XmlIgnore]
         public Dictionary<string, string> Elements = new Dictionary<string, string>();
         private static readonly XAttribute EmptyAttribute = new XAttribute("empty", "");
 

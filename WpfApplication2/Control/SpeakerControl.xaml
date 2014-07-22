@@ -38,7 +38,7 @@
             <Label FontWeight="Bold" Content="{lex:LocText SpeakerDetailsFirstName}"/>
             <TextBox Text="{Binding ElementName=Control,Path=SpeakerContainer.FirstName,TargetNullValue={x:Static clr:String.Empty},UpdateSourceTrigger=PropertyChanged}"/>
             <Label FontWeight="Bold" Content="{lex:LocText SpeakerDetailsMiddleName}"/>
-            <TextBox Text="{Binding ElementName=Control,Path=SpeakerContainer.SecondName,TargetNullValue={x:Static clr:String.Empty},UpdateSourceTrigger=PropertyChanged}"/>
+            <TextBox Text="{Binding ElementName=Control,Path=SpeakerContainer.MiddleName,TargetNullValue={x:Static clr:String.Empty},UpdateSourceTrigger=PropertyChanged}"/>
             <Label FontWeight="Bold" Content="{lex:LocText SpeakerDetailsSurName}"/>
             <TextBox Text="{Binding ElementName=Control,Path=SpeakerContainer.SurName,TargetNullValue={x:Static clr:String.Empty},UpdateSourceTrigger=PropertyChanged}"/>
             <Label FontWeight="Bold" Content="{lex:LocText SpeakerDetailsDegreeAfter}"/>

@@ -20,11 +20,12 @@ namespace NanoTrans
         bool _isLoading = false;
         string _language;
         bool _marked = false;
-        string _secondName = null;
+        string _middleName = null;
         Speaker.Sexes? _sex;
         Speaker _speaker;
         string _surName = null;
         bool _updating = false;
+        bool? _pinned = false;
 
         public SpeakerContainer(Speaker s)
             : this(null, s)
@@ -44,6 +45,49 @@ namespace NanoTrans
             get { return Speaker.Attributes.Select(a => new SpeakerAttributeContainer(a)).ToList().AsReadOnly(); }
         }
 
+
+        public void ApplyChanges()
+        {
+            if (_degreeAfter != null)
+                _speaker.DegreeAfter = _degreeAfter;
+            if (_degreeBefore != null)
+                _speaker.DegreeBefore = _degreeBefore;
+            if (_firstName != null)
+                _speaker.FirstName = _firstName;
+            if (_imgBase64 != null)
+                _speaker.ImgBase64 = _imgBase64;
+            if (_language != null)
+                _speaker.DefaultLang = _language;
+            if (_pinned != null)
+                _speaker.PinnedToDocument = _pinned.Value;
+            if (_middleName != null)
+                _speaker.MiddleName = _middleName;
+            if (_sex != null)
+                _speaker.Sex = _sex.Value;
+            if (_surName != null)
+                _speaker.Surname = _surName;
+            if (_pinned != null)
+                _speaker.PinnedToDocument = _pinned.Value;
+
+            Changed = false;
+        }
+
+
+        public void DiscardChanges()
+        {
+            _degreeAfter = null;
+            _degreeBefore = null;
+            _firstName = null;
+            _changed = false;
+            _imgBase64 = null;
+            _isLoading = false;
+            _language = null;
+            _middleName = null;
+            _sex = null;
+            _surName = null;
+            _pinned = null;
+        }
+
         public string DegreeAfter
         {
             get
@@ -53,7 +97,7 @@ namespace NanoTrans
 
             set
             {
-                _speaker.DegreeAfter = _degreeAfter = (value ?? "").Trim();
+                _degreeAfter = (value ?? "").Trim();
                 Changed = true;
                 if (PropertyChanged != null)
                     PropertyChanged(this, new PropertyChangedEventArgs("DegreeAfter"));
@@ -69,7 +113,7 @@ namespace NanoTrans
 
             set
             {
-                _speaker.DegreeBefore = _degreeBefore = (value ?? "").Trim();
+                _degreeBefore = (value ?? "").Trim();
                 Changed = true;
                 if (PropertyChanged != null)
                     PropertyChanged(this, new PropertyChangedEventArgs("DegreeBefore"));
@@ -85,7 +129,7 @@ namespace NanoTrans
 
             set
             {
-                _speaker.FirstName = _firstName = (value ?? "").Trim();
+                _firstName = (value ?? "").Trim();
                 Changed = true;
                 if (PropertyChanged != null)
                     PropertyChanged(this, new PropertyChangedEventArgs("FirstName"));
@@ -96,7 +140,7 @@ namespace NanoTrans
 
         public string FullName
         {
-            get { return _speaker.FullName; }
+            get { return Speaker.GetFullName(_firstName, _middleName, _surName); }
         }
 
         public bool Changed
@@ -119,7 +163,7 @@ namespace NanoTrans
 
             set
             {
-                _speaker.ImgBase64 = _imgBase64 = value;
+                _imgBase64 = value;
                 Changed = true;
                 if (PropertyChanged != null)
                     PropertyChanged(this, new PropertyChangedEventArgs("ImgBase64"));
@@ -166,7 +210,7 @@ namespace NanoTrans
 
             set
             {
-                _speaker.DefaultLang = _language = value;
+                _language = value;
                 Changed = true;
                 if (PropertyChanged != null)
                     PropertyChanged(this, new PropertyChangedEventArgs("Language"));
@@ -191,34 +235,32 @@ namespace NanoTrans
         {
             get
             {
-                return _speaker.PinnedToDocument;
+                return _pinned ?? _speaker.PinnedToDocument;
             }
 
             set
             {
-
-                _speaker.PinnedToDocument = value;
+                _pinned = value;
                 Changed = true;
-
                 if (PropertyChanged != null)
                     PropertyChanged(this, new PropertyChangedEventArgs("PinnedToDocument"));
             }
         }
 
         //Attributes
-        public string SecondName
+        public string MiddleName
         {
             get
             {
-                return _secondName ?? _speaker.MiddleName;
+                return _middleName ?? _speaker.MiddleName;
             }
 
             set
             {
-                _speaker.MiddleName = _secondName = (value ?? "").Trim();
+                _middleName = (value ?? "").Trim();
                 Changed = true;
                 if (PropertyChanged != null)
-                    PropertyChanged(this, new PropertyChangedEventArgs("SecondName"));
+                    PropertyChanged(this, new PropertyChangedEventArgs("MiddleName"));
                 if (PropertyChanged != null)
                     PropertyChanged(this, new PropertyChangedEventArgs("FullName"));
             }
@@ -233,7 +275,7 @@ namespace NanoTrans
 
             set
             {
-                _sex = Speaker.Sex = value;
+                _sex = value;
                 Changed = true;
                 if (PropertyChanged != null)
                     PropertyChanged(this, new PropertyChangedEventArgs("Sex"));
@@ -259,7 +301,7 @@ namespace NanoTrans
 
             set
             {
-                _speaker.Surname = _surName = (value ?? "").Trim();
+                _surName = (value ?? "").Trim();
                 Changed = true;
                 if (PropertyChanged != null)
                     PropertyChanged(this, new PropertyChangedEventArgs("SurName"));
@@ -285,20 +327,9 @@ namespace NanoTrans
                 PropertyChanged(this, new PropertyChangedEventArgs("Attributes"));
         }
 
-        public void UpdateBindings()
+        public void ReloadSpeaker()
         {
-
-            _degreeAfter = null;
-            _degreeBefore = null;
-            _firstName = null;
-            _changed = false;
-            _imgBase64 = null;
-            _isLoading = false;
-            _language = null;
-            _secondName = null;
-            _sex = null;
-            _surName = null;
-
+            DiscardChanges();
             if (PropertyChanged != null)
                 PropertyChanged(this, new PropertyChangedEventArgs(null));
 

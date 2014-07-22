@@ -66,7 +66,7 @@ namespace NanoTrans
             listdocument.ItemsSource = _pairs = first.Select(s => s.document)
                                                         .OrderBy(s => s.Speaker1.SurName)
                                                         .ThenBy(s => s.Speaker1.FirstName)
-                                                        .ThenBy(s => s.Speaker1.SecondName)
+                                                        .ThenBy(s => s.Speaker1.MiddleName)
                                                         .Concat(_pairs.Except(first.Select(s => s.document))).ToList();
 
 

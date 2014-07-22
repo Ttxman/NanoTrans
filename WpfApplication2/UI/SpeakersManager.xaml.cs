@@ -326,7 +326,7 @@ namespace NanoTrans
             {
                 var s = await _transcription.Api.GetSpeaker(spk.Speaker.DBID);
                 Speaker.MergeFrom(spk.Speaker, s);
-                spk.UpdateBindings();
+                spk.ReloadSpeaker();
             }
         }
 
@@ -566,7 +566,7 @@ namespace NanoTrans
                 foreach (var item in ToUpdate)
                 {
                     Speaker.MergeFrom(item.Item1.Speaker, item.Item2);
-                    item.Item1.UpdateBindings();
+                    item.Item1.ReloadSpeaker();
                 }
 
                 var ToAdd = speakerst.Except(ToUpdate.Select(t => t.Item2));
