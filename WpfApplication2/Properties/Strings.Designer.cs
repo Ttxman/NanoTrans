@@ -1312,6 +1312,33 @@ namespace NanoTrans.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Merge speakers.
+        /// </summary>
+        public static string SpeakersManagerSpeakerMergeDialogCaption {
+            get {
+                return ResourceManager.GetString("SpeakersManagerSpeakerMergeDialogCaption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Merge speaker &quot;{0}&quot; with  &quot;{1}&quot;?.
+        /// </summary>
+        public static string SpeakersManagerSpeakerMergeDialogQuestionFormat {
+            get {
+                return ResourceManager.GetString("SpeakersManagerSpeakerMergeDialogQuestionFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Select speakers for merging with:.
+        /// </summary>
+        public static string SpeakersManagerSpeakerMergeLabel {
+            get {
+                return ResourceManager.GetString("SpeakersManagerSpeakerMergeLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Replace speaker.
         /// </summary>
         public static string SpeakersManagerSpeakerReplaceDialogCaption {

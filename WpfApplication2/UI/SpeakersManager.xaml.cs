@@ -218,7 +218,7 @@ namespace NanoTrans
             var selectedSpeaker = ((SpeakerContainer)SpeakersBox.SelectedValue).Speaker;
             SpeakersManager sm2 = new SpeakersManager(selectedSpeaker, _transcription, _documentSpeakers, _localSpeakers)
             {
-                MessageLabel = "Vyberte další mluvčí pro sloučení s :",
+                MessageLabel = Properties.Strings.SpeakersManagerSpeakerMergeLabel,
                 Message = selectedSpeaker.FullName,
                 Editable = false,
                 SelectMany = true
@@ -237,7 +237,7 @@ namespace NanoTrans
                 if (speakers.Count == 0)
                     return;
 
-                if (MessageBox.Show(string.Format("Opravdu chcete sloučit mluvčí \"{0}\" s mluvčím  \"{1}\"?", string.Join("\", \"", speakers.Select(s => s.FullName)), selectedSpeaker.FullName), "sloučení mluvčích", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                if (MessageBox.Show(string.Format(Properties.Strings.SpeakersManagerSpeakerMergeDialogQuestionFormat, string.Join("\", \"", speakers.Select(s => s.FullName)), selectedSpeaker.FullName), Properties.Strings.SpeakersManagerSpeakerMergeDialogCaption, MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                 {
                     using (SpeakerProvider.DeferRefresh())
                     {

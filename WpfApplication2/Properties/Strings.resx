@@ -678,6 +678,15 @@
   <data name="SpeakersManagerButtonOKAll" xml:space="preserve">
     <value>Replace all</value>
   </data>
+  <data name="SpeakersManagerSpeakerMergeDialogCaption" xml:space="preserve">
+    <value>Merge speakers</value>
+  </data>
+  <data name="SpeakersManagerSpeakerMergeDialogQuestionFormat" xml:space="preserve">
+    <value>Merge speaker "{0}" with  "{1}"?</value>
+  </data>
+  <data name="SpeakersManagerSpeakerMergeLabel" xml:space="preserve">
+    <value>Select speakers for merging with:</value>
+  </data>
   <data name="SpeakersManagerSpeakerReplaceDialogCaption" xml:space="preserve">
     <value>Replace speaker</value>
   </data>
