@@ -25,13 +25,13 @@ namespace NanoTrans.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("100")]
-        public double PhoneticsPanelHeightStore {
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool PhoneticsPanelVisibleStore {
             get {
-                return ((double)(this["PhoneticsPanelHeightStore"]));
+                return ((bool)(this["PhoneticsPanelVisibleStore"]));
             }
             set {
-                this["PhoneticsPanelHeightStore"] = value;
+                this["PhoneticsPanelVisibleStore"] = value;
             }
         }
         

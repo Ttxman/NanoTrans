@@ -253,16 +253,16 @@ namespace NanoTrans.Properties
         }
 
 
-        public double PhoneticsPanelHeight
+        public bool PhoneticsPanelVisible
         {
             get
             {
-                return PhoneticsPanelHeightStore;
+                return PhoneticsPanelVisibleStore && FeatureEnabler.PhoneticEditation;
             }
 
             set
             {
-                PhoneticsPanelHeightStore = value;
+                PhoneticsPanelVisibleStore = value;
                 OnPropertyChanged();
             }
         }

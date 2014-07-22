@@ -162,6 +162,9 @@ namespace NanoTrans
         private void CImportFile(object sender, ExecutedRoutedEventArgs e)
         {
 
+            if (!Settings.Default.FeatureEnabler.LocalEdit)
+                return;
+
             string[] masks = _ImportPlugins.Select(p => p.Mask).ToArray();
             string[] filetypes = masks.SelectMany(m => m.Split('|').Where((p, i) => i % 2 == 1).SelectMany(ex => ex.Split(';'))).Distinct().ToArray();
 
@@ -408,6 +411,8 @@ namespace NanoTrans
 
         private void CQuickExportElement(object sender, ExecutedRoutedEventArgs e)
         {
+            if (!Settings.Default.FeatureEnabler.QuickExport)
+                return;
             using (new WaitCursor())
             {
                 TranscriptionParagraph par = VirtualizingListBox.ActiveTransctiption as TranscriptionParagraph;
@@ -612,7 +617,10 @@ namespace NanoTrans
 
         private void CShowPanelFoneticTranscription(object sender, ExecutedRoutedEventArgs e)
         {
-            ShowPhoneticTranscription(true);
+            if (!Settings.Default.FeatureEnabler.PhoneticEditation)
+                return;
+
+            Settings.Default.PhoneticsPanelVisible = true;
         }
 
         private void CGeneratePhoneticTranscription(object sender, ExecutedRoutedEventArgs e)
@@ -656,11 +664,16 @@ namespace NanoTrans
         }
         private async void CCreateNewTranscription(object sender, ExecutedRoutedEventArgs e)
         {
+            if (!Settings.Default.FeatureEnabler.LocalEdit)
+                return;
             await NewTranscription();
         }
 
         private async void COpenTranscription(object sender, ExecutedRoutedEventArgs e)
         {
+            if (!Settings.Default.FeatureEnabler.LocalEdit)
+                return;
+
             e.Handled = true;
             await OpenTranscription(true, "");
 
@@ -683,6 +696,9 @@ namespace NanoTrans
 
         private async void CSaveTranscriptionAs(object sender, ExecutedRoutedEventArgs e)
         {
+            if (!Settings.Default.FeatureEnabler.LocalEdit)
+                return;
+
             await SaveTranscription(true, "");
         }
 

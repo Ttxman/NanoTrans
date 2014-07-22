@@ -215,7 +215,10 @@ namespace NanoTrans
 
         private void LoadSpeakersDatabase()
         {
-            if (Directory.Exists(Settings.Default.SpeakersDatabasePath) && Settings.Default.SpeakersDatabasePath.Contains(FilePaths.ProgramDirectory))
+            if (!File.Exists(Settings.Default.SpeakersDatabasePath))
+                MessageBox.Show(Properties.Strings.MessageBoxLocalSpeakersDatabaseUnreachableLoad, Properties.Strings.MessageBoxWarningCaption, MessageBoxButton.OK, MessageBoxImage.Warning);
+
+            if (Settings.Default.SpeakersDatabasePath.Contains(FilePaths.ProgramDirectory))
             {
                 if (!FilePaths.WriteToAppData)
                 {
@@ -236,20 +239,13 @@ namespace NanoTrans
             }
             else
             {
-                if (File.Exists(Settings.Default.SpeakersDatabasePath))
-                {
-                    SpeakerCollection.Deserialize(FilePaths.EnsureDirectoryExists(Settings.Default.SpeakersDatabasePath), SpeakersDatabase);
-                }
-                else
-                {
-                    MessageBox.Show(Properties.Strings.MessageBoxLocalSpeakersDatabaseUnreachableLoad, Properties.Strings.MessageBoxWarningCaption, MessageBoxButton.OK, MessageBoxImage.Warning);
-                }
+                SpeakerCollection.Deserialize(FilePaths.EnsureDirectoryExists(Settings.Default.SpeakersDatabasePath), SpeakersDatabase);
             }
         }
 
         private void LoadGlobalSetup()
         {
-            if (Settings.Default.Locale != null)
+            if (!string.IsNullOrWhiteSpace(Settings.Default.Locale))
             {
                 LocalizeDictionary.Instance.Culture = new System.Globalization.CultureInfo(Settings.Default.Locale);
             }
@@ -275,7 +271,6 @@ namespace NanoTrans
 
             this.WindowState = Settings.Default.WindowState;
 
-            ShowPhoneticTranscription(Settings.Default.PhoneticsPanelHeight - 1 > 0);
         }
 
         private void menuItemWave1_SetStartToCursor_Click(object sender, RoutedEventArgs e)
@@ -560,7 +555,7 @@ namespace NanoTrans
 
                 if (!loadedsucessfuly)
                 {
-                    MessageBox.Show(Properties.Strings.MessageBoxCannotLoadTranscription, Properties.Strings.MessageBoxCannotLoadTranscription,MessageBoxButton.OK,MessageBoxImage.Information);
+                    MessageBox.Show(Properties.Strings.MessageBoxCannotLoadTranscription, Properties.Strings.MessageBoxCannotLoadTranscription, MessageBoxButton.OK, MessageBoxImage.Information);
                     await NewTranscription();
                 }
 
@@ -623,6 +618,14 @@ namespace NanoTrans
 
         private void LoadOnlineSource(string path)
         {
+            Settings.Default.FeatureEnabler.DbMerging = false;
+            Settings.Default.FeatureEnabler.LocalEdit = false;
+            Settings.Default.FeatureEnabler.PhoneticEditation = false;
+            Settings.Default.FeatureEnabler.QuickExport = false;
+            Settings.Default.FeatureEnabler.QuickNavigation = false;
+            Settings.Default.FeatureEnabler.VideoFrame = false;
+            Settings.Default.FeatureEnabler.LocalSpeakers = false;
+
             _api = new SpeakersApi(path, this);
             if (_api.TryLogin(this) == true)
             {
@@ -1303,7 +1306,6 @@ namespace NanoTrans
 
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
-
             LoadSpeakersDatabase();
 
             foreach (var item in SpeakersDatabase)
@@ -1313,7 +1315,7 @@ namespace NanoTrans
 
             InitCommands();
             LoadPlugins();
-            //asyncronous spellcecking vocabluary load
+            //asynchronous spellcecking vocabluary load
             Thread t = new Thread(
                 delegate()
                 {
@@ -1322,6 +1324,7 @@ namespace NanoTrans
                 ) { Name = "Spellchecking_Load" };
             t.Start();
 
+            //TODO: move to xaml?
             phoneticTranscription.Text = "";
             phoneticTranscription.buttonSpeaker.Visibility = Visibility.Collapsed;
             phoneticTranscription.checkBox1.Visibility = Visibility.Collapsed;
@@ -1387,9 +1390,6 @@ namespace NanoTrans
             VirtualizingListBox.RequestTimePosition += delegate(out TimeSpan value) { value = waveform1.CaretPosition; };
             VirtualizingListBox.RequestPlaying += delegate(out bool value) { value = Playing; };
             VirtualizingListBox.RequestPlayPause += delegate() { CommandPlayPause.Execute(null, null); };
-
-
-
         }
 
 
@@ -1565,28 +1565,9 @@ namespace NanoTrans
         private delegate void ShowPanelFoneticTranscriptionDelegate(TranscriptionElement aTag);
 
 
-        private bool ShowPhoneticTranscription(bool show)
-        {
-
-            if (show)
-            {
-                Settings.Default.PhoneticsPanelHeight = Math.Abs(Settings.Default.PhoneticsPanelHeight);
-
-                gridSplitter1.Visibility = gphoneticTranscription.Visibility = Visibility.Visible;
-
-                return true;
-            }
-            else
-            {
-                Settings.Default.PhoneticsPanelHeight = -Math.Abs(Settings.Default.PhoneticsPanelHeight);
-                gridSplitter1.Visibility = gphoneticTranscription.Visibility = Visibility.Collapsed;
-                return false;
-            }
-        }
-
         private void btClosePhoneticsPanel_Click(object sender, RoutedEventArgs e)
         {
-            ShowPhoneticTranscription(false);
+            Settings.Default.PhoneticsPanelVisible = false;
         }
 
         private void gridSplitter2_DragCompleted(object sender, System.Windows.Controls.Primitives.DragCompletedEventArgs e)
@@ -2018,5 +1999,6 @@ namespace NanoTrans
             tbQuickSavePath.Text = System.IO.Path.GetDirectoryName(FilePaths.QuickSaveDirectory);
             tbQuickSaveName.Text = "\\" + System.IO.Path.GetFileName(FilePaths.QuickSaveDirectory);
         }
+
     }
 }

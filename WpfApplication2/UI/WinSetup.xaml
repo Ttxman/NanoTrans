@@ -3,6 +3,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:tk="http://schemas.xceed.com/wpf/xaml/toolkit"
     xmlns:local="clr-namespace:NanoTrans"
+    xmlns:props="clr-namespace:NanoTrans.Properties"
         
         xmlns:lex="http://wpflocalizeextension.codeplex.com"
         lex:LocalizeDictionary.DesignCulture="cs"
@@ -16,13 +17,18 @@
         <local:CollapseOnNullConverter x:Key="CollapseOnNullConverter" />
         <local:CollapseOnNotNullConverter x:Key="CollapseOnNotNullConverter" />
         <ObjectDataProvider x:Key="SpellEngine" ObjectInstance="{x:Static local:SpellChecker.SpellEngine}"/>
+        <BooleanToVisibilityConverter x:Key="visConverter" />
     </Window.Resources>
     <Grid>
-        <TabControl Margin="4,6,6,38" Name="tabControl1" SelectedIndex="0" Height="402" Width="642">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <TabControl Margin="5" Name="tabControl1" SelectedIndex="0">
             <TabItem Header="{lex:Loc Key=WinSetupOthersTab}">
                 <Grid>
                     <StackPanel>
-                        <GroupBox Header="{lex:Loc Key=WinSetupSpeakersDatabaseTitle}" Height="61" VerticalAlignment="Top" FontWeight="Bold"  Margin="5,5,5,0">
+                        <GroupBox Header="{lex:Loc Key=WinSetupSpeakersDatabaseTitle}" Height="61" VerticalAlignment="Top" FontWeight="Bold"  Margin="5,5,5,0" Visibility="{Binding Source={x:Static props:Settings.Default}, Path=FeatureEnabler.LocalSpeakers, Converter={StaticResource visConverter}}">
                             <Grid>
                                 <Label Margin="0,7,0,0" Height="27.723" VerticalAlignment="Top" HorizontalAlignment="Left" Width="56" Content=""/>
                                 <TextBox Height="23" Margin="55,9,117,0" Name="tbSpeakerDBPath" VerticalAlignment="Top" Background="LightYellow" IsReadOnly="True" />
@@ -103,7 +109,7 @@
                 </GroupBox>
             </TabItem>
         </TabControl>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="1">
             <Button Height="27" Margin="0,0,6,5" Name="btOK" VerticalAlignment="Bottom" IsDefault="True" Click="btOK_Click"  >
                 <StackPanel Orientation="Horizontal">
                     <Image Source="/icons/iOK.png" Height="16" />
