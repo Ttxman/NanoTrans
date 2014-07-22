@@ -611,7 +611,7 @@ namespace NanoTrans
             bool update = !useMessagebox;
             if (useMessagebox)
             {
-                var result = MessageBox.Show("Nekterí mluvčí obsahují změny, které nebyly uloženy do centrálního úložiště. \n Uložit všechny?", "Uložit změny?", MessageBoxButton.YesNoCancel, MessageBoxImage.Question, MessageBoxResult.Cancel);
+                var result = MessageBox.Show(Properties.Strings.SpeakersManagerSaveUnsavedOnlineSpeakersDialogQuestion, Properties.Strings.SpeakersManagerSaveUnsavedOnlineSpeakersDialogText, MessageBoxButton.YesNoCancel, MessageBoxImage.Question, MessageBoxResult.Cancel);
 
                 if (result != MessageBoxResult.Cancel)
                 {

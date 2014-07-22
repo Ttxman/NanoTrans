@@ -1258,7 +1258,7 @@ namespace NanoTrans.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Show speaker meniatures.
+        ///   Looks up a localized string similar to Show speaker miniatures.
         /// </summary>
         public static string SpeakersManagerCheckboxShowMiniatures {
             get {
@@ -1308,6 +1308,42 @@ namespace NanoTrans.Properties {
         public static string SpeakersManagerLabelSearch {
             get {
                 return ResourceManager.GetString("SpeakersManagerLabelSearch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Some online speakers have changed, but was not uploaded to the server.  Upload them?.
+        /// </summary>
+        public static string SpeakersManagerSaveUnsavedOnlineSpeakersDialogQuestion {
+            get {
+                return ResourceManager.GetString("SpeakersManagerSaveUnsavedOnlineSpeakersDialogQuestion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Save changed speakers?.
+        /// </summary>
+        public static string SpeakersManagerSaveUnsavedOnlineSpeakersDialogText {
+            get {
+                return ResourceManager.GetString("SpeakersManagerSaveUnsavedOnlineSpeakersDialogText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Save changes of speaker {0}?.
+        /// </summary>
+        public static string SpeakersManagerSpeakerApplyChangesDialogFormat {
+            get {
+                return ResourceManager.GetString("SpeakersManagerSpeakerApplyChangesDialogFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Save changed speaker?.
+        /// </summary>
+        public static string SpeakersManagerSpeakerApplyChangesDialogQuestion {
+            get {
+                return ResourceManager.GetString("SpeakersManagerSpeakerApplyChangesDialogQuestion", resourceCulture);
             }
         }
         

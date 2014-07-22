@@ -696,4 +696,16 @@
   <data name="SpeakersManagerSpeakerSelectLabel" xml:space="preserve">
     <value>Vyberte mluvčího kterým v přepisu nahradíte:</value>
   </data>
+  <data name="SpeakersManagerSaveUnsavedOnlineSpeakersDialogQuestion" xml:space="preserve">
+    <value>Někteří mluvčí obsahují změny, které nebyly uloženy do centrálního úložiště. \n Uložit všechny?</value>
+  </data>
+  <data name="SpeakersManagerSaveUnsavedOnlineSpeakersDialogText" xml:space="preserve">
+    <value>Uložit změny?</value>
+  </data>
+  <data name="SpeakersManagerSpeakerApplyChangesDialogFormat" xml:space="preserve">
+    <value>Uložit změny mluvčího {0}?</value>
+  </data>
+  <data name="SpeakersManagerSpeakerApplyChangesDialogQuestion" xml:space="preserve">
+    <value>Uložit změny?</value>
+  </data>
 </root>

@@ -583,7 +583,7 @@
     <value>Speakers online</value>
   </data>
   <data name="SpeakersManagerCheckboxShowMiniatures" xml:space="preserve">
-    <value>Show speaker meniatures</value>
+    <value>Show speaker miniatures</value>
   </data>
   <data name="SpeakersManagerContextMenuDelete" xml:space="preserve">
     <value>Delete</value>
@@ -695,5 +695,17 @@
   </data>
   <data name="SpeakersManagerSpeakerSelectLabel" xml:space="preserve">
     <value>Select speaker that will replace:</value>
+  </data>
+  <data name="SpeakersManagerSaveUnsavedOnlineSpeakersDialogQuestion" xml:space="preserve">
+    <value>Some online speakers have changed, but was not uploaded to the server.  Upload them?</value>
+  </data>
+  <data name="SpeakersManagerSaveUnsavedOnlineSpeakersDialogText" xml:space="preserve">
+    <value>Save changed speakers?</value>
+  </data>
+  <data name="SpeakersManagerSpeakerApplyChangesDialogFormat" xml:space="preserve">
+    <value>Save changes of speaker {0}?</value>
+  </data>
+  <data name="SpeakersManagerSpeakerApplyChangesDialogQuestion" xml:space="preserve">
+    <value>Save changed speaker?</value>
   </data>
 </root>
