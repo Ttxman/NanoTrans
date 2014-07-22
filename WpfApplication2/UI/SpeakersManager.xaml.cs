@@ -387,25 +387,33 @@ namespace NanoTrans
             };
 
 
-
             if (sm2.ShowDialog() == true)
             {
-                _transcription.Saved = false;
                 var speaker = ((SpeakerContainer)sm2.SpeakersBox.SelectedValue).Speaker;
-                if (MessageBox.Show(string.Format(Properties.Strings.SpeakersManagerSpeakerReplaceDialogQuestionFormat, selectedSpeaker.FullName, speaker.FullName), Properties.Strings.SpeakersManagerSpeakerReplaceDialogCaption, MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                ReplaceSpeakerInTranscription(selectedSpeaker, speaker);
+            }
+        }
+
+        private void ReplaceSpeakerInTranscription(Speaker toReplace, Speaker replacement)
+        {
+            _transcription.Saved = false;
+            if (MessageBox.Show(string.Format(Properties.Strings.SpeakersManagerSpeakerReplaceDialogQuestionFormat, toReplace.FullName, replacement.FullName), Properties.Strings.SpeakersManagerSpeakerReplaceDialogCaption, MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            {
+                foreach (TranscriptionParagraph tp in _transcription.EnumerateParagraphs())
                 {
-                    foreach (TranscriptionParagraph tp in _transcription.EnumerateParagraphs())
-                    {
-                        if (tp.Speaker == selectedSpeaker)
-                            tp.Speaker = speaker;
-                    }
+                    if (tp.Speaker == toReplace)
+                        tp.Speaker = replacement;
                 }
             }
         }
 
         private void ButtonOKAll_Click(object sender, RoutedEventArgs e)
         {
-
+            ReplaceSpeakerInTranscription(_originalSpeaker,((SpeakerContainer)SpeakersBox.SelectedValue).Speaker);
+            preventDoublecheck = false;
+            _transcription.Saved = false;
+            this.DialogResult = true;
+            this.Close();
         }
     }
 
