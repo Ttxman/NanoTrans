@@ -262,6 +262,7 @@
       <DependentUpon>LoadingAnimation.xaml</DependentUpon>
     </Compile>
     <Compile Include="Source\CorrectionsGenerator.cs" />
+    <Compile Include="Source\SpeakerContainer.cs" />
     <Compile Include="Source\WaitCursor.cs" />
     <Compile Include="Source\WPFTranscription.cs" />
     <Compile Include="Properties\Strings.Designer.cs">
