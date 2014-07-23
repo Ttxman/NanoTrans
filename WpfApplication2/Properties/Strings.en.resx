@@ -708,4 +708,10 @@
   <data name="SpeakersManagerSpeakerApplyChangesDialogQuestion" xml:space="preserve">
     <value>Save changed speaker?</value>
   </data>
+  <data name="SpeakersManagerDeleteSpeakerDialogFormat" xml:space="preserve">
+    <value>Delete speaker {0}?</value>
+  </data>
+  <data name="SpeakersManagerDeleteSpeakerDialogQuestion" xml:space="preserve">
+    <value>Delete speaker?</value>
+  </data>
 </root>

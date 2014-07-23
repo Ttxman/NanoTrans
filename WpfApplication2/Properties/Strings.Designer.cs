@@ -1303,6 +1303,24 @@ namespace NanoTrans.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Delete speaker {0}?.
+        /// </summary>
+        public static string SpeakersManagerDeleteSpeakerDialogFormat {
+            get {
+                return ResourceManager.GetString("SpeakersManagerDeleteSpeakerDialogFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete speaker?.
+        /// </summary>
+        public static string SpeakersManagerDeleteSpeakerDialogQuestion {
+            get {
+                return ResourceManager.GetString("SpeakersManagerDeleteSpeakerDialogQuestion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Find:.
         /// </summary>
         public static string SpeakersManagerLabelSearch {

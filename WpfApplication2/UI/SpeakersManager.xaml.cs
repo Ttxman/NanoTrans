@@ -185,12 +185,12 @@ namespace NanoTrans
             FilterTBox.Focus();
         }
 
-        //TODO: translate
+    
         private void MenuItem_DeleteSpeaker(object sender, RoutedEventArgs e)
         {
             var selectedSpeaker = ((SpeakerContainer)SpeakersBox.SelectedValue).Speaker;
 
-            if (MessageBox.Show(string.Format("Opravdu chcete odstranit mluvčího \"{0}\"?", selectedSpeaker), "Odstranění mluvčího", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            if (MessageBox.Show(string.Format(Properties.Strings.SpeakersManagerDeleteSpeakerDialogFormat, selectedSpeaker), Properties.Strings.SpeakersManagerDeleteSpeakerDialogQuestion, MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             {
                 using (SpeakerProvider.DeferRefresh())
                 {

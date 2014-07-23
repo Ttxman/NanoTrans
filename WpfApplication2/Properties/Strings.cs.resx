@@ -708,4 +708,10 @@
   <data name="SpeakersManagerSpeakerApplyChangesDialogQuestion" xml:space="preserve">
     <value>Uložit změny?</value>
   </data>
+  <data name="SpeakersManagerDeleteSpeakerDialogFormat" xml:space="preserve">
+    <value>Opravdu chcete odstranit mluvčího "{0}"?</value>
+  </data>
+  <data name="SpeakersManagerDeleteSpeakerDialogQuestion" xml:space="preserve">
+    <value>Odstranění mluvčího</value>
+  </data>
 </root>
