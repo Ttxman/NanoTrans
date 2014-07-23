@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:my="clr-namespace:NanoTrans"
         xmlns:core="clr-namespace:NanoTrans.Core;assembly=NanoTransCore"
+        xmlns:props="clr-namespace:NanoTrans.Properties"
         
         
         xmlns:lex="http://wpflocalizeextension.codeplex.com"
@@ -32,6 +33,7 @@
                        Foreground="Navy" FontWeight="Bold" FontSize="12"/>
         </DataTemplate>
 
+        <BooleanToVisibilityConverter x:Key="visConverter" />
     </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -56,9 +58,11 @@
                     <Setter Property="Margin" Value="10,0,0,0"/>
                 </Style>
             </StackPanel.Resources>
-            <CheckBox IsChecked="{Binding ElementName=manager,Path=SpeakerProvider.ShowLocal}" Content="{lex:LocText SpeakersManagerCheckboxLocalSpeakers}"/>
-            <CheckBox IsChecked="{Binding ElementName=manager,Path=SpeakerProvider.ShowDocument}" Content="{lex:LocText SpeakersManagerCheckboxDocumentSpeakers}"/>
-            <CheckBox IsChecked="{Binding ElementName=manager,Path=SpeakerProvider.ShowOnline}" IsEnabled="{Binding ElementName=manager,Path=SpeakerProvider.IsOnline }" Content="{lex:LocText SpeakersManagerCheckboxOnlineSpeakers}"/>
+            <StackPanel Orientation="Horizontal" Visibility="{Binding Source={x:Static props:Settings.Default}, Path=FeatureEnabler.LocalEdit, Converter={StaticResource visConverter}}">
+                <CheckBox IsChecked="{Binding ElementName=manager,Path=SpeakerProvider.ShowLocal}" Content="{lex:LocText SpeakersManagerCheckboxLocalSpeakers}"/>
+                <CheckBox IsChecked="{Binding ElementName=manager,Path=SpeakerProvider.ShowDocument}" Content="{lex:LocText SpeakersManagerCheckboxDocumentSpeakers}"/>
+                <CheckBox IsChecked="{Binding ElementName=manager,Path=SpeakerProvider.ShowOnline}" IsEnabled="{Binding ElementName=manager,Path=SpeakerProvider.IsOnline }" Content="{lex:LocText SpeakersManagerCheckboxOnlineSpeakers}"/>
+            </StackPanel>
             <CheckBox Name="showMiniatures" IsChecked="{Binding ElementName=manager,Path=ShowMiniatures}" Content="{lex:LocText SpeakersManagerCheckboxShowMiniatures}"/>
         </StackPanel>
 
@@ -66,7 +70,7 @@
             <Label DockPanel.Dock="Left" Content="{lex:LocText SpeakersManagerLabelSearch}"/>
             <my:LoadingAnimation x:Name="loading" DockPanel.Dock="Right" Width="{Binding ElementName=loading, Path=ActualHeight}" Visibility="{Binding ElementName=manager,Path=SpeakerProvider.LoadingVisible}"/>
             <TextBox Name="FilterTBox" Text="{Binding ElementName=manager,Path=SpeakerProvider.FilterString,FallbackValue='', TargetNullValue='',UpdateSourceTrigger=PropertyChanged}"/>
-            
+
         </DockPanel>
         <ListBox Name="SpeakersBox" MinWidth="250" Grid.Column="0" Grid.Row="3" AlternationCount="2" ItemsSource="{Binding ElementName=manager,Path=SpeakerProvider.View}" SelectionMode="{Binding ElementName=manager,Converter={StaticResource selConverter}, Path=SelectMany}" ContextMenuOpening="SpeakersBox_ContextMenuOpening" SelectionChanged="SpeakersBox_SelectionChanged" MouseDoubleClick="SpeakersBox_MouseDoubleClick" MouseDown="SpeakersBox_MouseDown">
             <ListBox.GroupStyle>
@@ -104,7 +108,7 @@
             </ListBox.Resources>
         </ListBox>
         <StackPanel Grid.Column="0" Grid.Row="4">
-            <Button Click="ButtonNewSpeaker_Click" Content="{lex:LocText SpeakersManagerButtonNewSpeaker}"/>
+            <Button Click="ButtonNewSpeaker_Click" Content="{lex:LocText SpeakersManagerButtonNewSpeaker}" IsEnabled="{Binding ElementName=manager, Path=SpeakersCreated}"/>
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="2*"/>
