@@ -647,6 +647,7 @@ namespace NanoTrans
         {
             Transcription = trans;
             Transcription.Saved = true;
+
             TryLoadAudioFile();
             TryLoadVideoFile();
             InitWindowAfterTranscriptionLoad();

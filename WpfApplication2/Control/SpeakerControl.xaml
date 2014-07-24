@@ -68,7 +68,7 @@
                         <TextBlock FontWeight="Bold" Text="{lex:LocText SpeakerDetailsOnlineSave}" HorizontalAlignment="Center" />
                     </StackPanel>
                 </Button>
-                <Button HorizontalAlignment="Left" Name="buttonRefresh" Margin="5,5,5,5" IsEnabled="{Binding ElementName=Control,Path=SpeakerContainer.IsOnline,UpdateSourceTrigger=PropertyChanged,TargetNullValue=false}" Click="buttonRefresh_Click">
+                <Button HorizontalAlignment="Left" Name="buttonRefresh" Margin="5,5,5,5" IsEnabled="{Binding ElementName=Control,Path=SpeakerContainer.Changed,UpdateSourceTrigger=PropertyChanged,TargetNullValue=false}" Click="buttonRefresh_Click">
                     <StackPanel >
                         <Image Width="50" Height="50" Source="/NanoTrans;component/icons/download_small2.png" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         <TextBlock FontWeight="Bold" Text="{lex:LocText SpeakerDetailsOnlineReload}" HorizontalAlignment="Center" />

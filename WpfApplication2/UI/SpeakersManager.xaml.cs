@@ -48,8 +48,15 @@ namespace NanoTrans
     /// </summary>
     public partial class SpeakersManager : Window, INotifyPropertyChanged
     {
-        public Speaker SelectedSpeaker{get; set;}
-        public SpeakerContainer SelectedSpeakerContainer{get; set;}
+
+        private void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName]string caller = null)
+        {
+            if (PropertyChanged != null)
+                PropertyChanged(this, new PropertyChangedEventArgs(caller));
+        }
+
+        public Speaker SelectedSpeaker { get; set; }
+        public SpeakerContainer SelectedSpeakerContainer { get; set; }
         SpeakerCollection _documentSpeakers;
         bool _editable = true;
         bool _changed = false;
@@ -59,7 +66,7 @@ namespace NanoTrans
         Speaker _originalSpeaker = null;
         bool _selectmany = false;
         bool _showMiniatures = true;
-        SpeakersViewModel _speakerProvider;
+        SpeakerManagerViewModel _speakerProvider;
         WPFTranscription _transcription;
 
         public SpeakersManager(Speaker originalSpeaker, WPFTranscription transcription, SpeakerCollection documentSpeakers, SpeakerCollection localSpeakers = null)
@@ -71,12 +78,18 @@ namespace NanoTrans
             _transcription = transcription;
 
             InitializeComponent();
-            SpeakerProvider = new SpeakersViewModel(documentSpeakers, localSpeakers, transcription.Api);
+            SpeakerProvider = new SpeakerManagerViewModel(documentSpeakers, localSpeakers, transcription.Api);
             var ss = SpeakerProvider.GetContainerForSpeaker(originalSpeaker);
             if (ss != null)
                 ss.Marked = true;
             SpeakersBox.SelectedValue = ss;
             SpeakersBox.ScrollIntoView(SpeakersBox.SelectedItem);
+
+            if (_transcription.Api != null)
+            {
+                SpeakerProvider.ShowLocal = false;
+                SpeakerProvider.ShowOnline = true;
+            }
             //SpeakersBox.Items.SortDescriptions.Add( new SortDescription("",ListSortDirection.Ascending));
         }
 
@@ -146,7 +159,7 @@ namespace NanoTrans
             get { return _changed; }
             set { _changed = true; } //cannot unchange speaker, refresh is required
         }
-        public SpeakersViewModel SpeakerProvider
+        public SpeakerManagerViewModel SpeakerProvider
         {
             get
             {
@@ -185,7 +198,7 @@ namespace NanoTrans
             FilterTBox.Focus();
         }
 
-    
+
         private void MenuItem_DeleteSpeaker(object sender, RoutedEventArgs e)
         {
             var selectedSpeaker = ((SpeakerContainer)SpeakersBox.SelectedValue).Speaker;
@@ -194,20 +207,15 @@ namespace NanoTrans
             {
                 using (SpeakerProvider.DeferRefresh())
                 {
-                    if (_documentSpeakers != null)
-                        _documentSpeakers.RemoveSpeaker(selectedSpeaker);
-                    if (_localSpeakers != null)
-                        _localSpeakers.RemoveSpeaker(selectedSpeaker);
-                    SpeakerProvider.RemoveSpeaker(selectedSpeaker);
-                }
+                    SpeakerProvider.DeleteSpeaker(selectedSpeaker);
 
-                foreach (TranscriptionParagraph tp in _transcription.EnumerateParagraphs())
-                {
-                    if (tp.Speaker == selectedSpeaker)
-                        tp.Speaker = Speaker.DefaultSpeaker;
-                }
+                    foreach (TranscriptionParagraph tp in _transcription.EnumerateParagraphs())
+                    {
+                        if (tp.Speaker == selectedSpeaker)
+                            tp.Speaker = Speaker.DefaultSpeaker;
+                    }
 
-                SpeakerProvider.View.Refresh();
+                }
                 SpeakersBox.UnselectAll();
             }
 
@@ -249,7 +257,7 @@ namespace NanoTrans
                                 _localSpeakers.RemoveSpeaker(s);
 
 
-                            SpeakerProvider.RemoveSpeaker(s);
+                            SpeakerProvider.DeleteSpeaker(s);
                         }
                     }
 
@@ -265,40 +273,72 @@ namespace NanoTrans
             }
 
         }
+
+
+        Speaker _newSpeaker = null;
+
+
+        public bool SpeakersCreated
+        {
+            get
+            {
+                return NewSpeaker == null;
+            }
+
+        }
+
+        public Speaker NewSpeaker
+        {
+            get { return _newSpeaker; }
+            set
+            {
+                _newSpeaker = value;
+                OnPropertyChanged();
+                OnPropertyChanged("SpeakersCreated");
+            }
+        }
+
         private void MenuItem_NewSpeaker(object sender, RoutedEventArgs e)
         {
 
             Speaker sp;
 
             if (_speakerProvider.IsOnline)
-                sp = new ApiSynchronizedSpeaker("-----", "-----", Speaker.Sexes.X) 
-                { 
+                sp = new ApiSynchronizedSpeaker("-----", "-----", Speaker.Sexes.X)
+                {
                     IsSaved = false,
-                    DataBaseType= DBType.Api,
+                    DataBaseType = DBType.Api,
                 };
             else
                 sp = new Speaker("-----", "-----", Speaker.Sexes.X, null) { DataBaseType = DBType.User }; ;
 
+            NewSpeaker = sp;
 
-            SpeakerProvider.AddLocalSpeaker(sp);
-
-
-            SpeakerProvider.View.Refresh();
+            SpeakerProvider.AddTempSpeaker(sp);
 
             var ss = SpeakerProvider.GetContainerForSpeaker(sp);
-            ss.Marked = true;
+
             SpeakersBox.SelectedValue = ss;
+            ss.New = true;
+            ss.Changed = true;
             SpeakersBox.ScrollIntoView(SpeakersBox.SelectedItem);
         }
 
 
         private async void SpeakerDetails_RevertSpeakerRequest(SpeakerContainer spk)
         {
-            using (var wc = new WaitCursor())
+            if (spk.IsOnline)
             {
-                var s = await _transcription.Api.GetSpeaker(spk.Speaker.DBID);
-                Speaker.MergeFrom(spk.Speaker, s);
-                spk.ReloadSpeaker();
+                using (var wc = new WaitCursor())
+                {
+                    var s = await _transcription.Api.GetSpeaker(spk.Speaker.DBID);
+                    Speaker.MergeFrom(spk.Speaker, s);
+                    spk.ReloadSpeaker();
+                }
+            }
+            else
+            {
+                spk.DiscardChanges();
             }
         }
 
@@ -322,6 +362,57 @@ namespace NanoTrans
 
         private void SpeakersBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+
+            if (e.RemovedItems.Count > 0)
+            {
+                var changedSpeakers = e.RemovedItems.Cast<SpeakerContainer>().Where(c => c.Changed).ToArray();
+
+                if (changedSpeakers.Length > 0)
+                {
+                    using (new WaitCursor())
+                    {
+                        foreach (var sc in changedSpeakers)
+                        {
+                            var result = MessageBox.Show(string.Format(Properties.Strings.SpeakersManagerSpeakerApplyChangesDialogFormat, sc.FullName), Properties.Strings.SpeakersManagerSpeakerApplyChangesDialogQuestion, MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                            ApiSynchronizedSpeaker ss = sc.Speaker as ApiSynchronizedSpeaker;
+
+                            if (result == MessageBoxResult.Yes)
+                            {
+                                bool saved = AsyncHelpers.RunSync(() => TrySaveSpeaker(sc));
+                                if (!saved)
+                                {
+                                    if (SpeakersBox.SelectionMode == SelectionMode.Multiple)
+                                    {
+
+                                        foreach (var r in e.AddedItems.Cast<SpeakerContainer>())
+                                            SpeakersBox.SelectedItems.Remove(r);
+
+                                        foreach (var a in e.AddedItems.Cast<SpeakerContainer>())
+                                            SpeakersBox.SelectedItems.Add(a);
+                                    }
+                                    else
+                                    {
+                                        SpeakersBox.SelectedItem = changedSpeakers.First();
+                                    }
+                                    return;
+                                }
+                            }
+                            else
+                            {
+
+                                if (NewSpeaker == sc.Speaker)
+                                {
+                                    NewSpeaker = null;
+                                    SpeakerProvider.DeleteSpeaker(ss);
+                                }
+                                sc.ReloadSpeaker();
+                            }
+                        }
+                    }
+                }
+            }
+
             if (SpeakersBox.SelectedItem == null)
             {
                 SelectedSpeaker = null;
@@ -341,39 +432,97 @@ namespace NanoTrans
         bool preventDoublecheck = false;
         private void manager_Closing(object sender, CancelEventArgs e)
         {
+            SpeakersBox.SelectedItem = null;
+
             if (preventDoublecheck)
                 return;
             preventDoublecheck = true;
-            Task<bool> t = new Task<bool>(() => this.SpeakerProvider.CloseConnection().Result);
-            t.ConfigureAwait(false);
-            t.Start();
-            if (!t.Result)
+
+            if (!AsyncHelpers.RunSync(() => this.SpeakerProvider.CloseConnection()))
             {
                 e.Cancel = true;
             }
 
         }
 
+
+
+
         private async void SpeakerDetails_SaveSpeakerClick(SpeakerContainer spk)
         {
-            using (var wc = new WaitCursor())
+            using (new WaitCursor())
+                await TrySaveSpeaker(spk);
+
+        }
+
+        private async Task<bool> TrySaveSpeaker(SpeakerContainer spk)
+        {
+            bool retval = false;
+            if (NewSpeaker == spk.Speaker)
             {
-                ApiSynchronizedSpeaker ss = spk.Speaker as ApiSynchronizedSpeaker;
-                if (ss == null)
-                    return;
-                if (ss.IsSaved)
+                if (await TestName(spk))
                 {
-                    if (await _transcription.Api.UpdateSpeaker(ss))
-                        spk.Changed = false;
+                    using (SpeakerProvider.DeferRefresh())
+                    {
+                        spk.ApplyChanges();
+                        SpeakerProvider.DeleteSpeaker(spk.Speaker);
+                        if (spk.IsOnline)
+                            SpeakerProvider.AddOnlineSpeaker((ApiSynchronizedSpeaker)spk.Speaker);
+                        else
+                            SpeakerProvider.AddLocalSpeaker(spk.Speaker);
+
+                        NewSpeaker = null;
+                        retval = true;
+                    }
                 }
                 else
                 {
-                    if (await _transcription.Api.AddSpeaker(ss))
-                        spk.Changed = false;
+                    return false; //do not apply or save - name is invalid
                 }
             }
+
+            spk.ApplyChanges();
+            if (spk.IsOnline)
+            {
+
+                using (var wc = new WaitCursor())
+                {
+                    ApiSynchronizedSpeaker ss = spk.Speaker as ApiSynchronizedSpeaker;
+                    if (ss == null)
+                        return false;
+                    if (ss.IsSaved)
+                        return await _transcription.Api.UpdateSpeaker(ss);
+                    else
+                        return await _transcription.Api.AddSpeaker(ss);
+                }
+            }
+
+            return retval;
         }
 
+        private async Task<bool> TestName(SpeakerContainer spk)
+        {
+            if (string.IsNullOrWhiteSpace(spk.FullName.Replace("-", "")))
+            {
+                MessageBox.Show(string.Format(Properties.Strings.SpeakersManagerSpeakerNameConflictForbiddenQuestionFormat, spk.FullName), Properties.Strings.SpeakersManagerSpeakerNameConflictCaption, MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                return false;
+            }
+            else
+            {
+                var similar = await SpeakerProvider.FindSimilar(spk);
+                if (similar.Length > 0)
+                {
+                    if (MessageBox.Show(string.Format(Properties.Strings.SpeakersManagerSpeakerNameConflictQuestionFormat, string.Join(",",similar.Take((similar.Length >3)?3:similar.Length).Select(s=>s.FullName))),
+                        Properties.Strings.SpeakersManagerSpeakerNameConflictCaption, MessageBoxButton.YesNo, MessageBoxImage.Exclamation) == MessageBoxResult.No)
+                    {
+                        return false;
+                    }
+                }
+
+            }
+
+            return true;
+        }
 
         private void MenuItemReplaceSpeaker_Click(object sender, RoutedEventArgs e)
         {
@@ -409,409 +558,13 @@ namespace NanoTrans
 
         private void ButtonOKAll_Click(object sender, RoutedEventArgs e)
         {
-            ReplaceSpeakerInTranscription(_originalSpeaker,((SpeakerContainer)SpeakersBox.SelectedValue).Speaker);
+            ReplaceSpeakerInTranscription(_originalSpeaker, ((SpeakerContainer)SpeakersBox.SelectedValue).Speaker);
             preventDoublecheck = false;
             _transcription.Saved = false;
-            this.DialogResult = true;
+            this.DialogResult = false; //Changes already applied
             this.Close();
         }
     }
 
-    public class SpeakersViewModel : INotifyPropertyChanged
-    {
-        List<SpeakerContainer> _allSpeakers;
-        int _currentIndex = -1;
-        SpeakerContainer _currentItem = null;
-        private SpeakerCollection _documentSpeakers;
-        private string _filterstring = "";
-        private SpeakerCollection _localSpeakers;
 
-
-        ICollectionView _view;
-        private SpeakersApi _api;
-        public SpeakersViewModel(SpeakerCollection documentSpeakers, SpeakerCollection localSpeakers, SpeakersApi api)
-        {
-            _api = api;
-            if (_api != null)
-            {
-                _loadingTimer = new System.Timers.Timer(1000);
-                _loadingTimer.AutoReset = false;
-                _loadingTimer.Elapsed += _loadingTimer_Elapsed;
-
-            }
-
-            this._documentSpeakers = documentSpeakers;
-            this._localSpeakers = localSpeakers;
-
-            ReloadSpeakers();
-        }
-
-
-        private void ReloadSpeakers()
-        {
-            _allSpeakers = new List<SpeakerContainer>();
-
-            if (_documentSpeakers != null)
-                _allSpeakers.AddRange(_documentSpeakers.Select(s => new SpeakerContainer(_documentSpeakers, s)));
-
-            if (_localSpeakers != null)
-                _allSpeakers.AddRange(_localSpeakers.Select(s => new SpeakerContainer(_localSpeakers, s)));
-
-            _allSpeakers.Sort((x, y) => { int cmp = string.Compare(x.SurName, y.SurName); return (cmp != 0) ? cmp : string.Compare(x.FirstName, y.FirstName); });
-
-            View = CollectionViewSource.GetDefaultView(_allSpeakers);
-
-            _view.Filter = FilterItems;
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public System.Globalization.CultureInfo Culture
-        {
-            get
-            {
-                return System.Threading.Thread.CurrentThread.CurrentUICulture;
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public object CurrentItem
-        {
-            get
-            {
-                return _currentItem;
-            }
-        }
-
-        public int CurrentPosition
-        {
-            get { return _currentIndex; }
-        }
-
-        public string FilterString
-        {
-            get { return _filterstring; }
-            set
-            {
-                _filterstring = value;
-                if (PropertyChanged != null)
-                    PropertyChanged(this, new PropertyChangedEventArgs("FilterString"));
-                if (_api != null)
-                {
-                    UpdateOnlineSpeakers();
-                }
-                UpdateFilters();
-            }
-        }
-
-
-        Visibility _LoadingVisible = Visibility.Collapsed;
-        public Visibility LoadingVisible
-        {
-            get { return _LoadingVisible; }
-            set
-            {
-                _LoadingVisible = value;
-                if (PropertyChanged != null)
-                    PropertyChanged(this, new PropertyChangedEventArgs("LoadingVisible"));
-            }
-        }
-
-        System.Timers.Timer _loadingTimer;
-        bool _loadingFilterChanged = false;
-
-
-        void _loadingTimer_Elapsed(object sender, ElapsedEventArgs e)
-        {
-
-            if (_loadingFilterChanged)
-            {
-                UpdateOnlineSpeakers();
-            }
-            _loadingFilterChanged = false;
-        }
-
-        string _lastFilterString = null;
-        private void UpdateOnlineSpeakers()
-        {
-            if (_lastFilterString != _filterstring)
-            {
-                _loadingFilterChanged = true;
-                if (_filterstring != null && _filterstring.Length > 1 && !_loadingTimer.Enabled)
-                {
-                    _loadingTimer.Start();
-                    _api.Cancel();
-                    LoadingVisible = Visibility.Visible;
-                    Task.Run(async () =>
-                        {
-                            var speakerst = await _api.SimpleSearch(_filterstring);
-                            UpdateOnlineSpeakers(speakerst);
-                            LoadingVisible = Visibility.Collapsed;
-                        });
-
-                    _lastFilterString = _filterstring;
-                }
-            }
-
-        }
-
-        List<ApiSynchronizedSpeaker> _onlineSpeakers = new List<ApiSynchronizedSpeaker>();
-        private async void UpdateOnlineSpeakers(IEnumerable<ApiSynchronizedSpeaker> speakerst)
-        {
-            using (var wc = new WaitCursor())
-            {
-                var ToRemove = new HashSet<string>(_onlineSpeakers.Except(speakerst, new SpeakerComparer()).Select(s => s.DBID));
-                var ToRemoveCont = _allSpeakers.Where(c => ToRemove.Contains(c.Speaker.DBID));
-
-
-                await SaveOnlineSpeakersUsavedChanges(ToRemoveCont.Where(c => c.Changed).Select(c => c.Speaker));
-
-
-                _allSpeakers.RemoveAll(sc => ToRemove.Contains(sc.Speaker.DBID));//remove online items missing from this search
-
-                var ToUpdate = _allSpeakers
-                    .Where(sc => sc.Speaker.DataBaseType != DBType.File)
-                    .Join(speakerst, sc => sc.Speaker.DBID, s => s.DBID, (sc, s) => Tuple.Create(sc, s))
-                    .ToArray();
-
-                foreach (var item in ToUpdate)
-                {
-                    Speaker.MergeFrom(item.Item1.Speaker, item.Item2);
-                    item.Item1.ReloadSpeaker();
-                }
-
-                var ToAdd = speakerst.Except(ToUpdate.Select(t => t.Item2));
-                _allSpeakers.AddRange(ToAdd.Select(s => new SpeakerContainer(s)));
-
-
-                var DoNotRemove = new HashSet<string>(speakerst
-                    .Except(_localSpeakers
-                        .Concat(_documentSpeakers)
-                        .Where(s => s.GetType() == typeof(ApiSynchronizedSpeaker))
-                        .Cast<ApiSynchronizedSpeaker>())
-                        .Select(s => s.DBID));
-
-                _onlineSpeakers = speakerst.Where(s => !DoNotRemove.Contains(s.DBID)).ToList();
-            }
-        }
-
-        /// <summary>
-        /// returns false if user cancels
-        /// </summary>
-        /// <param name="speaker"></param>
-        /// <returns></returns>
-        private async Task<bool> SaveOnlineSpeakersUsavedChanges(IEnumerable<Speaker> unsavedSpeakers, bool useMessagebox = true)
-        {
-            if (unsavedSpeakers.Count() <= 0)
-                return true;
-
-            bool update = !useMessagebox;
-            if (useMessagebox)
-            {
-                var result = MessageBox.Show(Properties.Strings.SpeakersManagerSaveUnsavedOnlineSpeakersDialogQuestion, Properties.Strings.SpeakersManagerSaveUnsavedOnlineSpeakersDialogText, MessageBoxButton.YesNoCancel, MessageBoxImage.Question, MessageBoxResult.Cancel);
-
-                if (result != MessageBoxResult.Cancel)
-                {
-                    if (result == MessageBoxResult.Yes)
-                        update = true;
-                }
-            }
-
-
-
-            if (update)
-            {
-                foreach (ApiSynchronizedSpeaker speaker in unsavedSpeakers)
-                {
-                    if (speaker.IsSaved)
-                        await _api.UpdateSpeaker(speaker);
-                    else
-                        await _api.AddSpeaker(speaker);
-                }
-
-                return true;
-            }
-            return false;
-        }
-
-
-        private class SpeakerComparer : IEqualityComparer<ApiSynchronizedSpeaker>
-        {
-
-            public bool Equals(ApiSynchronizedSpeaker x, ApiSynchronizedSpeaker y)
-            {
-                return x.DBID == y.DBID;
-            }
-
-            public int GetHashCode(ApiSynchronizedSpeaker obj)
-            {
-                return obj.DBID.GetHashCode();
-            }
-        }
-
-
-        public ICollectionView View
-        {
-            get
-            {
-                return _view;
-            }
-            set
-            {
-                _view = value;
-                if (PropertyChanged != null)
-                    PropertyChanged(this, new PropertyChangedEventArgs("View"));
-            }
-        }
-        #region filterproperties
-        private bool _showDocument = true;
-        private bool _showLocal = true;
-        private bool _showOnline = true;
-
-        /// <summary>
-        /// Is connected to online storage?
-        /// </summary>
-        public bool IsOnline
-        {
-            get { return _api != null; }
-        }
-
-        public bool ShowDocument
-        {
-            get { return _showDocument; }
-            set
-            {
-                _showDocument = value;
-                if (PropertyChanged != null)
-                    PropertyChanged(this, new PropertyChangedEventArgs("ShowDocument"));
-                UpdateFilters();
-            }
-        }
-
-        public bool ShowLocal
-        {
-            get { return _showLocal; }
-            set
-            {
-                _showLocal = value;
-                if (PropertyChanged != null)
-                    PropertyChanged(this, new PropertyChangedEventArgs("ShowLocal"));
-
-                UpdateFilters();
-            }
-        }
-        public bool ShowOnline
-        {
-            get { return _showOnline; }
-            set
-            {
-                _showOnline = value;
-                if (PropertyChanged != null)
-                    PropertyChanged(this, new PropertyChangedEventArgs("ShowOnline"));
-                UpdateFilters();
-            }
-        }
-        #endregion
-
-
-        public bool ContainsSpeaker(Speaker sp)
-        {
-            return _allSpeakers.Any(s => s.Speaker == sp);
-        }
-
-        public IDisposable DeferRefresh()
-        {
-            return _view.DeferRefresh();
-        }
-
-        public SpeakerContainer GetContainerForSpeaker(Speaker sp)
-        {
-            return _allSpeakers.FirstOrDefault(s => s.Speaker == sp);
-        }
-
-        public void RemoveSpeaker(Speaker s)
-        {
-            var cont = _allSpeakers.FirstOrDefault(sc => sc.Speaker == s);
-            if (s.DataBaseType == DBType.User)
-                _localSpeakers.Remove(s);
-            else if (s.DataBaseType == DBType.File)
-                _documentSpeakers.Remove(s);
-
-            if (cont != null)
-            {
-                _allSpeakers.Remove(cont);
-                View.Refresh();
-            }
-        }
-
-        internal void AddOnlineSpeaker(ApiSynchronizedSpeaker sp)
-        {
-            _onlineSpeakers.Add(sp);
-            _allSpeakers.Add(new SpeakerContainer(_documentSpeakers, sp));
-            View.Refresh();
-        }
-
-        internal void AddLocalSpeaker(Speaker sp)
-        {
-            _localSpeakers.Add(sp);
-            _allSpeakers.Add(new SpeakerContainer(_documentSpeakers, sp));
-            View.Refresh();
-        }
-
-        private bool FilterItems(object item)
-        {
-            SpeakerContainer cont = item as SpeakerContainer;
-
-            bool res = false;
-            if (cont == null)
-                return false;
-
-            if (_showDocument && cont.IsDocument)
-                res = true;
-
-            if (_showLocal && cont.IsLocal)
-                res = true;
-
-            if (_showOnline && cont.IsOnline)
-                res = true;
-
-            if (!string.IsNullOrWhiteSpace(_filterstring))
-            {
-
-
-                string flover = _filterstring.ToLower();
-                res &= (cont.FullName.ToLower().Contains(flover) |
-                        cont.DegreeBefore.ToLower().Contains(flover) |
-                        cont.DegreeAfter.ToLower().Contains(flover) |
-                        cont.Language.ToLower().Contains(flover));
-            }
-
-            return res;
-        }
-
-        private void UpdateFilters()
-        {
-            using (_view.DeferRefresh())
-            {
-                _view.Filter = null;
-                _view.Filter = FilterItems;
-            }
-
-            if (PropertyChanged != null)
-                PropertyChanged(this, new PropertyChangedEventArgs("Filter"));
-        }
-
-        internal async Task<bool> CloseConnection()
-        {
-            if (_api != null)
-            {
-                return await SaveOnlineSpeakersUsavedChanges(_allSpeakers.Where(sc => sc.IsOnline && sc.Changed).Select(sc => sc.Speaker));
-            }
-
-            return true;
-        }
-    }
 }

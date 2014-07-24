@@ -292,6 +292,7 @@
     <Compile Include="UI\PickOneDialog.xaml.cs">
       <DependentUpon>PickOneDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UI\SpeakerManagerViewModel.cs" />
     <Compile Include="UI\SpeakersManager.xaml.cs">
       <DependentUpon>SpeakersManager.xaml</DependentUpon>
     </Compile>

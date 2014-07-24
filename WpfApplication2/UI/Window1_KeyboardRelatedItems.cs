@@ -390,7 +390,21 @@ namespace NanoTrans
 
             if (mgr.ShowDialog() == true && mgr.SelectedSpeaker != null)
             {
+                var origspk = tpr.Speaker;
                 tpr.Speaker = mgr.SelectedSpeaker;
+
+                if (!Transcription.EnumerateParagraphs().Any(p => p.Speaker == origspk))
+                    Transcription.Speakers.Remove(origspk);
+
+
+                var replaced = AdvancedSpeakerCollection.SynchronizedAdd(Transcription.Speakers, mgr.SelectedSpeaker);
+
+                if (replaced != null)
+                {
+                    foreach (var p in Transcription.EnumerateParagraphs().Where(p => p.Speaker == replaced))
+                        p.Speaker = mgr.SelectedSpeaker;
+                }
+
                 this.Transcription.Saved = false;
             }
 

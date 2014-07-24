@@ -70,6 +70,7 @@ namespace NanoTrans
                 _speaker.PinnedToDocument = _pinned.Value;
 
             Changed = false;
+            New = false;
         }
 
 
@@ -140,7 +141,7 @@ namespace NanoTrans
 
         public string FullName
         {
-            get { return Speaker.GetFullName(_firstName, _middleName, _surName); }
+            get { return Speaker.GetFullName(FirstName, MiddleName, SurName); }
         }
 
         public bool Changed
@@ -334,6 +335,9 @@ namespace NanoTrans
                 PropertyChanged(this, new PropertyChangedEventArgs(null));
 
         }
+
+
+        public bool New { get; set; }
     }
 
 }
