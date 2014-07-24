@@ -379,7 +379,7 @@ namespace NanoTrans
             else
                 tpr = VirtualizingListBox.ActiveTransctiption as TranscriptionParagraph;
 
-            var mgr = new SpeakersManager(tpr.Speaker, Transcription, Transcription.Speakers, SpeakersDatabase) { MessageLabel = "Vybraný odstavec:", Message = VirtualizingListBox.ActiveTransctiption.Text };
+            var mgr = new SpeakersManager(tpr.Speaker, Transcription, Transcription.Speakers, SpeakersDatabase) { MessageLabel = Properties.Strings.mainWindowSpeakersManagerSelectedParagraphMessage, Message = VirtualizingListBox.ActiveTransctiption.Text };
             if (smwidth != null && smheight != null && smleft != null && smtop != null)
             {
                 mgr.Width = smwidth.Value;

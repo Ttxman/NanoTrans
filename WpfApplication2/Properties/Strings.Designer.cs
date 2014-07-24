@@ -448,6 +448,15 @@ namespace NanoTrans.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Selected paragraph:.
+        /// </summary>
+        public static string mainWindowSpeakersManagerSelectedParagraphMessage {
+            get {
+                return ResourceManager.GetString("mainWindowSpeakersManagerSelectedParagraphMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Audio conversion:.
         /// </summary>
         public static string mainWindowStatusbarAudioConversionHeader {
@@ -1389,6 +1398,33 @@ namespace NanoTrans.Properties {
         public static string SpeakersManagerSpeakerMergeLabel {
             get {
                 return ResourceManager.GetString("SpeakersManagerSpeakerMergeLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Speaker name problem.
+        /// </summary>
+        public static string SpeakersManagerSpeakerNameConflictCaption {
+            get {
+                return ResourceManager.GetString("SpeakersManagerSpeakerNameConflictCaption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid Speaker name: &quot;{0}&quot;.
+        /// </summary>
+        public static string SpeakersManagerSpeakerNameConflictForbiddenQuestionFormat {
+            get {
+                return ResourceManager.GetString("SpeakersManagerSpeakerNameConflictForbiddenQuestionFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Create new speaker with same name as another? (&quot;{0}&quot;).
+        /// </summary>
+        public static string SpeakersManagerSpeakerNameConflictQuestionFormat {
+            get {
+                return ResourceManager.GetString("SpeakersManagerSpeakerNameConflictQuestionFormat", resourceCulture);
             }
         }
         

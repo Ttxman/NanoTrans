@@ -714,4 +714,16 @@
   <data name="SpeakersManagerDeleteSpeakerDialogQuestion" xml:space="preserve">
     <value>Odstranění mluvčího</value>
   </data>
+  <data name="mainWindowSpeakersManagerSelectedParagraphMessage" xml:space="preserve">
+    <value>Vybraný odstavec:</value>
+  </data>
+  <data name="SpeakersManagerSpeakerNameConflictCaption" xml:space="preserve">
+    <value>Konflikt jména mluvčího</value>
+  </data>
+  <data name="SpeakersManagerSpeakerNameConflictForbiddenQuestionFormat" xml:space="preserve">
+    <value>Jméno není platné "{0}"</value>
+  </data>
+  <data name="SpeakersManagerSpeakerNameConflictQuestionFormat" xml:space="preserve">
+    <value>Mluvčí s podobným jménem již existuje ("{0}") Přesto Vytvořit nového? </value>
+  </data>
 </root>

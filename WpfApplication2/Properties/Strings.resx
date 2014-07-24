@@ -714,4 +714,16 @@
   <data name="SpeakersManagerDeleteSpeakerDialogQuestion" xml:space="preserve">
     <value>Delete speaker?</value>
   </data>
+  <data name="mainWindowSpeakersManagerSelectedParagraphMessage" xml:space="preserve">
+    <value>Selected paragraph:</value>
+  </data>
+  <data name="SpeakersManagerSpeakerNameConflictCaption" xml:space="preserve">
+    <value>Speaker name problem</value>
+  </data>
+  <data name="SpeakersManagerSpeakerNameConflictForbiddenQuestionFormat" xml:space="preserve">
+    <value>Invalid Speaker name: "{0}"</value>
+  </data>
+  <data name="SpeakersManagerSpeakerNameConflictQuestionFormat" xml:space="preserve">
+    <value>Create new speaker with same name as another? ("{0}")</value>
+  </data>
 </root>
