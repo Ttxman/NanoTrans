@@ -187,6 +187,14 @@ namespace NanoTrans
 
         private void ButtonOK_Click(object sender, RoutedEventArgs e)
         {
+
+            if (SelectedSpeakerContainer != null)
+            {
+                if(!CheckChanges(SelectedSpeakerContainer))
+                    return;
+            }
+
+            
             preventDoublecheck = false;
             _transcription.Saved = false;
             this.DialogResult = true;
@@ -373,41 +381,23 @@ namespace NanoTrans
                     {
                         foreach (var sc in changedSpeakers)
                         {
-                            var result = MessageBox.Show(string.Format(Properties.Strings.SpeakersManagerSpeakerApplyChangesDialogFormat, sc.FullName), Properties.Strings.SpeakersManagerSpeakerApplyChangesDialogQuestion, MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-                            ApiSynchronizedSpeaker ss = sc.Speaker as ApiSynchronizedSpeaker;
-
-                            if (result == MessageBoxResult.Yes)
-                            {
-                                bool saved = AsyncHelpers.RunSync(() => TrySaveSpeaker(sc));
-                                if (!saved)
+                            if (SpeakersBox.Items.Contains(sc) && CheckChanges(sc))
+                            { //revert changes
+                                if (SpeakersBox.SelectionMode == SelectionMode.Multiple)
                                 {
-                                    if (SpeakersBox.SelectionMode == SelectionMode.Multiple)
-                                    {
 
-                                        foreach (var r in e.AddedItems.Cast<SpeakerContainer>())
-                                            SpeakersBox.SelectedItems.Remove(r);
+                                    foreach (var r in e.AddedItems.Cast<SpeakerContainer>())
+                                        SpeakersBox.SelectedItems.Remove(r);
 
-                                        foreach (var a in e.AddedItems.Cast<SpeakerContainer>())
-                                            SpeakersBox.SelectedItems.Add(a);
-                                    }
-                                    else
-                                    {
-                                        SpeakersBox.SelectedItem = changedSpeakers.First();
-                                    }
-                                    return;
+                                    foreach (var a in e.AddedItems.Cast<SpeakerContainer>())
+                                        SpeakersBox.SelectedItems.Add(a);
+                                }
+                                else
+                                {
+                                    SpeakersBox.SelectedItem = changedSpeakers.First();
                                 }
                             }
-                            else
-                            {
 
-                                if (NewSpeaker == sc.Speaker)
-                                {
-                                    NewSpeaker = null;
-                                    SpeakerProvider.DeleteSpeaker(ss);
-                                }
-                                sc.ReloadSpeaker();
-                            }
                         }
                     }
                 }
@@ -424,6 +414,40 @@ namespace NanoTrans
                 SelectedSpeaker = SelectedSpeakerContainer.Speaker;
             }
         }
+
+        private bool CheckChanges(SpeakerContainer sc)
+        {
+            if (!sc.Changed)
+                return true;
+
+            var result = MessageBox.Show(string.Format(Properties.Strings.SpeakersManagerSpeakerApplyChangesDialogFormat, sc.FullName), Properties.Strings.SpeakersManagerSpeakerApplyChangesDialogQuestion, MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            ApiSynchronizedSpeaker ss = sc.Speaker as ApiSynchronizedSpeaker;
+
+            if (result == MessageBoxResult.Yes)
+            {
+                bool saved = AsyncHelpers.RunSync(() => TrySaveSpeaker(sc));
+                if (!saved)
+                {
+                    return false;
+                }
+            }
+            else
+            {
+
+                if (NewSpeaker == sc.Speaker)
+                {
+                    NewSpeaker = null;
+                    SpeakerProvider.DeleteSpeaker(ss);
+                }
+                sc.ReloadSpeaker();
+                return false;
+            }
+
+            return true;
+        }
+
+
         private void SpeakerSmall_speakermodified()
         {
             SpeakerChanged = true;
@@ -432,7 +456,16 @@ namespace NanoTrans
         bool preventDoublecheck = false;
         private void manager_Closing(object sender, CancelEventArgs e)
         {
-            SpeakersBox.SelectedItem = null;
+            if (SelectedSpeakerContainer != null)
+            {
+                if (!CheckChanges(SelectedSpeakerContainer))
+                {
+                    e.Cancel = true;
+                    return;
+                }
+            }
+
+         //   SpeakersBox.SelectedItem = null;
 
             if (preventDoublecheck)
                 return;
@@ -539,6 +572,12 @@ namespace NanoTrans
 
         private void ButtonOKAll_Click(object sender, RoutedEventArgs e)
         {
+            if (SelectedSpeakerContainer != null)
+            {
+                if (!CheckChanges(SelectedSpeakerContainer))
+                    return;
+            }
+
             ReplaceSpeakerInTranscription(_originalSpeaker, ((SpeakerContainer)SpeakersBox.SelectedValue).Speaker);
             preventDoublecheck = false;
             _transcription.Saved = false;

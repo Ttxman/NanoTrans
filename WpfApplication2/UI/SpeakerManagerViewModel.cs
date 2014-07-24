@@ -415,5 +415,6 @@ namespace NanoTrans
             all.AddRange(_allSpeakers.Where(s => s.FullName == spk.FullName).Select(c=>c.Speaker).Except(_temp));
             return Deduplicate(all).ToArray();
         }
+
     }
 }
