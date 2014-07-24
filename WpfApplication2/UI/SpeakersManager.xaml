@@ -81,7 +81,6 @@
                     <MenuItem Header="{lex:BLoc Key=NanoTrans:Strings:SpeakersManagerContextMenuMerge}" Click="MenuItem_MergeSpeakers" IsEnabled="{Binding Path=SelectedSpeakerContainer.IsOffline}"/>
                     <MenuItem Header="{lex:BLoc Key=NanoTrans:Strings:SpeakersManagerContextMenuDelete}" Click="MenuItem_DeleteSpeaker" IsEnabled="{Binding Path=SelectedSpeakerContainer.IsOffline}"/>
                     <MenuItem Header="{lex:BLoc Key=NanoTrans:Strings:SpeakersManagerContextMenuNew}" Click="MenuItem_NewSpeaker"/>
-                    <MenuItem Header="{lex:BLoc Key=NanoTrans:Strings:SpeakersManagerContextMenuReplace}" Click="MenuItemReplaceSpeaker_Click"/>
                 </ContextMenu>
             </ListBox.ContextMenu>
             <ListBox.ItemContainerStyle>

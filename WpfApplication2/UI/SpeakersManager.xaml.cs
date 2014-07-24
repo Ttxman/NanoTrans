@@ -524,25 +524,6 @@ namespace NanoTrans
             return true;
         }
 
-        private void MenuItemReplaceSpeaker_Click(object sender, RoutedEventArgs e)
-        {
-            var selectedSpeaker = ((SpeakerContainer)SpeakersBox.SelectedValue).Speaker;
-            SpeakersManager sm2 = new SpeakersManager(selectedSpeaker, _transcription, _documentSpeakers, _localSpeakers)
-            {
-                MessageLabel = Properties.Strings.SpeakersManagerSpeakerSelectLabel,
-                Message = selectedSpeaker.FullName,
-                Editable = false,
-                SelectMany = false
-            };
-
-
-            if (sm2.ShowDialog() == true)
-            {
-                var speaker = ((SpeakerContainer)sm2.SpeakersBox.SelectedValue).Speaker;
-                ReplaceSpeakerInTranscription(selectedSpeaker, speaker);
-            }
-        }
-
         private void ReplaceSpeakerInTranscription(Speaker toReplace, Speaker replacement)
         {
             _transcription.Saved = false;
