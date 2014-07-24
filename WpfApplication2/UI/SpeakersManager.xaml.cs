@@ -71,7 +71,7 @@ namespace NanoTrans
 
         public SpeakersManager(Speaker originalSpeaker, WPFTranscription transcription, SpeakerCollection documentSpeakers, SpeakerCollection localSpeakers = null)
         {
-            DataContext = this;//not good way :)
+            DataContext = this;//not good :)
             _originalSpeaker = originalSpeaker;
             _localSpeakers = localSpeakers;
             _documentSpeakers = documentSpeakers;

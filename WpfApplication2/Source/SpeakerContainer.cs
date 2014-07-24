@@ -25,7 +25,7 @@ namespace NanoTrans
         Speaker _speaker;
         string _surName = null;
         bool _updating = false;
-        bool? _pinned = false;
+        bool? _pinned = null;
 
         public SpeakerContainer(Speaker s)
             : this(null, s)
