@@ -80,6 +80,7 @@ namespace NanoTrans
                 Connected = true;
                 Service = _api.Info.Site.AbsoluteUri;
                 progress.IsIndeterminate = false;
+                Login.Focus();
             }
             catch
             {
@@ -164,6 +165,14 @@ namespace NanoTrans
             this.DialogResult = true;
             
             Close();
+        }
+
+        private void Password_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                Button_Click(this, null);
+            }
         }
     }
 

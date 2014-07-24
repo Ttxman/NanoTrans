@@ -3,7 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:my="clr-namespace:NanoTrans"
         Title="OnlineTranscription" Height="300" Width="300" Loaded="Window_Loaded" 
-        Name="window">
+        Name="window"
+        FocusManager.FocusedElement="{Binding ElementName=Login}"
+        >
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="121*"/>
@@ -15,9 +17,9 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="20"/>
-                <RowDefinition Height="20"/>
-                <RowDefinition Height="20"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="30"/>
             </Grid.RowDefinitions>
@@ -29,10 +31,10 @@
             </StackPanel>
 
             <TextBlock Grid.Row="1" Grid.Column="0">Name:</TextBlock>
-            <TextBox Name="Login" Grid.Row="1" Grid.Column="1">senat</TextBox>
+            <TextBox Name="Login" Grid.Row="1" Grid.Column="1" ></TextBox>
 
             <TextBlock Grid.Row="2" Grid.Column="0">Password:</TextBlock>
-            <PasswordBox Name="Password" Grid.Row="2" Grid.Column="1" Password="senat2014tul!"/>
+            <PasswordBox Name="Password" Grid.Row="2" Grid.Column="1" Password="" KeyDown="Password_KeyDown"/>
 
             <Button Content="Login" Grid.Row="4" Grid.ColumnSpan="2" Click="Button_Click"/>
 
