@@ -115,7 +115,11 @@ namespace NanoTrans
                 {
 
                     if (_slist[s.DBID].Synchronized < s.Synchronized)
+                    {
+                        this._Speakers.Remove(_slist[s.DBID]);
                         ls = _slist[s.DBID] = s;
+                        this._Speakers.Add(ls);
+                    }
 
                     return ls;
                 }
