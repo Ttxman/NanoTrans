@@ -24,6 +24,7 @@ namespace NanoTrans
         protected override void Initialize(XDocument doc)
         {
             _slist.Clear();
+
             _slist = _Speakers.ToDictionary(s => s.DBID);
 
             var merges = _Speakers.SelectMany(s => s.Merges.Select(m => new { speaker = s, merged = m }));

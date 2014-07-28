@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace NanoTrans
 {
+    [System.Diagnostics.DebuggerDisplay("Speaker container ({FullName})")]
     public class SpeakerContainer : INotifyPropertyChanged
     {
         public SpeakerCollection SpeakerColletion;

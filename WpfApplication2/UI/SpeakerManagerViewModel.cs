@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows;
@@ -289,10 +290,52 @@ namespace NanoTrans
             return _allSpeakers.Any(s => s.Speaker == sp);
         }
 
+        int DeferCounter = 0;
+        private class Deferer : IDisposable
+        {
+            IDisposable viewDefer = null;
+            public Deferer(SpeakerManagerViewModel speakerManagerViewModel)
+            {
+                this.speakerManagerViewModel = speakerManagerViewModel;
+                lock (locker)
+                {
+                    Interlocked.Increment(ref speakerManagerViewModel.DeferCounter);
+                    viewDefer = speakerManagerViewModel._view.DeferRefresh();
+                }
+            }
+
+            bool disposed = false;
+            object locker = new object();
+            private SpeakerManagerViewModel speakerManagerViewModel;
+            public void Dispose()
+            {
+                if (!disposed)
+                {
+                    lock (locker)
+                    {
+                        if (!disposed)
+                        {
+                            disposed = true;
+                            Interlocked.Decrement(ref speakerManagerViewModel.DeferCounter);
+                            viewDefer.Dispose();
+                            speakerManagerViewModel.Refresh();
+                        }
+                    }
+                }
+            }
+        }
+
         public IDisposable DeferRefresh()
         {
-            return _view.DeferRefresh();
+            return new Deferer(this);
         }
+
+        public void Refresh()
+        {
+            if (DeferCounter == 0)
+                _view.Refresh();
+        }
+
 
         public SpeakerContainer GetContainerForSpeaker(Speaker sp)
         {
@@ -301,8 +344,6 @@ namespace NanoTrans
 
         public void DeleteSpeaker(Speaker s)
         {
-
-
             _local.Remove(s);
             _online.Remove(s);
             _document.Remove(s);
@@ -313,11 +354,7 @@ namespace NanoTrans
             if (cont != null)
             {
                 _allSpeakers.Remove(cont);
-                try
-                {
-                    View.Refresh();
-                }
-                catch { }//TODO: make it work without try/catch .. somehow detect View.DeferRefresh()
+                Refresh();
             }
         }
 
@@ -325,33 +362,21 @@ namespace NanoTrans
         {
             _online.Add(sp);
             _allSpeakers.Add(new SpeakerContainer(_document, sp));
-            try
-            {
-                View.Refresh();
-            }
-            catch { }//TODO: make it work without try/catch .. somehow detect View.DeferRefresh()
+            Refresh();
         }
 
         internal void AddLocalSpeaker(Speaker sp)
         {
             _local.Add(sp);
             _allSpeakers.Add(new SpeakerContainer(_local, sp));
-            try
-            {
-                View.Refresh();
-            }
-            catch { }//TODO: make it work without try/catch .. somehow detect View.DeferRefresh()
+            Refresh();
         }
 
         internal void AddTempSpeaker(Speaker sp)
         {
             _temp.Add(sp);
             _allSpeakers.Add(new SpeakerContainer(sp));
-            try
-            {
-                View.Refresh();
-            }
-            catch { }//TODO: make it work without try/catch .. somehow detect View.DeferRefresh()
+            Refresh();
         }
 
         private bool FilterItems(object item)
@@ -387,7 +412,7 @@ namespace NanoTrans
 
         private void UpdateFilters()
         {
-            using (_view.DeferRefresh())
+            using (DeferRefresh())
             {
                 _view.Filter = null;
                 _view.Filter = FilterItems;

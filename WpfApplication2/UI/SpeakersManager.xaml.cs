@@ -190,11 +190,11 @@ namespace NanoTrans
 
             if (SelectedSpeakerContainer != null)
             {
-                if(!CheckChanges(SelectedSpeakerContainer))
+                if (!CheckChanges(SelectedSpeakerContainer))
                     return;
             }
 
-            
+
             preventDoublecheck = false;
             _transcription.Saved = false;
             this.DialogResult = true;
@@ -275,7 +275,7 @@ namespace NanoTrans
                             tp.Speaker = selectedSpeaker;
                     }
 
-                    SpeakerProvider.View.Refresh();
+                    SpeakerProvider.Refresh();
                     SpeakersBox.UnselectAll();
                 }
             }
@@ -465,7 +465,7 @@ namespace NanoTrans
                 }
             }
 
-         //   SpeakersBox.SelectedItem = null;
+            //   SpeakersBox.SelectedItem = null;
 
             if (preventDoublecheck)
                 return;
@@ -545,7 +545,7 @@ namespace NanoTrans
                 var similar = await SpeakerProvider.FindSimilar(spk);
                 if (similar.Length > 0)
                 {
-                    if (MessageBox.Show(string.Format(Properties.Strings.SpeakersManagerSpeakerNameConflictQuestionFormat, string.Join(",",similar.Take((similar.Length >3)?3:similar.Length).Select(s=>s.FullName))),
+                    if (MessageBox.Show(string.Format(Properties.Strings.SpeakersManagerSpeakerNameConflictQuestionFormat, string.Join(",", similar.Take((similar.Length > 3) ? 3 : similar.Length).Select(s => s.FullName))),
                         Properties.Strings.SpeakersManagerSpeakerNameConflictCaption, MessageBoxButton.YesNo, MessageBoxImage.Exclamation) == MessageBoxResult.No)
                     {
                         return false;
