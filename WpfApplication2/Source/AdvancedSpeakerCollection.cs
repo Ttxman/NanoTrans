@@ -42,6 +42,11 @@ namespace NanoTrans
         }
 
 
+        public override XElement Serialize(bool saveAll = false)
+        {
+            return base.Serialize(true);
+        }
+
         public override void Add(Speaker item)
         {
             _slist.Add(item.DBID, item);

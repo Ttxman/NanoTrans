@@ -682,7 +682,7 @@
     <value>Sloučení mluvčích</value>
   </data>
   <data name="SpeakersManagerSpeakerMergeDialogQuestionFormat" xml:space="preserve">
-    <value>Opravdu chcete sloučit mluvčí "{0}" s mluvčím  "{1}"?</value>
+    <value>Opravdu chcete sloučit mluvčí "{0}" do mluvčího  "{1}"?</value>
   </data>
   <data name="SpeakersManagerSpeakerMergeLabel" xml:space="preserve">
     <value>Vyberte další mluvčí pro sloučení s :</value>
