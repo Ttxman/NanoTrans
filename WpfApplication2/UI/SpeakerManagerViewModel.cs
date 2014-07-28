@@ -75,8 +75,13 @@ namespace NanoTrans
 
         private IEnumerable<SpeakerContainer> Deduplicate(IEnumerable<SpeakerContainer> input)
         {
-            return input.GroupBy(s => s.Speaker.DBID)
-                .Select(g => g.FirstOrDefault(s => s.Speaker is ApiSynchronizedSpeaker) ?? g.FirstOrDefault(s => s.Speaker.DBType == DBType.User) ?? g.First());
+            var donotdeduplicate = input.Where(s => s.Speaker.DBType == DBType.File || s.Speaker.DBID == "");
+
+            return input
+                .Except(donotdeduplicate)
+                .GroupBy(s => s.Speaker.DBID)
+                .Select(g => g.FirstOrDefault(s => s.Speaker is ApiSynchronizedSpeaker) ?? g.FirstOrDefault(s => s.Speaker.DBType == DBType.User) ?? g.First())
+                .Concat(donotdeduplicate);
         }
 
         private IEnumerable<Speaker> Deduplicate(IEnumerable<Speaker> input)
