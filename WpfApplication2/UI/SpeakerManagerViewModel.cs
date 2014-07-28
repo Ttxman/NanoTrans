@@ -71,7 +71,7 @@ namespace NanoTrans
             _allSpeakers.Sort((x, y) => { int cmp = string.Compare(x.SurName, y.SurName); return (cmp != 0) ? cmp : string.Compare(x.FirstName, y.FirstName); });
 
             View = CollectionViewSource.GetDefaultView(_allSpeakers);
-            _view.Filter = FilterItems;
+            UpdateFilters();
         }
 
         private IEnumerable<SpeakerContainer> Deduplicate(IEnumerable<SpeakerContainer> input)
@@ -255,7 +255,7 @@ namespace NanoTrans
                 _showDocument = value;
                 if (PropertyChanged != null)
                     PropertyChanged(this, new PropertyChangedEventArgs("ShowDocument"));
-                UpdateFilters();
+                ReloadSpeakers();
             }
         }
 
@@ -268,7 +268,7 @@ namespace NanoTrans
                 if (PropertyChanged != null)
                     PropertyChanged(this, new PropertyChangedEventArgs("ShowLocal"));
 
-                UpdateFilters();
+                ReloadSpeakers();
             }
         }
         public bool ShowOnline
@@ -279,7 +279,7 @@ namespace NanoTrans
                 _showOnline = value;
                 if (PropertyChanged != null)
                     PropertyChanged(this, new PropertyChangedEventArgs("ShowOnline"));
-                UpdateFilters();
+                ReloadSpeakers();
             }
         }
         #endregion
