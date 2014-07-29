@@ -43,18 +43,18 @@
                             <Image Source="/icons/iOtevrit.png"/>
                         </MenuItem.Icon>
                     </MenuItem>
-                    <Separator />
+                    <Separator Visibility="{Binding Source={x:Static props:Settings.Default}, Path=FeatureEnabler.LocalEdit, Converter={StaticResource visConverter}}"/>
                     <MenuItem Header="{lex:Loc}" InputGestureText="Ctrl+S" Click="MFile_save_Click" Name="menuFileSave">
                         <MenuItem.Icon>
                             <Image Source="/icons/iUlozit.png"/>
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem Header="{lex:Loc}" Click="MFile_save_as_Click" Name="menuFileSaveAs" Visibility="{Binding Source={x:Static props:Settings.Default}, Path=FeatureEnabler.LocalEdit, Converter={StaticResource visConverter}}" />
-                    <Separator />
-                    <MenuItem Header="{lex:Loc}" Name="menufileExport" Click="menuFileExport_Click" />
+                    <Separator Visibility="{Binding Source={x:Static props:Settings.Default}, Path=FeatureEnabler.Export, Converter={StaticResource visConverter}}"/>
+                    <MenuItem Header="{lex:Loc}" Name="menufileExport" Click="menuFileExport_Click" Visibility="{Binding Source={x:Static props:Settings.Default}, Path=FeatureEnabler.Export, Converter={StaticResource visConverter}}"/>
 
                     <MenuItem Header="{lex:Loc}" Name="menuFileImport" Click="menuFileImport_Click" Visibility="{Binding Source={x:Static props:Settings.Default}, Path=FeatureEnabler.LocalEdit, Converter={StaticResource visConverter}}"/>
-                    <MenuItem Header="{lex:Loc}" Click="MFile_open_audio_Click" Name="menufileOpenAudio">
+                    <MenuItem Header="{lex:Loc}" Click="MFile_open_audio_Click" Name="menufileOpenAudio" Visibility="{Binding Source={x:Static props:Settings.Default}, Path=FeatureEnabler.AudioManipulation, Converter={StaticResource visConverter}}">
                         <MenuItem.Icon>
                             <Image Source="/icons/iAudio.png"/>
                         </MenuItem.Icon>
@@ -64,7 +64,7 @@
                     <Separator />
                     <MenuItem Header="{lex:Loc}" Click="MFile_close_Click" Name="menuFileExit" />
                 </MenuItem>
-                <MenuItem Header="{lex:Loc}" Name="menuEdit">
+                <MenuItem Header="{lex:Loc}" Name="menuEdit" Visibility="{Binding Source={x:Static props:Settings.Default}, Path=FeatureEnabler.ChaptersAndSections, Converter={StaticResource visConverter}}">
                     <MenuItem Header="{lex:Loc}" InputGestureText="F4"  Click="MEdit_new_chapter_Click" Name="menuEditNewChapter" />
                     <MenuItem Header="{lex:Loc}" InputGestureText="F5" Click="MEdit_New_Section_Click" Name="menuEditNewSection" />
                     <Separator />
@@ -125,16 +125,16 @@
                             </Style.Resources>
                         </Style>
                     </ToolBarTray.Resources>
-                    <ToolBar Name="toolBar1" VerticalAlignment="Top" HorizontalAlignment="Left" Loaded="toolBar1_Loaded" BandIndex="0"></ToolBar>
-                    <ToolBar BandIndex="1">
+                    <ToolBar Name="toolBarNSE" VerticalAlignment="Top" HorizontalAlignment="Left" Loaded="toolBar1_Loaded" BandIndex="0" Visibility="{Binding Source={x:Static props:Settings.Default}, Path=FeatureEnabler.NonSpeechEvents, Converter={StaticResource visConverter}}"></ToolBar>
+                    <ToolBar BandIndex="1" Name="toolbarAdditional">
                         <Button Click="Button_Click_2" VerticalAlignment="Stretch" ToolTip="{lex:Loc Key=mainWindowOpenSpeakerSynchronizerTooltip}" Visibility="{Binding Source={x:Static props:Settings.Default}, Path=FeatureEnabler.DbMerging, Converter={StaticResource visConverter}}">
                             <Image Source="/icons/join.png" Width="16" Height="16"/>
                         </Button>
-                        <ToggleButton Name="Button_HideNSE" VerticalAlignment="Stretch" Click="Button_HideNSE_Click" ClickMode="Press">
+                        <ToggleButton Name="Button_HideNSE" VerticalAlignment="Stretch" Click="Button_HideNSE_Click" ClickMode="Press" Visibility="{Binding Source={x:Static props:Settings.Default}, Path=FeatureEnabler.NonSpeechEvents, Converter={StaticResource visConverter}}">
                             <Image Source="/icons/HideNSE.png" Width="16" Height="16" ToolTip="{lex:Loc Key=mainWindowHideNonSpeechEventsTooltip}"/>
                         </ToggleButton>
                     </ToolBar>
-                    <ToolBar BandIndex="2" Visibility="{Binding Source={x:Static props:Settings.Default}, Path=FeatureEnabler.QuickNavigation, Converter={StaticResource visConverter}}">
+                    <ToolBar Name="toolbarQuickNavigation" BandIndex="2" Visibility="{Binding Source={x:Static props:Settings.Default}, Path=FeatureEnabler.QuickNavigation, Converter={StaticResource visConverter}}">
                         <Button VerticalAlignment="Stretch" DataContext="{Binding ElementName=window}" IsEnabled="{Binding ElementName=window, Path=IsPreviousTranscriptionAvailable}" Click="Button_Click_1">
                             <Button.ToolTip>
                                 <ToolTip>
@@ -279,7 +279,7 @@
         </Grid>
 
 
-        <GroupBox Header="{lex:Loc}" Name="mainWindowAudioPanelHeader" Grid.Row="3" VerticalAlignment="Top" Grid.ColumnSpan="2">
+        <GroupBox Header="{lex:Loc}" Name="mainWindowAudioPanelHeader" Grid.Row="3" VerticalAlignment="Top" Grid.ColumnSpan="2" Visibility="{Binding Source={x:Static props:Settings.Default}, Path=FeatureEnabler.AudioManipulation, Converter={StaticResource visConverter}}">
             <Grid>
                 <StackPanel Orientation="Horizontal">
                     <ToolBarTray  Name="toolBarTray1" VerticalAlignment="Top" HorizontalAlignment="Left">

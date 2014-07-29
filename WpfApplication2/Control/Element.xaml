@@ -11,6 +11,7 @@
 
     <UserControl.Resources>
         <my:SpeakerConverter x:Key="SpeakerConverter" />
+        <BooleanToVisibilityConverter x:Key="visConverter" />
     </UserControl.Resources>
 
     <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Name="maingrid" Background="{x:Null}">
@@ -33,7 +34,7 @@
             </StackPanel>
         </StackPanel>
         <WrapPanel Name="CustomParams" MaxWidth="135" Grid.Column="1"/>
-        <StackPanel SnapsToDevicePixels="True" Grid.Column="2" Name="stackPanelAttributes" Background="LightBlue" Width="16" MinHeight="36"/>
+        <StackPanel SnapsToDevicePixels="True" Grid.Column="2" Name="stackPanelAttributes" Background="LightBlue" Width="16" MinHeight="36" Visibility="{Binding Source={x:Static props:Settings.Default}, Path=FeatureEnabler.SpeakerAttributes, Converter={StaticResource visConverter}}"/>
 
         <sd:TextEditor Grid.Column="3" x:Name="editor" BorderThickness="0" Panel.ZIndex="100" FontSize="{Binding Source={x:Static props:Settings.Default}, Path=SetupTextFontSize}"
                        PreviewKeyDown="editor_PreviewKeyDown" 
@@ -53,7 +54,7 @@
             </sd:TextEditor.Style>
         </sd:TextEditor>
 
-        <CheckBox Grid.Column="4" Height="16" HorizontalAlignment="Center" Name="checkBox1" VerticalAlignment="Center" Checked="checkBox1_Checked" Unchecked="checkBox1_Unchecked" Margin="3,16" />
+        <CheckBox Grid.Column="4" Height="16" HorizontalAlignment="Center" Name="checkBox1" VerticalAlignment="Center" Checked="checkBox1_Checked" Unchecked="checkBox1_Unchecked" Margin="3" Visibility="{Binding Source={x:Static props:Settings.Default}, Path=FeatureEnabler.SpeakerAttributes, Converter={StaticResource visConverter}}" />
 
     </Grid>
 </UserControl>

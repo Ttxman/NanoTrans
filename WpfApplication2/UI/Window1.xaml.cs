@@ -205,6 +205,24 @@ namespace NanoTrans
 
             LoadGlobalSetup();
 
+            Settings.Default.FeatureEnabler.FeaturesChanged += FeatureEnabler_FeaturesChanged;
+#if MINIMAL
+            var fe = NanoTrans.Properties.Settings.Default.FeatureEnabler;
+            fe.AudioManipulation = false;
+            fe.DbMerging = false;
+            fe.ChaptersAndSections = false;
+            fe.LocalEdit = false;
+            fe.LocalSpeakers = false;
+            fe.PhoneticEditation = false;
+            fe.QuickExport = false;
+            fe.QuickNavigation = false;
+            fe.VideoFrame = false;
+            fe.NonSpeechEvents = false;
+            fe.Spellchecking = false;
+            fe.Export = false;
+            fe.SpeakerAttributes = false;
+#endif
+
             SpeakersDatabase = new AdvancedSpeakerCollection();
 
             _WavReader = new WavReader();
@@ -213,33 +231,48 @@ namespace NanoTrans
             _WavReader.TemporaryWavesDone += new EventHandler(oWav_TemporaryWavesDone);
         }
 
+        void FeatureEnabler_FeaturesChanged(object sender, EventArgs e)
+        {
+            if (toolbarAdditional.Items.Cast<Control>().All(c => c.Visibility == System.Windows.Visibility.Collapsed))
+                toolbarAdditional.Visibility = System.Windows.Visibility.Collapsed;
+            else
+                toolbarAdditional.Visibility = System.Windows.Visibility.Visible;
+        }
+
         private void LoadSpeakersDatabase()
         {
-            if (!File.Exists(Settings.Default.SpeakersDatabasePath))
-                MessageBox.Show(Properties.Strings.MessageBoxLocalSpeakersDatabaseUnreachableLoad, Properties.Strings.MessageBoxWarningCaption, MessageBoxButton.OK, MessageBoxImage.Warning);
-
-            if (Settings.Default.SpeakersDatabasePath.Contains(FilePaths.ProgramDirectory))
+            if (Settings.Default.FeatureEnabler.LocalSpeakers)
             {
-                if (!FilePaths.WriteToAppData)
+                if (!File.Exists(Settings.Default.SpeakersDatabasePath))
+                    MessageBox.Show(Properties.Strings.MessageBoxLocalSpeakersDatabaseUnreachableLoad, Properties.Strings.MessageBoxWarningCaption, MessageBoxButton.OK, MessageBoxImage.Warning);
+
+                if (Settings.Default.SpeakersDatabasePath.Contains(FilePaths.ProgramDirectory))
                 {
-                    SpeakerCollection.Deserialize(Settings.Default.SpeakersDatabasePath, SpeakersDatabase);
-                }
-                else
-                {
-                    string fname2 = System.IO.Path.Combine(FilePaths.AppDataDirectory, Settings.Default.SpeakersDatabasePath.Substring(FilePaths.ProgramDirectory.Length));
-                    if (File.Exists(fname2))
-                    {
-                        SpeakerCollection.Deserialize(fname2, SpeakersDatabase);
-                    }
-                    else if (File.Exists(Settings.Default.SpeakersDatabasePath))
+                    if (!FilePaths.WriteToAppData)
                     {
                         SpeakerCollection.Deserialize(Settings.Default.SpeakersDatabasePath, SpeakersDatabase);
                     }
+                    else
+                    {
+                        string fname2 = System.IO.Path.Combine(FilePaths.AppDataDirectory, Settings.Default.SpeakersDatabasePath.Substring(FilePaths.ProgramDirectory.Length));
+                        if (File.Exists(fname2))
+                        {
+                            SpeakerCollection.Deserialize(fname2, SpeakersDatabase);
+                        }
+                        else if (File.Exists(Settings.Default.SpeakersDatabasePath))
+                        {
+                            SpeakerCollection.Deserialize(Settings.Default.SpeakersDatabasePath, SpeakersDatabase);
+                        }
+                    }
+                }
+                else
+                {
+                    SpeakerCollection.Deserialize(FilePaths.EnsureDirectoryExists(Settings.Default.SpeakersDatabasePath), SpeakersDatabase);
                 }
             }
             else
             {
-                SpeakerCollection.Deserialize(FilePaths.EnsureDirectoryExists(Settings.Default.SpeakersDatabasePath), SpeakersDatabase);
+                SpeakersDatabase = new AdvancedSpeakerCollection();
             }
         }
 
@@ -568,6 +601,7 @@ namespace NanoTrans
 
         private bool TryLoadTranscription(string fileName, bool listing = false)
         {
+            fileName = System.IO.Path.GetFullPath(fileName);
             TranscriptionIsLoading = true;
             var ext = System.IO.Path.GetExtension(fileName);
             if (ext == ".tlst") //list of transcriptions
@@ -1239,7 +1273,7 @@ namespace NanoTrans
 
         private bool TrySaveSpeakersDatabase()
         {
-            if (SpeakersDatabase != null)
+            if (SpeakersDatabase != null && Settings.Default.FeatureEnabler.LocalSpeakers)
             {
 
                 try
@@ -1311,14 +1345,18 @@ namespace NanoTrans
 
             InitCommands();
             LoadPlugins();
-            //asynchronous spellcecking vocabluary load
-            Thread t = new Thread(
-                delegate()
-                {
-                    SpellChecker.LoadVocabulary();
-                }
-                ) { Name = "Spellchecking_Load" };
-            t.Start();
+            if (Settings.Default.FeatureEnabler.Spellchecking)
+            {
+                //asynchronous spellcecking vocabluary load
+                Thread t = new Thread(
+                    delegate()
+                    {
+                        SpellChecker.LoadVocabulary();
+                    }
+                    ) { Name = "Spellchecking_Load" };
+                t.Start();
+
+            }
 
             //TODO: move to xaml?
             phoneticTranscription.Text = "";
@@ -1633,13 +1671,13 @@ namespace NanoTrans
         {
             if (e.PropertyName != "NonSpeechEvents")
                 return;
-            toolBar1.Items.Clear();
+            toolBarNSE.Items.Clear();
             int index = 1;
             foreach (string s in Settings.Default.NonSpeechEvents)
             {
                 Button b = new Button();
                 b.Content = s;
-                toolBar1.Items.Add(b);
+                toolBarNSE.Items.Add(b);
                 b.BorderBrush = Brushes.Black;
                 b.Click += new RoutedEventHandler(Button_Click);
                 ToolBar.SetOverflowMode(b, OverflowMode.Never);

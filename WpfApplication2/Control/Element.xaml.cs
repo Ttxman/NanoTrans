@@ -155,14 +155,22 @@ namespace NanoTrans
                 TranscriptionParagraph p = (TranscriptionParagraph)val;
                 el.textbegin.Visibility = Visibility.Visible;
                 el.textend.Visibility = Visibility.Visible;
-                el.stackPanelAttributes.Visibility = Visibility.Visible;
+                
                 el.Background = Settings.Default.ParagraphBackground;
                 Element.RefreshSpeakerButton(el, p);
-                el.checkBox1.Visibility = Visibility.Visible;
+
+                var vis = (Settings.Default.FeatureEnabler.SpeakerAttributes)?Visibility.Visible:Visibility.Collapsed;
+
+                el.stackPanelAttributes.Visibility = vis;
+                el.checkBox1.Visibility = vis;
                 el.checkBox1.IsChecked = ((TranscriptionParagraph)val).trainingElement;
+
             }
             else if (t == typeof(TranscriptionSection))
             {
+                if (!Settings.Default.FeatureEnabler.ChaptersAndSections)
+                    el.Visibility = Visibility.Collapsed;
+
                 TranscriptionSection s = (TranscriptionSection)val;
                 el.textbegin.Visibility = Visibility.Collapsed;
                 el.textend.Visibility = Visibility.Collapsed;
@@ -173,6 +181,8 @@ namespace NanoTrans
             }
             else if (t == typeof(TranscriptionChapter))
             {
+                if (!Settings.Default.FeatureEnabler.ChaptersAndSections)
+                    el.Visibility = Visibility.Collapsed;
                 TranscriptionChapter c = (TranscriptionChapter)val;
                 el.textbegin.Visibility = Visibility.Collapsed;
                 el.textend.Visibility = Visibility.Collapsed;
@@ -318,13 +328,16 @@ namespace NanoTrans
                 RepaintAttributes();
 
 
-            editor.TextArea.TextView.ElementGenerators.Add(DefaultNonEditableBlockGenerator);
+            if(Settings.Default.FeatureEnabler.NonSpeechEvents)
+                editor.TextArea.TextView.ElementGenerators.Add(DefaultNonEditableBlockGenerator);
             editor.TextArea.IndentationStrategy = new NoIndentationStrategy();
             editor.Options.InheritWordWrapIndentation = false;
 
             if (!_IsPasiveElement)
             {
-                editor.TextArea.TextView.LineTransformers.Add(DefaultSpellchecker);
+                if(Settings.Default.FeatureEnabler.Spellchecking)
+                    editor.TextArea.TextView.LineTransformers.Add(DefaultSpellchecker);
+
                 editor.TextArea.TextEntering += new TextCompositionEventHandler(TextArea_TextEntering);
                 editor.TextArea.TextEntered += new TextCompositionEventHandler(TextArea_TextEntered);
                 editor.Document.Changed += new EventHandler<DocumentChangeEventArgs>(Document_Changed);
@@ -622,9 +635,6 @@ namespace NanoTrans
 
             #endregion
         }
-
-
-
 
         public class CodeCompletionData : ICompletionData
         {

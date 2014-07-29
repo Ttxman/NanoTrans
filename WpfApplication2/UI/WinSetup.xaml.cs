@@ -91,8 +91,12 @@ namespace NanoTrans
             if (val >= UpDownJump.Minimum.Value && val <= UpDownJump.Maximum.Value)
                 UpDownJump.Value = val;
 
-            int index = AvailableCultures.Select((c, i) => new { c, i }).FirstOrDefault(p => p.c.DisplayName == LocalizeDictionary.Instance.Culture.DisplayName).i;
-            LocalizationSelection.SelectedItem = preselectionCulture = AvailableCultures[index];
+            if (AvailableCultures != null && AvailableCultures.Length <= 1)
+            {
+                int index = AvailableCultures.Select((c, i) => new { c, i }).FirstOrDefault(p => p.c.DisplayName == LocalizeDictionary.Instance.Culture.DisplayName).i;
+                LocalizationSelection.SelectedItem = preselectionCulture = AvailableCultures[index];
+            }else
+                LocalizationBox.Visibility = System.Windows.Visibility.Collapsed;
 
         }
 

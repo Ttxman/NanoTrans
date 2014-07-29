@@ -87,8 +87,6 @@ namespace NanoTrans
             this.CommandBindings.Add(new CommandBinding(CommandMaximizeMinimize, CMaximizeMinimize));
             this.CommandBindings.Add(new CommandBinding(CommandShowPanelFoneticTranscription, CShowPanelFoneticTranscription));
             this.CommandBindings.Add(new CommandBinding(CommandGeneratePhoneticTranscription, CGeneratePhoneticTranscription));
-            this.CommandBindings.Add(new CommandBinding(CommandNormalizeParagraph, CNormalizeParagraph));
-            this.CommandBindings.Add(new CommandBinding(CommandRemoveNonphonemes, CRemoveNonphonemes));
             this.CommandBindings.Add(new CommandBinding(CommandTakeSpeakerSnapshotFromVideo, CTakeSpeakerSnapshotFromVideo));
             this.CommandBindings.Add(new CommandBinding(CommandCreateNewTranscription, CCreateNewTranscription));
             this.CommandBindings.Add(new CommandBinding(CommandOpenTranscription, COpenTranscription));
@@ -148,8 +146,6 @@ namespace NanoTrans
             CommandSmallJumpLeft.InputGestures.Add(new KeyGesture(Key.Left, ModifierKeys.Alt));
             CommandMaximizeMinimize.InputGestures.Add(new KeyGesture(Key.Return, ModifierKeys.Alt));
             CommandGeneratePhoneticTranscription.InputGestures.Add(new KeyGesture(Key.F5));
-            CommandNormalizeParagraph.InputGestures.Add(new KeyGesture(Key.F9));
-            CommandRemoveNonphonemes.InputGestures.Add(new KeyGesture(Key.F11));
             CommandTakeSpeakerSnapshotFromVideo.InputGestures.Add(new KeyGesture(Key.F12));
             CommandCreateNewTranscription.InputGestures.Add(new KeyGesture(Key.N, ModifierKeys.Control));
             CommandOpenTranscription.InputGestures.Add(new KeyGesture(Key.O, ModifierKeys.Control));
@@ -221,6 +217,9 @@ namespace NanoTrans
 
         private void CExportFile(object sender, ExecutedRoutedEventArgs e)
         {
+            if (!Settings.Default.FeatureEnabler.Export)
+                return;
+            
             string[] masks = _ExportPlugins.Select(p => p.Mask).ToArray();
 
             SaveFileDialog sf = new SaveFileDialog();
@@ -468,6 +467,7 @@ namespace NanoTrans
 
         private void CExportElement(object sender, ExecutedRoutedEventArgs e)
         {
+          
             TranscriptionParagraph par = VirtualizingListBox.ActiveTransctiption as TranscriptionParagraph;
             var data = _WavReader.LoadaudioDataBuffer(par.Begin, par.End);
 
@@ -647,10 +647,6 @@ namespace NanoTrans
             NormalizePhonetics(VirtualizingListBox.ActiveTransctiption, -1);
         }
 
-        private void CRemoveNonphonemes(object sender, ExecutedRoutedEventArgs e)
-        {
-            //TODO:
-        }
 
         private void CTakeSpeakerSnapshotFromVideo(object sender, ExecutedRoutedEventArgs e)
         {
