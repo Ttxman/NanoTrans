@@ -718,8 +718,9 @@ namespace NanoTrans
             {
                 FileInfo fiA = new FileInfo(Transcription.MediaURI);
                 string pAudioFile = fiA.FullName;
-                if (!fiA.Exists)
+                if (!fiA.Exists && string.IsNullOrEmpty(System.IO.Path.GetPathRoot(Transcription.MediaURI))) //not exists and relative path
                 {
+                   
                     FileInfo fi = new FileInfo(Transcription.FileName);
                     pAudioFile = fi.Directory.FullName + "\\" + Transcription.MediaURI;
                     fiA = new FileInfo(pAudioFile);
