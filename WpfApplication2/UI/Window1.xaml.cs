@@ -1629,6 +1629,9 @@ namespace NanoTrans
 
         private async void Window_Drop(object sender, DragEventArgs e)
         {
+            if (!Settings.Default.FeatureEnabler.LocalEdit)
+                return;
+
             string[] p = e.Data.GetFormats();
             for (int i = 0; i < p.Length; i++)
             {
