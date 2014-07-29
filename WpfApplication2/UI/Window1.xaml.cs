@@ -1596,7 +1596,10 @@ namespace NanoTrans
                 if (p[i].ToLower() == "filenamew")
                 {
                     string[] o = (string[])e.Data.GetData(p[i]);
-                    await OpenTranscription(false, o[0].ToString());
+                    if (System.IO.Path.GetExtension(o[0]) == ".trsx")
+                        await OpenTranscription(false, o[0].ToString());
+                    else
+                        LoadAudio(o[0].ToString());
                 }
             }
 
