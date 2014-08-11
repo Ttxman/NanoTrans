@@ -426,5 +426,133 @@ namespace NanoTrans.Properties
         }
 
 
+        SolidColorBrush _WaveformBackground;
+        public SolidColorBrush WaveformBackground
+        {
+            get
+            {
+                if (_WaveformBackground == null)
+                    _WaveformBackground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(this.WaveformBackgroundStore));
+
+                return _WaveformBackground;
+            }
+            set
+            {
+                _WaveformBackground = value;
+                WaveformBackgroundStore = cocon.ConvertToString(_WaveformBackground.Color);
+                OnPropertyChanged();
+            }
+        }
+
+        SolidColorBrush _WaveformForeground;
+        public SolidColorBrush WaveformForeground
+        {
+            get
+            {
+                if (_WaveformForeground == null)
+                    _WaveformForeground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(this.WaveformForegroundStore));
+
+                return _WaveformForeground;
+            }
+            set
+            {
+                _WaveformForeground = value;
+                WaveformForegroundStore = cocon.ConvertToString(_WaveformForeground.Color);
+                OnPropertyChanged();
+            }
+        }
+
+        SolidColorBrush _WaveformTimelineBackground;
+        public SolidColorBrush WaveformTimelineBackground
+        {
+            get
+            {
+                if (_WaveformTimelineBackground == null)
+                    _WaveformTimelineBackground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(this.WaveformTimelineBackgroundStore));
+
+                return _WaveformTimelineBackground;
+            }
+            set
+            {
+                _WaveformTimelineBackground = value;
+                WaveformTimelineBackgroundStore = cocon.ConvertToString(_WaveformTimelineBackground.Color);
+                OnPropertyChanged();
+            }
+        }
+
+        SolidColorBrush _WaveformSpeakerBackground;
+        public SolidColorBrush WaveformSpeakerBackground
+        {
+            get
+            {
+                if (_WaveformSpeakerBackground == null)
+                    _WaveformSpeakerBackground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(this.WaveformSpeakerBackgroundStore));
+
+                return _WaveformSpeakerBackground;
+            }
+            set
+            {
+                _WaveformSpeakerBackground = value;
+                WaveformSpeakerBackgroundStore = cocon.ConvertToString(_WaveformSpeakerBackground.Color);
+                OnPropertyChanged();
+            }
+        }
+
+
+        SolidColorBrush _ParagraphBegin;
+        public SolidColorBrush ParagraphBeginColor
+        {
+            get
+            {
+                if (_ParagraphBegin == null)
+                    _ParagraphBegin = new SolidColorBrush((Color)ColorConverter.ConvertFromString(this.ParagraphBeginColorStore));
+
+                return _ParagraphBegin;
+            }
+            set
+            {
+                _ParagraphBegin = value;
+                ParagraphBeginColorStore = cocon.ConvertToString(_ParagraphBegin.Color);
+                OnPropertyChanged();
+            }
+        }
+
+
+
+        SolidColorBrush _ParagraphEnd;
+        public SolidColorBrush ParagraphEndColor
+        {
+            get
+            {
+                if (_ParagraphEnd == null)
+                    _ParagraphEnd = new SolidColorBrush((Color)ColorConverter.ConvertFromString(this.ParagraphEndColorStore));
+
+                return _ParagraphEnd;
+            }
+            set
+            {
+                _ParagraphEnd = value;
+                ParagraphEndColorStore = cocon.ConvertToString(_ParagraphEnd.Color);
+                OnPropertyChanged();
+            }
+        }
+
+        SolidColorBrush _WaveformBlockMarkColorStore;
+        public SolidColorBrush WaveformBlockMarkColor
+        {
+            get
+            {
+                if (_WaveformBlockMarkColorStore == null)
+                    _WaveformBlockMarkColorStore = new SolidColorBrush((Color)ColorConverter.ConvertFromString(this.WaveformBlockMarkColorStore));
+
+                return _WaveformBlockMarkColorStore;
+            }
+            set
+            {
+                _WaveformBlockMarkColorStore = value;
+                WaveformBlockMarkColorStore = cocon.ConvertToString(_WaveformBlockMarkColorStore.Color);
+                OnPropertyChanged();
+            }
+        }
     }
 }

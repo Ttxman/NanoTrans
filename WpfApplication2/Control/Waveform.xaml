@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:props="clr-namespace:NanoTrans.Properties"
                 xmlns:lex="http://wpflocalizeextension.codeplex.com"
                 lex:LocalizeDictionary.DesignCulture="cs"
                 lex:LocalizeDictionary.IncludeInvariantCulture="False"
@@ -20,7 +21,7 @@
         <my:TimespanToMilisecondsConverter x:Key="tsmsConverter" />
     </UserControl.Resources>
 
-    <Grid Name="wavegrid"  SizeChanged="Grid_SizeChanged" Loaded="Grid_Loaded" Background="AntiqueWhite">
+    <Grid Name="wavegrid"  SizeChanged="Grid_SizeChanged" Loaded="Grid_Loaded" Background="{Binding Source={x:Static props:Settings.Default}, Path=WaveformBackground}">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
@@ -64,7 +65,7 @@
         </Grid>
 
         <Grid Grid.Row="3" Name="gridTimeline" VerticalAlignment="Bottom">
-            <my:TimeLine Background="LightGreen" Begin="{Binding ElementName=control,Path=WaveBegin}" End="{Binding ElementName=control,Path=WaveEnd}"></my:TimeLine>
+            <my:TimeLine Background="{Binding Source={x:Static props:Settings.Default}, Path=WaveformTimelineBackground}" Begin="{Binding ElementName=control,Path=WaveBegin}" End="{Binding ElementName=control,Path=WaveEnd}"></my:TimeLine>
             <Button VerticalAlignment="Bottom" HorizontalAlignment="Left" Height="20" Click="btMoveLeft_Click" Name="btMoveLeft" Focusable="False" IsHitTestVisible="True" IsTabStop="False">
                 <Image Source="../icons/iPlay.png" IsHitTestVisible="False" FlowDirection="RightToLeft" />
             </Button>

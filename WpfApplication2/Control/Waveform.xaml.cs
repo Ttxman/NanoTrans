@@ -595,12 +595,12 @@ namespace NanoTrans
                 //scale height
                 double imageheight = gridImage.ActualHeight;
 
-                GeometryDrawing myGeometryDrawing = new GeometryDrawing(Brushes.Red, new Pen(Brushes.Red, 1), myGeometryGroup);
+                GeometryDrawing myGeometryDrawing = new GeometryDrawing(NanoTrans.Properties.Settings.Default.WaveformForeground, new Pen(NanoTrans.Properties.Settings.Default.WaveformForeground, 1), myGeometryGroup);
 
 
                 myGeometryGroup = new GeometryGroup();
                 myGeometryGroup.Children.Add(new LineGeometry(new Point(0, 0), new Point(wavemin.Length, 0)));
-                var hline = new GeometryDrawing(Brushes.Red, new Pen(Brushes.Red, 0.5 / imageheight), myGeometryGroup);
+                var hline = new GeometryDrawing(NanoTrans.Properties.Settings.Default.WaveformForeground, new Pen(NanoTrans.Properties.Settings.Default.WaveformForeground, 0.5 / imageheight), myGeometryGroup);
 
 
 
@@ -704,7 +704,7 @@ namespace NanoTrans
                                     speaker.Margin = new Thickness(aLeft, speaker.Margin.Top, speaker.Margin.Right, selectionRectangle.Margin.Bottom);
                                     speaker.Width = gridTimeline.ActualWidth - aLeft - aRight;
 
-                                    speaker.Background = Brushes.LightPink;
+                                    speaker.Background = Properties.Settings.Default.WaveformSpeakerBackground;
                                     Speaker pSpeaker = pParagraph.Speaker;
                                     string pText = "";
                                     if (pSpeaker != null) pText = pSpeaker.FullName;
@@ -731,7 +731,7 @@ namespace NanoTrans
                                         el.Height = 10;
                                         el.Margin = new Thickness(0, 0, 0, 0);
                                         el.Stroke = null;
-                                        el.Fill = Brushes.DarkRed;
+                                        el.Fill = Properties.Settings.Default.WaveformBlockMarkColor;
 
                                         dp.Children.Add(el);
 

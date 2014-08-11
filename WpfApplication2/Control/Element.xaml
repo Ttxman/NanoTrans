@@ -27,8 +27,8 @@
             <Button Name="buttonSpeaker" MinWidth="80" HorizontalAlignment="Left" MinHeight="26" MaxHeight="26" FontSize="{Binding Source={x:Static props:Settings.Default}, Path=SetupOthersFontSize}" Content="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}, Path=ValueElement, Converter={StaticResource SpeakerConverter}}" Click="ButtonSpeaker_Click" Height="26" VerticalAlignment="Top" />
             <StackPanel Orientation="Horizontal">
                 <StackPanel Orientation="Vertical" Margin="1,1,2,1">
-                    <TextBlock Name="textbegin" VerticalAlignment="Top" HorizontalAlignment="Left" Visibility="Collapsed" Foreground="Green" FontSize="{Binding Source={x:Static props:Settings.Default}, Path=SetupOthersFontSize}"/>
-                    <TextBlock Name="textend" VerticalAlignment="Top" HorizontalAlignment="Left" Foreground="Red" FontSize="{Binding Source={x:Static props:Settings.Default}, Path=SetupOthersFontSize}"/>
+                    <TextBlock Name="textbegin" VerticalAlignment="Top" HorizontalAlignment="Left" Visibility="Collapsed" Foreground="{Binding Source={x:Static props:Settings.Default}, Path=ParagraphBeginColor}" FontSize="{Binding Source={x:Static props:Settings.Default}, Path=SetupOthersFontSize}"/>
+                    <TextBlock Name="textend" VerticalAlignment="Top" HorizontalAlignment="Left" Foreground="{Binding Source={x:Static props:Settings.Default}, Path=ParagraphEndColor}" FontSize="{Binding Source={x:Static props:Settings.Default}, Path=SetupOthersFontSize}"/>
                 </StackPanel>
                 <TextBlock Name="textBlockLanguage" Margin="1,3,3,3" VerticalAlignment="Center" Visibility="{Binding Visibility,ElementName=buttonSpeaker}" Text="{Binding ElementLanguage,Mode=OneWay,RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}"/>
             </StackPanel>

@@ -274,5 +274,89 @@ namespace NanoTrans.Properties {
                 this["PhoneticParagraphDisabledBackgroundStore"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("AntiqueWhite")]
+        public string WaveformBackgroundStore {
+            get {
+                return ((string)(this["WaveformBackgroundStore"]));
+            }
+            set {
+                this["WaveformBackgroundStore"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Red")]
+        public string WaveformForegroundStore {
+            get {
+                return ((string)(this["WaveformForegroundStore"]));
+            }
+            set {
+                this["WaveformForegroundStore"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("LightGreen")]
+        public string WaveformTimelineBackgroundStore {
+            get {
+                return ((string)(this["WaveformTimelineBackgroundStore"]));
+            }
+            set {
+                this["WaveformTimelineBackgroundStore"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("LightPink")]
+        public string WaveformSpeakerBackgroundStore {
+            get {
+                return ((string)(this["WaveformSpeakerBackgroundStore"]));
+            }
+            set {
+                this["WaveformSpeakerBackgroundStore"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Green")]
+        public string ParagraphBeginColorStore {
+            get {
+                return ((string)(this["ParagraphBeginColorStore"]));
+            }
+            set {
+                this["ParagraphBeginColorStore"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Red")]
+        public string ParagraphEndColorStore {
+            get {
+                return ((string)(this["ParagraphEndColorStore"]));
+            }
+            set {
+                this["ParagraphEndColorStore"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("DarkRed")]
+        public string WaveformBlockMarkColorStore {
+            get {
+                return ((string)(this["WaveformBlockMarkColorStore"]));
+            }
+            set {
+                this["WaveformBlockMarkColorStore"] = value;
+            }
+        }
     }
 }

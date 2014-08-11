@@ -65,5 +65,26 @@
     <Setting Name="PhoneticParagraphDisabledBackgroundStore" Type="System.String" Scope="User">
       <Value Profile="(Default)">LightGray</Value>
     </Setting>
+    <Setting Name="WaveformBackgroundStore" Type="System.String" Scope="User">
+      <Value Profile="(Default)">AntiqueWhite</Value>
+    </Setting>
+    <Setting Name="WaveformForegroundStore" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Red</Value>
+    </Setting>
+    <Setting Name="WaveformTimelineBackgroundStore" Type="System.String" Scope="User">
+      <Value Profile="(Default)">LightGreen</Value>
+    </Setting>
+    <Setting Name="WaveformSpeakerBackgroundStore" Type="System.String" Scope="User">
+      <Value Profile="(Default)">LightPink</Value>
+    </Setting>
+    <Setting Name="ParagraphBeginColorStore" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Green</Value>
+    </Setting>
+    <Setting Name="ParagraphEndColorStore" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Red</Value>
+    </Setting>
+    <Setting Name="WaveformBlockMarkColorStore" Type="System.String" Scope="User">
+      <Value Profile="(Default)">DarkRed</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
