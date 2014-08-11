@@ -436,7 +436,7 @@
     <value>Stahování</value>
   </data>
   <data name="ExceptionWindowBigMessage" xml:space="preserve">
-    <value>Nastala neočekávaná chyba programu. Abyste zabránily ztrátě dat uložte změny a restartujte NanoTrans</value>
+    <value>Nastala neočekávaná chyba programu. Abyste zabránili ztrátě dat uložte změny a restartujte NanoTrans</value>
   </data>
   <data name="ExceptionWindowExceptionTitle" xml:space="preserve">
     <value>Výpis chyby:</value>
