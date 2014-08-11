@@ -29,8 +29,10 @@ namespace NanoTrans
 
         ICollectionView _view;
         private SpeakersApi _api;
-        public SpeakerManagerViewModel(SpeakerCollection documentSpeakers, SpeakerCollection localSpeakers, SpeakersApi api)
+        private SpeakersManager _window;
+        public SpeakerManagerViewModel(SpeakerCollection documentSpeakers, SpeakerCollection localSpeakers, SpeakersApi api, SpeakersManager window)
         {
+            _window = window;
             _api = api;
             if (_api != null)
             {
@@ -49,29 +51,33 @@ namespace NanoTrans
 
         private void ReloadSpeakers()
         {
-            var all = new List<SpeakerContainer>();
+            _window.Dispatcher.Invoke(() =>
+            {
+                var all = new List<SpeakerContainer>();
 
-            if (_document != null && ShowDocument)
-                all.AddRange(_document.Select(s => new SpeakerContainer(_document, s)));
+                if (_document != null && ShowDocument)
+                    all.AddRange(_document.Select(s => new SpeakerContainer(_document, s)));
 
-            if (_local != null && ShowLocal)
-                all.AddRange(_local.Select(s => new SpeakerContainer(_local, s)));
+                if (_local != null && ShowLocal)
+                    all.AddRange(_local.Select(s => new SpeakerContainer(_local, s)));
 
-            if (_online != null && ShowOnline)
-                all.AddRange(_online.Select(s => new SpeakerContainer(s)));
+                if (_online != null && ShowOnline)
+                    all.AddRange(_online.Select(s => new SpeakerContainer(s)));
 
-            if (_temp != null)
-                all.AddRange(_temp.Select(s => new SpeakerContainer(s)));
-
-
-
-            _allSpeakers = Deduplicate(all).ToList();
+                if (_temp != null)
+                    all.AddRange(_temp.Select(s => new SpeakerContainer(s)));
 
 
-            _allSpeakers.Sort((x, y) => { int cmp = string.Compare(x.SurName, y.SurName); return (cmp != 0) ? cmp : string.Compare(x.FirstName, y.FirstName); });
 
-            View = CollectionViewSource.GetDefaultView(_allSpeakers);
-            UpdateFilters();
+                _allSpeakers = Deduplicate(all).ToList();
+
+
+                _allSpeakers.Sort((x, y) => { int cmp = string.Compare(x.SurName, y.SurName); return (cmp != 0) ? cmp : string.Compare(x.FirstName, y.FirstName); });
+
+                View = CollectionViewSource.GetDefaultView(_allSpeakers);
+                UpdateFilters();
+            });
+
         }
 
         private IEnumerable<SpeakerContainer> Deduplicate(IEnumerable<SpeakerContainer> input)
@@ -442,7 +448,7 @@ namespace NanoTrans
                 all.AddRange(result);
             }
 
-            all.AddRange(_allSpeakers.Where(s => s.FullName == spk.FullName).Select(c=>c.Speaker).Except(_temp));
+            all.AddRange(_allSpeakers.Where(s => s.FullName == spk.FullName).Select(c => c.Speaker).Except(_temp));
             return Deduplicate(all).ToArray();
         }
 
