@@ -41,8 +41,8 @@
     <Setting Name="ShowCustomParamsStore" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="VideoPanelHeightStore" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">200</Value>
+    <Setting Name="VideoPanelWidthStore" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">300</Value>
     </Setting>
     <Setting Name="LocaleStore" Type="System.String" Scope="User">
       <Value Profile="(Default)">----</Value>
@@ -85,6 +85,9 @@
     </Setting>
     <Setting Name="WaveformBlockMarkColorStore" Type="System.String" Scope="User">
       <Value Profile="(Default)">DarkRed</Value>
+    </Setting>
+    <Setting Name="VideoPanelVisibleStore" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
     </Setting>
   </Settings>
 </SettingsFile>

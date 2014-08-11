@@ -19,6 +19,7 @@
         >
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="visConverter" />
+        <local:DoubleGridLengthConverter x:Key="gridlConverter" />
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -189,8 +190,9 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="{Binding Source={x:Static props:Settings.Default}, Path=VideoPanelWidth, Converter={StaticResource gridlConverter}, Mode=TwoWay}" />
             </Grid.ColumnDefinitions>
-            <local:SubtitlesVizualizer Margin="0,0,5,0" Grid.Column="0" x:Name="VirtualizingListBox" Background="#FF7DAF7D" ClipToBounds="False" Transcription="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:Window1}},Path=Transcription}" ChangeSpeaker="VirtualizingListBox_ChangeSpeaker" SelectedElementChanged="VirtualizingListBox_SelectedElementChanged" SetTimeRequest="VirtualizingListBox_SetTimeRequest">
+            <local:SubtitlesVizualizer Grid.Column="0" x:Name="VirtualizingListBox" Background="#FF7DAF7D" ClipToBounds="False" Transcription="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:Window1}},Path=Transcription}" ChangeSpeaker="VirtualizingListBox_ChangeSpeaker" SelectedElementChanged="VirtualizingListBox_SelectedElementChanged" SetTimeRequest="VirtualizingListBox_SetTimeRequest">
                 <local:SubtitlesVizualizer.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="{lex:BLoc Key=NanoTrans:Strings:TranscriptionContextMenuSetSpeaker}" InputGestureText="Ctrl+M" Click="menuItemX_SetSpeaker_Click"/>
@@ -217,8 +219,8 @@
                     </ContextMenu>
                 </local:SubtitlesVizualizer.ContextMenu>
             </local:SubtitlesVizualizer>
-            <GridSplitter Grid.Column="0" Width="5" Focusable="False" IsTabStop="False" ShowsPreview="True" HorizontalAlignment="Right" />
-            <TabControl Grid.Column="1"  Width="300" Name="infoPanels" SelectedIndex="0" Focusable="False" Visibility="{Binding Source={x:Static props:Settings.Default}, Path=FeatureEnabler.VideoFrame, Converter={StaticResource visConverter}}">
+            <GridSplitter Grid.Column="1" Width="5" ResizeBehavior="PreviousAndNext" Focusable="False" IsTabStop="False" ShowsPreview="True" Visibility="{Binding ElementName=infoPanels, Path=Visibility}"/>
+            <TabControl Grid.Column="2" Name="infoPanels" SelectedIndex="0" Focusable="False" Visibility="{Binding Source={x:Static props:Settings.Default}, Path=VideoPanelVisible, Converter={StaticResource visConverter}}">
                 <TabItem Name="infoPanelsVideo">
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">

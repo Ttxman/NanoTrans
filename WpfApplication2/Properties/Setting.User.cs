@@ -252,6 +252,34 @@ namespace NanoTrans.Properties
             }
         }
 
+        public bool VideoPanelVisible
+        {
+            get
+            {
+                return VideoPanelVisibleStore && FeatureEnabler.VideoFrame;
+            }
+
+            set
+            {
+                VideoPanelVisibleStore = value;
+                OnPropertyChanged();
+                OnPropertyChanged("VideoPanelWidth");
+            }
+        }
+
+        public double VideoPanelWidth
+        {
+            get
+            {
+                return VideoPanelVisible? VideoPanelWidthStore : 0;
+            }
+
+            set
+            {
+                VideoPanelWidthStore = value;
+                OnPropertyChanged();
+            }
+        }
 
         public bool PhoneticsPanelVisible
         {

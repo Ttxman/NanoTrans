@@ -1310,7 +1310,9 @@ namespace NanoTrans
             meVideo.Close();
             meVideo.Source = null;
             videoAvailable = false;
-            gListVideo.ColumnDefinitions[1].Width = new GridLength(1);
+           // gListVideo.ColumnDefinitions[1].Width = new GridLength(0);
+
+            Properties.Settings.Default.VideoPanelVisible = false;
         }
 
 
@@ -1855,7 +1857,8 @@ namespace NanoTrans
 
         private void menuToolsShowVideoFrame_Click(object sender, RoutedEventArgs e)
         {
-            gListVideo.ColumnDefinitions[1].Width = GridLength.Auto;
+            //gListVideo.ColumnDefinitions[1].Width = GridLength.Auto;
+            Properties.Settings.Default.VideoPanelVisible = true;
         }
 
         private void button4_Click(object sender, RoutedEventArgs e)
@@ -2061,5 +2064,18 @@ namespace NanoTrans
             tbQuickSaveName.Text = "\\" + System.IO.Path.GetFileName(FilePaths.QuickSaveDirectory);
         }
 
+    }
+
+    public class DoubleGridLengthConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            return new GridLength((double)value);
+        }
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            GridLength gridLength = (GridLength)value;
+            return gridLength.Value;
+        }
     }
 }

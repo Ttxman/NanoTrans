@@ -181,13 +181,13 @@ namespace NanoTrans.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("200")]
-        public double VideoPanelHeightStore {
+        [global::System.Configuration.DefaultSettingValueAttribute("300")]
+        public double VideoPanelWidthStore {
             get {
-                return ((double)(this["VideoPanelHeightStore"]));
+                return ((double)(this["VideoPanelWidthStore"]));
             }
             set {
-                this["VideoPanelHeightStore"] = value;
+                this["VideoPanelWidthStore"] = value;
             }
         }
         
@@ -356,6 +356,18 @@ namespace NanoTrans.Properties {
             }
             set {
                 this["WaveformBlockMarkColorStore"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool VideoPanelVisibleStore {
+            get {
+                return ((bool)(this["VideoPanelVisibleStore"]));
+            }
+            set {
+                this["VideoPanelVisibleStore"] = value;
             }
         }
     }
