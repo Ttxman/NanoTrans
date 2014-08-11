@@ -1420,7 +1420,26 @@ namespace NanoTrans
                     CommandImportFile.Execute(path, this);
                 }
                 else
+                {
                     await OpenTranscription(false, path);
+#if MINIMAL
+                    Transcription.MediaURI = @"http://demo.ite.tul.cz/audio_cro/51b5752ca802563ad80020d1.mp4";
+                    _api = new SpeakersApi2("https://demo.ite.tul.cz/speechlab/cro_1968_1988_trsx07/api/speakers?", this);
+                    _api.Info = new OnlineTranscriptionInfo()
+                    {
+                        TrsxUploadURL = new Uri("https://demo.ite.tul.cz/speechlab/cro_1968_1988_trsx07/api/speakers"),
+                        SpeakerAPI_URL = new Uri("https://demo.ite.tul.cz/speechlab/cro_1968_1988_trsx07/api/speakers"),
+
+                    };                    
+
+                    _api.LoadTranscription(Transcription);
+
+                    await _api.UpdateTranscriptionSpeakers();
+                    LoadOnlineSetting();
+
+
+#endif
+                }
             }
 
             VirtualizingListBox.RequestTimePosition += delegate(out TimeSpan value) { value = waveform1.CaretPosition; };
