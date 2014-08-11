@@ -111,7 +111,7 @@ namespace NanoTrans.OnlineAPI
         }
 
 
-        public async Task<IEnumerable<ApiSynchronizedSpeaker>> ListSpeakers(IEnumerable<string> guids)
+        public virtual async Task<IEnumerable<ApiSynchronizedSpeaker>> ListSpeakers(IEnumerable<string> guids)
         {
             if (!LogedIn)
                 TryLogin(_owner);
@@ -134,7 +134,7 @@ namespace NanoTrans.OnlineAPI
             return ParseSpeakers(jo).ToArray(); ;
         }
 
-        public async Task<ApiSynchronizedSpeaker> GetSpeaker(string p)
+        public virtual async Task<ApiSynchronizedSpeaker> GetSpeaker(string p)
         {
             if (!LogedIn)
                 TryLogin(_owner);
@@ -148,22 +148,7 @@ namespace NanoTrans.OnlineAPI
             return ParseSpeakers(jo).First();
         }
 
-
-        public async Task<IEnumerable<ApiSynchronizedSpeaker>> SimpleSearch(string _filterstring)
-        {
-            if (!LogedIn)
-                TryLogin(_owner);
-
-            var apiurl = new Uri(Info.SpeakerAPI_URL, @"v1/speaker/simpleSearch");
-            var data = new JObject();
-            data.Add("text", _filterstring);
-            var resp = await PostAsync(apiurl, data);
-            string json = await (resp).Content.ReadAsStringAsync();
-            var jo = (JObject)JObject.Parse(json);
-            return ParseSpeakers(jo).ToArray();
-        }
-
-        internal async Task<bool> UpdateSpeaker(ApiSynchronizedSpeaker speaker)
+        internal virtual async Task<bool> UpdateSpeaker(ApiSynchronizedSpeaker speaker)
         {
             if (!LogedIn)
                 TryLogin(_owner);
@@ -181,7 +166,7 @@ namespace NanoTrans.OnlineAPI
         }
 
 
-        internal async Task<bool> AddSpeaker(ApiSynchronizedSpeaker speaker)
+        internal virtual async Task<bool> AddSpeaker(ApiSynchronizedSpeaker speaker)
         {
             if (!LogedIn)
                 TryLogin(_owner);
@@ -206,7 +191,21 @@ namespace NanoTrans.OnlineAPI
         }
 
 
-        public IEnumerable<ApiSynchronizedSpeaker> ParseSpeakers(JObject json)
+        public virtual async Task<IEnumerable<ApiSynchronizedSpeaker>> SimpleSearch(string _filterstring)
+        {
+            if (!LogedIn)
+                TryLogin(_owner);
+
+            var apiurl = new Uri(Info.SpeakerAPI_URL, @"v1/speaker/simpleSearch");
+            var data = new JObject();
+            data.Add("text", _filterstring);
+            var resp = await PostAsync(apiurl, data);
+            string json = await (resp).Content.ReadAsStringAsync();
+            var jo = (JObject)JObject.Parse(json);
+            return ParseSpeakers(jo).ToArray();
+        }
+
+        public virtual IEnumerable<ApiSynchronizedSpeaker> ParseSpeakers(JObject json)
         {
             var jspeakers = json.GetValue("speakers") as JArray;
             foreach (var item in jspeakers)
@@ -215,7 +214,7 @@ namespace NanoTrans.OnlineAPI
             }
         }
 
-        private JObject SerializeSpeaker(Speaker speaker)
+        protected virtual JObject SerializeSpeaker(Speaker speaker)
         {
 
             speaker.Synchronized = DateTime.Now;
@@ -253,21 +252,10 @@ namespace NanoTrans.OnlineAPI
                 s["degreeAfter"] = s["degreeafter"];
                 s.Remove("degreeafter");
             }
-
-
-            //var itm = item["id"];
-            //item.Remove("id");
-            //item.Add("dbid", itm);
-            //item.Remove("update");
-
-            //string sex = item["sex"].Value<string>();
-            //item["sex"] = (sex == "m" || sex.ToLower() == "male") ? "Male" : (sex == "f" || sex.ToLower() == "female") ? "Female" : "X";
-
-
             return s;
         }
 
-        private ApiSynchronizedSpeaker ParseSpeaker(JObject item)
+        protected virtual ApiSynchronizedSpeaker ParseSpeaker(JObject item)
         {
             var itm = item["id"];
             item.Remove("id");
@@ -408,6 +396,34 @@ namespace NanoTrans.OnlineAPI
             using (var fileStream = new FileStream(Filename, FileMode.Create, FileAccess.Write))
             {
                 await resp.Content.CopyToAsync(fileStream);
+            }
+        }
+
+        internal void LoadTranscription(WPFTranscription transcription)
+        {
+            Trans = transcription;
+            Trans.IsOnline = true;
+            Trans.Api = this;
+            Trans.Meta.Add(JsonConvert.DeserializeXNode(JsonConvert.SerializeObject(Info), "OnlineInfo").Root);
+        }
+
+        internal async Task UpdateTranscriptionSpeakers()
+        {
+            var sp1 = await ListSpeakers(Trans.Speakers.Where(s => s.DBType == Core.DBType.Api).Select(s => s.DBID));
+            var respeakers = sp1.ToArray();
+
+            for (int i = 0; i < respeakers.Length; i++)
+            {
+                var replacement = respeakers[i];
+                var dbs = Trans.Speakers.GetSpeakerByDBID(replacement.DBID);
+                if (dbs != null)
+                {
+                    replacement.PinnedToDocument = dbs.PinnedToDocument | replacement.PinnedToDocument;
+                    if (replacement.MainID != null)
+                        replacement.DBID = replacement.MainID;
+
+                    Trans.ReplaceSpeaker(dbs, respeakers[i]);
+                }
             }
         }
     }

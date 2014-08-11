@@ -126,11 +126,7 @@ namespace NanoTrans
 
             try
             {
-                _api.Trans = WPFTranscription.Deserialize(await trsxsresponse.Content.ReadAsStreamAsync());
-                _api.Trans.IsOnline = true;
-                _api.Trans.Api = _api;
-
-                _api.Trans.Meta.Add(JsonConvert.DeserializeXNode(JsonConvert.SerializeObject(_api.Info),"OnlineInfo").Root);
+                _api.LoadTranscription(WPFTranscription.Deserialize(await trsxsresponse.Content.ReadAsStreamAsync()));
             }
             catch
             {
@@ -145,22 +141,7 @@ namespace NanoTrans
             _api.Trans.DocumentID = _api.Info.DocumentId;
             Status = "Loading speakers from databse";
 
-            var sp1 = await _api.ListSpeakers(_api.Trans.Speakers.Where(s=>s.DBType == Core.DBType.Api).Select(s => s.DBID));
-            var respeakers = sp1.ToArray();
-
-            for (int i = 0; i < respeakers.Length; i++)
-            {
-                var replacement = respeakers[i];
-                var dbs = _api.Trans.Speakers.GetSpeakerByDBID(replacement.DBID);
-                if (dbs != null)
-                {
-                    replacement.PinnedToDocument = dbs.PinnedToDocument | replacement.PinnedToDocument;
-                    if (replacement.MainID != null)
-                        replacement.DBID = replacement.MainID;
-
-                    _api.Trans.ReplaceSpeaker(dbs, respeakers[i]);
-                }
-            }
+            await _api.UpdateTranscriptionSpeakers();
 
             this.DialogResult = true;
             

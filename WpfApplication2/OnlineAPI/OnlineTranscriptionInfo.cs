@@ -16,7 +16,6 @@ namespace NanoTrans.OnlineAPI
         public Uri SpeakerAPI_URL { get; set; }
         public Uri TrsxDownloadURL { get; set; }
         public Uri TrsxUploadURL { get; set; }
-
         public Uri OriginalURL { get; set; }
     }
 }
