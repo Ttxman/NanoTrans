@@ -458,8 +458,6 @@ namespace NanoTrans
                 if (me.StartMS == 0)
                 {
                     if (!caretRefreshTimer.IsEnabled) InitializeTimer();
-                    if (waveform1.WaveLength < TimeSpan.FromSeconds(30))
-                        Toolbar1Btn5_Click(TB30, null);
                 }
             }
             else if (me.BufferID == Const.ID_BUFFER_TRANSCRIBED_ELEMENT_PHONETIC)
