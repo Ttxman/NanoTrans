@@ -555,6 +555,7 @@ namespace NanoTrans
                 if (!await TrySaveUnsavedChanges())
                     return;//cancel
 
+
                 if (Transcription == null)
                     Transcription = new WPFTranscription();
 
@@ -586,6 +587,7 @@ namespace NanoTrans
                     loadedsucessfuly = TryLoadTranscription(fileName);
                 }
 
+                waveform1.CaretPosition = TimeSpan.Zero;
 
                 if (!loadedsucessfuly)
                 {
@@ -1310,7 +1312,7 @@ namespace NanoTrans
             meVideo.Close();
             meVideo.Source = null;
             videoAvailable = false;
-           // gListVideo.ColumnDefinitions[1].Width = new GridLength(0);
+            // gListVideo.ColumnDefinitions[1].Width = new GridLength(0);
 
             Properties.Settings.Default.VideoPanelVisible = false;
         }
