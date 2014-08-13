@@ -70,8 +70,13 @@ namespace NanoTrans.Core
 
         public void Clear()
         {
+            _parent.BeginUpdate();
+            while(_elementlist.Count >0)
+            {
+                _parent.RemoveAt(_elementlist.Count -1);
+            }
 
-           _elementlist.Clear();
+           _parent.EndUpdate();
         }
 
         public bool Contains(T item)
