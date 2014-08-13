@@ -169,6 +169,35 @@ namespace NanoTrans.Core
         }
 
         #endregion
+
+
+        public void ForEach(Action<T> action)
+        {
+            foreach (var item in _elementlist)
+            {
+                action((T)item);
+            }
+        }
+
+        public void AddRange(IEnumerable<T> collection)
+        {
+            _parent.BeginUpdate();
+            foreach (var item in collection)
+            {
+                _parent.Add(item);
+            }
+            _parent.EndUpdate();
+        }
+
+        public void RemoveRange(int index,int count)
+        {
+            _parent.BeginUpdate();
+            for(int i=0;i<count;i++)
+            {
+                _parent.RemoveAt(index + i);
+            }
+            _parent.EndUpdate();
+        }
     }
 
 }
