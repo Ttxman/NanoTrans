@@ -903,7 +903,7 @@ namespace NanoTrans
 
         private void editor_PreviewKeyUp(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.PageUp || e.Key == Key.PageDown) // klavesy, ktere textbox krade, posleme rucne parentu...
+            if (e.Key == Key.PageUp || e.Key == Key.PageDown) // avalon edit handles some keys, just send them to parent
             {
                 KeyEventArgs kea = new KeyEventArgs((KeyboardDevice)e.Device, PresentationSource.FromVisual(this), e.Timestamp, e.Key) { RoutedEvent = Element.PreviewKeyUpEvent };
                 RaiseEvent(kea);
@@ -990,19 +990,19 @@ namespace NanoTrans
                     string etext = (EditPhonetics ? p.Phonetics : p.Text);
                     int len = etext.Length;
 
-                    if (pos + len > offset) //konec fraze je za zacatkem mazani
+                    if (pos + len > offset) //end of phraze is after the deletion
                     {
                         int iidx = offset - pos;
-                        if (removedl > len - iidx) //odmazani textu pokracuje i za aktualni frazi
+                        if (removedl > len - iidx) //deletion continues after current phrase
                         {
 
-                            if (iidx == 0) //mazeme celou frazi
+                            if (iidx == 0) //delete whole phrase
                             {
                                 removedl -= len;
                                 offset = pos + len;
                                 todelete.Add(p);
                             }
-                            else //zkracujeme frazy
+                            else //shorten phrase
                             {
 
                                 string s = etext.Remove(iidx);
@@ -1017,13 +1017,13 @@ namespace NanoTrans
 
                             }
                         }
-                        else if (len == removedl) //maze se presne 1 fraze
+                        else if (len == removedl) //remove exactly 1 phrase
                         {
                             removedl -= len;
                             offset = pos + len;
                             if (addedl <= 0)
                                 todelete.Add(p);
-                            else //v pripade replace
+                            else //in case of replace
                             {
                                 if (EditPhonetics)
                                     p.Phonetics = "";
@@ -1033,7 +1033,7 @@ namespace NanoTrans
                             }
                             break;
                         }
-                        else//odmazani konci ve frazi
+                        else//deletion ends in phrase
                         {
                             string s = (EditPhonetics ? p.Phonetics : p.Text).Remove(iidx, removedl);
                             if (EditPhonetics)
@@ -1060,7 +1060,7 @@ namespace NanoTrans
                 {
                     foreach (TranscriptionPhrase p in par.Phrases)
                     {
-                        if (offset <= pos + (EditPhonetics ? p.Phonetics.Length : p.Text.Length)) //vlozeni
+                        if (offset <= pos + (EditPhonetics ? p.Phonetics.Length : p.Text.Length)) //insertion
                         {
                             string s = (EditPhonetics ? p.Phonetics : p.Text).Insert(offset - pos, text.Substring(offset, addedl));
                             if (EditPhonetics)
