@@ -7,19 +7,19 @@ using System.Text;
 namespace NanoTrans.Core
 {
     /// <summary>
-    /// Just IList wrapper around TranscriptionElement.Children. Automaticaly cast content to given type T. Used to provide conveniet list of sublements in derived lcasses (like Paragrapg.Phrazes)
+    /// Just IList wrapper around TranscriptionElement.Children. Automaticaly cast content to given type T. Used to provide conveniet list of sublements in derived classes (like Paragraph.Phrases)
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class VirtualTypeList<T> : IList<T> where T : TranscriptionElement
     {
-        List<TranscriptionElement> _elementlist;
+        IList<TranscriptionElement> _elementlist;
         TranscriptionElement _parent;
-        public VirtualTypeList(TranscriptionElement parent)
+        public VirtualTypeList(TranscriptionElement parent, List<TranscriptionElement> list)
         {
             if (parent == null)
                 throw new ArgumentNullException();
 
-           _elementlist = parent.Children;
+            _elementlist = list;
            _parent = parent;
         }
 
@@ -120,7 +120,7 @@ namespace NanoTrans.Core
         class VirtualEnumerator<R> : IEnumerator<R> where R : TranscriptionElement
         {
             IEnumerator<TranscriptionElement> tre;
-            public VirtualEnumerator(List<TranscriptionElement> list)
+            public VirtualEnumerator(IList<TranscriptionElement> list)
             {
                 tre = list.GetEnumerator();
             }

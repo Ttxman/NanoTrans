@@ -116,10 +116,19 @@ namespace NanoTrans.Core
         /// </summary>
         public string VideoFileName { get; set; }
 
+        
+
+
+        private VirtualTypeList<TranscriptionChapter> _Chapters;
+
         /// <summary>
         /// all chapters in transcription
         /// </summary>
-        public VirtualTypeList<TranscriptionChapter> Chapters;
+        public VirtualTypeList<TranscriptionChapter> Chapters
+        {
+            get { return _Chapters; }
+            private set { _Chapters = value; }
+        }
 
         [XmlElement("SpeakersDatabase")]
         private SpeakerCollection _speakers = new SpeakerCollection();
@@ -138,7 +147,7 @@ namespace NanoTrans.Core
             FileName = null;
             Saved = false;
             DocumentID = Guid.NewGuid().ToString();
-            Chapters = new VirtualTypeList<TranscriptionChapter>(this);
+            Chapters = new VirtualTypeList<TranscriptionChapter>(this,this._children);
             Created = DateTime.UtcNow;
             //constructor  
         }
@@ -159,7 +168,7 @@ namespace NanoTrans.Core
             this.Created = toCopy.Created;
             if (toCopy.Chapters != null)
             {
-                this.Chapters = new VirtualTypeList<TranscriptionChapter>(this);
+                this.Chapters = new VirtualTypeList<TranscriptionChapter>(this, this._children);
                 for (int i = 0; i < toCopy.Chapters.Count; i++)
                 {
                     this.Chapters.Add(new TranscriptionChapter(toCopy.Chapters[i]));

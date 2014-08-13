@@ -18,9 +18,24 @@ namespace NanoTrans.Core
                 return true;
             }
         }
-        public VirtualTypeList<TranscriptionPhrase> Phrases; //nejmensi textovy usek
+
+        VirtualTypeList<TranscriptionPhrase> _phrases;
+        public VirtualTypeList<TranscriptionPhrase> Phrases
+        {
+            get 
+            {
+                return _phrases;
+            }
+
+            private set
+            {
+                _phrases = value;
+            }
+        }
+
+
         /// <summary>
-        /// GET, text bloku dat,ktery se bude zobrazovat v jenom textboxu - jedna se o text ze vsech podrazenych textovych jednotek (Phrases)
+        /// concat all text from all Phrases
         /// </summary>
         public override string Text
         {
@@ -42,7 +57,7 @@ namespace NanoTrans.Core
 
 
         /// <summary>
-        /// GET, text bloku dat,ktery se bude zobrazovat v jenom textboxu - fonetika
+        /// concat all phonetics from all Phrases
         /// </summary>
         public override string Phonetics
         {
@@ -246,7 +261,7 @@ namespace NanoTrans.Core
             if (!e.CheckRequiredAtributes("b", "e", "s"))
                 throw new ArgumentException("required attribute missing on paragraph (b,e,s)");
 
-            Phrases = new VirtualTypeList<TranscriptionPhrase>(this);
+            Phrases = new VirtualTypeList<TranscriptionPhrase>(this, this._children);
             _internalID = int.Parse(e.Attribute( "s").Value);
             AttributeString = (e.Attribute( "a") ?? EmptyAttribute).Value;
 
@@ -335,7 +350,7 @@ namespace NanoTrans.Core
             this.DataAttributes = aKopie.DataAttributes;
             if (aKopie.Phrases != null)
             {
-                this.Phrases = new VirtualTypeList<TranscriptionPhrase>(this);
+                this.Phrases = new VirtualTypeList<TranscriptionPhrase>(this, this._children);
                 for (int i = 0; i < aKopie.Phrases.Count; i++)
                 {
                     this.Phrases.Add(new TranscriptionPhrase(aKopie.Phrases[i]));
@@ -365,7 +380,7 @@ namespace NanoTrans.Core
         public TranscriptionParagraph()
             : base()
         {
-            Phrases = new VirtualTypeList<TranscriptionPhrase>(this);
+            Phrases = new VirtualTypeList<TranscriptionPhrase>(this, this._children);
             this.Begin = new TimeSpan(-1);
             this.End = new TimeSpan(-1);
             this.trainingElement = false;

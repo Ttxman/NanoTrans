@@ -42,7 +42,13 @@ namespace NanoTrans.Core
 
         public string name = string.Empty;
 
-        public VirtualTypeList<TranscriptionSection> Sections;
+        private VirtualTypeList<TranscriptionSection> _Sections;
+
+        public VirtualTypeList<TranscriptionSection> Sections
+        {
+            get { return _Sections; }
+            private set { _Sections = value; }
+        }
 
 
         #region serializtion
@@ -64,7 +70,7 @@ namespace NanoTrans.Core
 
         public TranscriptionChapter(XElement c)
         {
-            Sections = new VirtualTypeList<TranscriptionSection>(this);
+            Sections = new VirtualTypeList<TranscriptionSection>(this, this._children);
             name = c.Attribute("name").Value;
             Elements = c.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
             Elements.Remove("name");
@@ -94,7 +100,7 @@ namespace NanoTrans.Core
             this.name = toCopy.name;
             if (toCopy.Sections != null)
             {
-                this.Sections = new VirtualTypeList<TranscriptionSection>(this);
+                this.Sections = new VirtualTypeList<TranscriptionSection>(this, this._children);
                 for (int i = 0; i < toCopy.Sections.Count; i++)
                 {
                     this.Sections.Add(new TranscriptionSection(toCopy.Sections[i]));
@@ -105,7 +111,7 @@ namespace NanoTrans.Core
         public TranscriptionChapter()
             : base()
         {
-            Sections = new VirtualTypeList<TranscriptionSection>(this);
+            Sections = new VirtualTypeList<TranscriptionSection>(this,this._children);
             Begin = new TimeSpan(-1);
             End = new TimeSpan(-1);
         }
@@ -117,7 +123,7 @@ namespace NanoTrans.Core
         }
         public TranscriptionChapter(String aName, TimeSpan aBegin, TimeSpan aEnd)
         {
-            Sections = new VirtualTypeList<TranscriptionSection>(this);
+            Sections = new VirtualTypeList<TranscriptionSection>(this, this._children);
             this.name = aName;
             this.Begin = aBegin;
             this.End = aEnd;

@@ -120,7 +120,7 @@ namespace NanoTrans.Core
 
         public TranscriptionElement()
         {
-            _children = new List<TranscriptionElement>();
+            _vChildren = new VirtualTypeList<TranscriptionElement>(this,_children);
         }
 
         public virtual TranscriptionElement this[int index]
@@ -180,11 +180,15 @@ namespace NanoTrans.Core
         }
 
 
-        protected List<TranscriptionElement> _children;
-        public List<TranscriptionElement> Children
+        protected readonly List<TranscriptionElement>  _children = new List<TranscriptionElement>();
+
+
+        private VirtualTypeList<TranscriptionElement> _vChildren;
+        public VirtualTypeList<TranscriptionElement> Children
         {
-            get { return _children; }
+            get { return _vChildren; }
         }
+
 
         public bool HaveChildren
         {

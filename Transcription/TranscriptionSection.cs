@@ -43,7 +43,16 @@ namespace NanoTrans.Core
 
         public string name = string.Empty;
 
-        public VirtualTypeList<TranscriptionParagraph> Paragraphs;
+
+        private VirtualTypeList<TranscriptionParagraph> _Paragraphs;
+
+        public VirtualTypeList<TranscriptionParagraph> Paragraphs
+        {
+            get { return _Paragraphs; }
+            private set { _Paragraphs = value; }
+        }
+
+
 
         public int Speaker;
 
@@ -67,7 +76,7 @@ namespace NanoTrans.Core
 
         public TranscriptionSection(XElement e)
         {
-            this.Paragraphs = new VirtualTypeList<TranscriptionParagraph>(this);
+            this.Paragraphs = new VirtualTypeList<TranscriptionParagraph>(this, this._children);
             name = e.Attribute("name").Value;
             Elements = e.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
             Elements.Remove("name");
@@ -100,7 +109,7 @@ namespace NanoTrans.Core
             this.name = toCopy.name;
             if (toCopy.Paragraphs != null)
             {
-                this.Paragraphs = new VirtualTypeList<TranscriptionParagraph>(this);
+                this.Paragraphs = new VirtualTypeList<TranscriptionParagraph>(this, this._children);
                 for (int i = 0; i < toCopy.Paragraphs.Count; i++)
                 {
                     this.Paragraphs.Add(new TranscriptionParagraph(toCopy.Paragraphs[i]));
@@ -110,7 +119,7 @@ namespace NanoTrans.Core
 
         public TranscriptionSection()
         {
-            Paragraphs = new VirtualTypeList<TranscriptionParagraph>(this);
+            Paragraphs = new VirtualTypeList<TranscriptionParagraph>(this,this._children);
             Begin = new TimeSpan(-1);
             End = new TimeSpan(-1);
         }
