@@ -6,10 +6,14 @@ using System.Text;
 
 namespace NanoTrans.Core
 {
+    /// <summary>
+    /// base class for each node in Transcription tree structure
+    /// </summary>
     public abstract class TranscriptionElement
     {
         public double height;
         protected TimeSpan _begin = new TimeSpan(-1);
+
         public TimeSpan Begin
         {
             get
@@ -37,9 +41,9 @@ namespace NanoTrans.Core
             }
             set
             {
+                var ov = Begin;
                 _begin = value;
-                if (BeginChanged != null)
-                    BeginChanged(this, new EventArgs());
+                OnContentChanged(new BeginAction(this, this.TranscriptionIndex, this.AbsoluteIndex, ov));
             }
         }
         protected TimeSpan _end = new TimeSpan(-1);
@@ -70,14 +74,12 @@ namespace NanoTrans.Core
             }
             set
             {
+                var ov = End;
                 _end = value;
-                if (EndChanged != null)
-                    EndChanged(this, new EventArgs());
+                OnContentChanged(new BeginAction(this, this.TranscriptionIndex, this.AbsoluteIndex, ov));
             }
         }
 
-        public event EventHandler BeginChanged;
-        public event EventHandler EndChanged;
 
 
         public abstract string Text
@@ -121,18 +123,48 @@ namespace NanoTrans.Core
             _children = new List<TranscriptionElement>();
         }
 
-        public virtual TranscriptionElement this[int Index]
+        public virtual TranscriptionElement this[int index]
         {
             get
             {
-                return _children[Index];
+                return _children[index];
             }
 
             set
             {
-                _children[Index] = value;
+                var c = _children[index];
+                var ci = c.TranscriptionIndex;
+                var ca = c.AbsoluteIndex;
+
+
+                value._Parent = this;
+                value._ParentIndex = index;
+
+                c._Parent = null;
+                c._ParentIndex = -1;
+
+                _children[index] = value;
+
+                OnContentChanged(new ReplaceAction(c, ci, ca));
             }
 
+        }
+
+        public abstract TranscriptionElement this[TranscriptionIndex index]
+        {
+            get;
+            set;
+        }
+
+        public abstract void RemoveAt(TranscriptionIndex index);
+
+        public abstract void Insert(TranscriptionIndex index, TranscriptionElement value);
+
+
+        public void ValidateIndexOrThrow(TranscriptionIndex index)
+        {
+            if (!index.IsValid)
+                throw new ArgumentOutOfRangeException("index", "invalid index value");
         }
 
         protected TranscriptionElement _Parent;
@@ -159,16 +191,37 @@ namespace NanoTrans.Core
             get { return Children.Count > 0; }
         }
 
-
+        /// <summary>
+        /// Absolute index = index Depth-first tree traversal order of TranscriptionChapter, Section and Paragraph structure (Phrases does not count)
+        /// </summary>
         public abstract int AbsoluteIndex
         {
             get;
         }
 
-        public virtual void ElementInserted(TranscriptionElement element, int absoluteindex)
+        /// <summary>
+        /// This value will be wrong if element is not part of Transcription
+        /// </summary>
+        public TranscriptionIndex TranscriptionIndex
         {
-            if (_Parent != null)
-                _Parent.ElementInserted(element, absoluteindex);//+1 for this
+            get
+            {
+                var acc = this.Parent;
+                var parents = new Stack<TranscriptionElement>();
+                while (acc != null && !(acc is Transcription))
+                {
+                    parents.Push(acc);
+                    acc = acc.Parent;
+                }
+
+                var indexa = new int[4]{-1,-1,-1,-1};
+
+                int index = 0;
+                while (parents.Count > 0)
+                    indexa[index++] = parents.Pop().ParentIndex;
+
+                return new TranscriptionIndex(indexa);
+            }
         }
 
         public virtual void Add(TranscriptionElement data)
@@ -176,9 +229,7 @@ namespace NanoTrans.Core
             _children.Add(data);
             data._Parent = this;
             data._ParentIndex = _children.Count - 1;
-
-            ElementInserted(data, data.AbsoluteIndex);
-            ChildrenCountChanged(ChangedAction.Add);
+            OnContentChanged(new InsertAction(data, data.TranscriptionIndex, data.AbsoluteIndex));
         }
 
         public virtual void Insert(int index, TranscriptionElement data)
@@ -192,11 +243,11 @@ namespace NanoTrans.Core
             {
                 _children[i]._ParentIndex = i;
             }
-            ElementInserted(data, data.AbsoluteIndex);
-            ChildrenCountChanged(ChangedAction.Add);
-            ChildrenCountChanged(ChangedAction.Replace);
 
+            OnContentChanged(new InsertAction(data, data.TranscriptionIndex, data.AbsoluteIndex));
         }
+
+
         public virtual void RemoveAt(int index)
         {
 
@@ -206,6 +257,8 @@ namespace NanoTrans.Core
             TranscriptionElement element = _children[index];
             int indexabs = element.AbsoluteIndex;
             var c = _children[index];
+            var ci = c.TranscriptionIndex;
+            var ca = c.AbsoluteIndex;
             c._Parent = null;
             c._ParentIndex = -1;
             _children.RemoveAt(index);
@@ -214,16 +267,11 @@ namespace NanoTrans.Core
             {
                 _children[i]._ParentIndex = i;
             }
-            ElementRemoved(element, indexabs);
-            ChildrenCountChanged(ChangedAction.Remove);
+
+            OnContentChanged(new RemoveAction(c,ci,ca));
 
         }
 
-        public virtual void ElementRemoved(TranscriptionElement element, int absoluteindex)
-        {
-            if (_Parent != null)
-                _Parent.ElementRemoved(element, absoluteindex);//+1 for this
-        }
 
         public virtual bool Remove(TranscriptionElement value)
         {
@@ -236,27 +284,28 @@ namespace NanoTrans.Core
             int index = _children.IndexOf(oldelement);
             if (index >= 0)
             {
+                var oi = oldelement.TranscriptionIndex;
+                var oa = oldelement.AbsoluteIndex;
+
+                newelement._Parent = this;
+                newelement._ParentIndex = oldelement._ParentIndex;
+
+                oldelement._Parent = null;
+                oldelement._ParentIndex = -1;
+
                 _children[index] = newelement;
 
-                ChildrenCountChanged(ChangedAction.Replace);
+                OnContentChanged(new ReplaceAction(oldelement, oi, oa));
                 return true;
             }
             return false;
         }
 
 
-        public virtual void ElementReplaced(TranscriptionElement oldelement, TranscriptionElement newelement)
-        {
-            if (_Parent != null)
-                _Parent.ElementReplaced(oldelement, newelement);
-        }
-
-        public virtual void ElementChanged(TranscriptionElement element)
-        {
-            if (_Parent != null)
-                _Parent.ElementChanged(element);
-        }
-
+        /// <summary>
+        /// next element in index Depth-first tree traversal. (Phrases are ignored)
+        /// </summary>
+        /// <returns></returns>
         public TranscriptionElement Next()
         {
 
@@ -280,6 +329,10 @@ namespace NanoTrans.Core
 
         }
 
+        /// <summary>
+        /// enumerable of elements next to this in Depth-first tree traversal. (Phrases are ignored)
+        /// </summary>
+        /// <returns></returns>
         public IEnumerable<TranscriptionElement> EnumerateNext()
         {
             var n = Next();
@@ -294,7 +347,10 @@ namespace NanoTrans.Core
 
         }
 
-
+        /// <summary>
+        /// get next sibling == get next element in Depth-first tree traversal of same type as this
+        /// </summary>
+        /// <returns></returns>
         public TranscriptionElement NextSibling()
         {
 
@@ -315,7 +371,10 @@ namespace NanoTrans.Core
 
         }
 
-
+        /// <summary>
+        ///  get enumerable of next elements with same type as this in Depth-first tree traversal 
+        /// </summary>
+        /// <returns></returns>
         public IEnumerable<TranscriptionElement> EnumerateNextSiblings()
         {
             var n = NextSibling();
@@ -330,6 +389,10 @@ namespace NanoTrans.Core
 
         }
 
+        /// <summary>
+        /// get next sibling == get previous element in Depth-first tree traversal of same type as this
+        /// </summary>
+        /// <returns></returns>
         public TranscriptionElement PreviousSibling()
         {
 
@@ -350,7 +413,10 @@ namespace NanoTrans.Core
 
         }
 
-
+        /// <summary>
+        /// get enumerable of previous elements with same type as this in Depth-first tree traversal 
+        /// </summary>
+        /// <returns></returns>
         public IEnumerable<TranscriptionElement> EnumeratePreviousSibling()
         {
             var n = PreviousSibling();
@@ -365,6 +431,10 @@ namespace NanoTrans.Core
 
         }
 
+        /// <summary>
+        /// previous element in index Depth-first tree traversal. (Phrases are ignored)
+        /// </summary>
+        /// <returns></returns>
         public TranscriptionElement Previous()
         {
 
@@ -383,6 +453,10 @@ namespace NanoTrans.Core
 
         }
 
+        /// <summary>
+        /// enumerable of elements previuos to this in Depth-first tree traversal. (Phrases are ignored)
+        /// </summary>
+        /// <returns></returns>
         public IEnumerable<TranscriptionElement> EnumeratePrevious()
         {
             var n = Previous();
@@ -397,7 +471,10 @@ namespace NanoTrans.Core
 
         }
 
-
+        /// <summary>
+        /// total count of subelements (phrazes are as alway ignored)
+        /// </summary>
+        /// <returns></returns>
         public virtual int GetTotalChildrenCount()
         {
             int c = _children.Count;
@@ -407,29 +484,62 @@ namespace NanoTrans.Core
             return c;
         }
 
-        public virtual void ChildrenCountChanged(ChangedAction action)
+
+
+        List<ChangeAction> _changes = null;
+
+        /// <summary>
+        /// When something in the transcription tree structure changes, change action (with undo) bubbles up to the Transcription element
+        /// </summary>
+        /// <param name="actions"></param>
+        public virtual void OnContentChanged(params ChangeAction[] actions)
         {
             if (!_Updating)
             {
                 if (Parent != null)
-                    Parent.ChildrenCountChanged(action);
+                    Parent.OnContentChanged(actions);
             }
             else
+            {
+                _changes.AddRange(actions);
                 _updated = true;
+            }
         }
+
+        public event EventHandler<TranscriptionElementChangedEventArgs> ContentChanged;
+
+        public class TranscriptionElementChangedEventArgs : EventArgs
+        {
+            public ChangeAction[] ActionsTaken { get; private set; }
+
+            public TranscriptionElementChangedEventArgs(ChangeAction[] actions)
+            {
+                ActionsTaken = actions;
+            }
+        }
+
 
         private bool _Updating = false;
         protected bool _updated = false;
+
+        /// <summary>
+        /// Stop Bubbling changes through OnContentChanged() anc ContentChanged event and acumulate changes until EndUpdate is called
+        /// </summary>
         public void BeginUpdate()
         {
             _Updating = true;
+            _changes = new List<ChangeAction>();
         }
 
+        /// <summary>
+        /// Bubble all accumulated changes (since BeginUpdate) as one big change, and resume immediate Bubbling of changes
+        /// </summary>
         public void EndUpdate()
         {
             _Updating = false;
             if (_updated)
-                ChildrenCountChanged(ChangedAction.Reset);
+                OnContentChanged(_changes.ToArray());
+            _changes = null;
             _updated = false;
         }
     }
