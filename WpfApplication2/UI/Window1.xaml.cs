@@ -883,7 +883,7 @@ namespace NanoTrans
             long delta = (long)waveform1.WaveLength.TotalMilliseconds; //waveform length in ms
 
             TimeSpan playpos = waveform1.CaretPosition;
-            if (_playing)
+            if (_playing && MWP!=null)
             {
                 playpos = MWP.PlayPosition;
                 if (PlayingSelection && playpos < waveform1.SelectionBegin)

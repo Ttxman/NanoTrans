@@ -132,7 +132,7 @@ namespace NanoTrans
             CommandAssignSpeaker.InputGestures.Add(new KeyGesture(Key.M, ModifierKeys.Control));
 
             CommandExportElement.InputGestures.Add(new KeyGesture(Key.X, ModifierKeys.Control | ModifierKeys.Alt));
-            CommandQuickExportElement.InputGestures.Add(new KeyGesture(Key.X, ModifierKeys.Control | ModifierKeys.Alt| ModifierKeys.Shift));
+            CommandQuickExportElement.InputGestures.Add(new KeyGesture(Key.X, ModifierKeys.Control | ModifierKeys.Alt | ModifierKeys.Shift));
 
             CommandFindDialog.InputGestures.Add(new KeyGesture(Key.F, ModifierKeys.Control));
             CommandFindDialog.InputGestures.Add(new KeyGesture(Key.F3));
@@ -219,7 +219,7 @@ namespace NanoTrans
         {
             if (!Settings.Default.FeatureEnabler.Export)
                 return;
-            
+
             string[] masks = _ExportPlugins.Select(p => p.Mask).ToArray();
 
             SaveFileDialog sf = new SaveFileDialog();
@@ -438,14 +438,14 @@ namespace NanoTrans
                 }
 
                 DirectoryInfo nfo = new DirectoryInfo(FilePaths.QuickSaveDirectory);
-                
+
                 int index = 0;
                 var pars = nfo.GetFiles("*.wav").Where(p => p.Name.StartsWith("paragraph_")).ToArray();
 
-                if(pars.Count() > 0)
-                    index = 1+(int)pars.Max(p => { int res = 0; int.TryParse(System.IO.Path.GetFileNameWithoutExtension(p.Name.Substring(10)), out res); return res; });
+                if (pars.Count() > 0)
+                    index = 1 + (int)pars.Max(p => { int res = 0; int.TryParse(System.IO.Path.GetFileNameWithoutExtension(p.Name.Substring(10)), out res); return res; });
 
-                var basename = System.IO.Path.Combine(nfo.FullName, "paragraph_"+index);
+                var basename = System.IO.Path.Combine(nfo.FullName, "paragraph_" + index);
                 WavReader.SaveToWav(basename + ".wav", data);
                 string textf = basename + ".txt";
                 //File.WriteAllBytes(textf, win1250.GetBytes());
@@ -467,7 +467,7 @@ namespace NanoTrans
 
         private void CExportElement(object sender, ExecutedRoutedEventArgs e)
         {
-          
+
             TranscriptionParagraph par = VirtualizingListBox.ActiveTransctiption as TranscriptionParagraph;
             var data = _WavReader.LoadaudioDataBuffer(par.Begin, par.End);
 
@@ -511,15 +511,17 @@ namespace NanoTrans
 
         private void CPlayPauseExecute(object sender, ExecutedRoutedEventArgs e)
         {
+            if (MWP == null)
+                return;
+
             if (_playing)
             {
                 if (videoAvailable) meVideo.Pause();
                 PlayingSelection = false;
                 Playing = false;
-                if (MWP != null)
-                {
-                    waveform1.CaretPosition = MWP.PausedAt;
-                }
+
+                waveform1.CaretPosition = MWP.PausedAt;
+
             }
             else
             {
