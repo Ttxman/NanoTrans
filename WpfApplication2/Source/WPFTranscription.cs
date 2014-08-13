@@ -46,12 +46,20 @@ namespace NanoTrans
 
         public event NotifyCollectionChangedEventHandler CollectionChanged;
 
-        Stack<ChangeAction> _UndoStack = new Stack<ChangeAction>();
+        Stack<ChangeAction[]> _UndoStack = new Stack<ChangeAction[]>();
 
         public override void OnContentChanged(params ChangeAction[] actions)
         {
-            foreach (var a in actions)
-                _UndoStack.Push(a);
+            Saved = false;
+
+            if (actions == null || actions.Length < 0)
+            {
+                CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset, null, 0));
+                return;
+            }
+
+
+            _UndoStack.Push(actions);
             
             actions = actions.Where(a=>a.ChangeType != ChangeType.Modify && a.ChangedElement.GetType() != typeof(TranscriptionPhrase)).ToArray();
             if (CollectionChanged != null && actions.Length >0)
@@ -61,8 +69,6 @@ namespace NanoTrans
                 else
                     CollectionChanged(this, new NotifyCollectionChangedEventArgs(MapEvent(actions[0].ChangeType), actions[0].ChangedElement, actions[0].ChangeAbsoluteIndex));
             }
-
-            Saved = false;
         }
 
         public NotifyCollectionChangedAction MapEvent(ChangeType action)

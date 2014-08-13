@@ -1048,8 +1048,10 @@ namespace NanoTrans
                     pos += (EditPhonetics ? p.Phonetics.Length : p.Text.Length);
                 }
 
-                foreach (var v in todelete)
-                    par.Children.Remove(v); //bezeventovy mazani; nedojde k prekresleni celeho seznamu elementu
+                par.BeginUpdate();
+                foreach (var v in todelete) //remove phrases fprom paragraph - should not redraw anything
+                    par.Remove(v);
+                par.EndUpdate();
 
             }
             offset = e.Offset;
