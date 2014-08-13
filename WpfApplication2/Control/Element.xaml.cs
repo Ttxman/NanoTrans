@@ -1080,12 +1080,6 @@ namespace NanoTrans
                     par.SilentEndUpdate();
                 }
             }
-
-            if (par.Text != editor.Text)
-            {
-                editor.Background = Brushes.Red;
-            }
-
         }
 
         private void element_Loaded(object sender, RoutedEventArgs e)
