@@ -395,7 +395,9 @@ namespace NanoTrans.Core
             }
             set
             {
+                var oldlang = _lang;
                 _lang = value.ToUpper();
+                OnContentChanged(new ParagraphLanguageAction(this, this.TranscriptionIndex, this.AbsoluteIndex, oldlang));
             }
         }
 

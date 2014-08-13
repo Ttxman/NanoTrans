@@ -104,7 +104,7 @@ namespace NanoTrans.Core
         }
 
         public ParagraphSpeakerAction(TranscriptionParagraph changedParagraph, TranscriptionIndex changeIndex,int changeAbsoluteIndex, Speaker oldSpeaker)
-            : base(ChangeType.Replace, changedParagraph, changeIndex, changeAbsoluteIndex)
+            : base(ChangeType.Modify, changedParagraph, changeIndex, changeAbsoluteIndex)
         {
             _oldSpeaker = oldSpeaker;
         }
@@ -119,7 +119,7 @@ namespace NanoTrans.Core
     public class ParagraphAttibutesAction : ChangeAction
     {
         public ParagraphAttibutesAction(TranscriptionParagraph changedParagraph, TranscriptionIndex changeIndex,int changeAbsoluteIndex, ParagraphAttributes oldAttributes)
-            : base(ChangeType.Replace, changedParagraph, changeIndex, changeAbsoluteIndex)
+            : base(ChangeType.Modify, changedParagraph, changeIndex, changeAbsoluteIndex)
         {
             _oldAttributes = oldAttributes;
         }
@@ -137,11 +137,32 @@ namespace NanoTrans.Core
         }
     }
 
+    public class ParagraphLanguageAction : ChangeAction
+    {
+        public ParagraphLanguageAction(TranscriptionParagraph changedParagraph, TranscriptionIndex changeIndex, int changeAbsoluteIndex, string oldLanguage)
+            : base(ChangeType.Modify, changedParagraph, changeIndex, changeAbsoluteIndex)
+        {
+            _oldLanguage = oldLanguage;
+        }
+
+        public override void Revert(Transcription trans)
+        {
+            ((TranscriptionParagraph)trans[ChangeTranscriptionIndex]).Language = OldLanguage;
+        }
+
+        string _oldLanguage;
+
+        public string OldLanguage
+        {
+            get { return _oldLanguage; }
+        }
+    }
+
 
     public class BeginAction : ChangeAction
     {
         public BeginAction(TranscriptionElement changedElement, TranscriptionIndex changeIndex, int changeAbsoluteIndex, TimeSpan oldtime)
-            : base(ChangeType.Replace, changedElement, changeIndex,changeAbsoluteIndex)
+            : base(ChangeType.Modify, changedElement, changeIndex,changeAbsoluteIndex)
         {
             _oldtime = oldtime;
         }
@@ -163,7 +184,7 @@ namespace NanoTrans.Core
     public class EndAction : ChangeAction
     {
         public EndAction(TranscriptionElement changedelement, TranscriptionIndex changeIndex, int changeAbsoluteIndex, TimeSpan oldtime)
-            : base(ChangeType.Replace, changedelement, changeIndex, changeAbsoluteIndex)
+            : base(ChangeType.Modify, changedelement, changeIndex, changeAbsoluteIndex)
         {
             _oldtime = oldtime;
         }
