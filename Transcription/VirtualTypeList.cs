@@ -55,7 +55,7 @@ namespace NanoTrans.Core
             }
             set
             {
-                throw new NotSupportedException();
+                _parent[index] = value;
             }
         }
 
