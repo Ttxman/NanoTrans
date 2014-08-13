@@ -653,8 +653,6 @@ namespace NanoTrans
             if (!ActivatingTranscription)
             {
                 var value = ((Element)sender).ValueElement;
-
-                Transcription.ElementChanged(value);
                 if (listbox.SelectedItem == value)
                     ScrollToItem(value);
             }

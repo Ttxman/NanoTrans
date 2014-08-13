@@ -46,43 +46,35 @@ namespace NanoTrans
 
         public event NotifyCollectionChangedEventHandler CollectionChanged;
 
-        public override void ElementChanged(TranscriptionElement element)
-        {
+        Stack<ChangeAction> _UndoStack = new Stack<ChangeAction>();
 
+        public override void OnContentChanged(params ChangeAction[] actions)
+        {
+            foreach (var a in actions)
+                _UndoStack.Push(a);
+            
+            actions = actions.Where(a=>a.ChangeType != ChangeType.Modify && a.ChangedElement.GetType() != typeof(TranscriptionPhrase)).ToArray();
+            if (CollectionChanged != null && actions.Length >0)
+            {
+                if (actions.Length > 1)
+                    CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset, null, 0));
+                else
+                    CollectionChanged(this, new NotifyCollectionChangedEventArgs(MapEvent(actions[0].ChangeType), actions[0].ChangedElement, actions[0].ChangeAbsoluteIndex));
+            }
+
+            Saved = false;
         }
 
-        public override void ElementReplaced(TranscriptionElement oldelement, TranscriptionElement newelement)
-        {
-            if (CollectionChanged != null)
-                CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, oldelement, newelement));
-        }
-
-        public override void ElementInserted(TranscriptionElement element, int absoluteindex)
-        {
-            if (CollectionChanged != null)
-                CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, element, absoluteindex));
-        }
-
-        public override void ElementRemoved(TranscriptionElement element, int absoluteindex)
-        {
-            if (CollectionChanged != null)
-                CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, element, absoluteindex));
-        }
-
-        public NotifyCollectionChangedAction MapEvent(ChangedAction action)
+        public NotifyCollectionChangedAction MapEvent(ChangeType action)
         {
             switch (action)
             {
-                case ChangedAction.Add:
+                case ChangeType.Add:
                     return NotifyCollectionChangedAction.Add;
-                case ChangedAction.Move:
-                    return NotifyCollectionChangedAction.Move;
-                case ChangedAction.Remove:
+                case ChangeType.Remove:
                     return NotifyCollectionChangedAction.Remove;
-                case ChangedAction.Replace:
+                case ChangeType.Replace:
                     return NotifyCollectionChangedAction.Replace;
-                case ChangedAction.Reset:
-                    return NotifyCollectionChangedAction.Reset;
             }
 
             return NotifyCollectionChangedAction.Reset;
@@ -125,10 +117,10 @@ namespace NanoTrans
                 if (value == null)
                 {
                     var elm = Meta.Element("OnlineInfo");
-                    if(elm!=null)
+                    if (elm != null)
                         elm.Remove();
                 }
-                Meta.SetElementValue("OnlineInfo",JObject.FromObject(value).ToString());
+                Meta.SetElementValue("OnlineInfo", JObject.FromObject(value).ToString());
             }
         }
 

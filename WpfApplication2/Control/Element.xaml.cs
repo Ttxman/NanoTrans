@@ -124,8 +124,7 @@ namespace NanoTrans
 
             if (el.ValueElement != null)
             {
-                el.ValueElement.BeginChanged -= el.BeginChanged;
-                el.ValueElement.EndChanged -= el.EndChanged;
+                el.ValueElement.ContentChanged -= val_ContentChanged;
             }
 
             el.updating = true;
@@ -205,8 +204,7 @@ namespace NanoTrans
             el.DataContext = val;
             if (val != null)
             {
-                val.BeginChanged += el.BeginChanged;
-                val.EndChanged += el.EndChanged;
+                val.ContentChanged += val_ContentChanged;
 
                 el.BeginChanged(el, null);
                 el.EndChanged(el, null);
@@ -216,6 +214,21 @@ namespace NanoTrans
 
             el.UpdateCustomParamsFromSpeaker();
             el.updating = false;
+        }
+
+        static void val_ContentChanged(object sender, TranscriptionElement.TranscriptionElementChangedEventArgs e)
+        {
+            Element el = sender as Element;
+            if (el == null)
+                return;
+
+            if (e.ActionsTaken.Any(a => a is NanoTrans.Core.BeginAction))
+                el.BeginChanged(el, new EventArgs());
+
+            if (e.ActionsTaken.Any(a => a is NanoTrans.Core.EndAction))
+                el.EndChanged(el, new EventArgs());
+          //  val.BeginChanged += el.BeginChanged;
+          //  val.EndChanged += el.EndChanged;
         }
 
         TranscriptionElement _Element;
@@ -726,18 +739,18 @@ namespace NanoTrans
 
         static CompletionWindow completionWindow;
 
-        private void BeginChanged(object sendet, EventArgs value)
+        private void BeginChanged(object sender, EventArgs value)
         {
             if (ValueElement != null)
             {
                 TimeSpan val = ValueElement.Begin;
                 this.textbegin.Text = string.Format("{0}:{1:00}:{2:00},{3}", val.Hours, val.Minutes, val.Seconds, val.Milliseconds.ToString("000").Substring(0, 2));
-                EndChanged(this, null);//zmena zacatku muze ovlivnit konec...
+
             }
 
         }
 
-        private void EndChanged(object sendet, EventArgs value)
+        private void EndChanged(object sender, EventArgs value)
         {
             if (ValueElement != null)
             {
