@@ -290,7 +290,7 @@ namespace NanoTrans
                 TranscriptionParagraph par2 = new TranscriptionParagraph();
                 TranscriptionParagraph par1 = new TranscriptionParagraph();
 
-                par1.Attributes = par2.Attributes = par.Attributes;
+                par1.AttributeString = par2.AttributeString = par.AttributeString;
 
                 par1.Speaker = par2.Speaker = par.Speaker;
 

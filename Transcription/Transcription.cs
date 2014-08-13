@@ -619,7 +619,7 @@ namespace NanoTrans.Core
 
                             val = reader.GetAttribute("trainingElement");
                             p.trainingElement = val == null ? false : XmlConvert.ToBoolean(val);
-                            p.Attributes = reader.GetAttribute("Attributes");
+                            p.AttributeString = reader.GetAttribute("Attributes");
 
                             reader.Read();
                             reader.ReadStartElement("Phrases");
@@ -720,7 +720,7 @@ namespace NanoTrans.Core
                                 p.End = XmlConvert.ToTimeSpan(val);
 
                             p.trainingElement = XmlConvert.ToBoolean(reader.GetAttribute("trainingElement"));
-                            p.Attributes = reader.GetAttribute("Attributes");
+                            p.AttributeString = reader.GetAttribute("Attributes");
 
                             reader.Read();
                             reader.ReadStartElement("Phrases");
