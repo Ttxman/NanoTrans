@@ -496,6 +496,9 @@ namespace NanoTrans.Core
         {
             if (!_Updating)
             {
+                if (ContentChanged != null)
+                    ContentChanged(this, new TranscriptionElementChangedEventArgs(actions));
+
                 if (Parent != null)
                     Parent.OnContentChanged(actions);
             }
