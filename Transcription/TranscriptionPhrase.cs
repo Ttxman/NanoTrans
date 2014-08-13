@@ -19,7 +19,12 @@ namespace NanoTrans.Core
         public override string Text
         {
             get { return _text; }
-            set { _text = value; }
+            set 
+            { 
+                var oldv = value;
+                _text = value;
+                OnContentChanged(new PhraseTextAction(this, this.TranscriptionIndex, this.AbsoluteIndex, oldv));
+            }
         }
 
         private string _phonetics = "";
@@ -32,7 +37,9 @@ namespace NanoTrans.Core
             }
             set
             {
+                var oldv = value;
                 _phonetics = value;
+                OnContentChanged(new PhrasePhoneticsAction(this, this.TranscriptionIndex, this.AbsoluteIndex, oldv));
             }
         }
 

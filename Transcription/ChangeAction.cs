@@ -203,6 +203,50 @@ namespace NanoTrans.Core
     }
 
 
+    public class PhraseTextAction : ChangeAction
+    {
+        public PhraseTextAction(TranscriptionPhrase changedelement, TranscriptionIndex changeIndex, int changeAbsoluteIndex, string oldtstring)
+            : base(ChangeType.Modify, changedelement, changeIndex, changeAbsoluteIndex)
+        {
+            _oldtstring = oldtstring;
+        }
+
+        public override void Revert(Transcription trans)
+        {
+            trans[ChangeTranscriptionIndex].Text = _oldtstring;
+        }
+
+        string _oldtstring;
+
+        public string Oldtstringe
+        {
+            get { return _oldtstring; }
+        }
+    }
+
+
+    public class PhrasePhoneticsAction : ChangeAction
+    {
+        public PhrasePhoneticsAction(TranscriptionPhrase changedelement, TranscriptionIndex changeIndex, int changeAbsoluteIndex, string oldphonetics)
+            : base(ChangeType.Modify, changedelement, changeIndex, changeAbsoluteIndex)
+        {
+            _oldtstring = oldphonetics;
+        }
+
+        public override void Revert(Transcription trans)
+        {
+            trans[ChangeTranscriptionIndex].Phonetics = _oldtstring;
+        }
+
+        string _oldtstring;
+
+        public string Oldtstringe
+        {
+            get { return _oldtstring; }
+        }
+    }
+
+
 
     /// <summary>
     /// Used for compatibility with collection changes in wpf
