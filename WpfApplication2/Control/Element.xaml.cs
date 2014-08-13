@@ -423,7 +423,7 @@ namespace NanoTrans
         private void TextView_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (e.XButton2 == MouseButtonState.Pressed && e.ChangedButton == MouseButton.XButton2)
-                SeeToPhraze(e);
+                MoveToPhraze(e);
 
             if (e.MiddleButton != MouseButtonState.Pressed)
                 return;
@@ -527,11 +527,11 @@ namespace NanoTrans
         {
             if ((Keyboard.Modifiers & ModifierKeys.Control) != 0)
             {
-                SeeToPhraze(e);
+                MoveToPhraze(e);
             }
         }
 
-        private void SeeToPhraze(MouseButtonEventArgs e)
+        private void MoveToPhraze(MouseButtonEventArgs e)
         {
             var t = editor.TextArea.TextView.GetPosition(e.GetPosition(editor));
             if (!t.HasValue)
