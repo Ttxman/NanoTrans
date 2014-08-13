@@ -45,7 +45,7 @@ namespace NanoTrans.Core
         public VirtualTypeList<TranscriptionSection> Sections;
 
 
-        #region serializtion 
+        #region serializtion
         public Dictionary<string, string> Elements = new Dictionary<string, string>();
         private static readonly XAttribute EmptyAttribute = new XAttribute("empty", "");
 
@@ -55,7 +55,7 @@ namespace NanoTrans.Core
             chap.name = c.Attribute("name").Value;
             chap.Elements = c.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
             chap.Elements.Remove("name");
-            foreach(var s in c.Elements(isStrict ? "section" : "se").Select(s => (TranscriptionElement)TranscriptionSection.DeserializeV2(s, isStrict)))
+            foreach (var s in c.Elements(isStrict ? "section" : "se").Select(s => (TranscriptionElement)TranscriptionSection.DeserializeV2(s, isStrict)))
                 chap.Add(s);
 
             return chap;
@@ -68,7 +68,7 @@ namespace NanoTrans.Core
             name = c.Attribute("name").Value;
             Elements = c.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
             Elements.Remove("name");
-            foreach(var s in c.Elements("se").Select(s => (TranscriptionElement)new TranscriptionSection(s)))
+            foreach (var s in c.Elements("se").Select(s => (TranscriptionElement)new TranscriptionSection(s)))
                 Add(s);
 
         }
@@ -150,6 +150,72 @@ namespace NanoTrans.Core
         public override string InnerText
         {
             get { return name + "\r\n" + string.Join("\r\n", Children.Select(c => c.Text)); }
+        }
+
+
+        public override TranscriptionElement this[TranscriptionIndex index]
+        {
+            get
+            {
+                ValidateIndexOrThrow(index);
+
+                if (index.IsSectionIndex)
+                {
+                    if (index.IsParagraphIndex)
+                        return Sections[index.Sectionindex][index];
+
+                    return Sections[index.Sectionindex];
+                }
+                
+                throw new IndexOutOfRangeException("index");
+            }
+            set
+            {
+                ValidateIndexOrThrow(index);
+
+                if (index.IsSectionIndex)
+                {
+                    if (index.IsParagraphIndex)
+                        Sections[index.Sectionindex][index] = value;
+                    else
+                        Sections[index.Sectionindex] = (TranscriptionSection)value;
+                }
+                else
+                    throw new IndexOutOfRangeException("index");
+
+            }
+        }
+
+        public override void RemoveAt(TranscriptionIndex index)
+        {
+            ValidateIndexOrThrow(index);
+            if (index.IsSectionIndex)
+            {
+                if (index.IsParagraphIndex)
+                    Sections[index.Sectionindex].RemoveAt(index);
+                else
+                    Sections.RemoveAt(index.ParagraphIndex);
+            }
+            else
+            {
+                throw new IndexOutOfRangeException("index");
+            }
+        }
+
+        public override void Insert(TranscriptionIndex index, TranscriptionElement value)
+        {
+            ValidateIndexOrThrow(index);
+            if (index.IsSectionIndex)
+            {
+                if (index.IsParagraphIndex)
+                    Sections[index.Sectionindex].Insert(index, value);
+                else
+                    Sections[index.Sectionindex] = (TranscriptionSection)value;
+            }
+            else
+            {
+                throw new IndexOutOfRangeException("index");
+            }
         }
     }
 

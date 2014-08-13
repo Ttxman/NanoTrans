@@ -65,7 +65,7 @@ namespace NanoTrans.Core
         public ParagraphAttributes DataAttributes = ParagraphAttributes.None;
 
 
-        public string Attributes
+        public string AttributeString
         {
             get
             {
@@ -193,7 +193,7 @@ namespace NanoTrans.Core
         {
             TranscriptionParagraph par = new TranscriptionParagraph();
             par._internalID = int.Parse(e.Attribute(isStrict ? "speakerid" : "s").Value);
-            par.Attributes = (e.Attribute(isStrict ? "attributes" : "a") ?? EmptyAttribute).Value;
+            par.AttributeString = (e.Attribute(isStrict ? "attributes" : "a") ?? EmptyAttribute).Value;
 
             par.Elements = e.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
             par.Elements.Remove(isStrict ? "begin" : "b");
@@ -205,7 +205,7 @@ namespace NanoTrans.Core
             e.Elements(isStrict ? "phrase" : "p").Select(p => (TranscriptionElement)TranscriptionPhrase.DeserializeV2(p, isStrict)).ToList().ForEach(p => par.Add(p)); ;
 
             if (e.Attribute(isStrict ? "attributes" : "a") != null)
-                par.Attributes = e.Attribute(isStrict ? "attributes" : "a").Value;
+                par.AttributeString = e.Attribute(isStrict ? "attributes" : "a").Value;
 
             if (e.Attribute(isStrict ? "begin" : "b") != null)
             {
@@ -248,7 +248,7 @@ namespace NanoTrans.Core
 
             Phrases = new VirtualTypeList<TranscriptionPhrase>(this);
             _internalID = int.Parse(e.Attribute( "s").Value);
-            Attributes = (e.Attribute( "a") ?? EmptyAttribute).Value;
+            AttributeString = (e.Attribute( "a") ?? EmptyAttribute).Value;
 
             Elements = e.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
 
@@ -259,7 +259,7 @@ namespace NanoTrans.Core
 
             string bfr;
             if (Elements.TryGetValue("a", out bfr))
-                this.Attributes = bfr;
+                this.AttributeString = bfr;
 
             if (Elements.TryGetValue("b", out bfr))
             {
@@ -311,7 +311,7 @@ namespace NanoTrans.Core
                 Elements.Select(e => new XAttribute(e.Key, e.Value)).Union(new[] { 
                     new XAttribute("b", Begin), 
                     new XAttribute("e", End), 
-                    new XAttribute("a", Attributes), 
+                    new XAttribute("a", AttributeString), 
                     new XAttribute("s", InternalID), //DO NOT use _speakerID,  it is not equivalent
                     new XAttribute("l", Language.ToLower()),
                 }),
@@ -371,35 +371,6 @@ namespace NanoTrans.Core
             this.trainingElement = false;
         }
 
-        /// <summary>
-        /// called when phraze is removed...
-        /// </summary>
-        /// <param name="element"></param>
-        /// <param name="absoluteindex"></param>
-        public override void ElementRemoved(TranscriptionElement element, int absoluteindex)
-        {
-            base.ElementChanged(this);
-        }
-        /// <summary>
-        /// called when phraze is inserted/added
-        /// </summary>
-        /// <param name="element"></param>
-        /// <param name="absoluteindex"></param>
-        public override void ElementInserted(TranscriptionElement element, int absoluteindex)
-        {
-            base.ElementChanged(this);
-        }
-
-        /// <summary>
-        /// called when phraze is replaced
-        /// </summary>
-        /// <param name="oldelement"></param>
-        /// <param name="newelement"></param>
-        public override void ElementReplaced(TranscriptionElement oldelement, TranscriptionElement newelement)
-        {
-            base.ElementChanged(this);
-        }
-
         public override int AbsoluteIndex
         {
             get
@@ -431,6 +402,43 @@ namespace NanoTrans.Core
         public override string InnerText
         {
             get { return Text; }
+        }
+
+        public override TranscriptionElement this[TranscriptionIndex index]
+        {
+            get
+            {
+                ValidateIndexOrThrow(index);
+                if(!index.IsPhraseIndex)
+                    throw new IndexOutOfRangeException("index");
+                return Phrases[index.PhraseIndex];
+            }
+            set
+            {
+                ValidateIndexOrThrow(index);
+                if (!index.IsPhraseIndex)
+                    throw new IndexOutOfRangeException("index");
+
+                Phrases[index.PhraseIndex] = (TranscriptionPhrase)value;
+            }
+        }
+
+        public override void RemoveAt(TranscriptionIndex index)
+        {
+            ValidateIndexOrThrow(index);
+            if (!index.IsPhraseIndex)
+                throw new IndexOutOfRangeException("index");
+
+            Phrases.RemoveAt(index.PhraseIndex);
+        }
+
+        public override void Insert(TranscriptionIndex index, TranscriptionElement value)
+        {
+            ValidateIndexOrThrow(index);
+            if (!index.IsPhraseIndex)
+                throw new IndexOutOfRangeException("index");
+
+            Phrases.Insert(index.PhraseIndex,(TranscriptionPhrase)value);
         }
     }
 

@@ -71,7 +71,7 @@ namespace NanoTrans.Core
             name = e.Attribute("name").Value;
             Elements = e.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
             Elements.Remove("name");
-            foreach(var p in e.Elements("pa").Select(p => (TranscriptionElement)new TranscriptionParagraph(p)))
+            foreach (var p in e.Elements("pa").Select(p => (TranscriptionElement)new TranscriptionParagraph(p)))
                 Add(p);
 
         }
@@ -139,7 +139,7 @@ namespace NanoTrans.Core
 
                 if (_Parent != null)
                 {
-                    
+
                     int sum = _Parent.AbsoluteIndex;//parent absolute index index
                     sum += _Parent.Children.Take(this.ParentIndex) //take previous siblings
                         .Sum(s => s.GetTotalChildrenCount()); //+ all pre siblings counts (index on sublayers)
@@ -148,7 +148,7 @@ namespace NanoTrans.Core
                     //... sum = all previous
 
                     sum++;//+1 - this
-                   // this.Text = sum.ToString();
+                    // this.Text = sum.ToString();
                     return sum;
 
                 }
@@ -159,9 +159,77 @@ namespace NanoTrans.Core
 
         public override string InnerText
         {
-            get 
+            get
             {
                 return name + "\r\n" + string.Join("\r\n", Children.Select(c => c.Text));
+            }
+        }
+
+
+        public override TranscriptionElement this[TranscriptionIndex index]
+        {
+            get
+            {
+                ValidateIndexOrThrow(index);
+
+                if (index.IsParagraphIndex)
+                {
+                    if (index.IsPhraseIndex)
+                        return Paragraphs[index.ParagraphIndex][index];
+
+                    return Paragraphs[index.ParagraphIndex];
+                }
+
+                throw new IndexOutOfRangeException("index");
+            }
+            set
+            {
+                ValidateIndexOrThrow(index);
+
+                if (index.IsParagraphIndex)
+                {
+                    if (index.IsPhraseIndex)
+                        Paragraphs[index.ParagraphIndex][index] = value;
+                    else
+                        Paragraphs[index.ParagraphIndex] = (TranscriptionParagraph)value;
+                }
+                else
+                {
+                    throw new IndexOutOfRangeException("index");
+                }
+
+            }
+        }
+
+        public override void RemoveAt(TranscriptionIndex index)
+        {
+            ValidateIndexOrThrow(index);
+            if (index.IsParagraphIndex)
+            {
+                if (index.IsPhraseIndex)
+                    Paragraphs[index.ParagraphIndex].RemoveAt(index);
+                else
+                    Paragraphs.RemoveAt(index.ParagraphIndex);
+            }
+            else
+            {
+                throw new IndexOutOfRangeException("index");
+            }
+        }
+
+        public override void Insert(TranscriptionIndex index, TranscriptionElement value)
+        {
+            ValidateIndexOrThrow(index);
+            if (index.IsParagraphIndex)
+            {
+                if (index.IsPhraseIndex)
+                    Paragraphs[index.ParagraphIndex].Insert(index,value);
+                else
+                    Paragraphs[index.ParagraphIndex] = (TranscriptionParagraph)value;
+            }
+            else
+            {
+                throw new IndexOutOfRangeException("index");
             }
         }
     }

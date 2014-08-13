@@ -1028,6 +1028,75 @@ namespace NanoTrans.Core
             throw new NotSupportedException();
         }
 
+
+        public override TranscriptionElement this[TranscriptionIndex index]
+        {
+            get
+            {
+                ValidateIndexOrThrow(index);
+
+                if (index.IsChapterIndex)
+                {
+                    if (index.IsSectionIndex)
+                        return Chapters[index.Sectionindex][index];
+
+                    return Chapters[index.Sectionindex];
+                }
+
+                throw new IndexOutOfRangeException("index");
+            }
+            set
+            {
+                ValidateIndexOrThrow(index);
+
+                if (index.IsChapterIndex)
+                {
+                    if (index.IsSectionIndex)
+                        Chapters[index.Sectionindex][index] = value;
+                    else
+                        Chapters[index.Sectionindex] = (TranscriptionChapter)value;
+                }
+                else
+                    throw new IndexOutOfRangeException("index");
+
+            }
+
+        }
+
+
+        public override void RemoveAt(TranscriptionIndex index)
+        {
+            ValidateIndexOrThrow(index);
+            if (index.IsChapterIndex)
+            {
+                if (index.IsSectionIndex)
+                    Chapters[index.Chapterindex].RemoveAt(index);
+                else
+                    Chapters.RemoveAt(index.Chapterindex);
+            }
+            else
+            {
+                throw new IndexOutOfRangeException("index");
+            }
+        }
+
+        public override void Insert(TranscriptionIndex index, TranscriptionElement value)
+        {
+            ValidateIndexOrThrow(index);
+            if (index.IsChapterIndex)
+            {
+                if (index.IsSectionIndex)
+                    Chapters[index.Chapterindex].Insert(index, value);
+                else
+                    Chapters[index.Chapterindex] = (TranscriptionChapter)value;
+            }
+            else
+            {
+                throw new IndexOutOfRangeException("index");
+            }
+        }
+
+
         public override TranscriptionElement this[int index]
         {
             get
@@ -1071,10 +1140,10 @@ namespace NanoTrans.Core
 
         public override void Add(TranscriptionElement item)
         {
+           
             if (item is TranscriptionChapter)
             {
                 base.Add(item);
-                this.ChildrenCountChanged(ChangedAction.Add);
             }
             else if (item is TranscriptionSection)
             {
@@ -1177,7 +1246,7 @@ namespace NanoTrans.Core
         public event Action SubtitlesChanged;
 
 
-        public override void ChildrenCountChanged(ChangedAction action)
+        public override void OnContentChanged(ChangeAction[] actions)
         {
             if (SubtitlesChanged != null)
                 SubtitlesChanged();
@@ -1207,26 +1276,6 @@ namespace NanoTrans.Core
             }
         }
 
-
-        public override void ElementChanged(TranscriptionElement element)
-        {
-
-        }
-
-        public override void ElementReplaced(TranscriptionElement oldelement, TranscriptionElement newelement)
-        {
-
-        }
-
-        public override void ElementInserted(TranscriptionElement element, int absoluteindex)
-        {
-
-        }
-
-        public override void ElementRemoved(TranscriptionElement element, int absoluteindex)
-        {
-
-        }
 
         public override int AbsoluteIndex
         {

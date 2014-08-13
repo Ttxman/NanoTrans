@@ -174,34 +174,16 @@ namespace NanoTrans.Core
             return 0;
         }
 
-        public override void ChildrenCountChanged(ChangedAction action)
+        public override void OnContentChanged(ChangeAction[] actions)
         {
 
-        }
-
-        public override void ElementChanged(TranscriptionElement element)
-        {
-
-        }
-
-        public override void ElementReplaced(TranscriptionElement oldelement, TranscriptionElement newelement)
-        {
-
-        }
-
-        public override void ElementInserted(TranscriptionElement element, int absoluteindex)
-        {
-        }
-
-        public override void ElementRemoved(TranscriptionElement element, int absoluteindex)
-        {
         }
 
         public override int AbsoluteIndex
         {
             get 
             {
-                return 0;
+                return -1;
             }
         }
 
@@ -248,6 +230,28 @@ namespace NanoTrans.Core
             {
                 return Text;
             }
+        }
+
+        public override TranscriptionElement this[TranscriptionIndex index]
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public override void RemoveAt(TranscriptionIndex index)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Insert(TranscriptionIndex index, TranscriptionElement value)
+        {
+            throw new NotImplementedException();
         }
     }
 
