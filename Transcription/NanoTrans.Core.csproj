@@ -42,6 +42,7 @@
     <Compile Include="ChangedAction.cs" />
     <Compile Include="DBMerge.cs" />
     <Compile Include="DBType.cs" />
+    <Compile Include="TranscriptionIndex.cs" />
     <Compile Include="NanoTransSerializationException.cs" />
     <Compile Include="Speaker.cs" />
     <Compile Include="ElementType.cs" />
