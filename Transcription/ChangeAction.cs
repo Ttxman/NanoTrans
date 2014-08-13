@@ -9,7 +9,7 @@ namespace NanoTrans.Core
     /// <summary>
     /// Base class for structure change events and Undo
     /// </summary>
-    public abstract class ChangedAction
+    public abstract class ChangeAction
     {
         private ChangeType _changeType;
         public ChangeType ChangeType
@@ -32,7 +32,7 @@ namespace NanoTrans.Core
             set { _changeTranscriptionIndex = value; }
         }
 
-        public ChangedAction(ChangeType changeType, TranscriptionElement changedElement, TranscriptionIndex changeIndex, int changeAbsoluteIndex)
+        public ChangeAction(ChangeType changeType, TranscriptionElement changedElement, TranscriptionIndex changeIndex, int changeAbsoluteIndex)
         {
             _changeType = changeType;
             _changedElement = changedElement;
@@ -46,7 +46,7 @@ namespace NanoTrans.Core
     }
 
 
-    public class InsertAction:ChangedAction
+    public class InsertAction:ChangeAction
     {
 
         public InsertAction(TranscriptionElement changedElement, TranscriptionIndex changeIndex, int changeAbsoluteIndex)
@@ -62,7 +62,7 @@ namespace NanoTrans.Core
     }
 
 
-    public class RemoveAction : ChangedAction
+    public class RemoveAction : ChangeAction
     {
 
         public RemoveAction(TranscriptionElement changedElement, TranscriptionIndex changeIndex, int changeAbsoluteIndex)
@@ -78,7 +78,7 @@ namespace NanoTrans.Core
     }
 
 
-    public class ReplaceAction : ChangedAction
+    public class ReplaceAction : ChangeAction
     {
 
         public ReplaceAction(TranscriptionElement changedElement, TranscriptionIndex changeIndex, int changeAbsoluteIndex)
@@ -94,7 +94,7 @@ namespace NanoTrans.Core
     }
 
 
-    public class ParagraphSpeakerAction : ChangedAction
+    public class ParagraphSpeakerAction : ChangeAction
     {
         Speaker _oldSpeaker;
 
@@ -116,7 +116,7 @@ namespace NanoTrans.Core
     }
 
 
-    public class ParagraphAttibutesAction : ChangedAction
+    public class ParagraphAttibutesAction : ChangeAction
     {
         public ParagraphAttibutesAction(TranscriptionParagraph changedParagraph, TranscriptionIndex changeIndex,int changeAbsoluteIndex, ParagraphAttributes oldAttributes)
             : base(ChangeType.Replace, changedParagraph, changeIndex, changeAbsoluteIndex)
@@ -138,7 +138,7 @@ namespace NanoTrans.Core
     }
 
 
-    public class BeginAction : ChangedAction
+    public class BeginAction : ChangeAction
     {
         public BeginAction(TranscriptionElement changedElement, TranscriptionIndex changeIndex, int changeAbsoluteIndex, TimeSpan oldtime)
             : base(ChangeType.Replace, changedElement, changeIndex,changeAbsoluteIndex)
@@ -160,7 +160,7 @@ namespace NanoTrans.Core
     }
 
 
-    public class EndAction : ChangedAction
+    public class EndAction : ChangeAction
     {
         public EndAction(TranscriptionElement changedelement, TranscriptionIndex changeIndex, int changeAbsoluteIndex, TimeSpan oldtime)
             : base(ChangeType.Replace, changedelement, changeIndex, changeAbsoluteIndex)
