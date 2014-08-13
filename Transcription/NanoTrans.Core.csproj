@@ -39,7 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ChangedAction.cs" />
+    <Compile Include="ChangeAction.cs" />
     <Compile Include="DBMerge.cs" />
     <Compile Include="DBType.cs" />
     <Compile Include="TranscriptionIndex.cs" />
