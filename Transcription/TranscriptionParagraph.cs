@@ -144,13 +144,6 @@ namespace NanoTrans.Core
             }
         }
 
-
-        public void SilentEndUpdate()
-        {
-            _updated = false;
-            EndUpdate();
-        }
-
         private int _internalID = Speaker.DefaultID;
 
         /// <summary>

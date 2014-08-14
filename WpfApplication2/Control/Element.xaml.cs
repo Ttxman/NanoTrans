@@ -1079,7 +1079,6 @@ namespace NanoTrans
                     var phr = new TranscriptionPhrase() { Text = text };
                     par.BeginUpdate();
                     par.Phrases.Add(phr);
-                    par.SilentEndUpdate();
                 }
             }
         }
