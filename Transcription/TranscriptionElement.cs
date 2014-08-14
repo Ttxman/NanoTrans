@@ -120,7 +120,7 @@ namespace NanoTrans.Core
 
         public TranscriptionElement()
         {
-            _vChildren = new VirtualTypeList<TranscriptionElement>(this,_children);
+            _vChildren = new VirtualTypeList<TranscriptionElement>(this, _children);
         }
 
         public virtual TranscriptionElement this[int index]
@@ -180,7 +180,7 @@ namespace NanoTrans.Core
         }
 
 
-        protected readonly List<TranscriptionElement>  _children = new List<TranscriptionElement>();
+        protected readonly List<TranscriptionElement> _children = new List<TranscriptionElement>();
 
 
         private VirtualTypeList<TranscriptionElement> _vChildren;
@@ -272,7 +272,7 @@ namespace NanoTrans.Core
                 _children[i]._ParentIndex = i;
             }
 
-            OnContentChanged(new RemoveAction(c,ci,ca));
+            OnContentChanged(new RemoveAction(c, ci, ca));
 
         }
 
@@ -500,7 +500,7 @@ namespace NanoTrans.Core
         /// <returns>false, when change should not be processed (for example after BeginUpdate)</returns>
         public virtual bool OnContentChanged(params ChangeAction[] actions)
         {
-            if (_Updating<=0)
+            if (_Updating <= 0)
             {
                 if (ContentChanged != null)
                     ContentChanged(this, new TranscriptionElementChangedEventArgs(actions));
@@ -510,7 +510,8 @@ namespace NanoTrans.Core
             }
             else
             {
-                _changes.AddRange(actions);
+                if (_logUpdates)
+                    _changes.AddRange(actions);
                 _updated = true;
                 return false;
             }
@@ -530,6 +531,7 @@ namespace NanoTrans.Core
         }
 
 
+
         private int _Updating = 0;
 
         public bool Updating
@@ -537,14 +539,25 @@ namespace NanoTrans.Core
             get { return _Updating > 0; }
         }
         private bool _updated = false;
-
+        private bool _logUpdates = true;
         /// <summary>
         /// Stop Bubbling changes through OnContentChanged() anc ContentChanged event and acumulate changes until EndUpdate is called
         /// </summary>
         public void BeginUpdate()
         {
+            BeginUpdate(true);
+        }
+
+        private void BeginUpdate(bool logupdates)
+        {
+            if (_Updating <= 0)
+            {
+                _logUpdates = logupdates;
+
+                _changes = new List<ChangeAction>();
+            }
             _Updating++;
-            _changes = new List<ChangeAction>();
+
         }
 
         /// <summary>
