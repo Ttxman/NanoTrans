@@ -500,7 +500,7 @@ namespace NanoTrans.Core
         /// <returns>false, when change should not be processed (for example after BeginUpdate)</returns>
         public virtual bool OnContentChanged(params ChangeAction[] actions)
         {
-            if (!_Updating)
+            if (_Updating<=0)
             {
                 if (ContentChanged != null)
                     ContentChanged(this, new TranscriptionElementChangedEventArgs(actions));
@@ -530,15 +530,20 @@ namespace NanoTrans.Core
         }
 
 
-        private bool _Updating = false;
-        protected bool _updated = false;
+        private int _Updating = 0;
+
+        public bool Updating
+        {
+            get { return _Updating > 0; }
+        }
+        private bool _updated = false;
 
         /// <summary>
         /// Stop Bubbling changes through OnContentChanged() anc ContentChanged event and acumulate changes until EndUpdate is called
         /// </summary>
         public void BeginUpdate()
         {
-            _Updating = true;
+            _Updating++;
             _changes = new List<ChangeAction>();
         }
 
@@ -547,7 +552,10 @@ namespace NanoTrans.Core
         /// </summary>
         public void EndUpdate()
         {
-            _Updating = false;
+            _Updating--;
+            if (_Updating > 0)
+                return;
+
             if (_updated)
                 OnContentChanged(_changes.ToArray());
             _changes = null;

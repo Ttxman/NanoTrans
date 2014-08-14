@@ -23,8 +23,7 @@ namespace NanoTrans
             var t = new WPFTranscription();
             Transcription.Deserialize(path, t);
             t.IsOnline = t.Elements.ContainsKey("Online") && t.Elements["Online"] == "True";
-            t._UndoStack.Clear();
-            t._RedoStack.Clear();
+            t.ClearUndo();
 
             return t;
         }
@@ -34,15 +33,13 @@ namespace NanoTrans
             var t = new WPFTranscription();
             Transcription.Deserialize(stream, t);
             t.IsOnline = t.Elements.ContainsKey("Online") && t.Elements["Online"] == "True";
-            t._UndoStack.Clear();
-            t._RedoStack.Clear();
+            t.ClearUndo();
             return t;
         }
         public WPFTranscription(string filename)
             : base(filename)
         {
-            _UndoStack.Clear();
-            _RedoStack.Clear();
+            ClearUndo();
         }
 
         public WPFTranscription()
@@ -123,6 +120,13 @@ namespace NanoTrans
             }
         }
 
+
+        public void ClearUndo()
+        {
+            _UndoStack.Clear();
+            _RedoStack.Clear();
+        }
+
         public NotifyCollectionChangedAction MapEvent(ChangeType action)
         {
             switch (action)
@@ -186,6 +190,7 @@ namespace NanoTrans
         public event PropertyChangedEventHandler PropertyChanged;
 
         public OnlineAPI.SpeakersApi Api { get; set; }
+
 
     }
 }

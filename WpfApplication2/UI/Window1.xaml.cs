@@ -526,6 +526,7 @@ namespace NanoTrans
                 return false;
 
             var source = new WPFTranscription();
+            source.BeginUpdate();
             var c = new TranscriptionChapter(Properties.Strings.DefaultChapterText);
             var s = new TranscriptionSection(Properties.Strings.DefaultSectionText);
             var p = new TranscriptionParagraph();
@@ -539,6 +540,8 @@ namespace NanoTrans
             VirtualizingListBox.ActiveTransctiption = p;
 
             TranscriptionList.Clear();
+            source.ClearUndo();
+            source.BeginUpdate();
 
             return true;
         }
