@@ -1,4 +1,4 @@
-﻿<Window x:Class="NanoTrans.Window1"
+﻿<Window
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:NanoTrans"
@@ -6,6 +6,7 @@
     xmlns:props="clr-namespace:NanoTrans.Properties"
         
         xmlns:lex="http://wpflocalizeextension.codeplex.com"
+    xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d" x:Class="NanoTrans.Window1"
         lex:LocalizeDictionary.DesignCulture="cs"
         lex:LocalizeDictionary.IncludeInvariantCulture="False"
         lex:ResxLocalizationProvider.DefaultAssembly="NanoTrans"
@@ -13,7 +14,7 @@
         
     Title="NanoTrans" Height="758" Width="867" Closing="Window_Closing"
     ResizeMode="CanResizeWithGrip" Loaded="Window_Loaded" WindowStartupLocation="CenterScreen" PreviewKeyUp="Window_PreviewKeyUp" Icon="../icons/pen.ico" IsEnabled="True" AllowDrop="True" Drop="Window_Drop"
-    xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase" MouseDown="Window_MouseDown"
+    MouseDown="Window_MouseDown"
     Name="window"
         DataContext="{Binding RelativeSource={RelativeSource Self}}"
         >
@@ -33,39 +34,39 @@
         <StackPanel Orientation="Vertical" Grid.ColumnSpan="2" Grid.Row="0">
             <Menu Name="menu1" Height="22" VerticalAlignment="Top" HorizontalAlignment="Stretch">
                 <MenuItem Header="{lex:Loc}" Focusable="True" Tag="10" Name="menuFile">
-                    <MenuItem Header="{lex:Loc}" InputGestureText="Ctrl+N" Click="MFile_new_Click" Name="menuFileNewTranscription"  Visibility="{Binding Source={x:Static props:Settings.Default}, Path=FeatureEnabler.LocalEdit, Converter={StaticResource visConverter}}">
+                    <MenuItem Header="{lex:Loc}" InputGestureText="Ctrl+N" Click="MFile_new_Click" Name="menuFileNewTranscription"  Visibility="{Binding FeatureEnabler.LocalEdit, Converter={StaticResource visConverter}, Source={x:Static props:Settings.Default}}">
                         <MenuItem.Icon>
                             <Image Source="/icons/iNovy.png"/>
                         </MenuItem.Icon>
                     </MenuItem>
 
-                    <MenuItem Header="{lex:Loc}" InputGestureText="Ctrl+O" Name="menuFileOpenTranscription" Click="MFile_open_Click" Visibility="{Binding Source={x:Static props:Settings.Default}, Path=FeatureEnabler.LocalEdit, Converter={StaticResource visConverter}}">
+                    <MenuItem Header="{lex:Loc}" InputGestureText="Ctrl+O" Name="menuFileOpenTranscription" Click="MFile_open_Click" Visibility="{Binding FeatureEnabler.LocalEdit, Converter={StaticResource visConverter}, Source={x:Static props:Settings.Default}}">
                         <MenuItem.Icon>
                             <Image Source="/icons/iOtevrit.png"/>
                         </MenuItem.Icon>
                     </MenuItem>
-                    <Separator Visibility="{Binding Source={x:Static props:Settings.Default}, Path=FeatureEnabler.LocalEdit, Converter={StaticResource visConverter}}"/>
+                    <Separator Visibility="{Binding FeatureEnabler.LocalEdit, Converter={StaticResource visConverter}, Source={x:Static props:Settings.Default}}"/>
                     <MenuItem Header="{lex:Loc}" InputGestureText="Ctrl+S" Click="MFile_save_Click" Name="menuFileSave">
                         <MenuItem.Icon>
                             <Image Source="/icons/iUlozit.png"/>
                         </MenuItem.Icon>
                     </MenuItem>
-                    <MenuItem Header="{lex:Loc}" Click="MFile_save_as_Click" Name="menuFileSaveAs" Visibility="{Binding Source={x:Static props:Settings.Default}, Path=FeatureEnabler.LocalEdit, Converter={StaticResource visConverter}}" />
-                    <Separator Visibility="{Binding Source={x:Static props:Settings.Default}, Path=FeatureEnabler.Export, Converter={StaticResource visConverter}}"/>
-                    <MenuItem Header="{lex:Loc}" Name="menufileExport" Click="menuFileExport_Click" Visibility="{Binding Source={x:Static props:Settings.Default}, Path=FeatureEnabler.Export, Converter={StaticResource visConverter}}"/>
+                    <MenuItem Header="{lex:Loc}" Click="MFile_save_as_Click" Name="menuFileSaveAs" Visibility="{Binding FeatureEnabler.LocalEdit, Converter={StaticResource visConverter}, Source={x:Static props:Settings.Default}}" />
+                    <Separator Visibility="{Binding FeatureEnabler.Export, Converter={StaticResource visConverter}, Source={x:Static props:Settings.Default}}"/>
+                    <MenuItem Header="{lex:Loc}" Name="menufileExport" Click="menuFileExport_Click" Visibility="{Binding FeatureEnabler.Export, Converter={StaticResource visConverter}, Source={x:Static props:Settings.Default}}"/>
 
-                    <MenuItem Header="{lex:Loc}" Name="menuFileImport" Click="menuFileImport_Click" Visibility="{Binding Source={x:Static props:Settings.Default}, Path=FeatureEnabler.LocalEdit, Converter={StaticResource visConverter}}"/>
-                    <MenuItem Header="{lex:Loc}" Click="MFile_open_audio_Click" Name="menufileOpenAudio" Visibility="{Binding Source={x:Static props:Settings.Default}, Path=FeatureEnabler.AudioManipulation, Converter={StaticResource visConverter}}">
+                    <MenuItem Header="{lex:Loc}" Name="menuFileImport" Click="menuFileImport_Click" Visibility="{Binding FeatureEnabler.LocalEdit, Converter={StaticResource visConverter}, Source={x:Static props:Settings.Default}}"/>
+                    <MenuItem Header="{lex:Loc}" Click="MFile_open_audio_Click" Name="menufileOpenAudio" Visibility="{Binding FeatureEnabler.AudioManipulation, Converter={StaticResource visConverter}, Source={x:Static props:Settings.Default}}">
                         <MenuItem.Icon>
                             <Image Source="/icons/iAudio.png"/>
                         </MenuItem.Icon>
                     </MenuItem>
-                    <MenuItem Header="{lex:Loc}" Click="Mfile_open_video_Click" Name="menuFileOpenVideo" Visibility="{Binding Source={x:Static props:Settings.Default}, Path=FeatureEnabler.VideoFrame, Converter={StaticResource visConverter}}"/>
+                    <MenuItem Header="{lex:Loc}" Click="Mfile_open_video_Click" Name="menuFileOpenVideo" Visibility="{Binding FeatureEnabler.VideoFrame, Converter={StaticResource visConverter}, Source={x:Static props:Settings.Default}}"/>
 
                     <Separator />
                     <MenuItem Header="{lex:Loc}" Click="MFile_close_Click" Name="menuFileExit" />
                 </MenuItem>
-                <MenuItem Header="{lex:Loc}" Name="menuEdit" Visibility="{Binding Source={x:Static props:Settings.Default}, Path=FeatureEnabler.ChaptersAndSections, Converter={StaticResource visConverter}}">
+                <MenuItem Header="{lex:Loc}" Name="menuEdit" Visibility="{Binding FeatureEnabler.ChaptersAndSections, Converter={StaticResource visConverter}, Source={x:Static props:Settings.Default}}">
                     <MenuItem Header="{lex:Loc}" InputGestureText="F4"  Click="MEdit_new_chapter_Click" Name="menuEditNewChapter" />
                     <MenuItem Header="{lex:Loc}" InputGestureText="F5" Click="MEdit_New_Section_Click" Name="menuEditNewSection" />
                     <Separator />
@@ -80,11 +81,11 @@
                             <Image Source="/icons/iMluvci1.png"/>
                         </MenuItem.Icon>
                     </MenuItem>
-                    <MenuItem Header="{lex:Loc}" Name="menuToolsFonetics" Visibility="{Binding Source={x:Static props:Settings.Default}, Path=FeatureEnabler.PhoneticEditation, Converter={StaticResource visConverter}}">
+                    <MenuItem Header="{lex:Loc}" Name="menuToolsFonetics" Visibility="{Binding FeatureEnabler.PhoneticEditation, Converter={StaticResource visConverter}, Source={x:Static props:Settings.Default}}">
                         <MenuItem Header="Zobrazit fonetický přepis" Click="menuItemShowPanelFoneticTranscription_Click" Name="menuToolsFoneticsShow" />
                     </MenuItem>
 
-                    <MenuItem Header="{lex:Loc}" Name="menuToolsVideo" Visibility="{Binding Source={x:Static props:Settings.Default}, Path=FeatureEnabler.VideoFrame, Converter={StaticResource visConverter}}">
+                    <MenuItem Header="{lex:Loc}" Name="menuToolsVideo" Visibility="{Binding FeatureEnabler.VideoFrame, Converter={StaticResource visConverter}, Source={x:Static props:Settings.Default}}">
                         <MenuItem Header="{lex:Loc}" Click="menuToolsShowVideoFrame_Click" Name="menuToolsVideoShow"/>
                     </MenuItem>
 
@@ -103,7 +104,7 @@
                             <Image Source="/icons/iTip.png"/>
                         </MenuItem.Icon>
                     </MenuItem>
-                    <Separator></Separator>
+                    <Separator/>
                     <MenuItem Header="{lex:Loc}" InputGestureText="Ctrl+F1" Click="MHelp_about_Click" Name="menuHelpAbout" />
                 </MenuItem>
             </Menu>
@@ -111,12 +112,13 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition/>
+                    <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
                 <ToolBarTray Grid.Column="0" Name="toolBarTray2">
                     <ToolBarTray.Resources>
                         <Style TargetType="{x:Type Button}" x:Key="{x:Static ToolBar.ButtonStyleKey}">
                             <Style.Resources>
-                                <Style TargetType="Image">
+                                <Style TargetType="{x:Type Image}">
                                     <Style.Triggers>
                                         <Trigger Property="IsEnabled" Value="False">
                                             <Setter Property="Opacity" Value="0.5" />
@@ -126,24 +128,24 @@
                             </Style.Resources>
                         </Style>
                     </ToolBarTray.Resources>
-                    <ToolBar Name="toolBarNSE" VerticalAlignment="Top" HorizontalAlignment="Left" Loaded="toolBar1_Loaded" BandIndex="0" Visibility="{Binding Source={x:Static props:Settings.Default}, Path=FeatureEnabler.NonSpeechEvents, Converter={StaticResource visConverter}}"></ToolBar>
+                    <ToolBar Name="toolBarNSE" VerticalAlignment="Top" HorizontalAlignment="Left" Loaded="toolBar1_Loaded" BandIndex="0" Visibility="{Binding FeatureEnabler.NonSpeechEvents, Converter={StaticResource visConverter}, Source={x:Static props:Settings.Default}}"/>
                     <ToolBar BandIndex="1" Name="toolbarAdditional">
-                        <Button Click="Button_Click_2" VerticalAlignment="Stretch" ToolTip="{lex:Loc Key=mainWindowOpenSpeakerSynchronizerTooltip}" Visibility="{Binding Source={x:Static props:Settings.Default}, Path=FeatureEnabler.DbMerging, Converter={StaticResource visConverter}}">
+                        <Button Click="Button_Click_2" VerticalAlignment="Stretch" ToolTip="{lex:Loc Key=mainWindowOpenSpeakerSynchronizerTooltip}" Visibility="{Binding FeatureEnabler.DbMerging, Converter={StaticResource visConverter}, Source={x:Static props:Settings.Default}}">
                             <Image Source="/icons/join.png" Width="16" Height="16"/>
                         </Button>
-                        <ToggleButton Name="Button_HideNSE" VerticalAlignment="Stretch" Click="Button_HideNSE_Click" ClickMode="Press" Visibility="{Binding Source={x:Static props:Settings.Default}, Path=FeatureEnabler.NonSpeechEvents, Converter={StaticResource visConverter}}">
+                        <ToggleButton Name="Button_HideNSE" VerticalAlignment="Stretch" Click="Button_HideNSE_Click" ClickMode="Press" Visibility="{Binding FeatureEnabler.NonSpeechEvents, Converter={StaticResource visConverter}, Source={x:Static props:Settings.Default}}">
                             <Image Source="/icons/HideNSE.png" Width="16" Height="16" ToolTip="{lex:Loc Key=mainWindowHideNonSpeechEventsTooltip}"/>
                         </ToggleButton>
                     </ToolBar>
-                    <ToolBar Name="toolbarQuickNavigation" BandIndex="2" Visibility="{Binding Source={x:Static props:Settings.Default}, Path=FeatureEnabler.QuickNavigation, Converter={StaticResource visConverter}}">
-                        <Button VerticalAlignment="Stretch" DataContext="{Binding ElementName=window}" IsEnabled="{Binding ElementName=window, Path=IsPreviousTranscriptionAvailable}" Click="Button_Click_1">
+                    <ToolBar Name="toolbarQuickNavigation" BandIndex="2" Visibility="{Binding FeatureEnabler.QuickNavigation, Converter={StaticResource visConverter}, Source={x:Static props:Settings.Default}}">
+                        <Button VerticalAlignment="Stretch" DataContext="{Binding ElementName=window}" IsEnabled="{Binding IsPreviousTranscriptionAvailable, ElementName=window}" Click="Button_Click_1">
                             <Button.ToolTip>
                                 <ToolTip>
                                     <TextBlock>
                                         <TextBlock.Text>
                                             <MultiBinding StringFormat="{}{0}: {1}">
-                                                <lex:BLoc Key="NanoTrans:Strings:mainWindowPreviousTranscriptionTooltip"></lex:BLoc>
-                                                <Binding Path="PlacementTarget.DataContext.PreviousTranscriptionName" RelativeSource="{RelativeSource AncestorType={x:Type ToolTip}}"></Binding>
+                                                <lex:BLoc Key="NanoTrans:Strings:mainWindowPreviousTranscriptionTooltip"/>
+                                                <Binding Path="PlacementTarget.DataContext.PreviousTranscriptionName" RelativeSource="{RelativeSource AncestorType={x:Type ToolTip}}"/>
                                             </MultiBinding>
                                         </TextBlock.Text>
                                     </TextBlock>
@@ -151,14 +153,14 @@
                             </Button.ToolTip>
                             <Image Source="/icons/direction_left.png" Width="16" Height="16"/>
                         </Button>
-                        <Button VerticalAlignment="Stretch" DataContext="{Binding ElementName=window}" IsEnabled="{Binding ElementName=window, Path=IsNextTranscriptionAvailable}" Click="Button_Click_3">
+                        <Button VerticalAlignment="Stretch" DataContext="{Binding ElementName=window}" IsEnabled="{Binding IsNextTranscriptionAvailable, ElementName=window}" Click="Button_Click_3">
                             <Button.ToolTip>
                                 <ToolTip>
                                     <TextBlock>
                                         <TextBlock.Text>
                                             <MultiBinding StringFormat="{}{0}: {1}">
-                                                <lex:BLoc Key="NanoTrans:Strings:mainWindowNextTranscriptionTooltip"></lex:BLoc>
-                                                <Binding Path="PlacementTarget.DataContext.NextTranscriptionName" RelativeSource="{RelativeSource AncestorType={x:Type ToolTip}}"></Binding>
+                                                <lex:BLoc Key="NanoTrans:Strings:mainWindowNextTranscriptionTooltip"/>
+                                                <Binding Path="PlacementTarget.DataContext.NextTranscriptionName" RelativeSource="{RelativeSource AncestorType={x:Type ToolTip}}"/>
                                             </MultiBinding>
                                         </TextBlock.Text>
                                     </TextBlock>
@@ -166,11 +168,11 @@
                             </Button.ToolTip>
                             <Image Source="/icons/direction_right.png" Width="16" Height="16"/>
                         </Button>
-                        <ComboBox MaxWidth="300" ItemsSource="{Binding ElementName=window, Path=TranscriptionList}" SelectedIndex="{Binding ElementName=window, Path=TranscriptionIndex}" SelectionChanged="ComboBox_SelectionChanged"></ComboBox>
+                        <ComboBox MaxWidth="300" ItemsSource="{Binding TranscriptionList, ElementName=window}" SelectedIndex="{Binding TranscriptionIndex, ElementName=window}" SelectionChanged="ComboBox_SelectionChanged"/>
                     </ToolBar>
                 </ToolBarTray>
 
-                <Border HorizontalAlignment="Left" Grid.Column="1" Visibility="{Binding Source={x:Static props:Settings.Default}, Path=FeatureEnabler.QuickExport, Converter={StaticResource visConverter}}">
+                <Border HorizontalAlignment="Left" Grid.Column="1" Visibility="{Binding FeatureEnabler.QuickExport, Converter={StaticResource visConverter}, Source={x:Static props:Settings.Default}}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="auto"/>
@@ -181,8 +183,15 @@
                         <Label Content="{lex:Loc Key=SavePathName}" Grid.Column="0"/>
                         <TextBlock VerticalAlignment="Center" Name="tbQuickSavePath" TextTrimming="CharacterEllipsis" Grid.Column="1"/>
                         <TextBlock VerticalAlignment="Center" Name="tbQuickSaveName" TextTrimming="CharacterEllipsis" Grid.Column="2"/>
-                        <Button Click="Button_Click_4" ToolBar.OverflowMode="Never" Grid.Column="3">sp</Button>
+                        <Button Click="Button_Click_4" ToolBar.OverflowMode="Never" Grid.Column="3" Content="sp"/>
                     </Grid>
+                </Border>
+
+                <Border HorizontalAlignment="Left" Grid.Column="2">
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="&lt;-" Name="button_back" Click="button_back_Click"/>
+                        <Button Content="&gt;-" Name="button_forward" Click="button_forward_Click"/>
+                    </StackPanel>
                 </Border>
             </Grid>
         </StackPanel>
@@ -190,9 +199,9 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="auto" />
-                <ColumnDefinition Width="{Binding Source={x:Static props:Settings.Default}, Path=VideoPanelWidth, Converter={StaticResource gridlConverter}, Mode=TwoWay}" />
+                <ColumnDefinition Width="{Binding VideoPanelWidth, Converter={StaticResource gridlConverter}, Mode=TwoWay, Source={x:Static props:Settings.Default}}" />
             </Grid.ColumnDefinitions>
-            <local:SubtitlesVizualizer Grid.Column="0" x:Name="VirtualizingListBox" Background="#FF7DAF7D" ClipToBounds="False" Transcription="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:Window1}},Path=Transcription}" ChangeSpeaker="VirtualizingListBox_ChangeSpeaker" SelectedElementChanged="VirtualizingListBox_SelectedElementChanged" SetTimeRequest="VirtualizingListBox_SetTimeRequest">
+            <local:SubtitlesVizualizer Grid.Column="0" x:Name="VirtualizingListBox" Background="#FF7DAF7D" ClipToBounds="False" Transcription="{Binding Transcription, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:Window1}}}" ChangeSpeaker="VirtualizingListBox_ChangeSpeaker" SelectedElementChanged="VirtualizingListBox_SelectedElementChanged" SetTimeRequest="VirtualizingListBox_SetTimeRequest">
                 <local:SubtitlesVizualizer.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="{lex:BLoc Key=NanoTrans:Strings:TranscriptionContextMenuSetSpeaker}" InputGestureText="Ctrl+M" Click="menuItemX_SetSpeaker_Click"/>
@@ -210,17 +219,17 @@
                         <Separator />
                         <MenuItem Header="{lex:BLoc Key=NanoTrans:Strings:ContextMenuLanguageHeader}" ItemsSource="{x:Static core:Speaker.Langs}">
                             <MenuItem.ItemContainerStyle>
-                                <Style TargetType="MenuItem">
+                                <Style TargetType="{x:Type MenuItem}">
                                     <Setter Property="Header" Value="{Binding}"/>
-                                    <EventSetter Event="Click" Handler="MenuItemLanguage_Click"/>
+                                    <EventSetter Event="MenuItem.Click" Handler="MenuItemLanguage_Click"/>
                                 </Style>
                             </MenuItem.ItemContainerStyle>
                         </MenuItem>
                     </ContextMenu>
                 </local:SubtitlesVizualizer.ContextMenu>
             </local:SubtitlesVizualizer>
-            <GridSplitter Grid.Column="1" Width="5" ResizeBehavior="PreviousAndNext" Focusable="False" IsTabStop="False" ShowsPreview="True" Visibility="{Binding ElementName=infoPanels, Path=Visibility}"/>
-            <TabControl Grid.Column="2" Name="infoPanels" SelectedIndex="0" Focusable="False" Visibility="{Binding Source={x:Static props:Settings.Default}, Path=VideoPanelVisible, Converter={StaticResource visConverter}}">
+            <GridSplitter Grid.Column="1" Width="5" ResizeBehavior="PreviousAndNext" Focusable="False" IsTabStop="False" ShowsPreview="True" Visibility="{Binding Visibility, ElementName=infoPanels}"/>
+            <TabControl Grid.Column="2" Name="infoPanels" SelectedIndex="0" Focusable="False" Visibility="{Binding VideoPanelVisible, Converter={StaticResource visConverter}, Source={x:Static props:Settings.Default}}">
                 <TabItem Name="infoPanelsVideo">
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
@@ -247,9 +256,9 @@
                             <MediaElement Name="meVideo" LoadedBehavior="Manual" Stretch="Uniform" IsMuted="True" />
                         </Grid>
 
-                        <Button Height="20" Margin="0,2,0,0" Name="btCloseVideo" VerticalAlignment="Top" Padding="0,0,1,1" Click="btCloseVideo_Click" HorizontalAlignment="Right" Width="20" Focusable="False" IsTabStop="False" Grid.Column="1">X</Button>
+                        <Button Height="20" Margin="0,2,0,0" Name="btCloseVideo" VerticalAlignment="Top" Padding="0,0,1,1" Click="btCloseVideo_Click" HorizontalAlignment="Right" Width="20" Focusable="False" IsTabStop="False" Grid.Column="1" Content="X"/>
 
-                        <TextBox Name="tbVideoFile" Background="LightGoldenrodYellow" IsReadOnly="True" IsEnabled="True" Focusable="False" IsTabStop="False" Height="25" VerticalAlignment="Bottom" Grid.Row="1" Grid.Column="0"></TextBox>
+                        <TextBox Name="tbVideoFile" Background="LightGoldenrodYellow" IsReadOnly="True" IsEnabled="True" Focusable="False" IsTabStop="False" Height="25" VerticalAlignment="Bottom" Grid.Row="1" Grid.Column="0"/>
                         <Button Name="btOpenVideo" Click="button6_Click" Height="24" VerticalAlignment="Bottom" Focusable="False" IsTabStop="False" HorizontalAlignment="Right" Width="44" Grid.Row="1" Grid.Column="1">
                             <StackPanel Orientation="Horizontal">
                                 <Image Source="/icons/iOtevrit.png"/>
@@ -263,11 +272,11 @@
         </Grid>
 
         <GridSplitter Margin="0,0,0,0" Name="gridSplitter1" Height="5" VerticalAlignment="Bottom" Grid.Row="1" Focusable="False" IsTabStop="False" 
-                      Grid.IsSharedSizeScope="False" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" ResizeBehavior="CurrentAndNext" ShowsPreview="True" Grid.ColumnSpan="2" 
-                      Visibility="{Binding ElementName=gphoneticTranscription, Path=Visibility}"
+			Grid.IsSharedSizeScope="False" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" ResizeBehavior="CurrentAndNext" ShowsPreview="True" Grid.ColumnSpan="2" 
+			Visibility="{Binding Visibility, ElementName=gphoneticTranscription}"
                       />
         <Grid Name="gphoneticTranscription" Grid.Row="2" Margin="0,0,0,8" Grid.ColumnSpan="2"
-              Visibility="{Binding Source={x:Static props:Settings.Default}, Path=PhoneticsPanelVisible, Converter={StaticResource visConverter}}" >
+			Visibility="{Binding PhoneticsPanelVisible, Converter={StaticResource visConverter}, Source={x:Static props:Settings.Default}}" >
             <Grid VerticalAlignment="Stretch">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -276,12 +285,12 @@
                 <Border Grid.Column="0" BorderThickness="1" BorderBrush="LightBlue" VerticalAlignment="Stretch">
                     <local:Element x:Name="phoneticTranscription" IsEnabled="False" VerticalAlignment="Stretch" MinHeight="70"/>
                 </Border>
-                <Button HorizontalAlignment="Right" Focusable="False" Height="20" IsTabStop="False" Padding="0,0,1,1" Width="20" VerticalAlignment="Top" Name="btZavritFonPrepis" Click="btClosePhoneticsPanel_Click" Grid.Column="1">X</Button>
+                <Button HorizontalAlignment="Right" Focusable="False" Height="20" IsTabStop="False" Padding="0,0,1,1" Width="20" VerticalAlignment="Top" x:Name="btZavritFonPrepis" Click="btClosePhoneticsPanel_Click" Grid.Column="1" Content="X"/>
             </Grid>
         </Grid>
 
 
-        <GroupBox Header="{lex:Loc}" Name="mainWindowAudioPanelHeader" Grid.Row="3" VerticalAlignment="Top" Grid.ColumnSpan="2" Visibility="{Binding Source={x:Static props:Settings.Default}, Path=FeatureEnabler.AudioManipulation, Converter={StaticResource visConverter}}">
+        <GroupBox Header="{lex:Loc}" Name="mainWindowAudioPanelHeader" Grid.Row="3" VerticalAlignment="Top" Grid.ColumnSpan="2" Visibility="{Binding FeatureEnabler.AudioManipulation, Converter={StaticResource visConverter}, Source={x:Static props:Settings.Default}}">
             <Grid>
                 <StackPanel Orientation="Horizontal">
                     <ToolBarTray  Name="toolBarTray1" VerticalAlignment="Top" HorizontalAlignment="Left">
@@ -300,13 +309,13 @@
                             </ToggleButton>
                         </ToolBar>
                         <ToolBar>
-                            <ToggleButton Name="TB5" Click="Toolbar1Btn5_Click" Focusable="False" IsTabStop="False" Tag="5000">5s</ToggleButton>
-                            <ToggleButton Name="TB10" Click="Toolbar1Btn5_Click" IsTabStop="False" Focusable="False" Tag="10000">10s</ToggleButton>
-                            <ToggleButton Name="TB20" Click="Toolbar1Btn5_Click" Focusable="False" IsTabStop="False" Tag="20000">20s</ToggleButton>
-                            <ToggleButton Name="TB30" Click="Toolbar1Btn5_Click" Focusable="False" IsTabStop="False" Tag="30000" IsChecked="True">30s</ToggleButton>
-                            <ToggleButton Name="TB60" Click="Toolbar1Btn5_Click" Focusable="False" IsTabStop="False" Tag="60000">1m</ToggleButton>
-                            <ToggleButton Name="TB120" Click="Toolbar1Btn5_Click" Focusable="False" IsTabStop="False" Tag="120000">2m</ToggleButton>
-                            <ToggleButton Name="TB180" Click="Toolbar1Btn5_Click" Focusable="False" IsTabStop="False" Tag="180000">3m</ToggleButton>
+                            <ToggleButton Name="TB5" Click="Toolbar1Btn5_Click" Focusable="False" IsTabStop="False" Tag="5000" Content="5s"/>
+                            <ToggleButton Name="TB10" Click="Toolbar1Btn5_Click" IsTabStop="False" Focusable="False" Tag="10000" Content="10s"/>
+                            <ToggleButton Name="TB20" Click="Toolbar1Btn5_Click" Focusable="False" IsTabStop="False" Tag="20000" Content="20s"/>
+                            <ToggleButton Name="TB30" Click="Toolbar1Btn5_Click" Focusable="False" IsTabStop="False" Tag="30000" IsChecked="True" Content="30s"/>
+                            <ToggleButton Name="TB60" Click="Toolbar1Btn5_Click" Focusable="False" IsTabStop="False" Tag="60000" Content="1m"/>
+                            <ToggleButton Name="TB120" Click="Toolbar1Btn5_Click" Focusable="False" IsTabStop="False" Tag="120000" Content="2m"/>
+                            <ToggleButton Name="TB180" Click="Toolbar1Btn5_Click" Focusable="False" IsTabStop="False" Tag="180000" Content="3m"/>
                         </ToolBar>
                     </ToolBarTray>
                     <TextBox Name="tbAudioFile" Background="LightGoldenrodYellow" IsReadOnly="False" IsEnabled="True"  Focusable="True" IsTabStop="True" MinWidth="250" MaxWidth="400" />
@@ -321,13 +330,13 @@
         </GroupBox>
 
         <local:WaveForm x:Name="waveform1" PlayPauseClick="waveform1_PlayPauseClick" 
-                        SliderPositionChanged="waveform1_SliderPositionChanged"
-                        CaretPostionChangedByUser="waveform1_CaretPostionChangedByUser" ParagraphClick="waveform1_ParagraphClick" 
-                        ParagraphDoubleClick="waveform1_ParagraphDoubleClick" CaretPostionChanged="waveform1_CaretPostionChanged" 
-                        Transcription="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:Window1}},Path=Transcription}" 
-                        SmallJump="{Binding Path=WaveformSmallJump, Source={x:Static props:Settings.Default}}"
-                        Grid.ColumnSpan="2"
-                        Grid.Row="4">
+			SliderPositionChanged="waveform1_SliderPositionChanged"
+			CaretPostionChangedByUser="waveform1_CaretPostionChangedByUser" ParagraphClick="waveform1_ParagraphClick" 
+			ParagraphDoubleClick="waveform1_ParagraphDoubleClick" CaretPostionChanged="waveform1_CaretPostionChanged" 
+			Transcription="{Binding Transcription, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:Window1}}}" 
+			SmallJump="{Binding WaveformSmallJump, Source={x:Static props:Settings.Default}}"
+			Grid.ColumnSpan="2"
+			Grid.Row="4">
             <local:WaveForm.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="{lex:BLoc Key=NanoTrans:Strings:WaveformContextMenuSetStart}" InputGestureText="Ctrl+Home" Click="menuItemVlna1_SetStart_Click"/>
@@ -340,7 +349,7 @@
             </local:WaveForm.ContextMenu>
         </local:WaveForm>
 
-        <StatusBar  Name="statusBar1" VerticalAlignment="Bottom" Grid.Row="5" HorizontalAlignment="Stretch" Grid.ColumnSpan="2">
+        <StatusBar Name="statusBar1" VerticalAlignment="Bottom" Grid.Row="5" HorizontalAlignment="Stretch" Grid.ColumnSpan="2">
             <StatusBar.ItemsPanel>
                 <ItemsPanelTemplate>
                     <Grid>
