@@ -1251,16 +1251,6 @@ namespace NanoTrans.Core
 
         #endregion
 
-
-        public event Action SubtitlesChanged;
-
-
-        public override void OnContentChanged(ChangeAction[] actions)
-        {
-            if (SubtitlesChanged != null)
-                SubtitlesChanged();
-        }
-
         public override string Text
         {
             get

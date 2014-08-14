@@ -117,16 +117,16 @@ namespace NanoTrans
             set
             {
                 if (_transcription != null)
-                    _transcription.SubtitlesChanged -= _SubtitlesChanged;
+                    _transcription.ContentChanged -= _transcription_ContentChanged;
                 _transcription = value;
                 if (_transcription != null)
-                    _transcription.SubtitlesChanged += _SubtitlesChanged;
+                    _transcription.ContentChanged += _transcription_ContentChanged;
                 OnPropertyChanged();
 
             }
         }
 
-        void _SubtitlesChanged()
+        void _transcription_ContentChanged(object sender, TranscriptionElement.TranscriptionElementChangedEventArgs e)
         {
             waveform1.InvalidateSpeakers();
         }
