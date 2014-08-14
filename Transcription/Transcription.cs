@@ -414,6 +414,7 @@ namespace NanoTrans.Core
         //Deserializuje soubor             
         public static void Deserialize(Stream datastream, Transcription storage)
         {
+            storage.BeginUpdate();
             XmlTextReader reader = new XmlTextReader(datastream);
             if (reader.Read())
             {
@@ -435,6 +436,7 @@ namespace NanoTrans.Core
                     DeserializeV1(new XmlTextReader(datastream), storage);
                 }
             }
+            storage.EndUpdate();
         }
 
         public XElement Meta = EmptyMeta;

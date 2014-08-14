@@ -494,9 +494,11 @@ namespace NanoTrans.Core
 
         /// <summary>
         /// When something in the transcription tree structure changes, change action (with undo) bubbles up to the Transcription element
+        /// base.OnContentChanged() should be called, or there is chance of breaking undo functionality
         /// </summary>
         /// <param name="actions"></param>
-        public virtual void OnContentChanged(params ChangeAction[] actions)
+        /// <returns>false, when change should not be processed (for example after BeginUpdate)</returns>
+        public virtual bool OnContentChanged(params ChangeAction[] actions)
         {
             if (!_Updating)
             {
@@ -510,7 +512,9 @@ namespace NanoTrans.Core
             {
                 _changes.AddRange(actions);
                 _updated = true;
+                return false;
             }
+            return true;
         }
 
         public event EventHandler<TranscriptionElementChangedEventArgs> ContentChanged;

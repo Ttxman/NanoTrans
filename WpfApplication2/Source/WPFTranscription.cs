@@ -48,14 +48,17 @@ namespace NanoTrans
 
 
 
-        public override void OnContentChanged(params ChangeAction[] actions)
+        public override bool OnContentChanged(params ChangeAction[] actions)
         {
+            if (!base.OnContentChanged(actions))
+                return false;
+
             Saved = false;
 
             if (actions == null || actions.Length < 0)
             {
                 CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset, null, 0));
-                return;
+                return true;
             }
 
             if (!_undoing)
@@ -74,6 +77,8 @@ namespace NanoTrans
                 else
                     CollectionChanged(this, new NotifyCollectionChangedEventArgs(MapEvent(actions[0].ChangeType), actions[0].ChangedElement, actions[0].ChangeAbsoluteIndex));
             }
+
+            return true;
         }
 
         Stack<ChangeAction[]> _UndoStack = new Stack<ChangeAction[]>();

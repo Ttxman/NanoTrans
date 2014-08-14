@@ -181,11 +181,6 @@ namespace NanoTrans.Core
             return 0;
         }
 
-        public override void OnContentChanged(ChangeAction[] actions)
-        {
-
-        }
-
         public override int AbsoluteIndex
         {
             get 
