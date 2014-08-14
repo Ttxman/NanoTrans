@@ -128,7 +128,8 @@ namespace NanoTrans
 
         void _transcription_ContentChanged(object sender, TranscriptionElement.TranscriptionElementChangedEventArgs e)
         {
-            waveform1.InvalidateSpeakers();
+            if(e.ActionsTaken.Any(a=>!(a.ChangedElement is TranscriptionPhrase)))
+                waveform1.InvalidateSpeakers();
         }
 
 
@@ -526,7 +527,7 @@ namespace NanoTrans
                 return false;
 
             var source = new WPFTranscription();
-            source.BeginUpdate();
+            source.BeginUpdate(false);
             var c = new TranscriptionChapter(Properties.Strings.DefaultChapterText);
             var s = new TranscriptionSection(Properties.Strings.DefaultSectionText);
             var p = new TranscriptionParagraph();
@@ -541,7 +542,7 @@ namespace NanoTrans
 
             TranscriptionList.Clear();
             source.ClearUndo();
-            source.BeginUpdate();
+            source.EndUpdate();
 
             return true;
         }

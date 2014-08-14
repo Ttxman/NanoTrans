@@ -55,7 +55,7 @@ namespace NanoTrans.Core
         public static readonly TranscriptionIndex FirstParagraph = new TranscriptionIndex(0, 0, 0, -1);
         public static readonly TranscriptionIndex FirstPhrase = new TranscriptionIndex(0, 0, 0, -1);
 
-       // public static readonly TranscriptionIndex Invalid = new TranscriptionIndex(-1, -1, -1, -1);
+        public static readonly TranscriptionIndex Invalid = new TranscriptionIndex(-1, -1, -1, -1);
 
 
         public int[] ToArray()
@@ -135,6 +135,11 @@ namespace NanoTrans.Core
                 else// if (_sectionindex >= 0)
                     return typeof(TranscriptionChapter);
             }
+        }
+
+        public override string ToString()
+        {
+            return string.Format("{4}: {0};{1};{2};{3}",_chapterindex,_sectionindex,_paragraphIndex,_phraseIndex,IsValid?"TIndex":"TInvalidIndex");
         }
 
     }

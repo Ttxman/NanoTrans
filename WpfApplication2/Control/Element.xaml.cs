@@ -108,10 +108,9 @@ namespace NanoTrans
             TranscriptionElement val = (TranscriptionElement)e.NewValue;
 
 
-
             Element el = (Element)d;
 
-            if (el.EditPhonetics && val!=null && !val.IsParagraph)
+            if (el.EditPhonetics && val != null && !val.IsParagraph)
             {
                 val = null;
             }
@@ -154,11 +153,11 @@ namespace NanoTrans
                 TranscriptionParagraph p = (TranscriptionParagraph)val;
                 el.textbegin.Visibility = Visibility.Visible;
                 el.textend.Visibility = Visibility.Visible;
-                
+
                 el.Background = Settings.Default.ParagraphBackground;
                 Element.RefreshSpeakerButton(el, p);
 
-                var vis = (Settings.Default.FeatureEnabler.SpeakerAttributes)?Visibility.Visible:Visibility.Collapsed;
+                var vis = (Settings.Default.FeatureEnabler.SpeakerAttributes) ? Visibility.Visible : Visibility.Collapsed;
 
                 el.stackPanelAttributes.Visibility = vis;
                 el.checkBox1.Visibility = vis;
@@ -204,7 +203,7 @@ namespace NanoTrans
             el.DataContext = val;
             if (val != null)
             {
-                val.ContentChanged += val_ContentChanged;
+                val.ContentChanged += (s, ear) => val_ContentChanged(el, ear);
 
                 el.BeginChanged(el, null);
                 el.EndChanged(el, null);
@@ -219,7 +218,7 @@ namespace NanoTrans
         static void val_ContentChanged(object sender, TranscriptionElement.TranscriptionElementChangedEventArgs e)
         {
             Element el = sender as Element;
-            if (el == null)
+            if (el == null || el.ValueElement == null || !e.ActionsTaken.Any(a => a.ChangedElement == el.ValueElement))
                 return;
 
             if (e.ActionsTaken.Any(a => a is NanoTrans.Core.BeginAction))
@@ -227,8 +226,17 @@ namespace NanoTrans
 
             if (e.ActionsTaken.Any(a => a is NanoTrans.Core.EndAction))
                 el.EndChanged(el, new EventArgs());
-          //  val.BeginChanged += el.BeginChanged;
-          //  val.EndChanged += el.EndChanged;
+
+            if (e.ActionsTaken.Any(a => a is NanoTrans.Core.ParagraphSpeakerAction))
+                RefreshSpeakerButton(el, (TranscriptionParagraph)el.ValueElement);
+
+            if (e.ActionsTaken.Any(a => a is NanoTrans.Core.ParagraphLanguageAction))
+                el.textBlockLanguage.GetBindingExpression(TextBlock.TextProperty).UpdateTarget();
+
+            if (e.ActionsTaken.Any(a => a is NanoTrans.Core.ParagraphAttibutesAction))
+                el.RepaintAttributes();
+
+
         }
 
         TranscriptionElement _Element;
@@ -262,7 +270,12 @@ namespace NanoTrans
         {
             if (_IsPasiveElement)
                 return;
-            if (this.stackPanelAttributes.Children.Count != all.Length)
+
+            TranscriptionParagraph par = ValueElement as TranscriptionParagraph;
+            if (par == null)
+                return;
+
+            if (this.stackPanelAttributes.Children.Count != all.Length - 1)
             {
                 this.stackPanelAttributes.Children.Clear();
                 foreach (ParagraphAttributes at in all)
@@ -278,17 +291,23 @@ namespace NanoTrans
                         r.ToolTip = nam;
                         r.Margin = new Thickness(0, 0, 0, 1);
 
-                        TranscriptionParagraph par = ValueElement as TranscriptionParagraph;
-                        if (par != null && (par.DataAttributes & at) != 0)
-                            r.Fill = Settings.Default.GetPAttributeColor(at);
-                        else
-                            r.Fill = Settings.Default.GetPAttributeBgColor(at);
-                        r.MouseLeftButtonDown += new MouseButtonEventHandler(attributes_MouseLeftButtonDown);
+
                         r.Tag = at;
+                        r.MouseLeftButtonDown += new MouseButtonEventHandler(attributes_MouseLeftButtonDown);
                         stackPanelAttributes.Children.Add(r);
                     }
                 }
             }
+
+            foreach (Rectangle r in this.stackPanelAttributes.Children)
+            {
+                var attr = (ParagraphAttributes)r.Tag;
+                if ((par.DataAttributes & attr) != 0)
+                    r.Fill = Settings.Default.GetPAttributeColor(attr);
+                else
+                    r.Fill = Settings.Default.GetPAttributeBgColor(attr);
+            }
+
         }
 
         void attributes_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -341,14 +360,14 @@ namespace NanoTrans
                 RepaintAttributes();
 
 
-            if(Settings.Default.FeatureEnabler.NonSpeechEvents)
+            if (Settings.Default.FeatureEnabler.NonSpeechEvents)
                 editor.TextArea.TextView.ElementGenerators.Add(DefaultNonEditableBlockGenerator);
             editor.TextArea.IndentationStrategy = new NoIndentationStrategy();
             editor.Options.InheritWordWrapIndentation = false;
 
             if (!_IsPasiveElement)
             {
-                if(Settings.Default.FeatureEnabler.Spellchecking)
+                if (Settings.Default.FeatureEnabler.Spellchecking)
                     editor.TextArea.TextView.LineTransformers.Add(DefaultSpellchecker);
 
                 editor.TextArea.TextEntering += new TextCompositionEventHandler(TextArea_TextEntering);
@@ -1414,10 +1433,10 @@ namespace NanoTrans
             {
                 TextBlock t;
                 if (_hidneNSE)
-                   t= new TextBlock() { Text = "" };
+                    t = new TextBlock() { Text = "" };
                 else
-                   t= new TextBlock() { Text = m.Value };
-               
+                    t = new TextBlock() { Text = m.Value };
+
 
                 return new InlineObjectElement(m.Length, t);
             }

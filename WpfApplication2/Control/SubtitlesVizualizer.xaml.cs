@@ -662,6 +662,5 @@ namespace NanoTrans
         {
             Transcription.Saved = false;
         }
-
     }
 }

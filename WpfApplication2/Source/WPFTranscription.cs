@@ -59,16 +59,18 @@ namespace NanoTrans
 
             Saved = false;
 
-            if (actions == null || actions.Length < 0)
+            if (actions == null || actions.Length <= 0)
             {
-                CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset, null, 0));
+                if (CollectionChanged != null)
+                    CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset, null, -1));
                 return true;
             }
 
             if (!_undoing)
             {
                 _UndoStack.Push(actions);
-                _RedoStack.Clear();
+                if(!_redoing)
+                    _RedoStack.Clear();
             }
             else
                 _RedoStack.Push(actions);
@@ -77,7 +79,7 @@ namespace NanoTrans
             if (CollectionChanged != null && actions.Length > 0)
             {
                 if (actions.Length > 1)
-                    CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset, null, 0));
+                    CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset, null, -1));
                 else
                     CollectionChanged(this, new NotifyCollectionChangedEventArgs(MapEvent(actions[0].ChangeType), actions[0].ChangedElement, actions[0].ChangeAbsoluteIndex));
             }
@@ -105,11 +107,14 @@ namespace NanoTrans
             }
         }
 
+        bool _redoing = false;
         public void Redo()
         {
             if (_RedoStack.Count > 0)
             {
+                _redoing = true;
                 BeginUpdate();
+                
                 var act = _RedoStack.Pop();
                 for (int i = act.Length - 1; i >= 0; i--)
                 {
@@ -117,6 +122,7 @@ namespace NanoTrans
                 }
 
                 EndUpdate();
+                _redoing = false;
             }
         }
 

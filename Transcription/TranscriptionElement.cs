@@ -210,7 +210,9 @@ namespace NanoTrans.Core
         {
             get
             {
-                var acc = this.Parent;
+                if (this.Parent == null && !(this is Transcription))
+                    return TranscriptionIndex.Invalid;
+                var acc = this;
                 var parents = new Stack<TranscriptionElement>();
                 while (acc != null && !(acc is Transcription))
                 {
@@ -218,13 +220,18 @@ namespace NanoTrans.Core
                     acc = acc.Parent;
                 }
 
-                var indexa = new int[4]{-1,-1,-1,-1};
+                var indexa = new int[4] { -1, -1, -1, -1 };
 
                 int index = 0;
                 while (parents.Count > 0)
                     indexa[index++] = parents.Pop().ParentIndex;
 
-                return new TranscriptionIndex(indexa);
+                var indx = new TranscriptionIndex(indexa);
+
+                if (!indx.IsValid)
+                    return TranscriptionIndex.Invalid;
+
+                return indx;
             }
         }
 
@@ -543,12 +550,7 @@ namespace NanoTrans.Core
         /// <summary>
         /// Stop Bubbling changes through OnContentChanged() anc ContentChanged event and acumulate changes until EndUpdate is called
         /// </summary>
-        public void BeginUpdate()
-        {
-            BeginUpdate(true);
-        }
-
-        private void BeginUpdate(bool logupdates)
+        public void BeginUpdate(bool logupdates = true)
         {
             if (_Updating <= 0)
             {
