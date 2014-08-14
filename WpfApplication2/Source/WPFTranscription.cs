@@ -23,6 +23,9 @@ namespace NanoTrans
             var t = new WPFTranscription();
             Transcription.Deserialize(path, t);
             t.IsOnline = t.Elements.ContainsKey("Online") && t.Elements["Online"] == "True";
+            t._UndoStack.Clear();
+            t._RedoStack.Clear();
+
             return t;
         }
 
@@ -30,12 +33,16 @@ namespace NanoTrans
         {
             var t = new WPFTranscription();
             Transcription.Deserialize(stream, t);
+            t.IsOnline = t.Elements.ContainsKey("Online") && t.Elements["Online"] == "True";
+            t._UndoStack.Clear();
+            t._RedoStack.Clear();
             return t;
         }
         public WPFTranscription(string filename)
             : base(filename)
         {
-
+            _UndoStack.Clear();
+            _RedoStack.Clear();
         }
 
         public WPFTranscription()

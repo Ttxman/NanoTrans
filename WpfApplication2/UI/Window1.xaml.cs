@@ -2064,6 +2064,16 @@ namespace NanoTrans
             tbQuickSaveName.Text = "\\" + System.IO.Path.GetFileName(FilePaths.QuickSaveDirectory);
         }
 
+        private void button_back_Click(object sender, RoutedEventArgs e)
+        {
+            CommandUndo.Execute(null, null);
+        }
+
+        private void button_forward_Click(object sender, RoutedEventArgs e)
+        {
+            CommandRedo.Execute(null, null);
+        }
+
     }
 
     public class DoubleGridLengthConverter : IValueConverter
