@@ -77,7 +77,21 @@ namespace NanoTrans.Core
             set { throw new NotImplementedException("cannot add phonetics directly into paragraph"); }
         }
 
-        public ParagraphAttributes DataAttributes = ParagraphAttributes.None;
+        ParagraphAttributes _DataAttributes = ParagraphAttributes.None;
+
+        public ParagraphAttributes DataAttributes
+        {
+            get 
+            { 
+                return _DataAttributes; 
+            }
+            set 
+            {
+                var old = _DataAttributes;
+                _DataAttributes = value;
+                OnContentChanged(new ParagraphAttibutesAction(this, this.TranscriptionIndex, this.AbsoluteIndex, old));
+            }
+        }
 
 
         public string AttributeString
@@ -168,8 +182,11 @@ namespace NanoTrans.Core
             }
             set
             {
+                var old = _speaker;
                 _speaker = value;
                 _internalID = value.ID;
+
+                OnContentChanged(new ParagraphSpeakerAction(this, this.TranscriptionIndex, this.AbsoluteIndex, old));
             }
         }
 
