@@ -46,7 +46,7 @@ namespace NanoTrans
 
         public event NotifyCollectionChangedEventHandler CollectionChanged;
 
-        Stack<ChangeAction[]> _UndoStack = new Stack<ChangeAction[]>();
+
 
         public override void OnContentChanged(params ChangeAction[] actions)
         {
@@ -58,16 +58,56 @@ namespace NanoTrans
                 return;
             }
 
+            if (!_undoing)
+            {
+                _UndoStack.Push(actions);
+                _RedoStack.Clear();
+            }
+            else
+                _RedoStack.Push(actions);
 
-            _UndoStack.Push(actions);
-            
-            actions = actions.Where(a=>a.ChangeType != ChangeType.Modify && a.ChangedElement.GetType() != typeof(TranscriptionPhrase)).ToArray();
-            if (CollectionChanged != null && actions.Length >0)
+            actions = actions.Where(a => a.ChangeType != ChangeType.Modify && a.ChangedElement.GetType() != typeof(TranscriptionPhrase)).ToArray();
+            if (CollectionChanged != null && actions.Length > 0)
             {
                 if (actions.Length > 1)
                     CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset, null, 0));
                 else
                     CollectionChanged(this, new NotifyCollectionChangedEventArgs(MapEvent(actions[0].ChangeType), actions[0].ChangedElement, actions[0].ChangeAbsoluteIndex));
+            }
+        }
+
+        Stack<ChangeAction[]> _UndoStack = new Stack<ChangeAction[]>();
+        Stack<ChangeAction[]> _RedoStack = new Stack<ChangeAction[]>();
+        bool _undoing = false;
+        public void Undo()
+        {
+            if (_UndoStack.Count > 0)
+            {
+                _undoing = true;
+                BeginUpdate();
+                var act = _UndoStack.Pop();
+                for (int i = act.Length-1; i >=0; i--)
+                {
+                    act[i].Revert(this);
+                }
+
+                EndUpdate();
+                _undoing = false;
+            }
+        }
+
+        public void Redo()
+        {
+            if (_RedoStack.Count > 0)
+            {
+                BeginUpdate();
+                var act = _RedoStack.Pop();
+                for (int i = act.Length - 1; i >= 0; i--)
+                {
+                    act[i].Revert(this);
+                }
+
+                EndUpdate();
             }
         }
 
@@ -134,5 +174,6 @@ namespace NanoTrans
         public event PropertyChangedEventHandler PropertyChanged;
 
         public OnlineAPI.SpeakersApi Api { get; set; }
+
     }
 }

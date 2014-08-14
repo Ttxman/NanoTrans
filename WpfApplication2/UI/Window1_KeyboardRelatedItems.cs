@@ -75,6 +75,9 @@ namespace NanoTrans
         public static RoutedCommand CommandImportFile = new RoutedCommand();
         public static RoutedCommand CommandExportFile = new RoutedCommand();
 
+        public static RoutedCommand CommandUndo = new RoutedCommand();
+        public static RoutedCommand CommandRedo = new RoutedCommand();
+
 
         public void InitCommands()
         {
@@ -113,6 +116,11 @@ namespace NanoTrans
 
             this.CommandBindings.Add(new CommandBinding(CommandImportFile, CImportFile));
             this.CommandBindings.Add(new CommandBinding(CommandExportFile, CExportFile));
+
+            this.CommandBindings.Add(new CommandBinding(CommandUndo, CUndo));
+            this.CommandBindings.Add(new CommandBinding(CommandRedo, CRedo));
+
+
 
             CommandJumpToBegin.InputGestures.Add(new KeyGesture(Key.Home, ModifierKeys.Control));
             CommandJumpToEnd.InputGestures.Add(new KeyGesture(Key.End, ModifierKeys.Control));
@@ -153,6 +161,19 @@ namespace NanoTrans
             CommandAbout.InputGestures.Add(new KeyGesture(Key.F1, ModifierKeys.Control));
             CommandHelp.InputGestures.Add(new KeyGesture(Key.F1));
 
+            CommandUndo.InputGestures.Add(new KeyGesture(Key.Z, ModifierKeys.Control));
+            CommandRedo.InputGestures.Add(new KeyGesture(Key.Z, ModifierKeys.Control | ModifierKeys.Shift));
+
+        }
+
+        private void CRedo(object sender, ExecutedRoutedEventArgs e)
+        {
+            Transcription.Redo();
+        }
+
+        private void CUndo(object sender, ExecutedRoutedEventArgs e)
+        {
+            Transcription.Undo();
         }
 
         private void CImportFile(object sender, ExecutedRoutedEventArgs e)
