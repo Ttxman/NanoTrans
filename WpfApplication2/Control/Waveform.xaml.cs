@@ -357,7 +357,6 @@ namespace NanoTrans
         public event EventHandler<TimeSpanEventArgs> CaretPostionChanged;
         public event EventHandler<MyTranscriptionElementEventArgs> ParagraphClick;
         public event EventHandler<MyTranscriptionElementEventArgs> ParagraphDoubleClick;
-        public event EventHandler<MyTranscriptionElementEventArgs> ElementChanged;
 
 
         public class TimeSpanEventArgs : EventArgs
@@ -806,16 +805,22 @@ namespace NanoTrans
         {
             Button b = sender as Button;
 
+            var elm = (TranscriptionElement)b.Tag;
+
             Point p = e.GetPosition(b);
             if (p.X <= 4)
             {
+                elm.BeginUpdate();
                 btndrag = true;
                 btndragleft = true;
                 e.Handled = true;
                 b.CaptureMouse();
+                
+                
             }
             else if (p.X >= b.Width - 4)
             {
+                elm.BeginUpdate();
                 btndrag = true;
                 btndragleft = false;
                 e.Handled = true;
@@ -943,6 +948,7 @@ namespace NanoTrans
 
         private void myImage_MouseUp(object sender, MouseButtonEventArgs e)
         {
+
             seldrag = false;
             double pos = e.GetPosition(this).X;
             if (Math.Abs(downpos - pos) < 1)
@@ -1185,8 +1191,6 @@ namespace NanoTrans
                                     return;
                                 bp.Width = p.X - bp.Margin.Left;
                                 previons.End = ts;
-                                if (ElementChanged != null)
-                                    ElementChanged(this, new MyTranscriptionElementEventArgs(previons));
                             }
                             else
                                 mouseOverParagraphDrag = false;
@@ -1198,8 +1202,6 @@ namespace NanoTrans
                     b.Width = bwi;
                     b.Margin = new Thickness(bmarginl, b.Margin.Top, b.Margin.Right, b.Margin.Bottom);
 
-                    if (ElementChanged != null)
-                        ElementChanged(this, new MyTranscriptionElementEventArgs(current));
                 }
                 else
                 {
@@ -1222,8 +1224,6 @@ namespace NanoTrans
                                 bn.Width = bn.Width + (bn.Margin.Left - p.X);
                                 bn.Margin = new Thickness(p.X, bn.Margin.Top, bn.Margin.Right, bn.Margin.Bottom);
                                 next.Begin = ts;
-                                if (ElementChanged != null)
-                                    ElementChanged(this, new MyTranscriptionElementEventArgs(next));
                             }
                             else
                                 mouseOverParagraphDrag = false;
@@ -1233,8 +1233,6 @@ namespace NanoTrans
 
                     b.Width = bwi;
 
-                    if (ElementChanged != null)
-                        ElementChanged(this, new MyTranscriptionElementEventArgs(current));
                 }
             }
         }
@@ -1245,13 +1243,14 @@ namespace NanoTrans
 
             Point position;
             Button b = sender as Button;
-
+            var elm = (TranscriptionElement)b.Tag;
             position = e.GetPosition((Button)sender);
 
             if (btndrag)
             {
                 InvalidateSpeakers();
                 b.ReleaseMouseCapture();
+                elm.EndUpdate();
             }
             btndrag = false;
             mouseOverParagraphDrag = false;

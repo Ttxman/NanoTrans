@@ -177,7 +177,7 @@ namespace NanoTrans.Core
             {
                 var old = _speaker;
                 _speaker = value;
-                _internalID = value.ID;
+                _internalID = (value!=null)?value.ID:Speaker.DefaultID;
 
                 OnContentChanged(new ParagraphSpeakerAction(this, this.TranscriptionIndex, this.AbsoluteIndex, old));
             }

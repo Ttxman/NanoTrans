@@ -28,7 +28,7 @@ namespace NanoTrans
     /// <summary>
     /// Interaction logic for Element.xaml
     /// </summary>
-    public partial class Element : UserControl, INotifyPropertyChanged
+    public partial class Element : UserControl, INotifyPropertyChanged, IDisposable
     {
 
         private int _forceCaretpositionOnLoad = -1;
@@ -105,26 +105,22 @@ namespace NanoTrans
         public static void OnValueElementChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
 
-            TranscriptionElement val = (TranscriptionElement)e.NewValue;
-
-
             Element el = (Element)d;
+            TranscriptionElement val = (TranscriptionElement)e.NewValue;
 
             if (el.EditPhonetics && val != null && !val.IsParagraph)
             {
                 val = null;
             }
 
+            if (e.OldValue != null)
+            {
+                ((TranscriptionElement)e.OldValue).ContentChanged -= el.val_ContentChanged;
+            }
 
 
             el.IsEnabled = val != null;
 
-            el._Element = val;
-
-            if (el.ValueElement != null)
-            {
-                el.ValueElement.ContentChanged -= val_ContentChanged;
-            }
 
             el.updating = true;
             if (val != null)
@@ -203,7 +199,7 @@ namespace NanoTrans
             el.DataContext = val;
             if (val != null)
             {
-                val.ContentChanged += (s, ear) => val_ContentChanged(el, ear);
+                val.ContentChanged += el.val_ContentChanged;
 
                 el.BeginChanged(el, null);
                 el.EndChanged(el, null);
@@ -215,11 +211,22 @@ namespace NanoTrans
             el.updating = false;
         }
 
-        static void val_ContentChanged(object sender, TranscriptionElement.TranscriptionElementChangedEventArgs e)
+        void val_ContentChanged(object sender, TranscriptionElement.TranscriptionElementChangedEventArgs e)
         {
-            Element el = sender as Element;
+            Element el = this;
+
+            //phrase changes
+            if (el.ValueElement is TranscriptionParagraph && e.ActionsTaken.Any(a => (a is NanoTrans.Core.TextAction || a is PhrasePhoneticsAction) && a.ChangedElement.Parent != null && a.ChangedElement.Parent == el.ValueElement))
+                el.TextualContentChanged();
+
             if (el == null || el.ValueElement == null || !e.ActionsTaken.Any(a => a.ChangedElement == el.ValueElement))
                 return;
+
+            if (e.ActionsTaken.Any(a => a is NanoTrans.Core.TextAction))
+                el.TextualContentChanged();
+
+            if (e.ActionsTaken.Any(a => a is NanoTrans.Core.BeginAction))
+                el.BeginChanged(el, new EventArgs());
 
             if (e.ActionsTaken.Any(a => a is NanoTrans.Core.BeginAction))
                 el.BeginChanged(el, new EventArgs());
@@ -228,7 +235,7 @@ namespace NanoTrans
                 el.EndChanged(el, new EventArgs());
 
             if (e.ActionsTaken.Any(a => a is NanoTrans.Core.ParagraphSpeakerAction))
-                RefreshSpeakerButton(el, (TranscriptionParagraph)el.ValueElement);
+                el.RefreshSpeakerInfos();
 
             if (e.ActionsTaken.Any(a => a is NanoTrans.Core.ParagraphLanguageAction))
                 el.textBlockLanguage.GetBindingExpression(TextBlock.TextProperty).UpdateTarget();
@@ -237,9 +244,11 @@ namespace NanoTrans
                 el.RepaintAttributes();
 
 
+
+
+
         }
 
-        TranscriptionElement _Element;
         public TranscriptionElement ValueElement
         {
             get
@@ -979,6 +988,27 @@ namespace NanoTrans
             BindingOperations.ClearAllBindings(buttonSpeaker);
         }
 
+
+        private void TextualContentChanged()
+        {
+            if (_TextChangedByUser)
+                return;
+
+            updating = true;
+            var cp = editor.CaretOffset;
+            if (EditPhonetics)
+                editor.Text = ValueElement.Phonetics;
+            else
+                editor.Text = ValueElement.Text;
+
+            if (cp >= 0)
+                internal_setCaretOffset(cp, 0);
+            updating = false;
+
+        }
+
+        bool _TextChangedByUser = false;
+
         void Document_Changed(object sender, DocumentChangeEventArgs e)
         {
             if (ValueElement == null || updating)
@@ -989,7 +1019,9 @@ namespace NanoTrans
 
             if (!(ValueElement is TranscriptionParagraph))
             {
+                _TextChangedByUser = true;
                 ValueElement.Text = editor.Text;
+                _TextChangedByUser = false;
                 return;
             }
 
@@ -998,7 +1030,7 @@ namespace NanoTrans
             int offset = e.Offset;
             int removedl = e.RemovalLength;
             int addedl = e.InsertionLength;
-
+            _TextChangedByUser = true;
             if (removedl > 0)
             {
                 List<TranscriptionPhrase> todelete = new List<TranscriptionPhrase>();
@@ -1100,6 +1132,8 @@ namespace NanoTrans
                     par.Phrases.Add(phr);
                 }
             }
+
+            _TextChangedByUser = false;
         }
 
         private void element_Loaded(object sender, RoutedEventArgs e)
@@ -1204,6 +1238,11 @@ namespace NanoTrans
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        public void Dispose()
+        {
+            this.ValueElement.ContentChanged -= val_ContentChanged;
+        }
     }
 
     public class SpellChecker : DocumentColorizingTransformer

@@ -20,10 +20,10 @@ namespace NanoTrans.Core
         {
             get { return _text; }
             set 
-            { 
-                var oldv = value;
+            {
+                var oldv = _text;
                 _text = value;
-                OnContentChanged(new PhraseTextAction(this, this.TranscriptionIndex, this.AbsoluteIndex, oldv));
+                OnContentChanged(new TextAction(this, this.TranscriptionIndex, this.AbsoluteIndex, oldv));
             }
         }
 
@@ -37,7 +37,7 @@ namespace NanoTrans.Core
             }
             set
             {
-                var oldv = value;
+                var oldv = _phonetics;
                 _phonetics = value;
                 OnContentChanged(new PhrasePhoneticsAction(this, this.TranscriptionIndex, this.AbsoluteIndex, oldv));
             }

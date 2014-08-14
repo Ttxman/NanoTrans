@@ -97,7 +97,7 @@ namespace NanoTrans.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("00:00:00.0050000")]
+        [global::System.Configuration.DefaultSettingValueAttribute("00:00:01")]
         public global::System.TimeSpan WaveformSmallJumpStore {
             get {
                 return ((global::System.TimeSpan)(this["WaveformSmallJumpStore"]));

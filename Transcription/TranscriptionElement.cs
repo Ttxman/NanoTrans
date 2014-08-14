@@ -76,7 +76,7 @@ namespace NanoTrans.Core
             {
                 var ov = End;
                 _end = value;
-                OnContentChanged(new BeginAction(this, this.TranscriptionIndex, this.AbsoluteIndex, ov));
+                OnContentChanged(new EndAction(this, this.TranscriptionIndex, this.AbsoluteIndex, ov));
             }
         }
 
@@ -509,8 +509,8 @@ namespace NanoTrans.Core
         {
             if (_Updating <= 0)
             {
-                if (ContentChanged != null)
-                    ContentChanged(this, new TranscriptionElementChangedEventArgs(actions));
+                if (_ContentChanged != null)
+                    _ContentChanged(this, new TranscriptionElementChangedEventArgs(actions));
 
                 if (Parent != null)
                     Parent.OnContentChanged(actions);
@@ -525,7 +525,20 @@ namespace NanoTrans.Core
             return true;
         }
 
-        public event EventHandler<TranscriptionElementChangedEventArgs> ContentChanged;
+
+        private EventHandler<TranscriptionElementChangedEventArgs> _ContentChanged;
+        public event EventHandler<TranscriptionElementChangedEventArgs> ContentChanged
+        {
+            add
+            {
+                _ContentChanged += value;
+                System.Diagnostics.Debug.WriteLine("" + this.GetHashCode() + " " + value.Target.GetHashCode());
+            }
+            remove
+            {
+                _ContentChanged -= value;
+            }
+        }
 
         public class TranscriptionElementChangedEventArgs : EventArgs
         {

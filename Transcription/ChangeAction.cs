@@ -203,9 +203,9 @@ namespace NanoTrans.Core
     }
 
 
-    public class PhraseTextAction : ChangeAction
+    public class TextAction : ChangeAction
     {
-        public PhraseTextAction(TranscriptionPhrase changedelement, TranscriptionIndex changeIndex, int changeAbsoluteIndex, string oldtstring)
+        public TextAction(TranscriptionElement changedelement, TranscriptionIndex changeIndex, int changeAbsoluteIndex, string oldtstring)
             : base(ChangeType.Modify, changedelement, changeIndex, changeAbsoluteIndex)
         {
             _oldtstring = oldtstring;

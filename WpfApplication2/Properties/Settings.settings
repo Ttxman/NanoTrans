@@ -21,7 +21,7 @@
       <Value Profile="(Default)">0.8</Value>
     </Setting>
     <Setting Name="WaveformSmallJumpStore" Type="System.TimeSpan" Scope="User">
-      <Value Profile="(Default)">00:00:00.0050000</Value>
+      <Value Profile="(Default)">00:00:01</Value>
     </Setting>
     <Setting Name="SetupTextFontSizeStore" Type="System.Double" Scope="User">
       <Value Profile="(Default)">13</Value>

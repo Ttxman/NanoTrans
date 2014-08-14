@@ -662,5 +662,17 @@ namespace NanoTrans
         {
             Transcription.Saved = false;
         }
+
+        protected override void OnVisualChildrenChanged(DependencyObject visualAdded, DependencyObject visualRemoved)
+        {
+            if (visualRemoved != null)
+            {
+                var el = visualRemoved as Element;
+                if (el != null)
+                    el.ValueElement = null;
+            
+            }
+            base.OnVisualChildrenChanged(visualAdded, visualRemoved);
+        }
     }
 }

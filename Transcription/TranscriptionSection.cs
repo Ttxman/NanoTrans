@@ -9,23 +9,15 @@ namespace NanoTrans.Core
     //sekce textu nadrazena odstavci
     public class TranscriptionSection : TranscriptionElement
     {
-        public override bool IsSection
-        {
-            get
-            {
-                return true;
-            }
-        }
-
+        string _text = "";
         public override string Text
         {
-            get
-            {
-                return this.name;
-            }
+            get { return _text; }
             set
             {
-                this.name = value;
+                var oldv = _text;
+                _text = value;
+                OnContentChanged(new TextAction(this, this.TranscriptionIndex, this.AbsoluteIndex, oldv));
             }
         }
 
@@ -41,7 +33,17 @@ namespace NanoTrans.Core
             }
         }
 
-        public string name = string.Empty;
+        public string Name
+        {
+            get
+            { 
+                return Text; 
+            }
+            set 
+            { 
+                Text = value; 
+            }
+        }
 
 
         private VirtualTypeList<TranscriptionParagraph> _Paragraphs;
@@ -65,7 +67,7 @@ namespace NanoTrans.Core
         public static TranscriptionSection DeserializeV2(XElement e, bool isStrict)
         {
             TranscriptionSection tsec = new TranscriptionSection();
-            tsec.name = e.Attribute("name").Value;
+            tsec.Name = e.Attribute("name").Value;
             tsec.Elements = e.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
             tsec.Elements.Remove("name");
             foreach (var p in e.Elements(isStrict ? "paragraph" : "pa").Select(p => (TranscriptionElement)TranscriptionParagraph.DeserializeV2(p, isStrict)))
@@ -77,7 +79,7 @@ namespace NanoTrans.Core
         public TranscriptionSection(XElement e)
         {
             this.Paragraphs = new VirtualTypeList<TranscriptionParagraph>(this, this._children);
-            name = e.Attribute("name").Value;
+            Name = e.Attribute("name").Value;
             Elements = e.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
             Elements.Remove("name");
             foreach (var p in e.Elements("pa").Select(p => (TranscriptionElement)new TranscriptionParagraph(p)))
@@ -88,7 +90,7 @@ namespace NanoTrans.Core
         public XElement Serialize()
         {
 
-            XElement elm = new XElement("se", Elements.Select(e => new XAttribute(e.Key, e.Value)).Union(new[] { new XAttribute("name", name), }),
+            XElement elm = new XElement("se", Elements.Select(e => new XAttribute(e.Key, e.Value)).Union(new[] { new XAttribute("name", Name), }),
                 Paragraphs.Select(p => p.Serialize())
             );
 
@@ -106,7 +108,7 @@ namespace NanoTrans.Core
         {
             this.Begin = toCopy.Begin;
             this.End = toCopy.End;
-            this.name = toCopy.name;
+            this.Name = toCopy.Name;
             if (toCopy.Paragraphs != null)
             {
                 this.Paragraphs = new VirtualTypeList<TranscriptionParagraph>(this, this._children);
@@ -131,7 +133,7 @@ namespace NanoTrans.Core
         public TranscriptionSection(String aName, TimeSpan aBegin, TimeSpan aEnd)
             : this()
         {
-            this.name = aName;
+            this.Name = aName;
             this.Begin = aBegin;
             this.End = aEnd;
         }
@@ -170,7 +172,7 @@ namespace NanoTrans.Core
         {
             get
             {
-                return name + "\r\n" + string.Join("\r\n", Children.Select(c => c.Text));
+                return Name + "\r\n" + string.Join("\r\n", Children.Select(c => c.Text));
             }
         }
 

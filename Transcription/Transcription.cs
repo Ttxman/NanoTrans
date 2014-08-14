@@ -581,7 +581,7 @@ namespace NanoTrans.Core
                     {
 
                         TranscriptionSection s = new TranscriptionSection();
-                        s.name = reader.GetAttribute("name");
+                        s.Name = reader.GetAttribute("name");
 
                         val = reader.GetAttribute("begin");
                         if (int.TryParse(val, out result))
