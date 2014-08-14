@@ -420,6 +420,7 @@ namespace NanoTrans
             if (el == _activeTranscription)
                 return listbox.ItemContainerGenerator.ContainerFromItem(el).VisualFindChild<Element>();
 
+
             _activeTranscription = el;
             _activetransctiptionSelectionLength = -1;
             _activetransctiptionSelectionStart = -1;
@@ -658,21 +659,5 @@ namespace NanoTrans
             }
         }
 
-        private void l_Element_ContentChanged(object sender, EventArgs e)
-        {
-            Transcription.Saved = false;
-        }
-
-        protected override void OnVisualChildrenChanged(DependencyObject visualAdded, DependencyObject visualRemoved)
-        {
-            if (visualRemoved != null)
-            {
-                var el = visualRemoved as Element;
-                if (el != null)
-                    el.ValueElement = null;
-            
-            }
-            base.OnVisualChildrenChanged(visualAdded, visualRemoved);
-        }
     }
 }

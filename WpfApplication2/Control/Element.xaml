@@ -7,7 +7,7 @@
              mc:Ignorable="d" 
              xmlns:my="clr-namespace:NanoTrans" d:DesignWidth="400"
              xmlns:sd="http://icsharpcode.net/sharpdevelop/avalonedit"
-             Loaded="element_Loaded" VerticalContentAlignment="Stretch">
+             Loaded="element_Loaded" VerticalContentAlignment="Stretch" Unloaded="UserControl_Unloaded">
 
     <UserControl.Resources>
         <my:SpeakerConverter x:Key="SpeakerConverter" />

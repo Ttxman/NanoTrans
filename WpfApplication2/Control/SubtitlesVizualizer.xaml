@@ -36,7 +36,6 @@
                                 SetTimeRequest="l_SetTimeRequest"
                                 SplitRequest="l_SplitRequest"
                                 SizeChanged="l_Element_SizeChanged"
-                                ContentChanged="l_Element_ContentChanged"
                                 ></my:Element>
                 </DataTemplate>
             </ListBox.ItemTemplate>

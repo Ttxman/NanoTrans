@@ -16,15 +16,16 @@ namespace NanoTrans.Core
                 return true;
             }
         }
+
+        string _text = "";
         public override string Text
         {
-            get
-            {
-                return this.name;
-            }
+            get { return _text; }
             set
             {
-                this.name = value;
+                var oldv = _text;
+                _text = value;
+                OnContentChanged(new TextAction(this, this.TranscriptionIndex, this.AbsoluteIndex, oldv));
             }
         }
 
@@ -40,7 +41,18 @@ namespace NanoTrans.Core
             }
         }
 
-        public string name = string.Empty;
+        public string Name
+        {
+            get
+            {
+                return Text;
+            }
+            set
+            {
+                Text = value;
+            }
+        }
+
 
         private VirtualTypeList<TranscriptionSection> _Sections;
 
@@ -58,7 +70,7 @@ namespace NanoTrans.Core
         public static TranscriptionChapter DeserializeV2(XElement c, bool isStrict)
         {
             TranscriptionChapter chap = new TranscriptionChapter();
-            chap.name = c.Attribute("name").Value;
+            chap.Name = c.Attribute("name").Value;
             chap.Elements = c.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
             chap.Elements.Remove("name");
             foreach (var s in c.Elements(isStrict ? "section" : "se").Select(s => (TranscriptionElement)TranscriptionSection.DeserializeV2(s, isStrict)))
@@ -71,7 +83,7 @@ namespace NanoTrans.Core
         public TranscriptionChapter(XElement c)
         {
             Sections = new VirtualTypeList<TranscriptionSection>(this, this._children);
-            name = c.Attribute("name").Value;
+            Name = c.Attribute("name").Value;
             Elements = c.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
             Elements.Remove("name");
             foreach (var s in c.Elements("se").Select(s => (TranscriptionElement)new TranscriptionSection(s)))
@@ -83,7 +95,7 @@ namespace NanoTrans.Core
         {
 
             XElement elm = new XElement("ch",
-                Elements.Select(e => new XAttribute(e.Key, e.Value)).Union(new[] { new XAttribute("name", name), }),
+                Elements.Select(e => new XAttribute(e.Key, e.Value)).Union(new[] { new XAttribute("name", Name), }),
                 Sections.Select(s => s.Serialize())
             );
 
@@ -97,7 +109,7 @@ namespace NanoTrans.Core
         {
             this.Begin = toCopy.Begin;
             this.End = toCopy.End;
-            this.name = toCopy.name;
+            this.Name = toCopy.Name;
             if (toCopy.Sections != null)
             {
                 this.Sections = new VirtualTypeList<TranscriptionSection>(this, this._children);
@@ -124,7 +136,7 @@ namespace NanoTrans.Core
         public TranscriptionChapter(String aName, TimeSpan aBegin, TimeSpan aEnd)
         {
             Sections = new VirtualTypeList<TranscriptionSection>(this, this._children);
-            this.name = aName;
+            this.Name = aName;
             this.Begin = aBegin;
             this.End = aEnd;
         }
@@ -155,7 +167,7 @@ namespace NanoTrans.Core
 
         public override string InnerText
         {
-            get { return name + "\r\n" + string.Join("\r\n", Children.Select(c => c.Text)); }
+            get { return Name + "\r\n" + string.Join("\r\n", Children.Select(c => c.Text)); }
         }
 
 

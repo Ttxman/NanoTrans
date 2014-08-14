@@ -216,7 +216,7 @@ namespace NanoTrans
             Element el = this;
 
             //phrase changes
-            if (el.ValueElement is TranscriptionParagraph && e.ActionsTaken.Any(a => (a is NanoTrans.Core.TextAction || a is PhrasePhoneticsAction) && a.ChangedElement.Parent != null && a.ChangedElement.Parent == el.ValueElement))
+            if (el.ValueElement is TranscriptionParagraph && e.ActionsTaken.Any(a => a.ChangedElement.Parent != null && a.ChangedElement.Parent == el.ValueElement))
                 el.TextualContentChanged();
 
             if (el == null || el.ValueElement == null || !e.ActionsTaken.Any(a => a.ChangedElement == el.ValueElement))
@@ -957,7 +957,6 @@ namespace NanoTrans
         public event EventHandler NewRequest;
 
         public event EventHandler ChangeSpeakerRequest;
-        public event EventHandler ContentChanged;
         public event Action<TimeSpan> SetTimeRequest;
 
         public void ClearEvents()
@@ -975,7 +974,6 @@ namespace NanoTrans
             MoveDownRequest = null;
             ChangeSpeakerRequest = null;
             SetTimeRequest = null;
-            ContentChanged = null;
         }
 
         public void ClearBindings()
@@ -1013,9 +1011,6 @@ namespace NanoTrans
         {
             if (ValueElement == null || updating)
                 return;
-
-            if (ContentChanged != null)
-                ContentChanged(this, null);
 
             if (!(ValueElement is TranscriptionParagraph))
             {
@@ -1242,6 +1237,18 @@ namespace NanoTrans
         public void Dispose()
         {
             this.ValueElement.ContentChanged -= val_ContentChanged;
+        }
+
+
+        protected override void OnVisualParentChanged(DependencyObject oldParent)
+        {
+            base.OnVisualParentChanged(oldParent);
+        }
+
+        private void UserControl_Unloaded(object sender, RoutedEventArgs e)
+        {
+            if (this.ValueElement != null)
+                this.ValueElement.ContentChanged -= val_ContentChanged;
         }
     }
 

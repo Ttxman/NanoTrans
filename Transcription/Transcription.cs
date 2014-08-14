@@ -552,7 +552,7 @@ namespace NanoTrans.Core
                 while (reader.Name == "Chapter")
                 {
                     TranscriptionChapter c = new TranscriptionChapter();
-                    c.name = reader.GetAttribute("name");
+                    c.Name = reader.GetAttribute("name");
 
                     val = reader.GetAttribute("begin");
                     if (int.TryParse(val, out result))
@@ -1049,9 +1049,9 @@ namespace NanoTrans.Core
                 if (index.IsChapterIndex)
                 {
                     if (index.IsSectionIndex)
-                        return Chapters[index.Sectionindex][index];
+                        return Chapters[index.Chapterindex][index];
 
-                    return Chapters[index.Sectionindex];
+                    return Chapters[index.Chapterindex];
                 }
 
                 throw new IndexOutOfRangeException("index");
@@ -1063,9 +1063,9 @@ namespace NanoTrans.Core
                 if (index.IsChapterIndex)
                 {
                     if (index.IsSectionIndex)
-                        Chapters[index.Sectionindex][index] = value;
+                        Chapters[index.Chapterindex][index] = value;
                     else
-                        Chapters[index.Sectionindex] = (TranscriptionChapter)value;
+                        Chapters[index.Chapterindex] = (TranscriptionChapter)value;
                 }
                 else
                     throw new IndexOutOfRangeException("index");

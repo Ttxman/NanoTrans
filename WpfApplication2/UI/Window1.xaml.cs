@@ -544,6 +544,7 @@ namespace NanoTrans
             source.ClearUndo();
             source.EndUpdate();
 
+            Transcription.Saved = true;
             return true;
         }
 

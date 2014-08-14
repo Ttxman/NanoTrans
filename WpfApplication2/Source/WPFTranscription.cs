@@ -78,10 +78,13 @@ namespace NanoTrans
             actions = actions.Where(a => a.ChangeType != ChangeType.Modify && a.ChangedElement.GetType() != typeof(TranscriptionPhrase)).ToArray();
             if (CollectionChanged != null && actions.Length > 0)
             {
-                if (actions.Length > 1)
+                var ev = MapEvent(actions[0].ChangeType);
+                if (actions.Length > 1 || ev == NotifyCollectionChangedAction.Reset)
                     CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset, null, -1));
                 else
-                    CollectionChanged(this, new NotifyCollectionChangedEventArgs(MapEvent(actions[0].ChangeType), actions[0].ChangedElement, actions[0].ChangeAbsoluteIndex));
+                {
+                    CollectionChanged(this, new NotifyCollectionChangedEventArgs(ev, actions[0].ChangedElement, actions[0].ChangeAbsoluteIndex));
+                }
             }
 
             return true;
@@ -141,8 +144,8 @@ namespace NanoTrans
                     return NotifyCollectionChangedAction.Add;
                 case ChangeType.Remove:
                     return NotifyCollectionChangedAction.Remove;
-                case ChangeType.Replace:
-                    return NotifyCollectionChangedAction.Replace;
+                //case ChangeType.Replace: //notify does not support replace
+                //    return NotifyCollectionChangedAction.Replace;
             }
 
             return NotifyCollectionChangedAction.Reset;
