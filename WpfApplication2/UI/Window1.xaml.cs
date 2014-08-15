@@ -2079,6 +2079,16 @@ namespace NanoTrans
             CommandRedo.Execute(null, null);
         }
 
+        private void menuEditUndo_Click(object sender, RoutedEventArgs e)
+        {
+            CommandUndo.Execute(null, null);
+        }
+
+        private void menuEditRedo_Click(object sender, RoutedEventArgs e)
+        {
+            CommandRedo.Execute(null, null);
+        }
+
     }
 
     public class DoubleGridLengthConverter : IValueConverter

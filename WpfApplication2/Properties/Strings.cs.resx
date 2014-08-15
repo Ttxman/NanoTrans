@@ -726,4 +726,10 @@
   <data name="SpeakersManagerSpeakerNameConflictQuestionFormat" xml:space="preserve">
     <value>Mluvčí s podobným jménem již existuje ("{0}") Přesto Vytvořit nového? </value>
   </data>
+  <data name="mainWindowRedoText" xml:space="preserve">
+    <value>Znovu</value>
+  </data>
+  <data name="mainWindowUndoText" xml:space="preserve">
+    <value>Zpět</value>
+  </data>
 </root>

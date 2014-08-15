@@ -532,7 +532,6 @@ namespace NanoTrans.Core
             add
             {
                 _ContentChanged += value;
-                System.Diagnostics.Debug.WriteLine("" + this.GetHashCode() + " " + value.Target.GetHashCode());
             }
             remove
             {

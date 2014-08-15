@@ -1229,6 +1229,8 @@ namespace NanoTrans
                                 mouseOverParagraphDrag = false;
                         }
                     }
+
+                    //TODO: optimalize by removing this :)
                     current.End = ts;
 
                     b.Width = bwi;
@@ -1305,7 +1307,6 @@ namespace NanoTrans
                 ) // nenacitame, nebo se nevejdeme se ani do nacitaneho
             {
 
-                System.Diagnostics.Debug.WriteLine("check" + value);
                 lock (wavelock)
                 {
                     if (bufferProcessThread != null)

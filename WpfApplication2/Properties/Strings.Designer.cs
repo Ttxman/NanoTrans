@@ -448,6 +448,15 @@ namespace NanoTrans.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Redo.
+        /// </summary>
+        public static string mainWindowRedoText {
+            get {
+                return ResourceManager.GetString("mainWindowRedoText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Selected paragraph:.
         /// </summary>
         public static string mainWindowSpeakersManagerSelectedParagraphMessage {
@@ -507,6 +516,15 @@ namespace NanoTrans.Properties {
         public static string mainWindowStatusbarStatusTextReady {
             get {
                 return ResourceManager.GetString("mainWindowStatusbarStatusTextReady", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Undo.
+        /// </summary>
+        public static string mainWindowUndoText {
+            get {
+                return ResourceManager.GetString("mainWindowUndoText", resourceCulture);
             }
         }
         

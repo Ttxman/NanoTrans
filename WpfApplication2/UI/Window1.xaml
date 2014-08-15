@@ -21,6 +21,19 @@
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="visConverter" />
         <local:DoubleGridLengthConverter x:Key="gridlConverter" />
+
+        <Style TargetType="{x:Type Button}" x:Key="{x:Static ToolBar.ButtonStyleKey}">
+            <Style.Resources>
+                <Style TargetType="{x:Type Image}">
+                    <Style.Triggers>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.5" />
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </Style.Resources>
+        </Style>
+
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -67,7 +80,31 @@
                     <MenuItem Header="{lex:Loc}" Click="MFile_close_Click" Name="menuFileExit" />
                 </MenuItem>
                 <MenuItem Header="{lex:Loc}" Name="menuEdit" Visibility="{Binding FeatureEnabler.ChaptersAndSections, Converter={StaticResource visConverter}, Source={x:Static props:Settings.Default}}">
-                    <MenuItem Header="{lex:Loc}" InputGestureText="F4"  Click="MEdit_new_chapter_Click" Name="menuEditNewChapter" />
+                    <MenuItem Header="{lex:Loc mainWindowUndoText}" InputGestureText="Ctrl+Z" Name="menuEditUndo" Click="menuEditUndo_Click" >
+                        <MenuItem.Style>
+                            <Style TargetType="MenuItem">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ElementName=window, Path=Transcription.UndoStack.Count}" Value="0">
+                                        <Setter Property="IsEnabled" Value="False" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </MenuItem.Style>
+                    </MenuItem>
+                    <MenuItem Header="{lex:Loc mainWindowRedoText}" InputGestureText="Ctrl+Shift+Z" Name="menuEditRedo" Click="menuEditRedo_Click" >
+                        <MenuItem.Style>
+                            <Style TargetType="MenuItem">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ElementName=window, Path=Transcription.RedoStack.Count}" Value="0">
+                                        <Setter Property="IsEnabled" Value="False" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </MenuItem.Style>
+                    </MenuItem>
+
+                    <Separator />
+                    <MenuItem Header="{lex:Loc}" InputGestureText="F4"  Click="MEdit_new_chapter_Click" Name="menuEditNewChapter"/>
                     <MenuItem Header="{lex:Loc}" InputGestureText="F5" Click="MEdit_New_Section_Click" Name="menuEditNewSection" />
                     <Separator />
                     <MenuItem Header="{lex:Loc}" InputGestureText="Shift+Del" Click="MEdit_Delete_Element_Click" Name="menuEditDeleteElement" />
@@ -115,19 +152,6 @@
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
                 <ToolBarTray Grid.Column="0" Name="toolBarTray2">
-                    <ToolBarTray.Resources>
-                        <Style TargetType="{x:Type Button}" x:Key="{x:Static ToolBar.ButtonStyleKey}">
-                            <Style.Resources>
-                                <Style TargetType="{x:Type Image}">
-                                    <Style.Triggers>
-                                        <Trigger Property="IsEnabled" Value="False">
-                                            <Setter Property="Opacity" Value="0.5" />
-                                        </Trigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Style.Resources>
-                        </Style>
-                    </ToolBarTray.Resources>
                     <ToolBar Name="toolBarNSE" VerticalAlignment="Top" HorizontalAlignment="Left" Loaded="toolBar1_Loaded" BandIndex="0" Visibility="{Binding FeatureEnabler.NonSpeechEvents, Converter={StaticResource visConverter}, Source={x:Static props:Settings.Default}}"/>
                     <ToolBar BandIndex="1" Name="toolbarAdditional">
                         <Button Click="Button_Click_2" VerticalAlignment="Stretch" ToolTip="{lex:Loc Key=mainWindowOpenSpeakerSynchronizerTooltip}" Visibility="{Binding FeatureEnabler.DbMerging, Converter={StaticResource visConverter}, Source={x:Static props:Settings.Default}}">
@@ -170,6 +194,32 @@
                         </Button>
                         <ComboBox MaxWidth="300" ItemsSource="{Binding TranscriptionList, ElementName=window}" SelectedIndex="{Binding TranscriptionIndex, ElementName=window}" SelectionChanged="ComboBox_SelectionChanged"/>
                     </ToolBar>
+                    <ToolBar Name="toolbarUndo" BandIndex="2">
+                        <Button Name="button_back" Click="button_back_Click" ToolTip="{lex:Loc mainWindowUndoText}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource ResourceKey={x:Static ToolBar.ButtonStyleKey}}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ElementName=window, Path=Transcription.UndoStack.Count}" Value="0">
+                                            <Setter Property="IsEnabled" Value="False" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                            <Image Source="/icons/undo.png"/>
+                        </Button>
+                        <Button  Name="button_forward" Click="button_forward_Click" ToolTip="{lex:Loc mainWindowRedoText}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource ResourceKey={x:Static ToolBar.ButtonStyleKey}}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ElementName=window, Path=Transcription.RedoStack.Count}" Value="0">
+                                            <Setter Property="IsEnabled" Value="False" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                            <Image Source="/icons/redo.png"/>
+                        </Button>
+                    </ToolBar>
                 </ToolBarTray>
 
                 <Border HorizontalAlignment="Left" Grid.Column="1" Visibility="{Binding FeatureEnabler.QuickExport, Converter={StaticResource visConverter}, Source={x:Static props:Settings.Default}}">
@@ -187,12 +237,6 @@
                     </Grid>
                 </Border>
 
-                <Border HorizontalAlignment="Left" Grid.Column="2">
-                    <StackPanel Orientation="Horizontal">
-                        <Button Content="&lt;-" Name="button_back" Click="button_back_Click"/>
-                        <Button Content="&gt;-" Name="button_forward" Click="button_forward_Click"/>
-                    </StackPanel>
-                </Border>
             </Grid>
         </StackPanel>
         <Grid Margin="0,5,0,5" Name="gListVideo" Grid.ColumnSpan="2" Grid.Row="1">

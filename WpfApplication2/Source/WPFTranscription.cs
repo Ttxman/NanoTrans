@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.ObjectModel;
 
 namespace NanoTrans
 {
@@ -68,12 +69,12 @@ namespace NanoTrans
 
             if (!_undoing)
             {
-                _UndoStack.Push(actions);
+                _UndoStack.Add(actions);
                 if(!_redoing)
                     _RedoStack.Clear();
             }
             else
-                _RedoStack.Push(actions);
+                _RedoStack.Add(actions);
 
             actions = actions.Where(a => a.ChangeType != ChangeType.Modify && a.ChangedElement.GetType() != typeof(TranscriptionPhrase)).ToArray();
             if (CollectionChanged != null && actions.Length > 0)
@@ -90,8 +91,18 @@ namespace NanoTrans
             return true;
         }
 
-        Stack<ChangeAction[]> _UndoStack = new Stack<ChangeAction[]>();
-        Stack<ChangeAction[]> _RedoStack = new Stack<ChangeAction[]>();
+        ObservableCollection<ChangeAction[]> _UndoStack = new ObservableCollection<ChangeAction[]>();
+
+        public ObservableCollection<ChangeAction[]> UndoStack
+        {
+            get { return _UndoStack; }
+        }
+        ObservableCollection<ChangeAction[]> _RedoStack = new ObservableCollection<ChangeAction[]>();
+
+        public ObservableCollection<ChangeAction[]> RedoStack
+        {
+            get { return _RedoStack; }
+        }
         bool _undoing = false;
         public void Undo()
         {
@@ -99,7 +110,8 @@ namespace NanoTrans
             {
                 _undoing = true;
                 BeginUpdate();
-                var act = _UndoStack.Pop();
+                var act = _UndoStack[_UndoStack.Count-1];
+                _UndoStack.RemoveAt(_UndoStack.Count - 1);
                 for (int i = act.Length-1; i >=0; i--)
                 {
                     act[i].Revert(this);
@@ -117,8 +129,9 @@ namespace NanoTrans
             {
                 _redoing = true;
                 BeginUpdate();
-                
-                var act = _RedoStack.Pop();
+
+                var act = _RedoStack[_RedoStack.Count-1];
+                _RedoStack.RemoveAt(_RedoStack.Count - 1);
                 for (int i = act.Length - 1; i >= 0; i--)
                 {
                     act[i].Revert(this);

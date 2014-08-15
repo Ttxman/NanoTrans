@@ -369,6 +369,55 @@ namespace NanoTrans
                 RepaintAttributes();
 
 
+            #region remove default bindings to free shortcuts
+            List<ICommand> removeCommands = new List<ICommand>()
+            {
+                ApplicationCommands.Undo,//ctrl+Z
+                ApplicationCommands.Redo,//ctrl + Y??
+                AvalonEditCommands.IndentSelection,//ctrl+I
+                AvalonEditCommands.DeleteLine,//shift delete
+
+
+                EditingCommands.EnterLineBreak,//enter
+                EditingCommands.EnterParagraphBreak,//shift enter
+                EditingCommands.TabForward,//tab
+                EditingCommands.TabBackward,//shift tab
+
+                EditingCommands.MoveUpByPage, //pgup
+                EditingCommands.MoveDownByPage,//pgdown
+                EditingCommands.SelectUpByPage,//shift pgup
+                EditingCommands.SelectDownByPage, //shift pgdown
+            };
+
+
+           // var used = editor.TextArea.DefaultInputHandler.CaretNavigation.InputBindings.Select(b => "" + ((KeyBinding)b).Key + ":" + ((KeyBinding)b).Modifiers).ToArray();
+
+            List<CommandBinding> toremove = new List<CommandBinding>();
+            foreach (var binding in editor.TextArea.DefaultInputHandler.Editing.CommandBindings)
+            {
+                if(removeCommands.Contains(binding.Command))
+                {
+                    toremove.Add(binding);
+                }
+            }
+
+            foreach (var binding in editor.TextArea.DefaultInputHandler.CommandBindings)
+            {
+                if (removeCommands.Contains(binding.Command))
+                {
+                    toremove.Add(binding);
+                }
+            }
+
+            foreach (var item in toremove)
+            {
+                editor.TextArea.DefaultInputHandler.Editing.CommandBindings.Remove(item);
+                editor.TextArea.DefaultInputHandler.CommandBindings.Remove(item);
+            }
+
+            editor.Document.UndoStack.SizeLimit = 0;
+            #endregion
+
             if (Settings.Default.FeatureEnabler.NonSpeechEvents)
                 editor.TextArea.TextView.ElementGenerators.Add(DefaultNonEditableBlockGenerator);
             editor.TextArea.IndentationStrategy = new NoIndentationStrategy();
@@ -812,7 +861,15 @@ namespace NanoTrans
 
         private void editor_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.PageUp || e.Key == Key.PageDown || e.Key == Key.Tab || ((e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control) || e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Alt)) && (e.Key == Key.Home || e.Key == Key.End)) || (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Shift) && e.Key == Key.Delete)) // klavesy, ktere textbox krade, posleme rucne parentu...
+            //TODO: somehow remove the commandbindings from avalon edit, and remove this hack, some commands were found (see constructor)
+            // some shortcuts are consumed either by avalonedit, there can be romved in constructor if the corresponding command is found
+            // or some shortcuts can be consumed by listbox or other WPF components - there have to be removed elsewhere
+
+            if (e.Key == Key.PageUp || e.Key == Key.PageDown || e.Key == Key.Tab 
+                || ((e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control) || e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Alt)) && (e.Key == Key.Home || e.Key == Key.End)) 
+                || (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Shift) && e.Key == Key.Delete)
+             //   || (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control) && e.Key == Key.Z)
+                )
             {
                 KeyEventArgs kea = new KeyEventArgs((KeyboardDevice)e.Device, PresentationSource.FromVisual(this), e.Timestamp, e.Key) { RoutedEvent = Element.PreviewKeyDownEvent };
                 RaiseEvent(kea);
@@ -931,6 +988,7 @@ namespace NanoTrans
 
         private void editor_PreviewKeyUp(object sender, KeyEventArgs e)
         {
+            //TODO see editor_PreviewKeyDown
             if (e.Key == Key.PageUp || e.Key == Key.PageDown) // avalon edit handles some keys, just send them to parent
             {
                 KeyEventArgs kea = new KeyEventArgs((KeyboardDevice)e.Device, PresentationSource.FromVisual(this), e.Timestamp, e.Key) { RoutedEvent = Element.PreviewKeyUpEvent };

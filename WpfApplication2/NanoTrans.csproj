@@ -499,6 +499,8 @@
     <Resource Include="icons\join.png" />
     <Resource Include="icons\direction_left.png" />
     <Resource Include="icons\direction_right.png" />
+    <Resource Include="icons\redo.png" />
+    <Resource Include="icons\undo.png" />
     <Content Include="ICSharpCode.AvalonEdit.dll" />
     <Content Include="Ionic.Zip.dll" />
     <Content Include="NHunspell.dll" />
