@@ -39,7 +39,7 @@
         <sd:TextEditor Grid.Column="3" x:Name="editor" BorderThickness="0" Panel.ZIndex="100" FontSize="{Binding Source={x:Static props:Settings.Default}, Path=SetupTextFontSize}"
                        PreviewKeyDown="editor_PreviewKeyDown" 
                        SnapsToDevicePixels="False" WordWrap="True" 
-                       PreviewKeyUp="editor_PreviewKeyUp" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" OverridesDefaultStyle="true">
+                       HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" OverridesDefaultStyle="true">
             <sd:TextEditor.Style>
                 <Style TargetType="{x:Type sd:TextEditor}">
                     <Setter Property="Template">

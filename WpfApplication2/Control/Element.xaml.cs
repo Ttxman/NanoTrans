@@ -864,11 +864,8 @@ namespace NanoTrans
             //TODO: somehow remove the commandbindings from avalon edit, and remove this hack, some commands were found (see constructor)
             // some shortcuts are consumed either by avalonedit, there can be romved in constructor if the corresponding command is found
             // or some shortcuts can be consumed by listbox or other WPF components - there have to be removed elsewhere
-
-            if (e.Key == Key.PageUp || e.Key == Key.PageDown || e.Key == Key.Tab 
-                || ((e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control) || e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Alt)) && (e.Key == Key.Home || e.Key == Key.End)) 
+            if ( e.Key == Key.Tab
                 || (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Shift) && e.Key == Key.Delete)
-             //   || (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control) && e.Key == Key.Z)
                 )
             {
                 KeyEventArgs kea = new KeyEventArgs((KeyboardDevice)e.Device, PresentationSource.FromVisual(this), e.Timestamp, e.Key) { RoutedEvent = Element.PreviewKeyDownEvent };
@@ -984,22 +981,6 @@ namespace NanoTrans
                 e.Handled = true;
             }
 
-        }
-
-        private void editor_PreviewKeyUp(object sender, KeyEventArgs e)
-        {
-            //TODO see editor_PreviewKeyDown
-            if (e.Key == Key.PageUp || e.Key == Key.PageDown) // avalon edit handles some keys, just send them to parent
-            {
-                KeyEventArgs kea = new KeyEventArgs((KeyboardDevice)e.Device, PresentationSource.FromVisual(this), e.Timestamp, e.Key) { RoutedEvent = Element.PreviewKeyUpEvent };
-                RaiseEvent(kea);
-                if (!kea.Handled)
-                {
-                    kea.RoutedEvent = Element.KeyUpEvent;
-                    RaiseEvent(kea);
-                }
-                return;
-            }
         }
 
 
