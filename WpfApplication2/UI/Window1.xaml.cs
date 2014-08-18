@@ -850,9 +850,11 @@ namespace NanoTrans
         {
             if (!_setCaret)
             {
-                _setCaret = true;
-                if (position < TimeSpan.Zero) return;
+                if (position < TimeSpan.Zero)
+                    return;
 
+
+                _setCaret = true;
                 if (waveform1.CaretPosition != position)
                     waveform1.CaretPosition = position;
 
