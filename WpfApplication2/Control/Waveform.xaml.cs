@@ -98,7 +98,7 @@ namespace NanoTrans
             {
                 double aLeft = (CaretPosition - WaveBegin).TotalMilliseconds;
                 aLeft = aLeft / WaveLength.TotalMilliseconds * this.ActualWidth;
-                return new Thickness(aLeft + caretRectangle.Width / 2, caretRectangle.Margin.Top, caretRectangle.Margin.Right, caretRectangle.Margin.Bottom);
+                return new Thickness(aLeft + caretRectangle.ActualWidth / 2, caretRectangle.Margin.Top, caretRectangle.Margin.Right, caretRectangle.Margin.Bottom);
             }
         }
 
@@ -464,8 +464,8 @@ namespace NanoTrans
                 return;
             }
 
-            double begin = wave.BeginMS;
-            double end = wave.EndMS;
+            double begin = WaveBegin.TotalMilliseconds;
+            double end = WaveEnd.TotalMilliseconds;
 
             //TODO: remove TryCatch
             try
@@ -477,43 +477,13 @@ namespace NanoTrans
                 }
 
 
-                Int64 bg = (Int64)(0.001 * _frequency * (begin - wave.audioBuffer.StartMS));
-                Int64 en = (Int64)(0.001 * _frequency * (end - wave.audioBuffer.StartMS));
+                Int64 bfrFrom = (Int64)(0.001 * _frequency * (begin - wave.audioBuffer.StartMS));
+                Int64 bfrTo = bfrFrom + (Int64)((end - begin) * 0.001 * _frequency);
 
-
-                //////////////////////////////// should not ever enter here... :)
-                if (bg < -100)
-                {
-                    return;
-                }
-                //////////////////////////////////////////////////////////////////////////////
-
-                if (end > wave.audioBuffer.EndMS)
-                {
-                    en = (Int64)(((double)(wave.audioBuffer.EndMS - wave.audioBuffer.StartMS)) / 1000 * _frequency);// - 1;
-                    bg = (Int64)(en - (wave.LengthMS / 1000.0) * _frequency);
-                }
-
-
-                long mSekundyKonec = (wave.EndMS < wave.audioBuffer.EndMS) ? wave.EndMS : wave.audioBuffer.EndMS;
-                if (bg < 0)
-                {
-                    bg = 0;
-                    if (en < 0)
-                        en = bg + 30 * _frequency;//set length to 30s if buffer is shorter than requested
-                    wave.BeginMS = 1000 * bg / _frequency + wave.audioBuffer.StartMS;
-                    wave.EndMS = 1000 * en / _frequency + wave.audioBuffer.StartMS;
-                    mSekundyKonec = (int)(wave.EndMS);
-                    wave.SetWaveLength((uint)((en - bg) * 1000 / _frequency));
-                }
 
                 int pixelWidth = (int)this.ActualWidth;
                 if (pixelWidth <= 0) pixelWidth = 1600;
-                int sampleGroupCount = (int)((double)(en - bg) / (double)pixelWidth);
-
-
-
-
+                int sampleGroupCount = (int)((double)(bfrTo - bfrFrom) / (double)pixelWidth);
 
                 double[] wavemax = new double[pixelWidth];
                 double[] wavemin = new double[pixelWidth];
@@ -522,16 +492,25 @@ namespace NanoTrans
                     double min = short.MaxValue;
                     double max = short.MinValue;
 
-                    long pos = bg + i * sampleGroupCount;
-                    for (long k = pos; k < pos + sampleGroupCount && k < wave.audioBuffer.Data.Length; k++)
-                    {
-                        short val = wave.audioBuffer.Data[k];
-                        if (val < min)
-                            min = val;
-                        if (val > max)
-                            max = val;
-                    }
+                    long pos = bfrFrom + i * sampleGroupCount;
+                    if (pos < 0)
+                        continue;
 
+                    if (pos >= wave.audioBuffer.Data.Length)
+                    {
+                        min = max = 0;
+                    }
+                    else
+                    {
+                        for (long k = pos; k < pos + sampleGroupCount && k < wave.audioBuffer.Data.Length; k++)
+                        {
+                            short val = wave.audioBuffer.Data[k];
+                            if (val < min)
+                                min = val;
+                            if (val > max)
+                                max = val;
+                        }
+                    }
 
                     //normalize;
                     min /= ((double)short.MaxValue);
@@ -622,6 +601,8 @@ namespace NanoTrans
                 //myDrawingGroup.
                 var img = new DrawingImage(myDrawingGroup);
                 img.Freeze();
+
+
                 WaveFormImage = img;
                 invalidate_waveform = false;
             }
@@ -646,10 +627,10 @@ namespace NanoTrans
             try
             {
                 Transcription transc = _subtitlesData;
-                WaveformData currentWave = wave;
+                //   WaveformData currentWave = wave;
 
                 if (transc == null) return;
-                if (currentWave == null) return;
+                //    if (currentWave == null) return;
 
                 foreach (Button pL in speakerButtons)
                 {
@@ -666,28 +647,24 @@ namespace NanoTrans
                         for (int k = 0; k < pSection.Paragraphs.Count; k++)
                         {
                             TranscriptionParagraph pParagraph = pSection.Paragraphs[k];
-                            long pBegin = (long)pParagraph.Begin.TotalMilliseconds;
-                            long pEnd = (long)pParagraph.End.TotalMilliseconds;
+                            double pBegin = pParagraph.Begin.TotalMilliseconds;
+                            double pEnd = pParagraph.End.TotalMilliseconds;
+
+                            double wavebegin = WaveBegin.TotalMilliseconds;
+                            double waveend = WaveEnd.TotalMilliseconds;
+                            double wavelength = WaveLength.TotalMilliseconds;
 
                             if (pEnd < pBegin)
                                 pEnd = pBegin;
 
                             if (pBegin >= 0 && pEnd != pBegin && pEnd >= 0 && pParagraph.End >= TimeSpan.Zero)
                             {
-                                if ((pBegin < currentWave.BeginMS && pEnd < currentWave.BeginMS) || (pBegin > currentWave.EndMS))
+                                if ((pParagraph.Begin < WaveBegin && pParagraph.End < WaveBegin) || (pParagraph.Begin > WaveEnd))
                                 {
 
                                 }
                                 else
                                 {
-
-                                    if (pBegin >= currentWave.BeginMS && pEnd <= currentWave.EndMS)
-                                    {
-
-                                    }
-                                    if (pBegin < currentWave.BeginMS) pBegin = currentWave.BeginMS;
-                                    if (pEnd > currentWave.EndMS) pEnd = currentWave.EndMS;
-
                                     Button speaker = new Button();
 
 
@@ -698,8 +675,8 @@ namespace NanoTrans
                                     speaker.VerticalAlignment = VerticalAlignment.Top;
                                     speaker.HorizontalAlignment = HorizontalAlignment.Left;
 
-                                    double aLeft = (double)(this.ActualWidth * (pBegin - currentWave.BeginMS) / currentWave.LengthMS);
-                                    double aRight = gridTimeline.ActualWidth - (double)(this.ActualWidth * (pEnd - currentWave.BeginMS) / currentWave.LengthMS);
+                                    double aLeft = (double)(this.ActualWidth * (pBegin - wavebegin) / wavelength);
+                                    double aRight = gridTimeline.ActualWidth - (double)(this.ActualWidth * (pEnd - wavebegin) / wavelength);
                                     speaker.Margin = new Thickness(aLeft, speaker.Margin.Top, speaker.Margin.Right, selectionRectangle.Margin.Bottom);
                                     speaker.Width = gridTimeline.ActualWidth - aLeft - aRight;
 
@@ -805,22 +782,16 @@ namespace NanoTrans
         {
             Button b = sender as Button;
 
-            var elm = (TranscriptionElement)b.Tag;
-
             Point p = e.GetPosition(b);
             if (p.X <= 4)
             {
-                elm.BeginUpdate();
                 btndrag = true;
                 btndragleft = true;
                 e.Handled = true;
                 b.CaptureMouse();
-                
-                
             }
-            else if (p.X >= b.Width - 4)
+            else if (p.X >= b.ActualWidth - 4)
             {
-                elm.BeginUpdate();
                 btndrag = true;
                 btndragleft = false;
                 e.Handled = true;
@@ -872,13 +843,13 @@ namespace NanoTrans
                 PlayPauseClick(this, new RoutedEventArgs(Button.ClickEvent));
         }
 
-        DrawingImage _Waveform = null; 
-        public DrawingImage WaveFormImage 
-        { 
+        DrawingImage _Waveform = null;
+        public DrawingImage WaveFormImage
+        {
             get
             {
-                return  _Waveform;
-            } 
+                return _Waveform;
+            }
             set
             {
                 _Waveform = value;
@@ -1132,6 +1103,10 @@ namespace NanoTrans
         bool seldrag = false;
         bool btndragleft = false;
         bool mouseOverParagraphDrag = false;
+
+
+        HashSet<TranscriptionElement> _changedbegins = new HashSet<TranscriptionElement>();
+        HashSet<TranscriptionElement> _changedends = new HashSet<TranscriptionElement>();
         void pSpeaker_MouseMove(object sender, MouseEventArgs e)
         {
             Button b = sender as Button;
@@ -1141,7 +1116,7 @@ namespace NanoTrans
             {
                 b.Cursor = Cursors.ScrollWE;
             }
-            else if (p.X >= b.Width - 4)
+            else if (p.X >= b.ActualWidth - 4)
             {
                 b.Cursor = Cursors.ScrollWE;
             }
@@ -1161,36 +1136,41 @@ namespace NanoTrans
             Button bp = (ix == 0) ? null : speakerButtons[ix - 1];
             Button bn = (ix == speakerButtons.Count - 1) ? null : speakerButtons[ix + 1];
 
+
             TranscriptionElement current = b.Tag as TranscriptionElement;
-            TranscriptionElement previons = (bp == null) ? null : bp.Tag as TranscriptionElement;
+            TranscriptionElement previous = (bp == null) ? null : bp.Tag as TranscriptionElement;
             TranscriptionElement next = (bn == null) ? null : bn.Tag as TranscriptionElement;
 
             int section = current.Parent.ParentIndex;
-            int previousSection = (bp == null) ? -10 : previons.Parent.ParentIndex;
+            int previousSection = (bp == null) ? -10 : previous.Parent.ParentIndex;
             int nextSection = (bn == null) ? -10 : next.Parent.ParentIndex;
+
 
             if (btndrag)
             {
                 if (btndragleft)
                 {
 
-                    double bwi = b.Width + (b.Margin.Left - p.X);
+                    double bwi = b.ActualWidth + (b.Margin.Left - p.X);
                     double bmarginl = p.X;
 
-                    TimeSpan ts = new TimeSpan((long)(WaveLength.Ticks * (bmarginl / grid1.ActualWidth))) + WaveBegin;
-                    if (current.End - TimeSpan.FromMilliseconds(100) < ts)
+                    TimeSpan ts = PosToTime(b.Margin.Left);
+                    TimeSpan te = PosToTime(b.Margin.Left + b.ActualWidth);
+
+                    if (te - ts < TimeSpan.FromMilliseconds(100))
                         return;
-                    if ((bp != null && bmarginl < bp.Margin.Left + bp.Width) || mouseOverParagraphDrag) //kolize
+
+                    if ((bp != null && bmarginl < bp.Margin.Left + bp.ActualWidth) || mouseOverParagraphDrag) //kolize
                     {
                         if (section == previousSection)
                         {
                             mouseOverParagraphDrag = true;
                             if ((Keyboard.Modifiers & ModifierKeys.Shift) == 0)
                             {
-                                if (previons.Begin + TimeSpan.FromMilliseconds(100) > ts)
+                                if (PosToTime(bp.Margin.Left) + TimeSpan.FromMilliseconds(100) > ts)
                                     return;
                                 bp.Width = p.X - bp.Margin.Left;
-                                previons.End = ts;
+                                _changedends.Add(previous);
                             }
                             else
                                 mouseOverParagraphDrag = false;
@@ -1198,8 +1178,8 @@ namespace NanoTrans
 
                     }
 
-                    current.Begin = ts;
                     b.Width = bwi;
+                    _changedbegins.Add(current);
                     b.Margin = new Thickness(bmarginl, b.Margin.Top, b.Margin.Right, b.Margin.Bottom);
 
                 }
@@ -1208,33 +1188,29 @@ namespace NanoTrans
                     double bwi = p.X - b.Margin.Left;
 
                     TimeSpan ts = new TimeSpan((long)(WaveLength.Ticks * ((bwi + b.Margin.Left) / grid1.ActualWidth))) + WaveBegin;
-                    if (ts <= current.Begin + TimeSpan.FromMilliseconds(100))
+                    if (ts <= PosToTime(b.Margin.Left) + TimeSpan.FromMilliseconds(100))
                         return;
 
-                    if ((bn != null && b.Margin.Left + b.Width > bn.Margin.Left) || mouseOverParagraphDrag)
+                    if ((bn != null && b.Margin.Left + b.ActualWidth > bn.Margin.Left) || mouseOverParagraphDrag)
                     {
                         if (section == nextSection)
                         {
                             mouseOverParagraphDrag = true;
                             if ((Keyboard.Modifiers & ModifierKeys.Shift) == 0)
                             {
-                                if (next.End - TimeSpan.FromMilliseconds(100) <= ts)
+                                if (PosToTime(bn.Margin.Left + bn.ActualWidth) - TimeSpan.FromMilliseconds(100) <= ts)
                                     return;
 
-                                bn.Width = bn.Width + (bn.Margin.Left - p.X);
+                                bn.Width = bn.ActualWidth + (bn.Margin.Left - p.X);
                                 bn.Margin = new Thickness(p.X, bn.Margin.Top, bn.Margin.Right, bn.Margin.Bottom);
-                                next.Begin = ts;
+                                _changedbegins.Add(next);
                             }
                             else
                                 mouseOverParagraphDrag = false;
                         }
                     }
-
-                    //TODO: optimalize by removing this :)
-                    current.End = ts;
-
+                    _changedends.Add(current);
                     b.Width = bwi;
-
                 }
             }
         }
@@ -1245,14 +1221,35 @@ namespace NanoTrans
 
             Point position;
             Button b = sender as Button;
-            var elm = (TranscriptionElement)b.Tag;
             position = e.GetPosition((Button)sender);
 
             if (btndrag)
             {
                 InvalidateSpeakers();
                 b.ReleaseMouseCapture();
-                elm.EndUpdate();
+                Transcription.BeginUpdate();
+                foreach (var button in speakerButtons)
+                {
+                    var elm = button.Tag as TranscriptionElement;
+                    if (elm == null)
+                        continue;
+                    if (_changedbegins.Contains(elm))
+                    {
+                        var beg = PosToTime(button.Margin.Left);
+
+                        elm.Begin = beg;
+                    }
+
+                    if (_changedends.Contains(elm))
+                    {
+                        var end = PosToTime(button.Margin.Left + button.ActualWidth);
+                        elm.End = end;
+                    }
+                }
+
+                Transcription.EndUpdate();
+                _changedends.Clear();
+                _changedbegins.Clear();
             }
             btndrag = false;
             mouseOverParagraphDrag = false;
@@ -1279,7 +1276,7 @@ namespace NanoTrans
         TimeSpan requestedBegin = TimeSpan.Zero;
         TimeSpan requestedEnd = TimeSpan.Zero;
         private object wavelock = new object();
-        internal void AudioBufferCheck(TimeSpan value, bool force=false )
+        internal void AudioBufferCheck(TimeSpan value, bool force = false)
         {
             TimeSpan half = new TimeSpan(Const.DISPLAY_BUFFER_LENGTH.Ticks / 2);
 
@@ -1301,9 +1298,8 @@ namespace NanoTrans
 
             if ((
                 (value > innercheckE || value < innercheckB)  //nevejdeme se do nacteneho
-                && (bufferProcessThread == null || (value > outercheckE ||value < outercheckB)))
+                && (bufferProcessThread == null || (value > outercheckE || value < outercheckB)))
                 || force
-                
                 ) // nenacitame, nebo se nevejdeme se ani do nacitaneho
             {
 

@@ -276,7 +276,6 @@ namespace NanoTrans.Core
                         Saved = false;
                         return true;
                     }
-
                     return false;
 
                 }
