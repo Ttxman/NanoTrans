@@ -131,7 +131,6 @@ namespace NanoTrans
 
             CommandAssignElementStart.InputGestures.Add(new KeyGesture(Key.Home, ModifierKeys.Alt));
             CommandAssignElementEnd.InputGestures.Add(new KeyGesture(Key.End, ModifierKeys.Alt));
-            // CommandAssignElementTimeSelection.InputGestures.Add(new KeyGesture());
 
             CommandNewSection.InputGestures.Add(new KeyGesture(Key.F5));
             CommandInsertNewSection.InputGestures.Add(new KeyGesture(Key.F5, ModifierKeys.Shift));
@@ -486,7 +485,6 @@ namespace NanoTrans
             }
         }
 
-
         private void CExportElement(object sender, ExecutedRoutedEventArgs e)
         {
 
@@ -634,13 +632,18 @@ namespace NanoTrans
 
         private void CSmallJumpRight(object sender, ExecutedRoutedEventArgs e)
         {
-            SetCaretPosition(waveform1.CaretPosition + waveform1.SmallJump);
+            var newtime = waveform1.CaretPosition + waveform1.SmallJump;
+            SetCaretPosition(newtime);
             SelectTextBetweenTimeOffsets(waveform1.CaretPosition);
         }
 
         private void CSmallJumpLeft(object sender, ExecutedRoutedEventArgs e)
         {
-            SetCaretPosition(waveform1.CaretPosition - waveform1.SmallJump);
+            var newtime = waveform1.CaretPosition - waveform1.SmallJump;
+            if (newtime < TimeSpan.Zero)
+                newtime = TimeSpan.Zero;
+
+            SetCaretPosition(newtime);
             SelectTextBetweenTimeOffsets(waveform1.CaretPosition);
         }
 
