@@ -534,8 +534,11 @@ namespace NanoTrans
         private void CPlayPauseExecute(object sender, ExecutedRoutedEventArgs e)
         {
             if (MWP == null)
-                return;
+                InitializeAudioPlayer();
 
+
+            if (MWP == null)
+                return;
             if (_playing)
             {
                 if (videoAvailable) meVideo.Pause();
@@ -592,7 +595,7 @@ namespace NanoTrans
                 if (videoAvailable) meVideo.Play();
                 //spusteni prehravani pomoci tlacitka-kvuli nacteni primeho prehravani
 
-                Playing = true;
+                Playing = true; //TODO: MWP and Playing are not properly linked - you have to set Playing to true before calling play
 
                 if (adjustspeed)
                     MWP.Play(Settings.Default.SlowedPlaybackSpeed);

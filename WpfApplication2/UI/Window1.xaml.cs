@@ -178,9 +178,7 @@ namespace NanoTrans
                 if (value)
                 {
                     if (MWP == null)
-                    {
                         InitializeAudioPlayer();
-                    }
                 }
                 else
                 {
