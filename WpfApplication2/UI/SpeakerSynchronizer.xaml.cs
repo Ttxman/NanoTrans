@@ -123,7 +123,6 @@ namespace NanoTrans
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             var cleardicts = _pairs.Where(p => p.Speaker2 == null).Count();
-            _transcription.Saved = false;
             if (cleardicts > 0)
             {
                 if (MessageBox.Show("Chcete v lokální databázi vytvořit nové položky pro všechny nepřiřazené mluvčí?", "automatické vytváření mluvčích", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
@@ -139,13 +138,14 @@ namespace NanoTrans
             }
 
             var pairdict = _pairs.Where(p => p.Speaker2 != null).ToDictionary(p => p.Speaker1.Speaker, p => (p.Speaker2 == null) ? null : p.Speaker2.Speaker);
+            _transcription.BeginUpdate();
             foreach (var par in _transcription.EnumerateParagraphs())
             {
                 Speaker os;
                 if (pairdict.TryGetValue(par.Speaker, out os))
                     par.Speaker = os;
             }
-
+            _transcription.EndUpdate();
             foreach (var spe in pairdict.Keys)
             {
                 _transcription.Speakers.RemoveSpeaker(spe);

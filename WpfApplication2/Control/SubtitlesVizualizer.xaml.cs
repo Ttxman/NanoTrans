@@ -100,7 +100,6 @@ namespace NanoTrans
                 el.ValueElement.Children[0].Insert(0, p);
             }
             ActiveTransctiption = p;
-            Transcription.Saved = false;
         }
 
         void l_MoveRightRequest(object sender, EventArgs e)
@@ -246,7 +245,6 @@ namespace NanoTrans
             ScrollToItem(p);
             var vis = GetVisualForTransctiption(p);
             vis.editor.CaretOffset = len;
-            Transcription.Saved = false;
         }
 
         void l_MergeWithnextRequest(object sender, EventArgs e)
@@ -275,7 +273,6 @@ namespace NanoTrans
             ColorizeBackground(t);
             var vis = GetVisualForTransctiption(t);
             vis.editor.CaretOffset = len;
-            Transcription.Saved = false;
         }
 
         void l_SplitRequest(object sender, EventArgs e)
@@ -364,7 +361,6 @@ namespace NanoTrans
                 parent.Insert(indx, par2);
                 parent.Insert(indx, par1);
                 ActiveTransctiption = par2;
-                Transcription.Saved = false;
             }
         }
 
@@ -541,7 +537,6 @@ namespace NanoTrans
             if (ChangeSpeaker != null)
             {
                 ChangeSpeaker(sender, e);
-                Transcription.Saved = false;
             }
         }
 

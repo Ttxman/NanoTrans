@@ -535,7 +535,6 @@ namespace NanoTrans
             c.Add(s);
             s.Add(p);
             source.Add(c);
-            source.Saved = true;
             Transcription = source;
             SynchronizeSpeakers();
             VirtualizingListBox.ActiveTransctiption = p;

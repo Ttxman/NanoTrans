@@ -182,7 +182,6 @@ namespace NanoTrans
         {
             FilterTBox.Text = "";
             MenuItem_NewSpeaker(null, null);
-            _transcription.Saved = false;
         }
 
         private void ButtonOK_Click(object sender, RoutedEventArgs e)
@@ -196,7 +195,6 @@ namespace NanoTrans
 
 
             preventDoublecheck = false;
-            _transcription.Saved = false;
             this.DialogResult = true;
             this.Close();
         }
@@ -242,7 +240,6 @@ namespace NanoTrans
 
             if (sm2.ShowDialog() == true)
             {
-                _transcription.Saved = false;
                 var speakers = sm2.SpeakersBox.SelectedItems.Cast<SpeakerContainer>().Select(x => x.Speaker).ToList();
                 speakers.Remove(selectedSpeaker);
 
@@ -269,11 +266,13 @@ namespace NanoTrans
                         }
                     }
 
+                    _transcription.BeginUpdate();
                     foreach (TranscriptionParagraph tp in _transcription.EnumerateParagraphs())
                     {
                         if (speakers.Contains(tp.Speaker))
                             tp.Speaker = selectedSpeaker;
                     }
+                    _transcription.EndUpdate();
 
                     SpeakerProvider.Refresh();
                     SpeakersBox.UnselectAll();
@@ -559,14 +558,15 @@ namespace NanoTrans
 
         private void ReplaceSpeakerInTranscription(Speaker toReplace, Speaker replacement)
         {
-            _transcription.Saved = false;
             if (MessageBox.Show(string.Format(Properties.Strings.SpeakersManagerSpeakerReplaceDialogQuestionFormat, toReplace.FullName, replacement.FullName), Properties.Strings.SpeakersManagerSpeakerReplaceDialogCaption, MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             {
+                _transcription.BeginUpdate();
                 foreach (TranscriptionParagraph tp in _transcription.EnumerateParagraphs())
                 {
                     if (tp.Speaker == toReplace)
                         tp.Speaker = replacement;
                 }
+                _transcription.EndUpdate();
             }
         }
 
@@ -580,7 +580,6 @@ namespace NanoTrans
 
             ReplaceSpeakerInTranscription(_originalSpeaker, ((SpeakerContainer)SpeakersBox.SelectedValue).Speaker);
             preventDoublecheck = false;
-            _transcription.Saved = false;
             this.DialogResult = false; //Changes already applied
             this.Close();
         }
