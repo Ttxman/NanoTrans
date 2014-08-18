@@ -214,13 +214,13 @@ namespace NanoTrans
                 using (SpeakerProvider.DeferRefresh())
                 {
                     SpeakerProvider.DeleteSpeaker(selectedSpeaker);
-
+                    _transcription.BeginUpdate();
                     foreach (TranscriptionParagraph tp in _transcription.EnumerateParagraphs())
                     {
                         if (tp.Speaker == selectedSpeaker)
                             tp.Speaker = Speaker.DefaultSpeaker;
                     }
-
+                    _transcription.EndUpdate();
                 }
                 SpeakersBox.UnselectAll();
             }

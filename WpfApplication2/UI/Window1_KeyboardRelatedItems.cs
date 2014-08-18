@@ -410,6 +410,7 @@ namespace NanoTrans
 
             if (mgr.ShowDialog() == true && mgr.SelectedSpeaker != null)
             {
+                Transcription.BeginUpdate();
                 var origspk = tpr.Speaker;
                 tpr.Speaker = mgr.SelectedSpeaker;
 
@@ -425,7 +426,7 @@ namespace NanoTrans
                         p.Speaker = mgr.SelectedSpeaker;
                 }
 
-                this.Transcription.Saved = false;
+                Transcription.EndUpdate();
             }
 
             smwidth = mgr.Width;
