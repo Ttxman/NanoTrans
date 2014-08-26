@@ -53,7 +53,6 @@
                 </Style>
             </sd:TextEditor.Style>
         </sd:TextEditor>
-
         <CheckBox Grid.Column="4" Height="16" HorizontalAlignment="Center" Name="checkBox1" VerticalAlignment="Center" Checked="checkBox1_Checked" Unchecked="checkBox1_Unchecked" Margin="3" Visibility="{Binding Source={x:Static props:Settings.Default}, Path=FeatureEnabler.SpeakerAttributes, Converter={StaticResource visConverter}}" />
 
     </Grid>

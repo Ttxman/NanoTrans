@@ -228,7 +228,7 @@ namespace NanoTrans.Core
                 if (index.IsParagraphIndex)
                     Sections[index.Sectionindex].Insert(index, value);
                 else
-                    Sections[index.Sectionindex] = (TranscriptionSection)value;
+                    Sections.Insert(index.Sectionindex,(TranscriptionSection)value);
             }
             else
             {

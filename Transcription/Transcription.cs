@@ -409,8 +409,7 @@ namespace NanoTrans.Core
             return tr;
         }
 
-
-        //Deserializuje soubor             
+           
         public static void Deserialize(Stream datastream, Transcription storage)
         {
             storage.BeginUpdate(false);
@@ -1098,7 +1097,7 @@ namespace NanoTrans.Core
                 if (index.IsSectionIndex)
                     Chapters[index.Chapterindex].Insert(index, value);
                 else
-                    Chapters[index.Chapterindex] = (TranscriptionChapter)value;
+                    Chapters.Insert(index.Chapterindex,(TranscriptionChapter)value);
             }
             else
             {
