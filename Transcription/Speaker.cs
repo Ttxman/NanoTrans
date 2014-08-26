@@ -487,6 +487,7 @@ namespace NanoTrans.Core
         /// if DataBaseType is DBType.User - modification is disabled
         /// if DataBaseType is DBType.File - processing of value is disabled
         /// SHOULD be always UNIQUE GUID-like string (NanoTrans expects that ids from DBType.API and DBType.User can't conflict)
+        /// empty string is automatically converted to null, dbid will be generated on next read
         /// </summary>
         public string DBID
         {
@@ -502,7 +503,7 @@ namespace NanoTrans.Core
             set
             {
                 if (string.IsNullOrWhiteSpace(_dbid))
-                    _dbid = value;
+                    _dbid = null;
                 else if (DataBaseType == DBType.User)
                     throw new ArgumentException("cannot change DBID when Dabase is User");
                 else

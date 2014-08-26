@@ -221,10 +221,9 @@ namespace TrsxV1Plugin
 
 
     }
+
     public static class LoadRes
     {
-
-
 
         public static bool Import(Stream input, Transcription storage)
         {
