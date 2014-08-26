@@ -221,7 +221,7 @@ namespace NanoTrans
             Element el = (Element)sender;
             TranscriptionElement t = el.ValueElement;
             TranscriptionElement p = el.ValueElement.Previous();
-
+            t.Parent.BeginUpdate();
             int len = p.Text.Length;
             if (t is TranscriptionParagraph && p is TranscriptionParagraph)
             {
@@ -240,7 +240,8 @@ namespace NanoTrans
                 t.Parent.Remove(t);
 
             }
-            SpeakerChanged();
+           // SpeakerChanged();
+            t.Parent.EndUpdate();
             ActiveTransctiption = p;
             ScrollToItem(p);
             var vis = GetVisualForTransctiption(p);
@@ -252,6 +253,7 @@ namespace NanoTrans
             Element el = (Element)sender;
             TranscriptionElement t = el.ValueElement;
             TranscriptionElement n = el.ValueElement.Next();
+            t.Parent.BeginUpdate();
             int len = t.Text.Length;
             if (t is TranscriptionParagraph && n is TranscriptionParagraph)
             {
@@ -267,7 +269,8 @@ namespace NanoTrans
 
                 n.Parent.Remove(n);
             }
-            SpeakerChanged();
+            //SpeakerChanged();
+            t.Parent.EndUpdate();
             ActiveTransctiption = t;
             ScrollToItem(t);
             ColorizeBackground(t);
@@ -283,6 +286,7 @@ namespace NanoTrans
             {
 
                 TranscriptionParagraph par = (TranscriptionParagraph)el.ValueElement;
+                par.Parent.BeginUpdate();
                 TimeSpan end = par.End;
                 TranscriptionParagraph par2 = new TranscriptionParagraph();
                 TranscriptionParagraph par1 = new TranscriptionParagraph();
@@ -354,12 +358,13 @@ namespace NanoTrans
                     }
 
                 }
-                SpeakerChanged();
+                //SpeakerChanged();
                 var parent = par.Parent;
                 int indx = par.ParentIndex;
                 parent.Remove(par);
                 parent.Insert(indx, par2);
                 parent.Insert(indx, par1);
+                parent.EndUpdate();
                 ActiveTransctiption = par2;
             }
         }
