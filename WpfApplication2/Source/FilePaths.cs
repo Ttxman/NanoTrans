@@ -35,6 +35,9 @@ namespace NanoTrans
         private static readonly string _PedalFile = "Pedals.exe";
         private static readonly string _FFmpegFile = "ffmpeg.exe";
 
+
+        public static string _trsxschemafile = "TRSXSchema3.xsd";
+
         private static string _programDirectory;
         private static bool _writeToAppData;
 
@@ -294,5 +297,13 @@ namespace NanoTrans
             return _SaveDirectory;
         }
 
+
+        public static string TrsxSchemaPath 
+        {
+            get
+            { 
+                return Path.Combine(_programDirectory, _trsxschemafile);
+            }
+        }
     }
 }

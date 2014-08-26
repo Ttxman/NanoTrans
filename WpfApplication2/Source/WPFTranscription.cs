@@ -11,6 +11,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.ObjectModel;
+using System.Xml.Linq;
+using System.Xml;
+using System.Xml.Schema;
 
 namespace NanoTrans
 {
@@ -21,18 +24,66 @@ namespace NanoTrans
     {
         new public static WPFTranscription Deserialize(string path)
         {
-            var t = new WPFTranscription();
-            Transcription.Deserialize(path, t);
-            t.IsOnline = t.Elements.ContainsKey("Online") && t.Elements["Online"] == "True";
-            t.ClearUndo();
+            WPFTranscription t;
+            using (var s = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+                t = WPFTranscription.Deserialize(s);
 
             return t;
         }
 
         new public static WPFTranscription Deserialize(Stream stream)
         {
+            //on some remote data storage this can be more effective than lot of small direct reads by XMLTextReader
+            #region copy stream to internal buffer
+            
+            byte[] bfr = new byte[32*1024];
+            int read = 0;
+
+            int initsize = 500*1024;
+            MemoryStream bufferStream;
+            try
+            {
+                initsize = (int)stream.Length;
+            }finally
+            {
+                bufferStream = new MemoryStream(initsize);
+            }
+
+            while((read = stream.Read(bfr,0,bfr.Length)) > 0)
+                bufferStream.Write(bfr,0,read);
+            #endregion
+
+#if DEBUG
+            #region validation
+            bufferStream.Seek(0, SeekOrigin.Begin);
+            XmlSchemaSet schemas = new XmlSchemaSet();
+            XNamespace xNamespace = XNamespace.Get("http://www.ite.tul.cz/TRSXSchema3.xsd");
+            using (var s = File.Open(FilePaths.TrsxSchemaPath,FileMode.Open,FileAccess.Read,FileShare.Read))
+                schemas.Add(null, XmlReader.Create(s));
+
+            XDocument doc = XDocument.Load(bufferStream);
+
+            foreach (XElement xElement in doc.Descendants())
+            {
+                // First make sure that the xmlns-attribute is changed
+                xElement.SetAttributeValue("xmlns", xNamespace.NamespaceName);
+                // Then also prefix the name of the element with the namespace
+                xElement.Name = xNamespace + xElement.Name.LocalName;
+            }
+
+            
+            doc.Validate(schemas, (o,e) => 
+            {
+                System.Diagnostics.Debug.WriteLine(string.Format("{0}", e.Message));
+            });
+
+            //restore stream position
+            bufferStream.Seek(0, SeekOrigin.Begin);
+            #endregion
+#endif
+
             var t = new WPFTranscription();
-            Transcription.Deserialize(stream, t);
+            Transcription.Deserialize(bufferStream, t);
             t.IsOnline = t.Elements.ContainsKey("Online") && t.Elements["Online"] == "True";
             t.ClearUndo();
             return t;
