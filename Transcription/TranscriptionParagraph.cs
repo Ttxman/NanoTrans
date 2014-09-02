@@ -175,6 +175,11 @@ namespace NanoTrans.Core
             }
             set
             {
+                if (value == null)
+                {
+                    throw new ArgumentException("speaker on paragraph cannot be null, use Transcription.Core.Speaker.DefaultSepeaker");
+                }
+
                 var old = _speaker;
                 _speaker = value;
                 _internalID = (value!=null)?value.ID:Speaker.DefaultID;
