@@ -502,8 +502,10 @@ namespace NanoTrans.Core
             }
             set
             {
-                if (string.IsNullOrWhiteSpace(_dbid))
+                if (string.IsNullOrWhiteSpace(value))
                     _dbid = null;
+                else if (string.IsNullOrWhiteSpace(_dbid))
+                    _dbid = value;
                 else if (DataBaseType == DBType.User)
                     throw new ArgumentException("cannot change DBID when Dabase is User");
                 else
