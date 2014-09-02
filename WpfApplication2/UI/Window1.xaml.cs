@@ -725,7 +725,7 @@ namespace NanoTrans
                 {
 
                     FileInfo fi = new FileInfo(Transcription.FileName);
-                    pAudioFile = fi.Directory.FullName + "\\" + Transcription.MediaURI;
+                    pAudioFile = System.IO.Path.Combine(fi.Directory.FullName,Transcription.MediaURI);
                     fiA = new FileInfo(pAudioFile);
                 }
 

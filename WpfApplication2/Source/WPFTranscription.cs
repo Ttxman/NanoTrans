@@ -27,7 +27,7 @@ namespace NanoTrans
             WPFTranscription t;
             using (var s = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))
                 t = WPFTranscription.Deserialize(s);
-
+            t.FileName = path;
             return t;
         }
 
