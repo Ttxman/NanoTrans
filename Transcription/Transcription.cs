@@ -289,6 +289,7 @@ namespace NanoTrans.Core
 
         /// <summary>
         /// Replace speaker in all paragraphs and in databse
+        /// !!!also can modify Transcription.Speakers order
         /// </summary>
         /// <param name="aSpeaker"></param>
         /// <returns></returns>
