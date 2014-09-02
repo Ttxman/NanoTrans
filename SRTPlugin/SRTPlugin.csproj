@@ -46,6 +46,7 @@
     <ProjectReference Include="..\Transcription\NanoTrans.Core.csproj">
       <Project>{80737ca6-01da-4e8c-a2c2-ec9d066d24d6}</Project>
       <Name>NanoTrans.Core</Name>
+      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
