@@ -148,6 +148,8 @@ namespace NanoTrans.Properties
                 {
                     _VideoFrame = value;
                     OnPropertyChanged();
+                    _parent.OnPropertyChanged("VideoPanelVisible");
+                    _parent.OnPropertyChanged("VideoPanelWidth");
                 }
             }
 
