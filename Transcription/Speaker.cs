@@ -303,6 +303,8 @@ namespace NanoTrans.Core
             if (Elements.TryGetValue("pinned", out rem))
                 this.PinnedToDocument = XmlConvert.ToBoolean(rem);
 
+            if (Elements.TryGetValue("degreeafter", out rem))
+                this.DegreeAfter = rem;
 
 
             Elements.Remove("id");
@@ -319,8 +321,6 @@ namespace NanoTrans.Core
             Elements.Remove("synchronized");
 
             Elements.Remove("pinned");
-
-
         }
 
         private DBType stringToDBType(string rem)
