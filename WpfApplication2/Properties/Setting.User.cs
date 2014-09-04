@@ -187,7 +187,7 @@ namespace NanoTrans.Properties
             {
                 if (_SpeakerAtributteCategories == null)
                 {
-                    _SpeakerAtributteCategories = NanoTrans.Properties.Strings.GlobalDefaultSpeakerAttributes.Split(',');
+                    _SpeakerAtributteCategories = NanoTrans.Properties.Strings.GlobalDefaultSpeakerAttributes.Split(',').Concat(NanoTrans.Properties.Settings.Default.AdditionalSpeakerAtributeCategories.Split(new[]{','}, StringSplitOptions.RemoveEmptyEntries)).ToArray();
                 }
 
                 return _SpeakerAtributteCategories;

@@ -92,7 +92,7 @@ namespace NanoTrans
 
         private void SpeakerAttributeControl_GotFocus(object sender, RoutedEventArgs e)
         {
-            AttributeList.SelectedItem = (sender as SpeakerAttributeControl).Attribute;
+            AttributeList.SelectedValue = (sender as SpeakerAttributeControl).Attribute;
         }
 
         private void SpeakerAttributeControl_ContentChanged(object sender, RoutedEventArgs e)

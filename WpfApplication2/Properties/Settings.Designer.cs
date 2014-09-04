@@ -370,5 +370,17 @@ namespace NanoTrans.Properties {
                 this["VideoPanelVisibleStore"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string AdditionalSpeakerAtributeCategories {
+            get {
+                return ((string)(this["AdditionalSpeakerAtributeCategories"]));
+            }
+            set {
+                this["AdditionalSpeakerAtributeCategories"] = value;
+            }
+        }
     }
 }
