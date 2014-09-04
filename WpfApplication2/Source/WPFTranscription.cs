@@ -83,8 +83,10 @@ namespace NanoTrans
 #endif
 
             var t = new WPFTranscription();
+            t.BeginUpdate();
             Transcription.Deserialize(bufferStream, t);
             t.IsOnline = t.Elements.ContainsKey("Online") && t.Elements["Online"] == "True";
+            t.EndUpdate();
             t.ClearUndo();
             return t;
         }

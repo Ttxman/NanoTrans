@@ -695,7 +695,10 @@ namespace NanoTrans
         {
             this.Title = Const.APP_NAME + " [" + Transcription.FileName + "]";
             VirtualizingListBox.ActiveTransctiption = Transcription.First(e => e.IsParagraph) ?? Transcription.First();
+            Transcription.BeginUpdate();
             SynchronizeSpeakers();
+            Transcription.EndUpdate();
+            Transcription.ClearUndo();
         }
 
         private void TryLoadVideoFile()
@@ -1339,8 +1342,6 @@ namespace NanoTrans
         }
 
         #endregion
-
-
 
 
         private async void Window_Loaded(object sender, RoutedEventArgs e)
