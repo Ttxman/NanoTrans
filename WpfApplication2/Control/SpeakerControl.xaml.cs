@@ -72,7 +72,7 @@ namespace NanoTrans
 
         private void ButtonAddAttributeClick(object sender, RoutedEventArgs e)
         {
-            SpeakerAttribute sa = new SpeakerAttribute("", Settings.Default.SpeakerAtributteCategories[0], "");
+            SpeakerAttribute sa = new SpeakerAttribute("", Settings.Default.SpeakerAttributteCategories[0], "");
             SpeakerContainer.Speaker.Attributes.Add(sa);
             SpeakerContainer.Changed = true;
             SpeakerContainer.RefreshAttributes();

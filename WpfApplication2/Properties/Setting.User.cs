@@ -180,22 +180,22 @@ namespace NanoTrans.Properties
             }
         }
 
-        string[] _SpeakerAtributteCategories = null;
-        public string[] SpeakerAtributteCategories
+        string[] _SpeakerAttributteCategories = null;
+        public string[] SpeakerAttributteCategories
         {
             get
             {
-                if (_SpeakerAtributteCategories == null)
+                if (_SpeakerAttributteCategories == null)
                 {
-                    _SpeakerAtributteCategories = NanoTrans.Properties.Strings.GlobalDefaultSpeakerAttributes.Split(',').Concat(NanoTrans.Properties.Settings.Default.AdditionalSpeakerAtributeCategories.Split(new[]{','}, StringSplitOptions.RemoveEmptyEntries)).ToArray();
+                    _SpeakerAttributteCategories = NanoTrans.Properties.Strings.GlobalDefaultSpeakerAttributes.Split(',').Concat(NanoTrans.Properties.Settings.Default.AdditionalSpeakerAttributeCategories.Split(new[]{','}, StringSplitOptions.RemoveEmptyEntries)).ToArray();
                 }
 
-                return _SpeakerAtributteCategories;
+                return _SpeakerAttributteCategories;
             }
 
             private set
             {
-                _SpeakerAtributteCategories = value;
+                _SpeakerAttributteCategories = value;
                 OnPropertyChanged();
             }
         }
@@ -426,7 +426,7 @@ namespace NanoTrans.Properties
 
         void LocalizationInstance_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            SpeakerAtributteCategories = null;
+            SpeakerAttributteCategories = null;
             NonSpeechEvents = null;
         }
 

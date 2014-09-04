@@ -374,12 +374,12 @@ namespace NanoTrans.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string AdditionalSpeakerAtributeCategories {
+        public string AdditionalSpeakerAttributeCategories {
             get {
-                return ((string)(this["AdditionalSpeakerAtributeCategories"]));
+                return ((string)(this["AdditionalSpeakerAttributeCategories"]));
             }
             set {
-                this["AdditionalSpeakerAtributeCategories"] = value;
+                this["AdditionalSpeakerAttributeCategories"] = value;
             }
         }
     }

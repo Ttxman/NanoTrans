@@ -17,7 +17,7 @@
                     <ColumnDefinition Width="100"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <ComboBox Name="typeselect" Grid.Column="0" SelectedItem="{Binding Name}" ItemsSource="{Binding Source={x:Static props:Settings.Default}, Path=SpeakerAtributteCategories}"  Visibility="Visible"/>
+                <ComboBox Name="typeselect" Grid.Column="0" SelectedItem="{Binding Name}" ItemsSource="{Binding Source={x:Static props:Settings.Default}, Path=SpeakerAttributteCategories}"  Visibility="Visible"/>
                 <Button Name="keytext" Grid.Column="0" Content="{Binding Name}" Visibility="Hidden" />
                 <TextBox Grid.Column="1" Text="{Binding Value}" />
             </Grid>
