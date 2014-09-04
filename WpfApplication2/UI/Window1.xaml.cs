@@ -220,6 +220,7 @@ namespace NanoTrans
             fe.Spellchecking = false;
             fe.Export = false;
             fe.SpeakerAttributes = false;
+            fe.VideoFrame = false;
 
 #endif
 
