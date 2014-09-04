@@ -86,7 +86,7 @@ namespace NanoTrans.Core
         /// </summary>
         /// <param name="saveAll">save including image and merges, used when saving database</param>
         /// <returns></returns>
-        public virtual XElement Serialize(bool saveAll = false)
+        public virtual XElement Serialize(bool saveAll = true)
         {
             XElement elm = new XElement("sp",
                 elements.Select(e => new XAttribute(e.Key, e.Value)),
@@ -101,9 +101,9 @@ namespace NanoTrans.Core
         /// </summary>
         /// <param name="saveAll">save including image and merges, used when saving database</param>
         /// <returns></returns>
-        public void Serialize(string filename,bool saveAll = false)
+        public void Serialize(string filename, bool saveAll = true)
         {
-            var xelm = Serialize();
+            var xelm = Serialize(saveAll);
             xelm.Save(filename);
         }
 
