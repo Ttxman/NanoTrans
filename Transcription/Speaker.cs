@@ -272,7 +272,6 @@ namespace NanoTrans.Core
             if (Elements.TryGetValue("synchronized", out rem))
             {
                 DateTime date;
-
                 if (!string.IsNullOrWhiteSpace(rem)) //i had to load big archive with empty synchronized attribute .. this is significant speedup
                 {
                     //problem with saving datetimes in local format
