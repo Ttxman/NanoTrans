@@ -438,8 +438,12 @@ namespace NanoTrans.Core
             storage.EndUpdate();
         }
 
-        public XElement Meta = EmptyMeta;
-        private static readonly XElement EmptyMeta = new XElement("meta");
+        public XElement Meta = EmptyMeta();
+        private static XElement EmptyMeta()
+        {
+            return new XElement("meta");
+        }
+
         public Dictionary<string, string> Elements = new Dictionary<string, string>();
 
         /// <summary>
@@ -461,7 +465,9 @@ namespace NanoTrans.Core
             string version = transcription.Attribute("version").Value;
             string mediaURI = transcription.Attribute("mediaURI").Value;
             data.MediaURI = mediaURI;
-            data.Meta = transcription.Element("meta") ?? EmptyMeta;
+            data.Meta = transcription.Element("meta");
+            if(data.Meta == null)
+                data.Meta = EmptyMeta();
             var chapters = transcription.Elements(isStrict ? "chapter" : "ch");
 
             data.Elements = transcription.Attributes().ToDictionary(a => a.Name.ToString(), a => a.Value);
@@ -494,7 +500,9 @@ namespace NanoTrans.Core
             string version = transcription.Attribute("version").Value;
             string mediaURI = transcription.Attribute("mediauri").Value;
             data.MediaURI = mediaURI;
-            data.Meta = transcription.Element("meta") ?? EmptyMeta;
+            data.Meta = transcription.Element("meta");
+            if(data.Meta == null)
+                data.Meta = EmptyMeta();
             var chapters = transcription.Elements("ch");
 
 
