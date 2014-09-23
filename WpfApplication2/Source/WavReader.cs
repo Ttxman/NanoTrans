@@ -134,8 +134,10 @@ namespace NanoTrans.Audio
         /// <summary>
         /// konstruktor
         /// </summary>
-        public WavReader()
+        public WavReader(string tempDirectory = null)
         {
+            this.TempPath = tempDirectory ?? FilePaths.TempDirectory;
+
             Frequency = 16000;
             SampleSize = 2;
             ChannelCount = 1;
@@ -171,7 +173,7 @@ namespace NanoTrans.Audio
             this._Loaded = false;
             this._Converted = false;
             _conversionStopper = 0;
-            this.tPrevodNaDocasneSoubory = new Thread(() => this.WaveChunksConversion(_FilePath, FilePaths.TempDirectory, Const.TEMPORARY_AUDIO_FILE_LENGTH_MS)) { Name = "conversion to wav" };
+            this.tPrevodNaDocasneSoubory = new Thread(() => this.WaveChunksConversion(_FilePath, this.TempPath, Const.TEMPORARY_AUDIO_FILE_LENGTH_MS)) { Name = "conversion to wav" };
             this.tPrevodNaDocasneSoubory.Start();
 
         }
@@ -348,7 +350,7 @@ namespace NanoTrans.Audio
 
                 //prvni docasny wav soubor tmp
                 pIndexDocasneho = 0;
-                temporaryWaveFiles.Add(TemporaryWAVsPath + pIndexDocasneho.ToString() + ".wav");
+                temporaryWaveFiles.Add(Path.Combine(TemporaryWAVsPath, pIndexDocasneho.ToString() + ".wav"));
                 output = new BinaryWriter(new FileStream(temporaryWaveFiles[pIndexDocasneho], FileMode.Create));
                 Stream outputbase = output.BaseStream;
                 //prazdna hlavicka
@@ -644,19 +646,24 @@ namespace NanoTrans.Audio
 
                 lock (_AudioDataWriteLocker)
                 {
-                    FileInfo fi = new FileInfo(FilePaths.TempDirectory);
-                    FileInfo[] pSoubory = fi.Directory.GetFiles("*.wav");
-                    foreach (FileInfo i in pSoubory)
+                    if (TempPath != null)//cleanup
                     {
-                        try
+                        DirectoryInfo di = new DirectoryInfo(this.TempPath);
+                        if (di.Exists)
                         {
-                            i.Delete();
-                        }
-                        catch //(Exception ex)
-                        {
+                            FileInfo[] pSoubory = di.GetFiles("*.wav");
+                            foreach (FileInfo i in pSoubory)
+                            {
+                                try
+                                {
+                                    i.Delete();
+                                }
+                                catch //(Exception ex)
+                                {
+                                }
+                            }
                         }
                     }
-
                     //uvodni nastaveni promennych
                     this._Converted = false;
                     this._Loaded = false;
@@ -675,5 +682,7 @@ namespace NanoTrans.Audio
             Stop();
         }
         #endregion
+
+        public string TempPath { get; set; }
     }
 }

@@ -73,11 +73,11 @@ namespace NanoTrans
         {
 
             string foldername = System.IO.Path.GetRandomFileName();
-            string temppath = System.IO.Path.GetTempPath() + "NanoTrans\\";
+            string temppath = Path.Combine(System.IO.Path.GetTempPath(),"NanoTrans");
 
             Directory.CreateDirectory(temppath);
             DeleteUnusedTempFolders(temppath);
-            temppath = temppath + foldername;
+            temppath = Path.Combine(temppath, foldername);
             Directory.CreateDirectory(temppath);
             TempCheckMutex = new Mutex(true, "NanoTransMutex_" + foldername);
 
