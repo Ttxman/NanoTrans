@@ -47,7 +47,7 @@ namespace NanoTrans.Audio
     public class WavReader : IDisposable
     {
 
-        internal static bool SaveToWav(string filename, short[] Data)
+        public static bool SaveToWav(string filename, short[] Data)
         {
             try
             {
