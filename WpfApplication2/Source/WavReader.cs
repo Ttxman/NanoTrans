@@ -416,7 +416,8 @@ namespace NanoTrans.Audio
                             output.Dispose();
                             output = null;
                             pIndexDocasneho++;
-                            temporaryWaveFiles.Add(TemporaryWAVsPath + pIndexDocasneho.ToString() + ".wav");
+
+                            temporaryWaveFiles.Add(Path.Combine(TemporaryWAVsPath, pIndexDocasneho.ToString() + ".wav"));
 
                             AudioBufferEventArgs2 e2 = new AudioBufferEventArgs2(pIndexDocasneho, (pIndexDocasneho + 1) * this.delkaDocasnehoWavMS);
                             if (HaveFileNumber != null)
