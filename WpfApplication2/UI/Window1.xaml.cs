@@ -699,6 +699,7 @@ namespace NanoTrans
             SynchronizeSpeakers();
             Transcription.EndUpdate();
             Transcription.ClearUndo();
+            Transcription.Saved = true;
         }
 
         private void TryLoadVideoFile()

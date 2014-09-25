@@ -88,6 +88,7 @@ namespace NanoTrans
             t.IsOnline = t.Elements.ContainsKey("Online") && t.Elements["Online"] == "True";
             t.EndUpdate();
             t.ClearUndo();
+            t.Saved = true;
             return t;
         }
         public WPFTranscription(string filename)
