@@ -78,17 +78,17 @@ namespace NanoTrans.Core
             string pJmeno = "";
             if (FirstName != null && FirstName.Length > 0)
             {
-                pJmeno += FirstName;
+                pJmeno += FirstName.Trim();
             }
             if (MiddleName != null && MiddleName.Length > 0)
             {
-                pJmeno += " " + MiddleName;
+                pJmeno += " " + MiddleName.Trim();
             }
 
             if (Surname != null && Surname.Length > 0)
             {
                 if (pJmeno.Length > 0) pJmeno += " ";
-                pJmeno += Surname;
+                pJmeno += Surname.Trim();
             }
 
             if (string.IsNullOrEmpty(pJmeno))

@@ -49,6 +49,12 @@ namespace NanoTrans
 
         public void ApplyChanges()
         {
+            DegreeAfter = DegreeAfter.Trim();
+            DegreeBefore = DegreeBefore.Trim();
+            FirstName = FirstName.Trim();
+            MiddleName = MiddleName.Trim();
+            SurName = SurName.Trim();
+
             if (_degreeAfter != null)
                 _speaker.DegreeAfter = _degreeAfter;
             if (_degreeBefore != null)
@@ -99,7 +105,7 @@ namespace NanoTrans
 
             set
             {
-                _degreeAfter = (value ?? "").Trim();
+                _degreeAfter = (value ?? "");
                 Changed = true;
                 if (PropertyChanged != null)
                     PropertyChanged(this, new PropertyChangedEventArgs("DegreeAfter"));
@@ -115,7 +121,7 @@ namespace NanoTrans
 
             set
             {
-                _degreeBefore = (value ?? "").Trim();
+                _degreeBefore = (value ?? "");
                 Changed = true;
                 if (PropertyChanged != null)
                     PropertyChanged(this, new PropertyChangedEventArgs("DegreeBefore"));
@@ -131,7 +137,7 @@ namespace NanoTrans
 
             set
             {
-                _firstName = (value ?? "").Trim();
+                _firstName = (value ?? "");
                 Changed = true;
                 if (PropertyChanged != null)
                     PropertyChanged(this, new PropertyChangedEventArgs("FirstName"));
@@ -259,7 +265,7 @@ namespace NanoTrans
 
             set
             {
-                _middleName = (value ?? "").Trim();
+                _middleName = (value ?? "");
                 Changed = true;
                 if (PropertyChanged != null)
                     PropertyChanged(this, new PropertyChangedEventArgs("MiddleName"));
@@ -303,7 +309,7 @@ namespace NanoTrans
 
             set
             {
-                _surName = (value ?? "").Trim();
+                _surName = (value ?? "");
                 Changed = true;
                 if (PropertyChanged != null)
                     PropertyChanged(this, new PropertyChangedEventArgs("SurName"));
