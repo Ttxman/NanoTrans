@@ -431,6 +431,8 @@ namespace NanoTrans
                 {
                     return MessageBoxResult.Cancel;
                 }
+
+                return MessageBoxResult.Yes;
             }
             else if(result == MessageBoxResult.No)
             {
@@ -490,7 +492,6 @@ namespace NanoTrans
 
         private async Task<bool> TrySaveSpeaker(SpeakerContainer spk)
         {
-            bool retval = false;
             if (NewSpeaker == spk.Speaker)
             {
                 if (await TestName(spk))
@@ -505,7 +506,6 @@ namespace NanoTrans
                             SpeakerProvider.AddLocalSpeaker(spk.Speaker);
 
                         NewSpeaker = null;
-                        retval = true;
                     }
                 }
                 else
@@ -530,7 +530,7 @@ namespace NanoTrans
                 }
             }
 
-            return retval;
+            return true; ;
         }
 
         private async Task<bool> TestName(SpeakerContainer spk)
