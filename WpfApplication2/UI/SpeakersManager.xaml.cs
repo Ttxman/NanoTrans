@@ -78,7 +78,7 @@ namespace NanoTrans
             _transcription = transcription;
 
             InitializeComponent();
-            SpeakerProvider = new SpeakerManagerViewModel(documentSpeakers, localSpeakers, transcription.Api,this);
+            SpeakerProvider = new SpeakerManagerViewModel(new SpeakerCollection(documentSpeakers.Concat(transcription.EnumerateParagraphs().Select(p=>p.Speaker)).Distinct()), localSpeakers, transcription.Api,this);
             var ss = SpeakerProvider.GetContainerForSpeaker(originalSpeaker);
             if (ss != null)
                 ss.Marked = true;

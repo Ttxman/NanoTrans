@@ -393,7 +393,7 @@ namespace NanoTrans
             if (cont == null)
                 return false;
 
-            if (_showDocument && cont.IsDocument)
+            if (_showDocument && _document.Contains(cont.Speaker))
                 res = true;
 
             if (_showLocal && cont.IsLocal)
