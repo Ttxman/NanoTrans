@@ -189,7 +189,7 @@ namespace NanoTrans
 
             if (SelectedSpeakerContainer != null)
             {
-                if (!CheckChanges(SelectedSpeakerContainer))
+                if (CheckChanges(SelectedSpeakerContainer) == MessageBoxResult.Cancel)
                     return;
             }
 
@@ -380,11 +380,12 @@ namespace NanoTrans
                     {
                         foreach (var sc in changedSpeakers)
                         {
-                            if (SpeakersBox.Items.Contains(sc) && CheckChanges(sc))
+                            var ch = CheckChanges(sc);
+
+                            if (SpeakersBox.Items.Contains(sc) && ch == MessageBoxResult.Cancel)
                             { //revert changes
                                 if (SpeakersBox.SelectionMode == SelectionMode.Multiple)
                                 {
-
                                     foreach (var r in e.AddedItems.Cast<SpeakerContainer>())
                                         SpeakersBox.SelectedItems.Remove(r);
 
@@ -414,12 +415,12 @@ namespace NanoTrans
             }
         }
 
-        private bool CheckChanges(SpeakerContainer sc)
+        private MessageBoxResult CheckChanges(SpeakerContainer sc)
         {
             if (!sc.Changed)
-                return true;
+                return MessageBoxResult.OK;
 
-            var result = MessageBox.Show(string.Format(Properties.Strings.SpeakersManagerSpeakerApplyChangesDialogFormat, sc.FullName), Properties.Strings.SpeakersManagerSpeakerApplyChangesDialogQuestion, MessageBoxButton.YesNo, MessageBoxImage.Question);
+            var result = MessageBox.Show(string.Format(Properties.Strings.SpeakersManagerSpeakerApplyChangesDialogFormat, sc.FullName), Properties.Strings.SpeakersManagerSpeakerApplyChangesDialogQuestion, MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
 
             ApiSynchronizedSpeaker ss = sc.Speaker as ApiSynchronizedSpeaker;
 
@@ -428,10 +429,10 @@ namespace NanoTrans
                 bool saved = AsyncHelpers.RunSync(() => TrySaveSpeaker(sc));
                 if (!saved)
                 {
-                    return false;
+                    return MessageBoxResult.Cancel;
                 }
             }
-            else
+            else if(result == MessageBoxResult.No)
             {
 
                 if (NewSpeaker == sc.Speaker)
@@ -440,10 +441,10 @@ namespace NanoTrans
                     SpeakerProvider.DeleteSpeaker(ss);
                 }
                 sc.ReloadSpeaker();
-                return false;
+                return MessageBoxResult.No;
             }
 
-            return true;
+            return MessageBoxResult.Cancel;
         }
 
 
@@ -457,7 +458,7 @@ namespace NanoTrans
         {
             if (SelectedSpeakerContainer != null)
             {
-                if (!CheckChanges(SelectedSpeakerContainer))
+                if (CheckChanges(SelectedSpeakerContainer) == MessageBoxResult.Cancel)
                 {
                     e.Cancel = true;
                     return;
@@ -574,8 +575,10 @@ namespace NanoTrans
         {
             if (SelectedSpeakerContainer != null)
             {
-                if (!CheckChanges(SelectedSpeakerContainer))
+                if (CheckChanges(SelectedSpeakerContainer) == MessageBoxResult.Cancel)
+                {
                     return;
+                }
             }
 
             ReplaceSpeakerInTranscription(_originalSpeaker, ((SpeakerContainer)SpeakersBox.SelectedValue).Speaker);
