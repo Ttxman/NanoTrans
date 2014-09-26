@@ -23,32 +23,37 @@ namespace NanoTrans
     /// </summary>
     public partial class SpeakerAttributeControl : UserControl
     {
-
         Binding _oldb;
         public SpeakerAttributeContainer Attribute
         {
             get { return (SpeakerAttributeContainer)GetValue(AttributeProperty); }
             set
             {
-                if (_oldb != null)
-                {
-                    BindingOperations.ClearBinding(this, IsChangedProperty);
-                }
-
-                _oldb = new Binding("Changed")
-                {
-                    Source = value,
-                    Mode = BindingMode.OneWay,
-                };
-                BindingOperations.SetBinding(this, IsChangedProperty, _oldb);
-
                 SetValue(AttributeProperty, value);
             }
         }
 
         // Using a DependencyProperty as the backing store for Attribute.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty AttributeProperty =
-            DependencyProperty.Register("Attribute", typeof(SpeakerAttributeContainer), typeof(SpeakerAttributeControl));
+            DependencyProperty.Register("Attribute", typeof(SpeakerAttributeContainer), typeof(SpeakerAttributeControl), new FrameworkPropertyMetadata(new PropertyChangedCallback(OnAttributePropertyChanged)));
+
+        public static void OnAttributePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            SpeakerAttributeControl ac = (SpeakerAttributeControl)d;
+
+            if (ac._oldb != null)
+            {
+                BindingOperations.ClearBinding(ac, IsChangedProperty);
+            }
+
+            ac._oldb = new Binding("Changed")
+            {
+                Source = e.NewValue,
+                Mode = BindingMode.OneWay,
+            };
+            BindingOperations.SetBinding(ac, IsChangedProperty, ac._oldb);
+
+        }
 
         public bool IsChanged
         {
@@ -56,14 +61,19 @@ namespace NanoTrans
             set
             {
                 SetValue(IsChangedProperty, value);
-                RaiseEvent(new RoutedEventArgs(ContentChangedEvent, this));
+                
             }
         }
 
         // Using a DependencyProperty as the backing store for Attribute.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty IsChangedProperty =
-            DependencyProperty.Register("IsChanged", typeof(bool), typeof(SpeakerAttributeControl));
+            DependencyProperty.Register("IsChanged", typeof(bool), typeof(SpeakerAttributeControl), new FrameworkPropertyMetadata(new PropertyChangedCallback(OnIsChangedPropertyChanged)));
 
+        public static void OnIsChangedPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            SpeakerAttributeControl ac = (SpeakerAttributeControl)d;
+            ac.RaiseEvent(new RoutedEventArgs(ContentChangedEvent, ac));
+        }
 
         // This event uses the bubbling routing strategy
         public static readonly RoutedEvent ContentChangedEvent = EventManager.RegisterRoutedEvent(
