@@ -665,7 +665,7 @@ namespace NanoTrans
             Settings.Default.FeatureEnabler.LocalSpeakers = false;
 
             _api = new SpeakersApi(path, this);
-            if (_api.TryLogin(this) == true)
+            if (_api.TryLogin() == true)
             {
                 LoadOnlineSetting();
             }

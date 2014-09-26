@@ -95,7 +95,7 @@ namespace NanoTrans.OnlineAPI
             if (r.StatusCode == System.Net.HttpStatusCode.Unauthorized)
             {
                 throw new NotImplementedException();
-                TryLogin(_owner);
+                TryLogin();
             }
 
             return r;
@@ -114,7 +114,7 @@ namespace NanoTrans.OnlineAPI
         public virtual async Task<IEnumerable<ApiSynchronizedSpeaker>> ListSpeakers(IEnumerable<string> guids)
         {
             if (!LogedIn)
-                TryLogin(_owner);
+                TryLogin();
 
             var apiurl = new Uri(Info.SpeakerAPI_URL, @"v1/speaker/list");
             var data = new JObject();
@@ -137,7 +137,7 @@ namespace NanoTrans.OnlineAPI
         public virtual async Task<ApiSynchronizedSpeaker> GetSpeaker(string p)
         {
             if (!LogedIn)
-                TryLogin(_owner);
+                TryLogin();
 
             var apiurl = new Uri(Info.SpeakerAPI_URL, @"v1/speaker/get");
             var data = new JObject();
@@ -151,7 +151,7 @@ namespace NanoTrans.OnlineAPI
         internal virtual async Task<bool> UpdateSpeaker(ApiSynchronizedSpeaker speaker)
         {
             if (!LogedIn)
-                TryLogin(_owner);
+                TryLogin();
 
             var apiurl = new Uri(Info.SpeakerAPI_URL, @"v1/speaker/edit");
             var data = SerializeSpeaker(speaker);
@@ -169,7 +169,7 @@ namespace NanoTrans.OnlineAPI
         internal virtual async Task<bool> AddSpeaker(ApiSynchronizedSpeaker speaker)
         {
             if (!LogedIn)
-                TryLogin(_owner);
+                TryLogin();
 
             var apiurl = new Uri(Info.SpeakerAPI_URL, @"v1/speaker/add");
             var data = SerializeSpeaker(speaker);
@@ -194,7 +194,7 @@ namespace NanoTrans.OnlineAPI
         public virtual async Task<IEnumerable<ApiSynchronizedSpeaker>> SimpleSearch(string _filterstring)
         {
             if (!LogedIn)
-                TryLogin(_owner);
+                TryLogin();
 
             var apiurl = new Uri(Info.SpeakerAPI_URL, @"v1/speaker/simpleSearch");
             var data = new JObject();
@@ -275,8 +275,15 @@ namespace NanoTrans.OnlineAPI
             return s;
         }
 
-        public bool TryLogin(Window owner)
+
+        public virtual void CheckLogin()
         {
+           // Application.Current.MainWindow.Dispatcher.Invoke();
+        }
+
+        public bool TryLogin()
+        {
+            var owner = Application.Current.MainWindow;
             var w = new OnlineTranscriptionWindow(this);
             w.Owner = owner;
 
@@ -328,7 +335,7 @@ namespace NanoTrans.OnlineAPI
         internal async Task<bool> UploadTranscription(WPFTranscription Transcription)
         {
             if (!LogedIn)
-                TryLogin(_owner);
+                TryLogin();
 
             var cont = new MultipartFormDataContent();
 
