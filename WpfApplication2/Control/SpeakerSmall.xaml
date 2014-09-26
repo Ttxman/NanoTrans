@@ -12,7 +12,7 @@
         <my:EmptyStringToCollapseConverter x:Key="collapseConverter" />
     </UserControl.Resources>
 
-    <Grid Height="auto">
+    <Grid Height="auto" Width="auto">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="*" />
