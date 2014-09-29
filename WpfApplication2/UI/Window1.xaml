@@ -192,7 +192,7 @@
                             </Button.ToolTip>
                             <Image Source="/icons/direction_right.png" Width="16" Height="16"/>
                         </Button>
-                        <ComboBox MaxWidth="300" ItemsSource="{Binding TranscriptionList, ElementName=window}" SelectedIndex="{Binding TranscriptionIndex, ElementName=window}" SelectionChanged="ComboBox_SelectionChanged"/>
+                        <ComboBox MaxWidth="300" ItemsSource="{Binding TranscriptionList, ElementName=window}" SelectedIndex="{Binding TranscriptionIndex, ElementName=window}" SelectionChanged="ComboBox_SelectionChanged" IsEditable="True" IsReadOnly="True"/>
                     </ToolBar>
                     <ToolBar Name="toolbarUndo" BandIndex="2">
                         <Button Name="button_back" Click="button_back_Click" ToolTip="{lex:Loc mainWindowUndoText}">
