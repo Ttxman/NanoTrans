@@ -170,6 +170,10 @@
         <File Id="SrtPlugin.dll" Name="SrtPlugin.dll" Source="$(var.NanoTrans.TargetDir)\Plugins\SrtPlugin.dll"/>
       </Component>
 
+      <Component Id="AudioPlugin" Guid="{33FBFCDE-A5EE-4F0F-8C65-5DBAED634CE7}" KeyPath="yes">
+        <File Id="AudioFakePlugin.dll" Name="AudioFakePlugin.dll" Source="$(var.NanoTrans.TargetDir)\Plugins\AudioFakePlugin.dll"/>
+      </Component>
+
     </ComponentGroup>
   </Fragment>
 

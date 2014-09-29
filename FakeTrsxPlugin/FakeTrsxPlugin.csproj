@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>FakeTrsxPlugin</RootNamespace>
-    <AssemblyName>FakeTrsxPlugin</AssemblyName>
+    <AssemblyName>AudioFakePlugin</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
