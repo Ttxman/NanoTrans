@@ -82,6 +82,8 @@ namespace NanoTrans
             }
         }
 
+        public bool ImportTranscriptions = false;
+
         public bool IsPreviousTranscriptionAvailable
         {
             get { return _transcriptionIndex > 0; }
@@ -607,12 +609,23 @@ namespace NanoTrans
         {
             fileName = System.IO.Path.GetFullPath(fileName);
             TranscriptionIsLoading = true;
+
+            if(!listing)
+                ImportTranscriptions = false;
+
             var ext = System.IO.Path.GetExtension(fileName);
             if (ext == ".tlst") //list of transcriptions
             {
                 TranscriptionList = new ObservableCollection<FileInfo>(File.ReadAllLines(fileName).Select(l => new FileInfo(l)));
                 TranscriptionIndex = 0;
                 fileName = TranscriptionList[TranscriptionIndex].FullName;
+            }
+            else if (ext == ".ilst")
+            { 
+                TranscriptionList = new ObservableCollection<FileInfo>(File.ReadAllLines(fileName).Select(l => new FileInfo(l)));
+                TranscriptionIndex = 0;
+                fileName = TranscriptionList[TranscriptionIndex].FullName;
+                ImportTranscriptions = true;
             }
             else if (!listing)
             {
@@ -627,7 +640,15 @@ namespace NanoTrans
             else
                 return false;
 
-            var trans = WPFTranscription.Deserialize(fileName);
+            WPFTranscription trans;
+            if(ImportTranscriptions)
+            {
+                trans = ImportTranscription(TranscriptionList[TranscriptionIndex].FullName);
+            }else
+            {
+                trans = WPFTranscription.Deserialize(fileName);
+            }
+            
 
             if (trans != null)
             {
@@ -645,13 +666,14 @@ namespace NanoTrans
                 }
 
                 TranscriptionIsLoading = false;
-
                 return true;
             }
 
             TranscriptionIsLoading = false;
             return false;
         }
+
+
         SpeakersApi _api = null;
 
         private void LoadOnlineSource(string path)
@@ -1465,55 +1487,12 @@ namespace NanoTrans
             p.ExecuteExport(Transcription);
         }
 
-        private void LoadSubtitlesData(WPFTranscription data)
-        {
-            if (data == null)
-                return;
-            Transcription = data;
-            //load audio if possible
-            if (!string.IsNullOrEmpty(Transcription.MediaURI))
-            {
-                FileInfo fiA = new FileInfo(Transcription.MediaURI);
-                string pAudioFile = null;
-                if (fiA.Exists)
-                {
-                    pAudioFile = fiA.FullName;
-                }
-                else if (System.IO.Path.IsPathRooted(Transcription.MediaURI))
-                {
-                    tbAudioFile.Text = Transcription.MediaURI;
-                }
-                else
-                {
-                    FileInfo fi = new FileInfo(Transcription.FileName);
-                    pAudioFile = fi.Directory.FullName + "\\" + Transcription.MediaURI;
-                }
-
-                if (pAudioFile != null && pAudioFile.Split(new string[] { ":\\" }, StringSplitOptions.None).Length == 2)
-                {
-                    FileInfo fi2 = new FileInfo(pAudioFile);
-                    if (fi2.Exists)
-                    {
-                        LoadAudio(pAudioFile);
-                    }
-                    else
-                    {
-                        tbAudioFile.Text = Transcription.MediaURI;
-                    }
-                }
-            }
-
-            this.Title = Const.APP_NAME + " [" + data.FileName + "]";
-
-
-        }
-
         private void menuSouborImportovatClick(object sender, RoutedEventArgs e)
         {
 
             Plugin p = (Plugin)((MenuItem)sender).Tag;
             WPFTranscription data = p.ExecuteImport();
-            LoadSubtitlesData(data);
+            LoadTranscription(data);
         }
 
         Thread Pedalthread = null;

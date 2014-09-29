@@ -181,6 +181,12 @@ namespace NanoTrans
             if (!Settings.Default.FeatureEnabler.LocalEdit)
                 return;
 
+            string path = e.Parameter as string;
+            LoadTranscription(ImportTranscription(path));
+        }
+
+        private WPFTranscription ImportTranscription(string filepath = null)
+        {
             string[] masks = _ImportPlugins.Select(p => p.Mask).ToArray();
             string[] filetypes = masks.SelectMany(m => m.Split('|').Where((p, i) => i % 2 == 1).SelectMany(ex => ex.Split(';'))).Distinct().ToArray();
 
@@ -191,18 +197,21 @@ namespace NanoTrans
             opf.Filter = string.Join("|", new[] { allfilesMask }.Concat(masks));
             opf.Title = Properties.Strings.FileDialogLoadImportTitle;
             bool filedialogopened = false;
-            if (e.Parameter is string)
+
+            if (filepath != null)
             {
-                filedialogopened = true;
                 opf.FilterIndex = 1;
-                opf.FileName = (string)e.Parameter;
+                filedialogopened = true;
+                opf.FileName = filepath;
             }
             else
                 filedialogopened = opf.ShowDialog() == true;
 
+            WPFTranscription trans = null;
+
             if (filedialogopened)
             {
-                if (opf.FilterIndex == 1) //vsechny soubory
+                if (opf.FilterIndex == 1) //all files
                 {
                     var plugins = _ImportPlugins.Where(
                         p => p.Mask.Split('|')
@@ -214,25 +223,27 @@ namespace NanoTrans
                         PickOneDialog pd = new PickOneDialog(plugins.Select(p => p.Name).ToList(), Properties.Strings.ImportSelectImportPlugin);
                         if (pd.ShowDialog() == true)
                         {
-                            LoadSubtitlesData(plugins[pd.SelectedIndex].ExecuteImport(opf.FileName));
+                            trans = plugins[pd.SelectedIndex].ExecuteImport(opf.FileName);
                         }
                     }
                     else
                     {
-                        LoadSubtitlesData(plugins[0].ExecuteImport(opf.FileName));
+                        trans = plugins[0].ExecuteImport(opf.FileName);
                     }
 
                 }
                 else
                 {
-                    LoadSubtitlesData(_ImportPlugins[opf.FilterIndex - 2].ExecuteImport(opf.FileName));
+                    trans = _ImportPlugins[opf.FilterIndex - 2].ExecuteImport(opf.FileName);
                 }
 
-                if (Transcription != null)
+                if (trans != null)
                 {
-                    Transcription.FileName += ".trsx";
+                    trans.FileName += ".trsx";
                 }
             }
+
+            return trans;
         }
 
         private void CExportFile(object sender, ExecutedRoutedEventArgs e)

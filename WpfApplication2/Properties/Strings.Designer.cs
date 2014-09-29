@@ -205,7 +205,7 @@ namespace NanoTrans.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Transcription Files (*.trsx;*.tlst)|*.trsx;*.tlst|All Files (*.*)|*.*.
+        ///   Looks up a localized string similar to Transcription Files (*.trsx;*.tlst;*.ilst)|*.trsx;*.tlst;*.ilst|All Files (*.*)|*.*.
         /// </summary>
         public static string FileDialogLoadTranscriptionFilter {
             get {
