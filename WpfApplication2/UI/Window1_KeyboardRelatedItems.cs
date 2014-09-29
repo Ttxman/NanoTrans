@@ -182,7 +182,14 @@ namespace NanoTrans
                 return;
 
             string path = e.Parameter as string;
-            LoadTranscription(ImportTranscription(path));
+
+            var imp = ImportTranscription(path);
+
+            if(imp!=null)
+                LoadTranscription(imp);
+            else
+                MessageBox.Show(Properties.Strings.MessageBoxImportError, Properties.Strings.MessageBoxErrorCaption, MessageBoxButton.OK, MessageBoxImage.Error);
+
         }
 
         private WPFTranscription ImportTranscription(string filepath = null)
