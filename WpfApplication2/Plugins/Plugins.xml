@@ -10,6 +10,7 @@
     <Plugin Name="Import Nvx" Mask="trsx v1 (*.nvx)|*.nvx;" IsAssembly="true" File="NvxPlugin.dll" Class="NvxPlugin.NanoVoicePlugin" />
     <Plugin Name="Import res" Mask="nano res (*.res)|*.res;*.res??;" IsAssembly="true" File="ResPlugin.dll" Class="TrsxV1Plugin.LoadRes"/>
     <Plugin Name="Import srt" Mask="srt (*.srt)|*.srt;" IsAssembly="true" File="SRTPlugin.dll" Class="SRTPlugin.SRTPlugin"/>
+    <Plugin Name="Import audio as fake trsx" Mask="audio (*.wav, *.mp4, *.mp3, *.mp2, *.flac)|*.wav;*.mp4;*.mp3;*.mp2;*.flac" IsAssembly="true" File="FakeTrsxPlugin.dll" Class="FakeTrsxPlugin.FakeTrsxPlugin"/>
 	</Import>
 	<Export>
 		<Plugin Name="Export text" Mask="txt soubory (*.txt)|*.txt;" IsAssembly="false" File="ExePluginTXTexport.exe" Parameters = "-i {0} -o {1}"/>
