@@ -51,11 +51,14 @@ namespace NanoTrans
 
             while((read = stream.Read(bfr,0,bfr.Length)) > 0)
                 bufferStream.Write(bfr,0,read);
+            
+            bufferStream.Seek(0, SeekOrigin.Begin);
+
             #endregion
 
 #if DEBUG
             #region validation
-            bufferStream.Seek(0, SeekOrigin.Begin);
+            
             XmlSchemaSet schemas = new XmlSchemaSet();
             XNamespace xNamespace = XNamespace.Get("http://www.ite.tul.cz/TRSXSchema3.xsd");
             using (var s = File.Open(FilePaths.TrsxSchemaPath,FileMode.Open,FileAccess.Read,FileShare.Read))
