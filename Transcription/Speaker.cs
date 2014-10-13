@@ -418,7 +418,7 @@ namespace NanoTrans.Core
             into.ImgBase64 = from.ImgBase64;
             into.Merges = new List<DBMerge>(from.Merges.Concat(into.Merges));
 
-            if(from.DBType!= DBType.File && into.DBID !=from.DBID)
+            if (from.DBType != DBType.File && into.DBID != from.DBID)
                 into.Merges.Add(new DBMerge(from.DBID, from.DataBaseType));
 
 
@@ -426,7 +426,7 @@ namespace NanoTrans.Core
                 .Concat(from.Attributes).GroupBy(a => a.Name)
                 .SelectMany(g => g.Distinct(new AttributeComparer()))
                 .ToList();
-            
+
         }
 
         private class AttributeComparer : IEqualityComparer<SpeakerAttribute>
@@ -516,7 +516,7 @@ namespace NanoTrans.Core
         /// <summary>
         /// alias for DataBaseType
         /// </summary>
-        public DBType DBType { get{return this.DataBaseType;} set{this.DataBaseType = value;} }
+        public DBType DBType { get { return this.DataBaseType; } set { this.DataBaseType = value; } }
         public DBType DataBaseType { get; set; }
 
         public DateTime Synchronized { get; set; }

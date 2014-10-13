@@ -132,7 +132,7 @@ namespace NanoTrans
         {
             get
             {
-                return _firstName ?? _speaker.FirstName;
+                return _firstName ?? _speaker.FirstName??"";
             }
 
             set
@@ -260,7 +260,7 @@ namespace NanoTrans
         {
             get
             {
-                return _middleName ?? _speaker.MiddleName;
+                return _middleName ?? _speaker.MiddleName??"";
             }
 
             set
@@ -304,7 +304,7 @@ namespace NanoTrans
         {
             get
             {
-                return _surName ?? _speaker.Surname;
+                return _surName ?? _speaker.Surname??"";
             }
 
             set
