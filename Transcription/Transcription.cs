@@ -912,6 +912,8 @@ namespace NanoTrans.Core
                     bool end = false;
 
                     Speaker sp = new Speaker();
+                    sp.DBType = DBType.File;
+                    sp.DBID = null;
                     reader.ReadStartElement("Speaker");
                     while (!end)
                     {
