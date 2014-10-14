@@ -46,8 +46,10 @@ namespace NanoTrans
                 .ToList();
 
             //Join speakers from document with speakers from localDB by fullname and order pairs
-            var first = _pairs.Join(_speakersDatabase, p => p.Speaker1.Speaker.FullName.ToLower(), s => s.FullName.ToLower(), (sp, s) => new { document = sp, local = s })
-                .Distinct()
+            var first = _pairs
+                .Join(_speakersDatabase, p => p.Speaker1.Speaker.FullName.ToLower(), s => s.FullName.ToLower(), (sp, s) => new { document = sp, local = s })
+                .GroupBy(s=>s.document)
+                .Select(g=>g.First())
                 .OrderBy(s => s.local.Surname)
                 .ThenBy(s => s.local.FirstName)
                 .ThenBy(s => s.local.MiddleName);
