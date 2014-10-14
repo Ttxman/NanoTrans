@@ -186,10 +186,8 @@ namespace NanoTrans
 
         private void userFilterBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            listlocal.Items.Filter = null;
-            if (string.IsNullOrWhiteSpace(documentFilterBox.Text))
+            if (string.IsNullOrWhiteSpace(userFilterBox.Text))
             {
-
                 listlocal.Items.Filter = x => true;
             }
             else
