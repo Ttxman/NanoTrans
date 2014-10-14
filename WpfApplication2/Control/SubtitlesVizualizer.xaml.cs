@@ -221,7 +221,8 @@ namespace NanoTrans
             Element el = (Element)sender;
             TranscriptionElement t = el.ValueElement;
             TranscriptionElement p = el.ValueElement.Previous();
-            t.Parent.BeginUpdate();
+            var parent = t.Parent;
+            parent.BeginUpdate();
             int len = p.Text.Length;
             if (t is TranscriptionParagraph && p is TranscriptionParagraph)
             {
@@ -237,13 +238,13 @@ namespace NanoTrans
                         pel.ValueElement = p;
                     }
                 }
-                t.Parent.Remove(t);
+                parent.Remove(t);
 
             }
-           // SpeakerChanged();
-            t.Parent.EndUpdate();
+            // SpeakerChanged();
+            parent.EndUpdate();
             ActiveTransctiption = p;
-            ScrollToItem(p);
+            // ScrollToItem(p);
             var vis = GetVisualForTransctiption(p);
             vis.editor.CaretOffset = len;
         }
@@ -272,8 +273,9 @@ namespace NanoTrans
             //SpeakerChanged();
             t.Parent.EndUpdate();
             ActiveTransctiption = t;
-            ScrollToItem(t);
+            //ScrollToItem(t);
             ColorizeBackground(t);
+            _scrollViewer.UpdateLayout();
             var vis = GetVisualForTransctiption(t);
             vis.editor.CaretOffset = len;
         }
@@ -469,7 +471,6 @@ namespace NanoTrans
 
             listbox.SelectedItem = elm;
             listbox.ScrollIntoView(listbox.Items[listbox.SelectedIndex]);
-            listbox.UpdateLayout();
             if (elm == Transcription.Last())
             {
                 _scrollViewer.ScrollToBottom();
@@ -478,12 +479,19 @@ namespace NanoTrans
             {
                 var all = listbox.VisualFindChildren<Element>();
                 var visible = all.Where(itm => listbox.VisualIsVisibleChild(itm));
-                if (!visible.Any(itm => itm.ValueElement == elm))
-                {
-                    var element = all.First(itm => itm.ValueElement == elm);
-                    var position = element.TransformToAncestor(_scrollViewer).Transform(new Point(0, element.ActualHeight));
-                    _scrollViewer.ScrollToVerticalOffset(position.Y);
-                }
+
+                Action scroll = new Action(() =>
+                    {
+                        all = listbox.VisualFindChildren<Element>();
+                        visible = all.Where(itm => listbox.VisualIsVisibleChild(itm));
+                        var element = all.First(itm => itm.ValueElement == elm);
+                        var position = element.TransformToAncestor(_scrollViewer).Transform(new Point(0, element.ActualHeight));
+                        _scrollViewer.ScrollToVerticalOffset(position.Y);
+                        _scrollViewer.UpdateLayout();
+                    });
+
+                if (visible.Any(itm => itm.ValueElement == elm))
+                    _scrollViewer.Dispatcher.BeginInvoke(DispatcherPriority.Loaded, scroll);
             }
         }
 
