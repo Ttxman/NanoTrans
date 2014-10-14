@@ -492,7 +492,7 @@ namespace NanoTrans.Core
         {
             get
             {
-                if (_dbid == null)
+                if (_dbid == null && DBType!=DBType.File)
                 {
                     _dbid = Guid.NewGuid().ToString();
                 }
