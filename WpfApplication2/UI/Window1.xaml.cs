@@ -1566,7 +1566,7 @@ namespace NanoTrans
 
         void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-
+            TrySaveSpeakersDatabase();
             ExceptionCatchWindow w = new ExceptionCatchWindow(this, e.ExceptionObject as Exception);
             w.ShowDialog();
         }
