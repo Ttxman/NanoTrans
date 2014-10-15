@@ -36,7 +36,7 @@ namespace NanoTrans.Core
                         TextOffset = 0;
                         return true;
                     }
-                    prs = pr.Next();
+                    prs = prs.Next();
                 }
                 return false;
             }
