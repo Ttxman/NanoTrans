@@ -36,8 +36,6 @@ namespace NanoTrans
 
             }
 
-
-
             base.Initialize(doc);
         }
 
@@ -73,6 +71,9 @@ namespace NanoTrans
 
         public override bool Remove(Speaker item)
         {
+            if (item.DBType == DBType.File || item.DBID == null)
+                return false;
+
             _slist.Remove(item.DBID);
             return base.Remove(item);
         }
