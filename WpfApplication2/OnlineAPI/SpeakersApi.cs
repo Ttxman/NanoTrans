@@ -28,16 +28,16 @@ namespace NanoTrans.OnlineAPI
         public string UserName { get; set; }
         public string Password { get; set; }
 
-        HttpClient _client;
-        HttpClientHandler _handler;
-        CancellationTokenSource _abortSource = new CancellationTokenSource();
+        protected HttpClient _client;
+        protected HttpClientHandler _handler;
+        protected CancellationTokenSource _abortSource = new CancellationTokenSource();
 
         public SpeakersApi(string url, Window owner)
         {
             Url = new Uri(url);
             _handler = new HttpClientHandler();
             _client = new HttpClient(_handler);
-            _client.Timeout = TimeSpan.FromSeconds(10);
+            _client.Timeout = TimeSpan.FromMinutes(1);
             _handler.CookieContainer = new System.Net.CookieContainer();
             _handler.AutomaticDecompression = System.Net.DecompressionMethods.GZip;
 
@@ -95,7 +95,7 @@ namespace NanoTrans.OnlineAPI
             if (r.StatusCode == System.Net.HttpStatusCode.Unauthorized)
             {
                 throw new NotImplementedException();
-                TryLogin();
+                await TryLogin();
             }
 
             return r;
@@ -114,16 +114,16 @@ namespace NanoTrans.OnlineAPI
         public virtual async Task<IEnumerable<ApiSynchronizedSpeaker>> ListSpeakers(IEnumerable<string> guids)
         {
             if (!LogedIn)
-                TryLogin();
+                await TryLogin();
 
             var apiurl = new Uri(Info.SpeakerAPI_URL, @"v1/speaker/list");
             var data = new JObject();
             data.Add("ids", new JArray(guids.ToArray()));
-            var cont  = await PostAsync(apiurl, data);
+            var cont = await PostAsync(apiurl, data);
 
             if (cont.StatusCode != HttpStatusCode.OK)
             {
-                MessageBox.Show("API Error", "Error",MessageBoxButton.OK);
+                MessageBox.Show("API Error", "Error", MessageBoxButton.OK);
                 return null;
             }
 
@@ -137,7 +137,7 @@ namespace NanoTrans.OnlineAPI
         public virtual async Task<ApiSynchronizedSpeaker> GetSpeaker(string p)
         {
             if (!LogedIn)
-                TryLogin();
+                await TryLogin();
 
             var apiurl = new Uri(Info.SpeakerAPI_URL, @"v1/speaker/get");
             var data = new JObject();
@@ -151,7 +151,7 @@ namespace NanoTrans.OnlineAPI
         internal virtual async Task<bool> UpdateSpeaker(ApiSynchronizedSpeaker speaker)
         {
             if (!LogedIn)
-                TryLogin();
+                await TryLogin();
 
             var apiurl = new Uri(Info.SpeakerAPI_URL, @"v1/speaker/edit");
             var data = SerializeSpeaker(speaker);
@@ -169,7 +169,7 @@ namespace NanoTrans.OnlineAPI
         internal virtual async Task<bool> AddSpeaker(ApiSynchronizedSpeaker speaker)
         {
             if (!LogedIn)
-                TryLogin();
+                await TryLogin();
 
             var apiurl = new Uri(Info.SpeakerAPI_URL, @"v1/speaker/add");
             var data = SerializeSpeaker(speaker);
@@ -194,7 +194,7 @@ namespace NanoTrans.OnlineAPI
         public virtual async Task<IEnumerable<ApiSynchronizedSpeaker>> SimpleSearch(string _filterstring)
         {
             if (!LogedIn)
-                TryLogin();
+                await TryLogin();
 
             var apiurl = new Uri(Info.SpeakerAPI_URL, @"v1/speaker/simpleSearch");
             var data = new JObject();
@@ -278,16 +278,26 @@ namespace NanoTrans.OnlineAPI
 
         public virtual void CheckLogin()
         {
-           // Application.Current.MainWindow.Dispatcher.Invoke();
+            // Application.Current.MainWindow.Dispatcher.Invoke();
         }
 
-        public bool TryLogin()
+        public async Task<bool> TryLogin()
         {
+
             var owner = Application.Current.MainWindow;
+            if (Info == null)
+                await this.LoadInfo();
+
+            if (Info.API2)
+            {
+                if (this is OnlineAPI.SpeakersApi2)
+                    await DownloadTranscription();
+                return true;
+            }
             var w = new OnlineTranscriptionWindow(this);
             w.Owner = owner;
 
-            return w.ShowDialog() == true;
+            return (w.ShowDialog() == true);
         }
 
         public WPFTranscription Trans { get; set; }
@@ -296,6 +306,17 @@ namespace NanoTrans.OnlineAPI
         {
             string json = await _client.GetStringAsync(Url);
             _info = JsonConvert.DeserializeObject<OnlineTranscriptionInfo>(json);
+
+            if (_info.TrsxDownloadURL == null)
+            {
+                var data = JObject.Parse(json);
+                if (data["result"] != null) //API2 .. i should separate them better
+                {
+                    _info = JsonConvert.DeserializeObject<OnlineTranscriptionInfo>(data["result"].ToString());
+                    _info.API2 = true;
+                }
+            }
+
             _info.OriginalURL = Url;
         }
 
@@ -328,14 +349,14 @@ namespace NanoTrans.OnlineAPI
 
         public bool LogedIn
         {
-            get { return _logedIn; }
+            get { return _logedIn || (Info != null && Info.API2); }
             set { _logedIn = value; }
         }
 
-        internal async Task<bool> UploadTranscription(WPFTranscription Transcription)
+        internal virtual async Task<bool> UploadTranscription(WPFTranscription Transcription)
         {
             if (!LogedIn)
-                TryLogin();
+                await TryLogin();
 
             var cont = new MultipartFormDataContent();
 
@@ -347,7 +368,7 @@ namespace NanoTrans.OnlineAPI
             var trsx = new ByteArrayContent(ms.ToArray());
             ms.Seek(0, SeekOrigin.Begin);
             trsx.Headers.ContentType = MediaTypeHeaderValue.Parse("application/octet-stream");
-            cont.Add(trsx, "file",filename);
+            cont.Add(trsx, "file", filename);
             cont.Add(new StringContent(filename), "name");
 
             var hm = await _client.PostAsync(Info.TrsxUploadURL, cont);
@@ -367,7 +388,7 @@ namespace NanoTrans.OnlineAPI
             data["id"] = Transcription.DocumentID;
             data["transcriptFileId"] = resp["id"];
 
-            hm = await PostAsync(apiurl,data);
+            hm = await PostAsync(apiurl, data);
 
             if (hm.StatusCode != HttpStatusCode.Accepted)
             {
@@ -394,6 +415,7 @@ namespace NanoTrans.OnlineAPI
         internal async Task DownloadFile(string RequestURL, string Filename)
         {
             var resp = await _client.GetAsync(RequestURL);
+
             if (resp.StatusCode != System.Net.HttpStatusCode.OK)
             {
                 MessageBox.Show("Error occured during audio download", "Error occured during audio download", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -432,6 +454,35 @@ namespace NanoTrans.OnlineAPI
                     Trans.ReplaceSpeaker(dbs, respeakers[i]);
                 }
             }
+        }
+
+        internal async Task DownloadTranscription()
+        {
+            HttpResponseMessage trsxsresponse = await this.GetUrl(this.Info.TrsxDownloadURL);
+            //string what = await trsxsresponse.Content.ReadAsStringAsync();
+            if (trsxsresponse.StatusCode != System.Net.HttpStatusCode.OK)
+            {
+                string mes = await trsxsresponse.Content.ReadAsStringAsync();
+                MessageBox.Show("Problem with download", "Problem with download", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                return;
+            }
+
+            try
+            {
+                this.LoadTranscription(WPFTranscription.Deserialize(await trsxsresponse.Content.ReadAsStreamAsync()));
+            }
+            catch
+            {
+                MessageBox.Show("document is in wrong format", "document is in wrong format", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(this.Trans.MediaURI))
+                try { this.Trans.MediaURI = this.Trans.Meta.Element("stream").Element("url").Value; }
+                catch { };
+
+            this.Trans.DocumentID = this.Info.DocumentId;
+            await this.UpdateTranscriptionSpeakers();
         }
     }
 }

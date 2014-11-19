@@ -115,33 +115,8 @@ namespace NanoTrans
                 return;
             }
 
-            HttpResponseMessage trsxsresponse = await _api.GetUrl(_api.Info.TrsxDownloadURL);
-            //string what = await trsxsresponse.Content.ReadAsStringAsync();
-            if (trsxsresponse.StatusCode != System.Net.HttpStatusCode.OK)
-            {
-                string mes = await trsxsresponse.Content.ReadAsStringAsync();
-                MessageBox.Show("Problem with download", "Problem with download", MessageBoxButton.OK, MessageBoxImage.Exclamation);
-                return;
-            }
-
-            try
-            {
-                _api.LoadTranscription(WPFTranscription.Deserialize(await trsxsresponse.Content.ReadAsStreamAsync()));
-            }
-            catch
-            {
-                MessageBox.Show("document is in wrong format", "document is in wrong format", MessageBoxButton.OK, MessageBoxImage.Exclamation);
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(_api.Trans.MediaURI))
-                try { _api.Trans.MediaURI = _api.Trans.Meta.Element("stream").Element("url").Value; }
-                catch { };
-
-            _api.Trans.DocumentID = _api.Info.DocumentId;
-            Status = "Loading speakers from databse";
-
-            await _api.UpdateTranscriptionSpeakers();
+            Status = "Loading Transcription";
+            await _api.DownloadTranscription();
 
             this.DialogResult = true;
             

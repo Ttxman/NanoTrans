@@ -676,7 +676,7 @@ namespace NanoTrans
 
         SpeakersApi _api = null;
 
-        private void LoadOnlineSource(string path)
+        private async Task LoadOnlineSource(string path)
         {
             Settings.Default.FeatureEnabler.DbMerging = false;
             Settings.Default.FeatureEnabler.LocalEdit = false;
@@ -687,8 +687,13 @@ namespace NanoTrans
             Settings.Default.FeatureEnabler.LocalSpeakers = false;
 
             _api = new SpeakersApi(path, this);
-            if (_api.TryLogin() == true)
+            if (await _api.TryLogin() == true)
             {
+                if (_api.Info.API2)
+                {
+                    _api = new SpeakersApi2(path, this);
+                    await _api.TryLogin();
+                }
                 LoadOnlineSetting();
             }
             else
@@ -1443,7 +1448,7 @@ namespace NanoTrans
 
 
 
-                    LoadOnlineSource(path);
+                    await LoadOnlineSource(path);
                 }
                 else if (import)
                 {

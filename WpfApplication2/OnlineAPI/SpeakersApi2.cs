@@ -2,11 +2,15 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Xml;
 
 namespace NanoTrans.OnlineAPI
 {
@@ -163,6 +167,33 @@ namespace NanoTrans.OnlineAPI
                 s.Remove("degreeafter");
             }
             return s;
+        }
+
+        internal override async Task<bool> UploadTranscription(WPFTranscription Transcription)
+        {
+            if (!LogedIn)
+                await TryLogin();
+
+            MemoryStream ms = new MemoryStream();
+            var wr = new XmlTextWriter(ms, Encoding.UTF8);
+            Transcription.Serialize().WriteTo(wr);
+            wr.Flush();
+            var trsx = new ByteArrayContent(ms.ToArray());
+            ms.Seek(0, SeekOrigin.Begin);
+            trsx.Headers.ContentType = MediaTypeHeaderValue.Parse("application/octet-stream");
+            var hm = await _client.PostAsync(Info.TrsxUploadURL, trsx);
+
+            if (!(hm.StatusCode == System.Net.HttpStatusCode.Created || hm.StatusCode == System.Net.HttpStatusCode.OK))
+            {
+                MessageBox.Show("Upload Failed", "Upload Failed", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            MessageBox.Show("File was sucessfully uploaded", "File was sucessfully uploaded", MessageBoxButton.OK, MessageBoxImage.Information);
+
+
+            return true;
+     
         }
     }
 }
