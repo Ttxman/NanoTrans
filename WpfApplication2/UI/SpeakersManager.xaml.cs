@@ -573,15 +573,18 @@ namespace NanoTrans
 
         private void ButtonOKAll_Click(object sender, RoutedEventArgs e)
         {
-            if (SelectedSpeakerContainer != null)
+            if (SpeakersBox.SelectedValue != null)
             {
-                if (CheckChanges(SelectedSpeakerContainer) == MessageBoxResult.Cancel)
+                if (SelectedSpeakerContainer != null)
                 {
-                    return;
+                    if (CheckChanges(SelectedSpeakerContainer) == MessageBoxResult.Cancel)
+                    {
+                        return;
+                    }
                 }
-            }
 
-            ReplaceSpeakerInTranscription(_originalSpeaker, ((SpeakerContainer)SpeakersBox.SelectedValue).Speaker);
+                ReplaceSpeakerInTranscription(_originalSpeaker, ((SpeakerContainer)SpeakersBox.SelectedValue).Speaker);
+            }
             preventDoublecheck = false;
             this.DialogResult = false; //Changes already applied
             this.Close();
