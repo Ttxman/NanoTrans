@@ -324,7 +324,8 @@ namespace NanoTrans.Core
             
             if (Elements.TryGetValue("l", out bfr))
             {
-                Language = bfr.ToUpper();
+                if(!string.IsNullOrWhiteSpace(bfr))
+                    Language = bfr.ToUpper();
             }
 
             Elements.Remove("b");
