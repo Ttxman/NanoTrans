@@ -422,19 +422,19 @@ namespace NanoTrans
 
             var result = MessageBox.Show(string.Format(Properties.Strings.SpeakersManagerSpeakerApplyChangesDialogFormat, sc.FullName), Properties.Strings.SpeakersManagerSpeakerApplyChangesDialogQuestion, MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
 
-            ApiSynchronizedSpeaker ss = sc.Speaker as ApiSynchronizedSpeaker;
+            var ss = sc.Speaker;
 
             if (result == MessageBoxResult.Yes)
             {
                 bool saved = AsyncHelpers.RunSync(() => TrySaveSpeaker(sc));
                 if (!saved)
                 {
-                    return MessageBoxResult.Cancel;
-                }
-
-                return MessageBoxResult.Yes;
+                    result = MessageBoxResult.No;
+                }else
+                    return MessageBoxResult.Yes;
             }
-            else if (result == MessageBoxResult.No)
+
+            if (result == MessageBoxResult.No)
             {
 
                 if (NewSpeaker == sc.Speaker)
