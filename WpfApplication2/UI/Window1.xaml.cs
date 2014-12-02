@@ -1990,6 +1990,8 @@ namespace NanoTrans
             var par = VirtualizingListBox.ActiveTransctiption as TranscriptionParagraph;
             var l = (string)(sender as MenuItem).Header;
 
+            if (l == Speaker.Langs.Last())
+                l = null;
             VirtualizingListBox.ActiveElement.ElementLanguage = l;
             var prev = VirtualizingListBox.ActiveElement;
             if (VirtualizingListBox.ActiveElement.RefreshSpeakerInfos())
