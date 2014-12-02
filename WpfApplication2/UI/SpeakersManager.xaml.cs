@@ -78,7 +78,7 @@ namespace NanoTrans
             _transcription = transcription;
 
             InitializeComponent();
-            SpeakerProvider = new SpeakerManagerViewModel(new SpeakerCollection(documentSpeakers.Concat(transcription.EnumerateParagraphs().Select(p=>p.Speaker)).Where(s=>s!=Speaker.DefaultSpeaker).Distinct()), localSpeakers, transcription.Api,this);
+            SpeakerProvider = new SpeakerManagerViewModel(new SpeakerCollection(documentSpeakers.Concat(transcription.EnumerateParagraphs().Select(p => p.Speaker)).Where(s => s != Speaker.DefaultSpeaker).Distinct()), localSpeakers, transcription.Api, this);
             var ss = SpeakerProvider.GetContainerForSpeaker(originalSpeaker);
             if (ss != null)
                 ss.Marked = true;
@@ -434,7 +434,7 @@ namespace NanoTrans
 
                 return MessageBoxResult.Yes;
             }
-            else if(result == MessageBoxResult.No)
+            else if (result == MessageBoxResult.No)
             {
 
                 if (NewSpeaker == sc.Speaker)
@@ -496,6 +496,7 @@ namespace NanoTrans
             {
                 if (await TestName(spk))
                 {
+                    bool reselect = spk == SpeakersBox.SelectedItem;
                     using (SpeakerProvider.DeferRefresh())
                     {
                         spk.ApplyChanges();
@@ -506,6 +507,12 @@ namespace NanoTrans
                             SpeakerProvider.AddLocalSpeaker(spk.Speaker);
 
                         NewSpeaker = null;
+
+                    }
+                    if (reselect)
+                    {
+                        var ss = SpeakerProvider.GetContainerForSpeaker(spk.Speaker);
+                        SpeakersBox.SelectedValue = ss;
                     }
                 }
                 else
