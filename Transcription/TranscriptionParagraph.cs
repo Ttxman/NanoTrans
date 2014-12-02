@@ -344,10 +344,12 @@ namespace NanoTrans.Core
                     new XAttribute("e", End), 
                     new XAttribute("a", AttributeString), 
                     new XAttribute("s", InternalID), //DO NOT use _speakerID,  it is not equivalent
-                    new XAttribute("l", Language.ToLower()),
                 }),
                 Phrases.Select(p => p.Serialize())
             );
+
+            if(_lang!=null)
+               elm.Add(new XAttribute("l", Language.ToLower()));
 
             return elm;
         }
