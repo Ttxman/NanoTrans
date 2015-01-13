@@ -296,7 +296,7 @@ namespace NanoTrans
                 par1.AttributeString = par2.AttributeString = par.AttributeString;
 
                 par1.Speaker = par2.Speaker = par.Speaker;
-
+                par1.Begin = par.Begin;
                 par2.End = end;
                 int where = el.editor.CaretOffset;
 
@@ -327,8 +327,8 @@ namespace NanoTrans
 
                         p1.Begin = p.Begin;
                         p1.End = p1.Begin + l1;
-                        if (p1.End <= par.Begin)
-                            p1.End = par.Begin + TimeSpan.FromMilliseconds(100); //pojistka kvuli nezarovnanejm textum
+                        //if (p1.End <= par.Begin)
+                        //    p1.End = par.Begin + TimeSpan.FromMilliseconds(100); //pojistka kvuli nezarovnanejm textum
                         int idx = i;
                         par1.Add(p1);
 
