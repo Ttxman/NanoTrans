@@ -194,6 +194,13 @@ namespace NanoTrans
                 RequestPlayPause();
         }
 
+        void l_PlayPauseRequest(object sender, EventArgs e)
+        {
+            if (PlayPauseRequest != null)
+                PlayPauseRequest(this, null);
+        }
+
+
         void l_MoveDownRequest(object sender, EventArgs e)
         {
             bool playing = false;
@@ -493,12 +500,6 @@ namespace NanoTrans
             }
         }
 
-        void l_PlayPauseRequest(object sender, EventArgs e)
-        {
-            if (PlayPauseRequest != null)
-                PlayPauseRequest(this, null);
-        }
-
         void Caret_PositionChanged(object sender, EventArgs e)
         {
             var l = sender as ICSharpCode.AvalonEdit.Editing.Caret;
@@ -578,11 +579,38 @@ namespace NanoTrans
 
         private void listbox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (ActiveElement != null)
+            {
+                if (ActiveElement.ValueElement != listbox.SelectedItem)
+                {
+                    ActiveTransctiption = listbox.SelectedItem as TranscriptionElement;
+                    return;
+                }
 
+                if (!ActiveElement.editor.IsFocused)
+                {
+                    foreach (var elm in _scrollViewer.VisualFindChildren<Element>())
+                        elm.editor.Select(0, 0);
+
+
+                    ActiveElement.editor.Focus();
+                }
+
+            }
         }
 
         private void Vizualizer_PreviewKeyDown(object sender, KeyEventArgs e)
         {
+
+            if (e.Key == Key.Tab)
+            {
+                if (PlayPauseRequest != null)
+                    PlayPauseRequest(this, new EventArgs());
+                e.Handled = true;
+
+                return;
+            }
+
             if (ActiveElement == null)
                 return;
 
@@ -663,7 +691,6 @@ namespace NanoTrans
                     ScrollToItem(value);
             }
         }
-
     }
 
     [ValueConversion(typeof(TranscriptionElement), typeof(Type))]

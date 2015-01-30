@@ -38,6 +38,7 @@
                                 SetTimeRequest="l_SetTimeRequest"
                                 SplitRequest="l_SplitRequest"
                                 SizeChanged="l_Element_SizeChanged"
+                                PlayPauseRequest="l_PlayPauseRequest"
                                 ></my:Element>
                     <DataTemplate.Triggers>
                         <DataTrigger Binding="{Binding Converter={StaticResource DataTypeConverter}}" Value="{x:Type ntcore:TranscriptionParagraph}">

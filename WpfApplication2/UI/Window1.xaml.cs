@@ -2062,6 +2062,11 @@ namespace NanoTrans
             CommandRedo.Execute(null, null);
         }
 
+        private void VirtualizingListBox_PlayPauseRequest(object sender, EventArgs e)
+        {
+            CommandPlayPause.Execute(null,null);
+        }
+
     }
 
     public class DoubleGridLengthConverter : IValueConverter

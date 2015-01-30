@@ -245,7 +245,7 @@
                 <ColumnDefinition Width="auto" />
                 <ColumnDefinition Width="{Binding VideoPanelWidth, Converter={StaticResource gridlConverter}, Mode=TwoWay, Source={x:Static props:Settings.Default}}" />
             </Grid.ColumnDefinitions>
-            <local:SubtitlesVizualizer Grid.Column="0" x:Name="VirtualizingListBox" Background="#FF7DAF7D" ClipToBounds="False" Transcription="{Binding Transcription, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:Window1}}}" ChangeSpeaker="VirtualizingListBox_ChangeSpeaker" SelectedElementChanged="VirtualizingListBox_SelectedElementChanged" SetTimeRequest="VirtualizingListBox_SetTimeRequest">
+            <local:SubtitlesVizualizer Grid.Column="0" x:Name="VirtualizingListBox" Background="#FF7DAF7D" ClipToBounds="False" Transcription="{Binding Transcription, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:Window1}}}" ChangeSpeaker="VirtualizingListBox_ChangeSpeaker" SelectedElementChanged="VirtualizingListBox_SelectedElementChanged" SetTimeRequest="VirtualizingListBox_SetTimeRequest" PlayPauseRequest="VirtualizingListBox_PlayPauseRequest">
                 <local:SubtitlesVizualizer.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="{lex:BLoc Key=NanoTrans:Strings:TranscriptionContextMenuSetSpeaker}" InputGestureText="Ctrl+M" Click="menuItemX_SetSpeaker_Click"/>

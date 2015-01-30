@@ -418,6 +418,7 @@ namespace NanoTrans
                 editor.TextArea.TextView.ElementGenerators.Add(DefaultNonEditableBlockGenerator);
             editor.TextArea.IndentationStrategy = new NoIndentationStrategy();
             editor.Options.InheritWordWrapIndentation = false;
+            
 
             if (!_IsPasiveElement)
             {
@@ -429,8 +430,19 @@ namespace NanoTrans
                 editor.Document.Changed += new EventHandler<DocumentChangeEventArgs>(Document_Changed);
 
                 editor.TextArea.TextView.MouseLeftButtonDown += new MouseButtonEventHandler(TextView_MouseLeftButtonDown);
+                editor.TextArea.PreviewMouseDown += TextArea_PreviewMouseDown;
                 editor.TextArea.TextView.MouseDown += TextView_MouseDown;
 
+            }
+        }
+
+        void TextArea_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.XButton1)
+            {
+                if(PlayPauseRequest!=null)
+                    PlayPauseRequest(this, new EventArgs());
+                e.Handled = true;
             }
         }
 
@@ -993,6 +1005,8 @@ namespace NanoTrans
 
         public event EventHandler ChangeSpeakerRequest;
         public event Action<TimeSpan> SetTimeRequest;
+
+        public event EventHandler PlayPauseRequest;
 
         public void ClearEvents()
         {
