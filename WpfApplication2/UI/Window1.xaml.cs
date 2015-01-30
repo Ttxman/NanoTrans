@@ -1844,7 +1844,7 @@ namespace NanoTrans
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.ChangedButton == MouseButton.XButton1 || e.ChangedButton == MouseButton.XButton2 || e.ChangedButton == MouseButton.Middle)
+            if (e.ChangedButton == MouseButton.XButton1 || e.ChangedButton == MouseButton.Middle)
                 CommandPlayPause.Execute(null, null);
         }
 
