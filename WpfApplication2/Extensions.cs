@@ -128,6 +128,8 @@ namespace NanoTrans
                                  where ItemContainer : DependencyObject
         {
             HitTestResult result = VisualTreeHelper.HitTest(control, p);
+            if (result == null)
+                return null;
             DependencyObject obj = result.VisualHit;
 
             while (VisualTreeHelper.GetParent(obj) != null && !(obj is ItemContainer))

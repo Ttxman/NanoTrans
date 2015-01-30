@@ -7,9 +7,11 @@
              mc:Ignorable="d" 
              d:DesignHeight="283" d:DesignWidth="677"
              xmlns:my="clr-namespace:NanoTrans"
+             xmlns:ntcore="clr-namespace:NanoTrans.Core;assembly=NanoTransCore"
              Name="Vizualizer" Loaded="Vizualizer_Loaded" PreviewKeyDown="Vizualizer_PreviewKeyDown">
-    
+
     <UserControl.Resources>
+        <my:DataTypeConverter x:Key="DataTypeConverter"></my:DataTypeConverter>
     </UserControl.Resources>
     <Grid>
         <ListBox Name="listbox" ItemsSource="{Binding Transcription, ElementName=Vizualizer}" Background="{Binding Source={x:Static props:Settings.Default}, Path=ParagraphBackground}"
@@ -20,10 +22,10 @@
             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
             HorizontalContentAlignment="Stretch" SelectionChanged="listbox_SelectionChanged"
             SelectionMode="Single">
-            
+
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <my:Element ValueElement="{Binding}" 
+                    <my:Element x:Name="pelem" ValueElement="{Binding}" 
                                 GotFocus="l_GotFocus"
                                 ChangeSpeakerRequest="l_ChangeSpeakerRequest"
                                 MergeWithnextRequest="l_MergeWithnextRequest"
@@ -37,16 +39,31 @@
                                 SplitRequest="l_SplitRequest"
                                 SizeChanged="l_Element_SizeChanged"
                                 ></my:Element>
+                    <DataTemplate.Triggers>
+                        <DataTrigger Binding="{Binding Converter={StaticResource DataTypeConverter}}" Value="{x:Type ntcore:TranscriptionParagraph}">
+                            <Setter TargetName="pelem" Property="Background" Value="{x:Null}"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Converter={StaticResource DataTypeConverter}}" Value="{x:Type ntcore:TranscriptionChapter}">
+                            <Setter TargetName="pelem" Property="Background" Value="{Binding Source={x:Static props:Settings.Default}, Path=ChapterBackground}"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Converter={StaticResource DataTypeConverter}}" Value="{x:Type ntcore:TranscriptionSection}">
+                            <Setter TargetName="pelem" Property="Background" Value="{Binding Source={x:Static props:Settings.Default}, Path=SectionBackground}"/>
+                        </DataTrigger>
+                        
+                        
+                        <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBoxItem}}}" Value="True">
+                            <Setter TargetName="pelem" Property="Background" Value="{Binding Source={x:Static props:Settings.Default}, Path=ActiveParagraphBackground}"/>
+                        </DataTrigger>
+                    </DataTemplate.Triggers>
                 </DataTemplate>
             </ListBox.ItemTemplate>
-            <ListBox.ItemContainerStyle><!--disable background changing on select-->
+            <ListBox.ItemContainerStyle>
                 <Style TargetType="{x:Type ListBoxItem}">
-                    <Setter Property="Focusable" Value="False" />
                     <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
                     <Setter Property="Template">
                         <Setter.Value>
                             <ControlTemplate TargetType="{x:Type ListBoxItem}">
-                                    <ContentPresenter />
+                                <ContentPresenter />
                             </ControlTemplate>
                         </Setter.Value>
                     </Setter>

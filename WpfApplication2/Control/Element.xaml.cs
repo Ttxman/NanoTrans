@@ -35,6 +35,7 @@ namespace NanoTrans
         public static readonly DependencyProperty ValueElementProperty =
         DependencyProperty.Register("ValueElement", typeof(TranscriptionElement), typeof(Element), new FrameworkPropertyMetadata(OnValueElementChanged));
 
+
         public bool DisableAutomaticElementVisibilityChanges { get; set; }
         public bool EditPhonetics { get; set; }
 
@@ -150,9 +151,7 @@ namespace NanoTrans
                 el.textbegin.Visibility = Visibility.Visible;
                 el.textend.Visibility = Visibility.Visible;
 
-                el.Background = Settings.Default.ParagraphBackground;
                 Element.RefreshSpeakerButton(el, p);
-
                 var vis = (Settings.Default.FeatureEnabler.SpeakerAttributes) ? Visibility.Visible : Visibility.Collapsed;
 
                 el.stackPanelAttributes.Visibility = vis;
@@ -169,7 +168,6 @@ namespace NanoTrans
                 el.textbegin.Visibility = Visibility.Collapsed;
                 el.textend.Visibility = Visibility.Collapsed;
                 el.stackPanelAttributes.Visibility = Visibility.Collapsed;
-                el.Background = Settings.Default.SectionBackground;
                 el.buttonSpeaker.Visibility = Visibility.Collapsed;
                 el.checkBox1.Visibility = Visibility.Collapsed;
             }
@@ -181,7 +179,6 @@ namespace NanoTrans
                 el.textbegin.Visibility = Visibility.Collapsed;
                 el.textend.Visibility = Visibility.Collapsed;
                 el.stackPanelAttributes.Visibility = Visibility.Collapsed;
-                el.Background = Settings.Default.ChapterBackground;
                 el.buttonSpeaker.Visibility = Visibility.Collapsed;
                 el.checkBox1.Visibility = Visibility.Collapsed;
             }
@@ -190,7 +187,6 @@ namespace NanoTrans
                 el.textbegin.Visibility = Visibility.Visible;
                 el.textend.Visibility = Visibility.Visible;
                 el.stackPanelAttributes.Visibility = Visibility.Visible;
-                el.Background = Settings.Default.ParagraphBackground;
                 el.buttonSpeaker.Visibility = Visibility.Visible;
                 el.checkBox1.Visibility = Visibility.Visible;
                 el.checkBox1.IsChecked = false;
@@ -1472,6 +1468,7 @@ namespace NanoTrans
             return null;
         }
     }
+
 
 
     public class NonEditableBlockGenerator : VisualLineElementGenerator

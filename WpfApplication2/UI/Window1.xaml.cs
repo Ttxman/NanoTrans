@@ -1787,6 +1787,7 @@ namespace NanoTrans
             VirtualizingListBox.ActiveTransctiption = e.Value;
             waveform1.SelectionBegin = e.Value.Begin;
             waveform1.SelectionEnd = e.Value.End;
+            Dispatcher.Invoke(() => VirtualizingListBox.ActiveElement.SetCaretOffset(0), DispatcherPriority.ContextIdle);
         }
 
         private void waveform1_ParagraphDoubleClick(object sender, WaveForm.MyTranscriptionElementEventArgs e)
