@@ -143,6 +143,11 @@ namespace NanoTrans
                 if (pos == wave.CaretPositionMS)
                     return;
 
+                if (btndrag && Playing && WaveEnd - value < TimeSpan.FromMilliseconds(200))
+                {
+                    btPrehratZastavit_Click(null, null);
+                }
+
                 Dispatcher.Invoke(() =>
                 {
                     this.AudioBufferCheck(value);
