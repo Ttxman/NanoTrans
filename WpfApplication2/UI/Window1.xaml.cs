@@ -130,7 +130,7 @@ namespace NanoTrans
 
         void _transcription_ContentChanged(object sender, TranscriptionElement.TranscriptionElementChangedEventArgs e)
         {
-            if(e.ActionsTaken.Any(a=>!(a.ChangedElement is TranscriptionPhrase)))
+            if (e.ActionsTaken.Any(a => !(a.ChangedElement is TranscriptionPhrase)))
                 waveform1.InvalidateSpeakers();
         }
 
@@ -610,7 +610,7 @@ namespace NanoTrans
             fileName = System.IO.Path.GetFullPath(fileName);
             TranscriptionIsLoading = true;
 
-            if(!listing)
+            if (!listing)
                 ImportTranscriptions = false;
 
             var ext = System.IO.Path.GetExtension(fileName);
@@ -621,7 +621,7 @@ namespace NanoTrans
                 fileName = TranscriptionList[TranscriptionIndex].FullName;
             }
             else if (ext == ".ilst")
-            { 
+            {
                 TranscriptionList = new ObservableCollection<FileInfo>(File.ReadAllLines(fileName).Select(l => new FileInfo(l)));
                 TranscriptionIndex = 0;
                 fileName = TranscriptionList[TranscriptionIndex].FullName;
@@ -641,14 +641,15 @@ namespace NanoTrans
                 return false;
 
             WPFTranscription trans;
-            if(ImportTranscriptions)
+            if (ImportTranscriptions)
             {
                 trans = ImportTranscription(TranscriptionList[TranscriptionIndex].FullName);
-            }else
+            }
+            else
             {
                 trans = WPFTranscription.Deserialize(fileName);
             }
-            
+
 
             if (trans != null)
             {
@@ -757,7 +758,7 @@ namespace NanoTrans
                 {
 
                     FileInfo fi = new FileInfo(Transcription.FileName);
-                    pAudioFile = System.IO.Path.Combine(fi.Directory.FullName,Transcription.MediaURI);
+                    pAudioFile = System.IO.Path.Combine(fi.Directory.FullName, Transcription.MediaURI);
                     fiA = new FileInfo(pAudioFile);
                 }
 
@@ -919,7 +920,7 @@ namespace NanoTrans
             long delta = (long)waveform1.WaveLength.TotalMilliseconds; //waveform length in ms
 
             TimeSpan playpos = waveform1.CaretPosition;
-            if (_playing && MWP!=null)
+            if (_playing && MWP != null)
             {
                 playpos = MWP.PlayPosition;
                 if (PlayingSelection && playpos < waveform1.SelectionBegin)
@@ -1706,25 +1707,6 @@ namespace NanoTrans
 
         #endregion
 
-        #region undo not working .)
-        List<byte[]> Back_data = new List<byte[]>();
-        private void button2_Click(object sender, RoutedEventArgs e)
-        {
-            while (Back_data.Count > 20)
-            {
-                Back_data.RemoveAt(0);
-            }
-
-            if (Transcription != null)
-            {
-                MemoryStream ms = new MemoryStream();
-                Transcription.Serialize(ms, true);
-                ms.Close();
-                Back_data.Add(ms.ToArray());
-            }
-        }
-
-        #endregion
 
         private void waveform1_SliderPositionChanged(object sender, WaveForm.TimeSpanEventArgs e)
         {
