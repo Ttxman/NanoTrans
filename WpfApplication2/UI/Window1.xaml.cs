@@ -1738,15 +1738,17 @@ namespace NanoTrans
                 }
             }
 
-
-            var list = _transcription.ReturnElementsAtTime(e.Value);
-            if (list != null && list.Count > 0)
+            if (VirtualizingListBox.ActiveTransctiption == null || VirtualizingListBox.ActiveTransctiption.Begin > e.Value || VirtualizingListBox.ActiveTransctiption.End < e.Value)
             {
-                if (VirtualizingListBox.ActiveTransctiption != list[0])
+                var list = _transcription.ReturnElementsAtTime(e.Value);
+                if (list != null && list.Count > 0)
                 {
-                    VirtualizingListBox.ActiveTransctiption = list[0];
-                    phoneticTranscription.ValueElement = list[0];
+                    if (VirtualizingListBox.ActiveTransctiption != list[0])
+                    {
+                        VirtualizingListBox.ActiveTransctiption = list[0];
+                        phoneticTranscription.ValueElement = list[0];
 
+                    }
                 }
             }
         }
