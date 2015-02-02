@@ -650,19 +650,33 @@ namespace NanoTrans
 
         private void CSmallJumpRight(object sender, ExecutedRoutedEventArgs e)
         {
+            var ply = Playing;
+            if (ply)
+                CommandPlayPause.Execute(null, null);
+
             var newtime = waveform1.CaretPosition + waveform1.SmallJump;
             SetCaretPosition(newtime);
             SelectTextBetweenTimeOffsets(waveform1.CaretPosition);
+
+            if (ply)
+                CommandPlayPause.Execute(null, null);
         }
 
         private void CSmallJumpLeft(object sender, ExecutedRoutedEventArgs e)
         {
+            var ply = Playing;
+            if (ply)
+                CommandPlayPause.Execute(null, null);
+
             var newtime = waveform1.CaretPosition - waveform1.SmallJump;
             if (newtime < TimeSpan.Zero)
                 newtime = TimeSpan.Zero;
 
             SetCaretPosition(newtime);
             SelectTextBetweenTimeOffsets(waveform1.CaretPosition);
+
+            if (ply)
+                CommandPlayPause.Execute(null, null);
         }
 
         private void CMaximizeMinimize(object sender, ExecutedRoutedEventArgs e)
