@@ -32,11 +32,13 @@ namespace Pedals
             VKeyLeft = ConfigurationManager.AppSettings["Left"] ?? "{LEFT}";
             VKeyMiddle = ConfigurationManager.AppSettings["Middle"] ?? " ";
             VKeyRight = ConfigurationManager.AppSettings["Right"] ?? "{RIGHT}";
-            usbI = new USBInterface(VID, PID);
 
+            here:
+            usbI = new USBInterface(VID,PID);
 
             savehandle = new EventHandler(HIDhandler);
             bool conn = usbI.Connect();
+
             if (conn)
             {
                 usbI.enableUsbBufferEvent(savehandle);
@@ -45,7 +47,11 @@ namespace Pedals
 
             }
             else
-                Console.WriteLine("Cannot connect to device");
+            {
+                Console.Error.WriteLine("Cannot connect to device, retry in 5s");
+                Thread.Sleep(5000);
+                goto here;
+            }
 
             Console.Read();
             if (conn)
