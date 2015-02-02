@@ -37,14 +37,14 @@ namespace NanoTrans
         {
             _speaker = s;
             this.SpeakerColletion = speakers;
+
+            _OriginalAttributes = s.Attributes.Select(a => new SpeakerAttribute(a)).ToList(); ;
         }
+
+
+
 
         public event PropertyChangedEventHandler PropertyChanged;
-
-        public ReadOnlyCollection<SpeakerAttributeContainer> Attributes
-        {
-            get { return Speaker.Attributes.Select(a => new SpeakerAttributeContainer(a)).ToList().AsReadOnly(); }
-        }
 
 
         public void ApplyChanges()
@@ -76,6 +76,16 @@ namespace NanoTrans
             if (_pinned != null)
                 _speaker.PinnedToDocument = _pinned.Value;
 
+
+            foreach (var att in _RemovedAttributes)
+                _speaker.Attributes.Remove(att);
+
+            _speaker.Attributes.AddRange(_AddedAttributes);
+
+            _OriginalAttributes = _speaker.Attributes.Select(a => new SpeakerAttribute(a)).ToList(); ;
+            //changes should be discarded after applying 
+            DiscardChanges();
+
             Changed = false;
             New = false;
         }
@@ -94,6 +104,12 @@ namespace NanoTrans
             _sex = null;
             _surName = null;
             _pinned = null;
+
+            _speaker.Attributes = _OriginalAttributes.ToList();
+
+            _AddedAttributes.Clear();
+            _RemovedAttributes.Clear();
+
         }
 
         public string DegreeAfter
@@ -132,7 +148,7 @@ namespace NanoTrans
         {
             get
             {
-                return _firstName ?? _speaker.FirstName??"";
+                return _firstName ?? _speaker.FirstName ?? "";
             }
 
             set
@@ -260,7 +276,7 @@ namespace NanoTrans
         {
             get
             {
-                return _middleName ?? _speaker.MiddleName??"";
+                return _middleName ?? _speaker.MiddleName ?? "";
             }
 
             set
@@ -304,7 +320,7 @@ namespace NanoTrans
         {
             get
             {
-                return _surName ?? _speaker.Surname??"";
+                return _surName ?? _speaker.Surname ?? "";
             }
 
             set
@@ -345,6 +361,30 @@ namespace NanoTrans
 
 
         public bool New { get; set; }
+
+        public ReadOnlyCollection<SpeakerAttributeContainer> Attributes
+        {
+            get { return Speaker.Attributes.Except(_RemovedAttributes).Concat(_AddedAttributes).Select(a => new SpeakerAttributeContainer(a)).ToList().AsReadOnly(); }
+        }
+
+        List<SpeakerAttribute> _AddedAttributes = new List<SpeakerAttribute>();
+        internal void AttributesAdd(SpeakerAttribute sa)
+        {
+            _AddedAttributes.Add(sa);
+            RefreshAttributes();
+            Changed = true;
+        }
+
+        List<SpeakerAttribute> _RemovedAttributes = new List<SpeakerAttribute>();
+        internal void AttributesRemove(SpeakerAttribute speakerAttribute)
+        {
+            _RemovedAttributes.Add(speakerAttribute);
+            RefreshAttributes();
+            Changed = true;
+        }
+
+        List<SpeakerAttribute> _OriginalAttributes = new List<SpeakerAttribute>();
+
     }
 
 }

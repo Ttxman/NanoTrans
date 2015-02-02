@@ -73,10 +73,7 @@ namespace NanoTrans
         private void ButtonAddAttributeClick(object sender, RoutedEventArgs e)
         {
             SpeakerAttribute sa = new SpeakerAttribute("", Settings.Default.SpeakerAttributteCategories[0], "");
-            SpeakerContainer.Speaker.Attributes.Add(sa);
-            SpeakerContainer.Changed = true;
-            SpeakerContainer.RefreshAttributes();
-
+            SpeakerContainer.AttributesAdd(sa);
         }
 
         private void ButtonRemoveAttributeClick(object sender, RoutedEventArgs e)
@@ -84,9 +81,7 @@ namespace NanoTrans
             var a = AttributeList.SelectedItem as SpeakerAttributeContainer;
             if (a != null)
             {
-                SpeakerContainer.Speaker.Attributes.Remove(a.SpeakerAttribute);
-                SpeakerContainer.RefreshAttributes();
-                SpeakerContainer.Changed = true;
+                SpeakerContainer.AttributesRemove(a.SpeakerAttribute);
             }
         }
 
