@@ -144,6 +144,10 @@
         <File Id="NanoTrans.exe.config" Name="NanoTrans.exe.config" Source="$(var.NanoTrans.TargetDir)\NanoTrans.exe.config"/>
 
         <File Id="TRSXSchema3.xsd" Name="TRSXSchema3.xsd" Source="$(var.NanoTrans.TargetDir)\TRSXSchema3.xsd"/>
+        
+        <File Id="USBHIDDRIVER.dll" Name="USBHIDDRIVER.dll" Source="$(var.NanoTrans.TargetDir)\USBHIDDRIVER.dll"/>
+        <File Id="Pedals.exe.config" Name="Pedals.exe.config" Source="$(var.NanoTrans.TargetDir)\Pedals.exe.config"/>
+        <File Id="Pedals.exe" Name="Pedals.exe" Source="$(var.NanoTrans.TargetDir)\Pedals.exe"/>
       </Component>
     </ComponentGroup>
   </Fragment>
