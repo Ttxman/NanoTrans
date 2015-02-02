@@ -137,11 +137,17 @@ namespace NanoTrans
             if (CollectionChanged != null && actions.Length > 0)
             {
                 var ev = MapEvent(actions[0].ChangeType);
-                if (actions.Length > 1 || ev == NotifyCollectionChangedAction.Reset)
+                if (actions.Length > 5 || ev == NotifyCollectionChangedAction.Reset)
+                {
                     CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset, null, -1));
+                }
                 else
                 {
-                    CollectionChanged(this, new NotifyCollectionChangedEventArgs(ev, actions[0].ChangedElement, actions[0].ChangeAbsoluteIndex));
+                    foreach (var a in actions)
+                    {
+                        CollectionChanged(this, new NotifyCollectionChangedEventArgs(MapEvent(a.ChangeType), a.ChangedElement, a.ChangeAbsoluteIndex));
+                    }
+                    
                 }
             }
 

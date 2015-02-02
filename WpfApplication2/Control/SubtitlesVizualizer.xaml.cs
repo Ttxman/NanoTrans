@@ -99,14 +99,13 @@ namespace NanoTrans
             {
                 el.ValueElement.Children[0].Insert(0, p);
             }
+            FixPosSetFor(el.ValueElement);
             ActiveTransctiption = p;
-
 
             this.Dispatcher.Invoke(() =>
             {
-                listbox.ScrollIntoView(p);
-                var n = listbox.ItemContainerGenerator.ContainerFromItem(p).VisualFindChild<Element>();
-                n.SetCaretOffset(0);
+                FixPosTryRestore();
+                SetCaretIn(p, 0);
             }, DispatcherPriority.Background);
 
         }
@@ -200,7 +199,6 @@ namespace NanoTrans
                 PlayPauseRequest(this, null);
         }
 
-
         void l_MoveDownRequest(object sender, EventArgs e)
         {
             bool playing = false;
@@ -266,25 +264,18 @@ namespace NanoTrans
                 {
                     p.End = t.End;
                     t.Children.ForEach(x => p.Children.Add(x));
-                    var cont = listbox.ItemContainerGenerator.ContainerFromItem(p) as ListBoxItem;
-                    if (cont != null)
-                    {
-                        Element pel = cont.VisualFindChild<Element>();
-                        pel.ValueElement = null;
-                        pel.ValueElement = p;
-                    }
                 }
                 parent.Remove(t);
 
             }
+            FixPosSetFor(p);
             parent.EndUpdate();
-            ActiveTransctiption = p;
+            ActiveTransctiption = p.Previous();
 
             this.Dispatcher.Invoke(() =>
             {
-                listbox.ScrollIntoView(p);
-                var n = listbox.ItemContainerGenerator.ContainerFromItem(p).VisualFindChild<Element>();
-                n.SetCaretOffset(len);
+                FixPosTryRestore();
+                SetCaretIn(p, len);
             }, DispatcherPriority.Background);
         }
 
@@ -299,25 +290,18 @@ namespace NanoTrans
             {
                 t.End = n.End;
                 n.Children.ForEach(x => t.Children.Add(x));
-                var cont = listbox.ItemContainerGenerator.ContainerFromItem(t) as ListBoxItem;
-                if (cont != null)
-                {
-                    Element pel = cont.VisualFindChild<Element>();
-                    pel.ValueElement = null;
-                    pel.ValueElement = t;
-                }
-
                 n.Parent.Remove(n);
             }
+
+            FixPosSetFor(t);
 
             t.Parent.EndUpdate();
             ActiveTransctiption = t;
 
             this.Dispatcher.Invoke(() =>
             {
-                listbox.ScrollIntoView(t);
-                var tt = listbox.ItemContainerGenerator.ContainerFromItem(t).VisualFindChild<Element>();
-                tt.SetCaretOffset(len);
+                FixPosTryRestore();
+                SetCaretIn(t, len);
             }, DispatcherPriority.Background);
 
         }
@@ -389,7 +373,7 @@ namespace NanoTrans
                     sum += p.Text.Length;
                 }//for
 
-                if (!Keyboard.Modifiers.HasFlag(ModifierKeys.Control))//TODO: hodit to nejak jinak do funkci... :P
+                if (!Keyboard.Modifiers.HasFlag(ModifierKeys.Control))//TODO: the keyboard check should be somewhere else?
                 {
 
                     if (RequestTimePosition != null)
@@ -405,6 +389,9 @@ namespace NanoTrans
 
                 var parent = par.Parent;
                 int indx = par.ParentIndex;
+
+                FixPosSetFor(par.Previous());
+
                 parent.Remove(par);
                 parent.Insert(indx, par2);
                 parent.Insert(indx, par1);
@@ -413,13 +400,53 @@ namespace NanoTrans
 
                 this.Dispatcher.Invoke(() =>
                 {
-                    listbox.ScrollIntoView(par2);
-                    var n = listbox.ItemContainerGenerator.ContainerFromItem(par2).VisualFindChild<Element>();
-                    n.SetCaretOffset(0);
+                    FixPosTryRestore();
+                    SetCaretIn(par2, 0);
                 }, DispatcherPriority.Background);
 
             }
         }
+
+
+        private void SetCaretIn(TranscriptionElement elm, int position)
+        {
+            if (ActiveTransctiption != elm)
+                ActiveTransctiption = elm;
+
+            listbox.ScrollIntoView(elm);
+            var n = listbox.ItemContainerGenerator.ContainerFromItem(elm).VisualFindChild<Element>();
+            if (!n.IsFocused)
+                n.Focus();
+            n.SetCaretOffset(position);
+        }
+
+        Point _FixPosElmPos;
+        TranscriptionElement _FixPosElm;
+        private void FixPosSetFor(TranscriptionElement elm)
+        {
+            _FixPosElm = elm;
+            var prevc = listbox.ItemContainerGenerator.ContainerFromItem(elm) as ListBoxItem;
+            _FixPosElmPos = prevc.TransformToAncestor(_scrollViewer).Transform(new Point(0, 0));
+        }
+
+        private bool FixPosTryRestore()
+        {
+            if (_FixPosElm == null)
+                return false;
+
+            var prevc = listbox.ItemContainerGenerator.ContainerFromItem(_FixPosElm) as ListBoxItem;
+            if (prevc == null)
+                return false;
+
+            var cpos = prevc.TransformToAncestor(_scrollViewer).Transform(new Point(0, 0));
+
+            var delta = cpos.Y - _FixPosElmPos.Y;
+            _scrollViewer.ScrollToVerticalOffset(_scrollViewer.VerticalOffset + delta);
+
+            return true;
+        }
+
+
 
         void l_GotFocus(object sender, RoutedEventArgs e)
         {
