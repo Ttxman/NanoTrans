@@ -1,5 +1,6 @@
 ﻿using NanoTrans.Core;
 using NanoTrans.OnlineAPI;
+using NanoTrans.Properties;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -79,6 +80,7 @@ namespace NanoTrans
 
             InitializeComponent();
             SpeakerProvider = new SpeakerManagerViewModel(new SpeakerCollection(documentSpeakers.Concat(transcription.EnumerateParagraphs().Select(p => p.Speaker)).Where(s => s != Speaker.DefaultSpeaker).Distinct()), localSpeakers, transcription.Api, this);
+
             var ss = SpeakerProvider.GetContainerForSpeaker(originalSpeaker);
             if (ss != null)
                 ss.Marked = true;

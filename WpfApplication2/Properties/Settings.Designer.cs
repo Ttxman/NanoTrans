@@ -382,5 +382,41 @@ namespace NanoTrans.Properties {
                 this["AdditionalSpeakerAttributeCategories"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool SpeakerManagerShowLocal {
+            get {
+                return ((bool)(this["SpeakerManagerShowLocal"]));
+            }
+            set {
+                this["SpeakerManagerShowLocal"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool SpeakerManagerShowDocument {
+            get {
+                return ((bool)(this["SpeakerManagerShowDocument"]));
+            }
+            set {
+                this["SpeakerManagerShowDocument"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool SpeakerManagerShowOnline {
+            get {
+                return ((bool)(this["SpeakerManagerShowOnline"]));
+            }
+            set {
+                this["SpeakerManagerShowOnline"] = value;
+            }
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using NanoTrans.Core;
 using NanoTrans.OnlineAPI;
+using NanoTrans.Properties;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -44,6 +45,27 @@ namespace NanoTrans
 
             this._document = documentSpeakers;
             this._local = localSpeakers;
+            
+            _showOnline = Settings.Default.SpeakerManagerShowOnline;
+            _showLocal = Settings.Default.SpeakerManagerShowLocal;
+            _showDocument = Settings.Default.SpeakerManagerShowDocument;
+
+            this.PropertyChanged += (object sender, PropertyChangedEventArgs e) =>
+            {
+                switch (e.PropertyName)
+                {
+                    case "ShowLocal":
+                        Settings.Default.SpeakerManagerShowLocal = this.ShowLocal;
+                        break;
+                    case "ShowDocument":
+                        Settings.Default.SpeakerManagerShowLocal = this.ShowDocument;
+                        break;
+                    case "ShowOnline":
+                        Settings.Default.SpeakerManagerShowLocal = this.ShowOnline;
+                        break;
+                }
+            };
+
 
             ReloadSpeakers();
         }
@@ -277,6 +299,7 @@ namespace NanoTrans
                 ReloadSpeakers();
             }
         }
+
         public bool ShowOnline
         {
             get { return _showOnline; }
