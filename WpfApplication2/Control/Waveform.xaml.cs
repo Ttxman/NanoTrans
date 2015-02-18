@@ -143,7 +143,21 @@ namespace NanoTrans
                 if (pos == wave.CaretPositionMS)
                     return;
 
-                if (btndrag && Playing && WaveEnd - value < TimeSpan.FromMilliseconds(200))
+                TimeSpan shiftpoint = WaveEnd;
+
+                //try to move whole last paragraph (paragraph button) into view
+                if (speakerButtons.Count > 0)
+                {
+                    var lpar = speakerButtons.LastOrDefault().Tag as TranscriptionParagraph;
+
+                    var wavepart = new TimeSpan((WaveEnd - WaveBegin).Ticks / 3);
+                    var parlength = lpar.End - lpar.Begin;
+                    if (parlength < wavepart && lpar.End > WaveEnd)
+                        shiftpoint = lpar.Begin;
+                }
+
+
+                if (btndrag && Playing && shiftpoint - value < TimeSpan.FromMilliseconds(200))
                 {
                     btPrehratZastavit_Click(null, null);
                 }
@@ -158,9 +172,7 @@ namespace NanoTrans
                     if (_updating > 0)
                         return;
 
-
-
-                    if (value < WaveBegin || value > WaveEnd)
+                    if (value < WaveBegin || value > shiftpoint)
                     {
                         BeginUpdate();
                         SliderPostion = CaretPosition;
