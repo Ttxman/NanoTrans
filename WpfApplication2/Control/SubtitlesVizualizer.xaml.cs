@@ -483,6 +483,23 @@ namespace NanoTrans
                 if (listbox.SelectedValue != value)
                     listbox.SelectedValue = value;
 
+
+                //when playing try to show next paragraph
+                if (RequestPlaying != null)
+                {
+                    bool playing = false;
+                    RequestPlaying(out playing);
+                    if (value != null && playing)
+                    {
+                        var nval = value.Next();
+                        if (nval != null)
+                        {
+                            Dispatcher.Invoke(() => listbox.ScrollIntoView(nval), DispatcherPriority.Background);
+                        }
+                    }
+                }
+
+
                 Dispatcher.Invoke(() => listbox.ScrollIntoView(value), DispatcherPriority.Background);
 
 
