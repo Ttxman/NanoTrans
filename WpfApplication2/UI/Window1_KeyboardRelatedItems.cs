@@ -552,9 +552,11 @@ namespace NanoTrans
             if (MWP == null)
                 InitializeAudioPlayer();
 
-
             if (MWP == null)
                 return;
+
+            waveform1.StopDrag();
+
             if (_playing)
             {
                 if (videoAvailable) meVideo.Pause();

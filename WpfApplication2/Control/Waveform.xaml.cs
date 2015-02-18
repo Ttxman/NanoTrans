@@ -1235,15 +1235,17 @@ namespace NanoTrans
 
         void pSpeaker_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
+            StopDrag();
+        }
 
-            Point position;
-            Button b = sender as Button;
-            position = e.GetPosition((Button)sender);
+        public void StopDrag()
+        {
+            if(Mouse.Captured is Button)
+                Mouse.Capture(null);
 
             if (btndrag)
             {
                 InvalidateSpeakers();
-                b.ReleaseMouseCapture();
                 Transcription.BeginUpdate();
                 foreach (var button in speakerButtons)
                 {
@@ -1265,13 +1267,12 @@ namespace NanoTrans
                 }
 
                 Transcription.EndUpdate();
-                _changedends.Clear();
-                _changedbegins.Clear();
             }
+
             btndrag = false;
             mouseOverParagraphDrag = false;
-
-
+            _changedends.Clear();
+            _changedbegins.Clear();
         }
 
         private void Grid_SizeChanged(object sender, SizeChangedEventArgs e)
