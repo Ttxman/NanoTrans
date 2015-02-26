@@ -1472,7 +1472,7 @@ namespace NanoTrans
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             if (value is TranscriptionParagraph)
-                return (((TranscriptionParagraph)value).Speaker ?? Speaker.DefaultSpeaker).FullName;
+                return new TextBlock() { Text = (((TranscriptionParagraph)value).Speaker ?? Speaker.DefaultSpeaker).FullName };
 
             return "";
         }

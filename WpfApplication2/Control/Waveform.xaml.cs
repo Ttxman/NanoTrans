@@ -745,7 +745,7 @@ namespace NanoTrans
                                         el.Fill = Brushes.DarkRed;
                                         dp2.Children.Add(el);
                                     }
-                                    Label lab = new Label() { Content = pText, HorizontalAlignment = System.Windows.HorizontalAlignment.Center, Margin = new Thickness(0, 0, 0, 0) };
+                                    TextBlock lab = new TextBlock() { Text = pText, HorizontalAlignment = System.Windows.HorizontalAlignment.Center, Margin = new Thickness(0, 0, 0, 0) };
                                     lab.Padding = new Thickness(0, 0, 0, 0);
                                     lab.Height = 15;
                                     dp2.Children.Add(lab);
