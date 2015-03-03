@@ -1302,6 +1302,11 @@ namespace NanoTrans
                 _api.Cancel();
 
             FilePaths.DeleteTemp();
+
+            if (PedalProcess != null && !PedalProcess.HasExited)
+                PedalProcess.Kill();
+
+
             Environment.Exit(0); //Force close application
         }
 
@@ -1547,7 +1552,7 @@ namespace NanoTrans
                     }
                     finally
                     {
-                        PedalProcess.StandardInput.WriteLine("exit");
+                        //PedalProcess.StandardInput.WriteLine("exit");
                         PedalProcess.WaitForExit();
                         PedalProcess = null;
                         Pedalthread = null;

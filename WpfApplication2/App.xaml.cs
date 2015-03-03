@@ -19,11 +19,17 @@ namespace NanoTrans
         {
            Startup_ARGS = e.Args;
            AppDomain.CurrentDomain.FirstChanceException += CurrentDomain_FirstChanceException;
+           
         }
 
         void CurrentDomain_FirstChanceException(object sender, System.Runtime.ExceptionServices.FirstChanceExceptionEventArgs e)
         {
 
+        }
+
+        private void Application_Exit(object sender, ExitEventArgs e)
+        {
+            
         }
 
     }
