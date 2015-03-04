@@ -753,7 +753,7 @@ namespace NanoTrans
                                     speaker.Content = dp;
 
                                     speaker.SizeChanged += new SizeChangedEventHandler(pSpeaker_SizeChanged);
-
+                                    speaker.ClickMode = ClickMode.Press;
                                     //speaker.SetValue(Grid.RowProperty, 1);
                                     this.speakerButtons.Add(speaker);
                                 }
