@@ -1537,6 +1537,7 @@ namespace NanoTrans
                     try
                     {
                         PedalProcess.Start();
+
                         while (true)
                         {
                             if (PedalProcess.HasExited)
@@ -1552,7 +1553,6 @@ namespace NanoTrans
                     }
                     finally
                     {
-                        //PedalProcess.StandardInput.WriteLine("exit");
                         PedalProcess.WaitForExit();
                         PedalProcess = null;
                         Pedalthread = null;

@@ -5,6 +5,7 @@ using System.Text;
 using USBHIDDRIVER;
 using System.Threading;
 using System.Configuration;
+using System.Threading.Tasks;
 
 
 namespace Pedals
@@ -20,50 +21,52 @@ namespace Pedals
         static bool VirtualKeys = true;
         static void Main(string[] args)
         {
-            if (args.Length > 0)
-                VirtualKeys = false;
-            string VID = ConfigurationManager.AppSettings["VID"] ?? "vid_05f3";
-            string PID = ConfigurationManager.AppSettings["PID"] ?? "pid_00ff";
-
-            Left = ConfigurationManager.AppSettings["Left"] ?? "L";
-            Middle = ConfigurationManager.AppSettings["Middle"] ?? "M";
-            Right = ConfigurationManager.AppSettings["Right"] ?? "R";
-
-            VKeyLeft = ConfigurationManager.AppSettings["Left"] ?? "{LEFT}";
-            VKeyMiddle = ConfigurationManager.AppSettings["Middle"] ?? " ";
-            VKeyRight = ConfigurationManager.AppSettings["Right"] ?? "{RIGHT}";
-
-            here:
-            usbI = new USBInterface(VID,PID);
-
-            savehandle = new EventHandler(HIDhandler);
-            bool conn = usbI.Connect();
-
-            if (conn)
+            try
             {
-                usbI.enableUsbBufferEvent(savehandle);
-                Thread.Sleep(5);
-                usbI.startRead();
 
-            }
-            else
-            {
-                Console.Error.WriteLine("Cannot connect to device, retry in 5s");
-                Thread.Sleep(5000);
-                goto here;
-            }
+                if (args.Length > 0)
+                    VirtualKeys = false;
+                string VID = ConfigurationManager.AppSettings["VID"] ?? "vid_05f3";
+                string PID = ConfigurationManager.AppSettings["PID"] ?? "pid_00ff";
 
-            Console.Read();
-            if (conn)
-            {
-                usbI.stopRead();
-                try
+                Left = ConfigurationManager.AppSettings["Left"] ?? "L";
+                Middle = ConfigurationManager.AppSettings["Middle"] ?? "M";
+                Right = ConfigurationManager.AppSettings["Right"] ?? "R";
+
+                VKeyLeft = ConfigurationManager.AppSettings["Left"] ?? "{LEFT}";
+                VKeyMiddle = ConfigurationManager.AppSettings["Middle"] ?? " ";
+                VKeyRight = ConfigurationManager.AppSettings["Right"] ?? "{RIGHT}";
+
+
+                usbI = new USBInterface(VID, PID);
+                savehandle = new EventHandler(HIDhandler);
+
+                bool conn = usbI.Connect();
+
+                if (conn)
                 {
-                    usbI.Disconnect();
+                    usbI.enableUsbBufferEvent(savehandle);
+                    Thread.Sleep(5);
+                    usbI.startRead();
+
                 }
-                catch { }
+
+                Console.Read();
+                if (conn)
+                {
+                    usbI.stopRead();
+                    try
+                    {
+                        usbI.Disconnect();
+                    }
+                    catch { }
+                }
+
             }
-            System.Diagnostics.Process.GetCurrentProcess().Kill();
+            finally
+            {
+                Environment.Exit(0); //Force close application
+            }
         }
 
         static USBHIDDRIVER.USBInterface usbI;
