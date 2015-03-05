@@ -555,8 +555,6 @@ namespace NanoTrans
             if (MWP == null)
                 return;
 
-            waveform1.StopDrag();
-
             if (_playing)
             {
                 if (videoAvailable) meVideo.Pause();
@@ -568,7 +566,7 @@ namespace NanoTrans
             }
             else
             {
-                waveform1.Invalidate();
+               // waveform1.Invalidate();
                 bool adjustspeed = false;
                 if ((Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift || ToolBar2BtnSlow.IsChecked == true)
                 {

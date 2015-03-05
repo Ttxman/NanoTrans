@@ -1510,6 +1510,7 @@ namespace NanoTrans
         Process PedalProcess = null;
 
         //init tool to handle pedals (foot control)
+        
         private void PedalsInit()
         {
             string pedalsexe = FilePaths.PedalPath;

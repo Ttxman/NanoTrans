@@ -132,13 +132,15 @@ namespace NanoTrans
             }
         }
 
+
+        private object _carretDispatchToken = null;
         public TimeSpan CaretPosition
         {
             get { return TimeSpan.FromMilliseconds(wave.CaretPositionMS); }
             set
             {
 
-
+                var goodToken = _carretDispatchToken = new object();
                 long pos = (long)value.TotalMilliseconds;
                 if (pos == wave.CaretPositionMS)
                     return;
@@ -148,14 +150,21 @@ namespace NanoTrans
                 //try to move whole last paragraph (paragraph button) into view
                 if (speakerButtons.Count > 0)
                 {
-                    var lpar = speakerButtons.LastOrDefault().Tag as TranscriptionParagraph;
+                    var lbut = speakerButtons.LastOrDefault();
+                    if (lbut != null)
+                    {
 
-                    var wavepart = new TimeSpan((WaveEnd - WaveBegin).Ticks / 3);
-                    var parlength = lpar.End - lpar.Begin;
-                    if (parlength < wavepart && lpar.End > WaveEnd)
-                        shiftpoint = lpar.Begin;
+                        var lpar = lbut.Tag as TranscriptionParagraph;
+
+
+                        var wavepart = new TimeSpan((WaveEnd - WaveBegin).Ticks / 3);
+                        var realend = PosToTime(lbut.Margin.Left + lbut.ActualWidth);
+                        var realbegin = PosToTime(lbut.Margin.Left);
+                        var parlength = realend - realbegin;
+                        if (parlength < wavepart && realend > WaveEnd)
+                            shiftpoint = realbegin;
+                    }
                 }
-
 
                 if (btndrag && Playing && shiftpoint - value < TimeSpan.FromMilliseconds(200))
                 {
@@ -164,6 +173,9 @@ namespace NanoTrans
 
                 Dispatcher.Invoke(() =>
                 {
+                    if (goodToken != _carretDispatchToken) //use only last call on dispatcher quevue
+                        return;
+
                     this.AudioBufferCheck(value);
                     wave.CaretPositionMS = pos;
 
@@ -172,7 +184,7 @@ namespace NanoTrans
                     if (_updating > 0)
                         return;
 
-                    if (value < WaveBegin || value > shiftpoint)
+                    if ((value < WaveBegin || value > shiftpoint))
                     {
                         BeginUpdate();
                         SliderPostion = CaretPosition;
@@ -640,6 +652,7 @@ namespace NanoTrans
         private List<Button> speakerButtons = new List<Button>();
         private void iInvalidateSpeakers()
         {
+            this.StopDrag();
             //TODO: remove try catch
             try
             {
@@ -1240,7 +1253,7 @@ namespace NanoTrans
 
         public void StopDrag()
         {
-            if(Mouse.Captured is Button)
+            if (Mouse.Captured is Button)
                 Mouse.Capture(null);
 
             if (btndrag)
