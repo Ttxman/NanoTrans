@@ -157,12 +157,10 @@ namespace NanoTrans
                     if (speakerButtons.Count > 0)
                     {
                         var lbut = speakerButtons.LastOrDefault();
-                        if (lbut != null)
+                        if (lbut != null && Dispatcher.CheckAccess()) //when called from nonUI thread you cannot access .Tag, .Actualwidth etc.. ignore
                         {
 
-                        var lpar = lbut.Tag as TranscriptionParagraph;
-
-
+                            var lpar = lbut.Tag as TranscriptionParagraph;
 
                             var wavepart = new TimeSpan((WaveEnd - WaveBegin).Ticks / 3);
                             var realend = PosToTime(lbut.Margin.Left + lbut.ActualWidth);
