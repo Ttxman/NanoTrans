@@ -16,6 +16,7 @@ using System.Diagnostics;
 using NanoTrans.Core;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.IO;
 
 namespace NanoTrans
 {
@@ -134,75 +135,89 @@ namespace NanoTrans
 
 
         private object _carretDispatchToken = null;
+        private int _carretCycledepth;
+
         public TimeSpan CaretPosition
         {
             get { return TimeSpan.FromMilliseconds(wave.CaretPositionMS); }
             set
             {
-
-                var goodToken = _carretDispatchToken = new object();
-                long pos = (long)value.TotalMilliseconds;
-                if (pos == wave.CaretPositionMS)
-                    return;
-
-                TimeSpan shiftpoint = WaveEnd;
-
-                //try to move whole last paragraph (paragraph button) into view
-                if (speakerButtons.Count > 0)
+                try
                 {
-                    var lbut = speakerButtons.LastOrDefault();
-                    if (lbut != null)
+                    _carretCycledepth++;
+
+                    var goodToken = _carretDispatchToken = new object();
+                    long pos = (long)value.TotalMilliseconds;
+                    if (pos == wave.CaretPositionMS)
+                        return;
+
+                    TimeSpan shiftpoint = WaveEnd;
+
+                    //try to move whole last paragraph (paragraph button) into view
+                    if (speakerButtons.Count > 0)
                     {
+                        var lbut = speakerButtons.LastOrDefault();
+                        if (lbut != null)
+                        {
 
                         var lpar = lbut.Tag as TranscriptionParagraph;
 
 
-                        var wavepart = new TimeSpan((WaveEnd - WaveBegin).Ticks / 3);
-                        var realend = PosToTime(lbut.Margin.Left + lbut.ActualWidth);
-                        var realbegin = PosToTime(lbut.Margin.Left);
-                        var parlength = realend - realbegin;
-                        if (parlength < wavepart && realend > WaveEnd)
-                            shiftpoint = realbegin;
+
+                            var wavepart = new TimeSpan((WaveEnd - WaveBegin).Ticks / 3);
+                            var realend = PosToTime(lbut.Margin.Left + lbut.ActualWidth);
+                            var realbegin = PosToTime(lbut.Margin.Left);
+                            var parlength = realend - realbegin;
+                            if (parlength < wavepart && realend > WaveEnd)
+                                shiftpoint = realbegin;
+                        }
                     }
-                }
 
-                if (btndrag && Playing && shiftpoint - value < TimeSpan.FromMilliseconds(200))
-                {
-                    btPrehratZastavit_Click(null, null);
-                }
-
-                Dispatcher.Invoke(() =>
-                {
-                    if (goodToken != _carretDispatchToken) //use only last call on dispatcher quevue
-                        return;
-
-                    this.AudioBufferCheck(value);
-                    wave.CaretPositionMS = pos;
-
-                    TimeSpan ts = value;
-
-                    if (_updating > 0)
-                        return;
-
-                    if ((value < WaveBegin || value > shiftpoint))
+                    if (btndrag && Playing && shiftpoint - value < TimeSpan.FromMilliseconds(200))
                     {
-                        BeginUpdate();
-                        SliderPostion = CaretPosition;
-                        EndUpdate();
+                        btPrehratZastavit_Click(null, null);
                     }
 
 
+                    bool blockshift = _carretCycledepth > 1;
 
-                    if (_updating == 0)
-                        if (CaretPostionChanged != null)
-                            CaretPostionChanged(this, new TimeSpanEventArgs(value));
-                });
+                    Dispatcher.Invoke(() =>
+                    {
+                        if (goodToken != _carretDispatchToken) //use only last call on dispatcher quevue
+                            return;
 
-                OnPropertyChanged();
-                OnPropertyChanged("CaretMargin");
+                        this.AudioBufferCheck(value);
+                        wave.CaretPositionMS = pos;
+
+                        TimeSpan ts = value;
+
+                        if (_updating > 0)
+                            return;
+
+                        if (!blockshift && (value < WaveBegin || value > shiftpoint))
+                        {
+                            BeginUpdate();
+                            SliderPostion = CaretPosition;
+                            EndUpdate();
+                        }
+
+
+
+                        if (_updating == 0)
+                            if (CaretPostionChanged != null)
+                                CaretPostionChanged(this, new TimeSpanEventArgs(value));
+                    });
+
+                    OnPropertyChanged();
+                    OnPropertyChanged("CaretMargin");
+
+                }
+                finally
+                {
+                    _carretCycledepth--;
+                }
             }
         }
-
 
         public TimeSpan SliderPostion
         {
