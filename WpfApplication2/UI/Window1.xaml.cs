@@ -1254,9 +1254,11 @@ namespace NanoTrans
                 if (begin < TimeSpan.Zero) begin = TimeSpan.Zero;
                 end = begin + length;
                 caretRefreshTimer.IsEnabled = false;
+                waveform1.BeginUpdate();
                 waveform1.WaveBegin = begin;
                 waveform1.WaveEnd = end;
                 waveform1.WaveLength = length;
+                waveform1.EndUpdate();
                 caretRefreshTimer.IsEnabled = true;
             }
             catch
