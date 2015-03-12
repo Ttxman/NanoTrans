@@ -502,7 +502,8 @@ namespace NanoTrans
 
             if (notbuffered)
             {
-                WaveFormImage = null;
+                myImage.Source = null;
+
                 return;
             }
 
@@ -644,9 +645,11 @@ namespace NanoTrans
                 var img = new DrawingImage(myDrawingGroup);
                 img.Freeze();
 
+                myImage.Source = img;
 
-                WaveFormImage = img;
+
                 invalidate_waveform = false;
+
             }
             catch// (Exception ex)
             {
@@ -655,6 +658,7 @@ namespace NanoTrans
 
 
         }
+
 
         public void InvalidateSpeakers()
         {
@@ -893,20 +897,6 @@ namespace NanoTrans
         {
             if (PlayPauseClick != null)
                 PlayPauseClick(this, new RoutedEventArgs(Button.ClickEvent));
-        }
-
-        DrawingImage _Waveform = null;
-        public DrawingImage WaveFormImage
-        {
-            get
-            {
-                return _Waveform;
-            }
-            set
-            {
-                _Waveform = value;
-                OnPropertyChanged();
-            }
         }
 
 
@@ -1476,5 +1466,4 @@ namespace NanoTrans
             throw new NotSupportedException();
         }
     }
-
 }
