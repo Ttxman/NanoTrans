@@ -823,6 +823,9 @@ namespace NanoTrans
             catch { }
         }
 
+
+        TimeSpan dragwavestart;
+        TimeSpan dragwaveend;
         void pSpeaker_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             Button b = sender as Button;
@@ -830,6 +833,9 @@ namespace NanoTrans
             Point p = e.GetPosition(b);
             if (p.X <= 4)
             {
+                dragwavestart = WaveBegin;
+                dragwaveend = WaveEnd;
+
                 btndrag = true;
                 btndragleft = true;
                 e.Handled = true;
@@ -837,6 +843,9 @@ namespace NanoTrans
             }
             else if (p.X >= b.ActualWidth - 4)
             {
+                dragwavestart = WaveBegin;
+                dragwaveend = WaveEnd;
+
                 btndrag = true;
                 btndragleft = false;
                 e.Handled = true;
@@ -1133,15 +1142,26 @@ namespace NanoTrans
             }
         }
 
+
         private double TimeToPos(TimeSpan downtime)
         {
-            return (this.ActualWidth / (WaveEnd - WaveBegin).Ticks) * downtime.Ticks;
+            return TimeToPos(downtime, WaveBegin, WaveEnd);
         }
 
         private TimeSpan PosToTime(double position)
         {
+            return PosToTime(position, WaveBegin, WaveEnd);
+        }
+
+        private double TimeToPos(TimeSpan downtime, TimeSpan waveBegin, TimeSpan waveEnd)
+        {
+            return (this.ActualWidth / (waveEnd - waveBegin).Ticks) * downtime.Ticks;
+        }
+
+        private TimeSpan PosToTime(double position, TimeSpan waveBegin, TimeSpan waveEnd)
+        {
             double relative = position / this.ActualWidth;
-            return TimeSpan.FromTicks((long)((WaveEnd - WaveBegin).Ticks * relative + WaveBegin.Ticks));
+            return TimeSpan.FromTicks((long)((waveEnd - waveBegin).Ticks * relative + waveBegin.Ticks));
         }
 
         bool btndrag = false;
@@ -1282,14 +1302,14 @@ namespace NanoTrans
                         continue;
                     if (_changedbegins.Contains(elm))
                     {
-                        var beg = PosToTime(button.Margin.Left);
+                        var beg = PosToTime(button.Margin.Left, dragwavestart, dragwaveend);
 
                         elm.Begin = beg;
                     }
 
                     if (_changedends.Contains(elm))
                     {
-                        var end = PosToTime(button.Margin.Left + button.ActualWidth);
+                        var end = PosToTime(button.Margin.Left + button.ActualWidth, dragwavestart, dragwaveend);
                         elm.End = end;
                     }
                 }
