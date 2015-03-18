@@ -864,6 +864,8 @@ namespace NanoTrans
 
         void pSepaker_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
+            if (Playing && PlayPauseClick != null)
+                PlayPauseClick(this, null);
             TranscriptionParagraph pTag = (sender as Button).Tag as TranscriptionParagraph;
             if (ParagraphDoubleClick != null)
                 ParagraphDoubleClick(this, new MyTranscriptionElementEventArgs(pTag));
