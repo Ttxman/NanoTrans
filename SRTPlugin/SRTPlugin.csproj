@@ -53,8 +53,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Transcription.Core\TranscriptionCore.csproj">
-      <Project>{0F583FCA-C035-4575-84C3-7696C0C78486}</Project>
+    <ProjectReference Include="..\..\TranscriptionCore\TranscriptionCore.csproj">
+      <Project>{0c35d56f-98b5-4044-978c-c13eabc1e0c3}</Project>
       <Name>TranscriptionCore</Name>
     </ProjectReference>
   </ItemGroup>

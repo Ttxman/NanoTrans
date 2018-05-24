@@ -87,8 +87,8 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Transcription.Core\TranscriptionCore.csproj">
-      <Project>{0f583fca-c035-4575-84c3-7696c0c78486}</Project>
+    <ProjectReference Include="..\..\TranscriptionCore\TranscriptionCore.csproj">
+      <Project>{0c35d56f-98b5-4044-978c-c13eabc1e0c3}</Project>
       <Name>TranscriptionCore</Name>
     </ProjectReference>
   </ItemGroup>
