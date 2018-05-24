@@ -1,5 +1,4 @@
-﻿using NanoTrans.Core;
-using NanoTrans.OnlineAPI;
+﻿using NanoTrans.OnlineAPI;
 using NanoTrans.Properties;
 using System;
 using System.Collections.Generic;
@@ -11,6 +10,7 @@ using System.Threading.Tasks;
 using System.Timers;
 using System.Windows;
 using System.Windows.Data;
+using TranscriptionCore;
 
 namespace NanoTrans
 {

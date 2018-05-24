@@ -1,5 +1,4 @@
-﻿using NanoTrans.Core;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -14,6 +13,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Xml;
 using System.Xml.Linq;
+using TranscriptionCore;
 
 namespace NanoTrans.OnlineAPI
 {
@@ -438,7 +438,7 @@ namespace NanoTrans.OnlineAPI
 
         internal async Task UpdateTranscriptionSpeakers()
         {
-            var sp1 = await ListSpeakers(Trans.Speakers.Where(s => s.DBType == Core.DBType.Api).Select(s => s.DBID));
+            var sp1 = await ListSpeakers(Trans.Speakers.Where(s => s.DBType == DBType.Api).Select(s => s.DBID));
             var respeakers = sp1.ToArray();
 
             for (int i = 0; i < respeakers.Length; i++)

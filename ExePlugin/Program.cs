@@ -1,4 +1,4 @@
-﻿using NanoTrans.Core;
+﻿using TranscriptionCore;
 using System;
 using System.Collections.Generic;
 using System.IO;

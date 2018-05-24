@@ -27,7 +27,6 @@ using System.Xml.Linq;
 using System.Reflection;
 using Microsoft.Win32;
 using NanoTrans.Audio;
-using NanoTrans.Core;
 using System.Windows.Controls.Primitives;
 using WPFLocalizeExtension.Engine;
 using System.Threading.Tasks;
@@ -36,6 +35,7 @@ using System.Runtime.CompilerServices;
 using System.ComponentModel;
 using NanoTrans.Properties;
 using System.Collections.ObjectModel;
+using TranscriptionCore;
 
 namespace NanoTrans
 {

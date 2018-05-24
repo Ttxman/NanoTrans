@@ -7,7 +7,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="283" d:DesignWidth="677"
              xmlns:my="clr-namespace:NanoTrans"
-             xmlns:ntcore="clr-namespace:NanoTrans.Core;assembly=NanoTransCore"
+             xmlns:ntcore="clr-namespace:TranscriptionCore;assembly=TranscriptionCore"
              Name="Vizualizer" Loaded="Vizualizer_Loaded" PreviewKeyDown="Vizualizer_PreviewKeyDown">
 
     <UserControl.Resources>

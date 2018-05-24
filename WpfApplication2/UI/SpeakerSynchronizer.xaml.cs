@@ -1,5 +1,4 @@
-﻿using NanoTrans.Core;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
@@ -15,6 +14,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using TranscriptionCore;
 
 namespace NanoTrans
 {

@@ -1,5 +1,4 @@
-﻿using NanoTrans.Core;
-using NanoTrans.OnlineAPI;
+﻿using NanoTrans.OnlineAPI;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -14,6 +13,7 @@ using System.Collections.ObjectModel;
 using System.Xml.Linq;
 using System.Xml;
 using System.Xml.Schema;
+using TranscriptionCore;
 
 namespace NanoTrans
 {

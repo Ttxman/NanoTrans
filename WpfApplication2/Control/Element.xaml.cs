@@ -19,9 +19,9 @@ using ICSharpCode.AvalonEdit.CodeCompletion;
 using ICSharpCode.AvalonEdit.Editing;
 using ICSharpCode.AvalonEdit.Indentation;
 using System.IO;
-using NanoTrans.Core;
 using System.ComponentModel;
 using NanoTrans.Properties;
+using TranscriptionCore;
 
 namespace NanoTrans
 {
@@ -218,25 +218,25 @@ namespace NanoTrans
             if (el == null || el.ValueElement == null || !e.ActionsTaken.Any(a => a.ChangedElement == el.ValueElement))
                 return;
 
-            if (e.ActionsTaken.Any(a => a is NanoTrans.Core.TextAction))
+            if (e.ActionsTaken.Any(a => a is TextAction))
                 el.TextualContentChanged();
 
-            if (e.ActionsTaken.Any(a => a is NanoTrans.Core.BeginAction))
+            if (e.ActionsTaken.Any(a => a is BeginAction))
                 el.BeginChanged(el, new EventArgs());
 
-            if (e.ActionsTaken.Any(a => a is NanoTrans.Core.BeginAction))
+            if (e.ActionsTaken.Any(a => a is BeginAction))
                 el.BeginChanged(el, new EventArgs());
 
-            if (e.ActionsTaken.Any(a => a is NanoTrans.Core.EndAction))
+            if (e.ActionsTaken.Any(a => a is EndAction))
                 el.EndChanged(el, new EventArgs());
 
-            if (e.ActionsTaken.Any(a => a is NanoTrans.Core.ParagraphSpeakerAction))
+            if (e.ActionsTaken.Any(a => a is ParagraphSpeakerAction))
                 el.RefreshSpeakerInfos();
 
-            if (e.ActionsTaken.Any(a => a is NanoTrans.Core.ParagraphLanguageAction))
+            if (e.ActionsTaken.Any(a => a is ParagraphLanguageAction))
                 el.textBlockLanguage.GetBindingExpression(TextBlock.TextProperty).UpdateTarget();
 
-            if (e.ActionsTaken.Any(a => a is NanoTrans.Core.ParagraphAttibutesAction))
+            if (e.ActionsTaken.Any(a => a is ParagraphAttibutesAction))
                 el.RepaintAttributes();
 
 

@@ -13,10 +13,10 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Threading;
 using System.Diagnostics;
-using NanoTrans.Core;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.IO;
+using TranscriptionCore;
 
 namespace NanoTrans
 {

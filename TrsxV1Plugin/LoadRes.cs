@@ -1,9 +1,9 @@
-﻿using NanoTrans.Core;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using TranscriptionCore;
 
 namespace TrsxV1Plugin
 {

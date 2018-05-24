@@ -6,7 +6,7 @@ using System.Diagnostics;
 using System.Windows;
 using System.IO;
 using Microsoft.Win32;
-using NanoTrans.Core;
+using TranscriptionCore;
 
 namespace NanoTrans
 {

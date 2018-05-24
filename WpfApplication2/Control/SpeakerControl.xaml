@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:my ="clr-namespace:NanoTrans"
-             xmlns:core ="clr-namespace:NanoTrans.Core;assembly=NanoTransCore"
+             xmlns:core ="clr-namespace:TranscriptionCore;assembly=TranscriptionCore"
              xmlns:clr="clr-namespace:System;assembly=mscorlib"
              
              xmlns:lex="http://wpflocalizeextension.codeplex.com"

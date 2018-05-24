@@ -13,12 +13,12 @@ using Microsoft.Win32;
 using Ionic.Zip;
 using System.Linq;
 using System.Configuration;
-using NanoTrans.Core;
 using System.Globalization;
 using System.Diagnostics;
 using WPFLocalizeExtension.Engine;
 using NanoTrans.Properties;
 using System.ComponentModel;
+using TranscriptionCore;
 
 namespace NanoTrans
 {
