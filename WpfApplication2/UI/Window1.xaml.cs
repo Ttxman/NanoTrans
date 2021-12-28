@@ -513,8 +513,6 @@ namespace NanoTrans
             CommandDeleteElement.Execute(null, null);
         }
 
-        static Encoding win1250 = Encoding.GetEncoding("windows-1250");
-
         void menuItemX7_ExportElement_Click(object sender, RoutedEventArgs e)
         {
             CommandExportElement.Execute(null, null);

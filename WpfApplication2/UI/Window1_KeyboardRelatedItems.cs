@@ -184,7 +184,7 @@ namespace NanoTrans
 
             var imp = ImportTranscription(path);
 
-            if(imp!=null)
+            if (imp != null)
                 LoadTranscription(imp);
             else
                 MessageBox.Show(Properties.Strings.MessageBoxImportError, Properties.Strings.MessageBoxErrorCaption, MessageBoxButton.OK, MessageBoxImage.Error);
@@ -488,13 +488,12 @@ namespace NanoTrans
                 string textf = basename + ".txt";
                 //File.WriteAllBytes(textf, win1250.GetBytes());
 
-                File.WriteAllText(textf, par.Text, win1250);
+                File.WriteAllText(textf, par.Text);
 
                 if (!string.IsNullOrEmpty(par.Phonetics))
                 {
                     textf = basename + ".phn";
-                    File.WriteAllText(textf, par.Phonetics, win1250);
-                    //File.WriteAllBytes(textf, win1250.GetBytes(par.Phonetics));
+                    File.WriteAllText(textf, par.Phonetics);
                 }
 
                 SystemSounds.Asterisk.Play();
@@ -520,13 +519,13 @@ namespace NanoTrans
                 dlg.FileName = dlg.FileName.Substring(0, dlg.FileName.Length - ext.Length);
                 string textf = dlg.FileName + ".txt";
 
-                File.WriteAllBytes(textf, win1250.GetBytes(par.Text));
+                File.WriteAllText(textf, par.Text);
 
 
                 if (!string.IsNullOrEmpty(par.Phonetics))
                 {
                     textf = dlg.FileName + ".phn";
-                    File.WriteAllBytes(textf, win1250.GetBytes(par.Phonetics));
+                    File.WriteAllText(textf, par.Phonetics);
                 }
             }
         }
@@ -565,7 +564,7 @@ namespace NanoTrans
             }
             else
             {
-               // waveform1.Invalidate();
+                // waveform1.Invalidate();
                 bool adjustspeed = false;
                 if ((Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift || ToolBar2BtnSlow.IsChecked == true)
                 {
