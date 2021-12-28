@@ -481,7 +481,7 @@ namespace NanoTrans
                 var pars = nfo.GetFiles("*.wav").Where(p => p.Name.StartsWith("paragraph_")).ToArray();
 
                 if (pars.Count() > 0)
-                    index = 1 + (int)pars.Max(p => { int.TryParse(System.IO.Path.GetFileNameWithoutExtension(p.Name.Substring(10)), out int res); return res; });
+                    index = 1 + (int)pars.Max(p => { int.TryParse(System.IO.Path.GetFileNameWithoutExtension(p.Name[10..]), out int res); return res; });
 
                 var basename = System.IO.Path.Combine(nfo.FullName, "paragraph_" + index);
                 WavReader.SaveToWav(basename + ".wav", data);
@@ -516,7 +516,7 @@ namespace NanoTrans
                 WavReader.SaveToWav(dlg.FileName, data);
 
                 string ext = System.IO.Path.GetExtension(dlg.FileName);
-                dlg.FileName = dlg.FileName.Substring(0, dlg.FileName.Length - ext.Length);
+                dlg.FileName = dlg.FileName[..^ext.Length];
                 string textf = dlg.FileName + ".txt";
 
                 File.WriteAllText(textf, par.Text);

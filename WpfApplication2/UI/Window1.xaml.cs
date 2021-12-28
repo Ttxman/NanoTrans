@@ -256,7 +256,7 @@ namespace NanoTrans
                     }
                     else
                     {
-                        string fname2 = System.IO.Path.Combine(FilePaths.AppDataDirectory, Settings.Default.SpeakersDatabasePath.Substring(FilePaths.ProgramDirectory.Length));
+                        string fname2 = System.IO.Path.Combine(FilePaths.AppDataDirectory, Settings.Default.SpeakersDatabasePath[FilePaths.ProgramDirectory.Length..]);
                         if (File.Exists(fname2))
                         {
                             SpeakerCollection.Deserialize(fname2, SpeakersDatabase);
@@ -1327,7 +1327,7 @@ namespace NanoTrans
                         if (!FilePaths.WriteToAppData)
                             SpeakersDatabase.Serialize(fname, true);
                         else
-                            SpeakersDatabase.Serialize(FilePaths.AppDataDirectory + fname.Substring(FilePaths.ProgramDirectory.Length), true);
+                            SpeakersDatabase.Serialize(FilePaths.AppDataDirectory + fname[FilePaths.ProgramDirectory.Length..], true);
                     }
                     else// not in ProgramFiles - NanoTrans not installed, don't do anything
                     {
@@ -1446,10 +1446,10 @@ namespace NanoTrans
                 if (online)
                 {
                     if (path.StartsWith("trsx://"))
-                        path = path.Substring(7);
+                        path = path[7..];
 
                     if (path.StartsWith("trsx:"))
-                        path = path.Substring(5);
+                        path = path[5..];
 
 
 
@@ -1954,7 +1954,7 @@ namespace NanoTrans
                                     }
 
                                     if (from < p.Phrases[i].Text.Length)
-                                        s += p.Phrases[i].Text.Substring(from);
+                                        s += p.Phrases[i].Text[from..];
 
                                     p.Phrases[i].Text = s;
                                 }

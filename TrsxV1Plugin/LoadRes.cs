@@ -63,19 +63,19 @@ namespace TrsxV1Plugin
 
         public ResFileSegment(string[] segment)
         {
-            FileName = segment.First().Substring(6).Trim();
-            TRES = TimeSpan.FromSeconds(double.Parse(segment.First(l => l.StartsWith("TRES:")).Substring(6).Trim(), CultureInfo.InvariantCulture));
-            ORTOT = segment.First(l => l.StartsWith("ORTOT:")).Substring(7).Split('|').ToArray();
+            FileName = segment.First()[6..].Trim();
+            TRES = TimeSpan.FromSeconds(double.Parse(segment.First(l => l.StartsWith("TRES:"))[6..].Trim(), CultureInfo.InvariantCulture));
+            ORTOT = segment.First(l => l.StartsWith("ORTOT:"))[7..].Split('|').ToArray();
 
-            START = segment.First(l => l.StartsWith("START:")).Substring(7).Split('|').Select(t => TimeSpan.FromSeconds(double.Parse(t, CultureInfo.InvariantCulture) * TRES.TotalSeconds)).ToArray();
-            STOP = segment.First(l => l.StartsWith("STOP:")).Substring(6).Split('|').Select(t => TimeSpan.FromSeconds(double.Parse(t, CultureInfo.InvariantCulture) * TRES.TotalSeconds)).ToArray();
-            PRON = segment.First(l => l.StartsWith("PRON:")).Substring(6).Split('|').ToArray();
+            START = segment.First(l => l.StartsWith("START:"))[7..].Split('|').Select(t => TimeSpan.FromSeconds(double.Parse(t, CultureInfo.InvariantCulture) * TRES.TotalSeconds)).ToArray();
+            STOP = segment.First(l => l.StartsWith("STOP:"))[6..].Split('|').Select(t => TimeSpan.FromSeconds(double.Parse(t, CultureInfo.InvariantCulture) * TRES.TotalSeconds)).ToArray();
+            PRON = segment.First(l => l.StartsWith("PRON:"))[6..].Split('|').ToArray();
 
-            ORTO = segment.First(l => l.StartsWith("ORTO:")).Substring(6);
+            ORTO = segment.First(l => l.StartsWith("ORTO:"))[6..];
 
             var ortop = segment.FirstOrDefault(l => l.StartsWith("ORTOTP:"));
             if (ortop != null)
-                ORTOTP = ortop.Substring(8).Split('|').ToArray();
+                ORTOTP = ortop[8..].Split('|').ToArray();
         }
 
         public Transcription GetTranscription(bool useOrtoTP, bool removeNonPhonemes)

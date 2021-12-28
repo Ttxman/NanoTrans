@@ -771,8 +771,8 @@ namespace NanoTrans
                     }
                 }
 
-                lb1.Content = uniquepart = text.Substring(0, maxcnt + 1);
-                lb2.Content = text.Substring(maxcnt + 1);
+                lb1.Content = uniquepart = text[..(maxcnt + 1)];
+                lb2.Content = text[(maxcnt + 1)..];
 
                 sp.Children.Add(lb1);
                 sp.Children.Add(lb2);
@@ -828,7 +828,7 @@ namespace NanoTrans
             if (ValueElement != null)
             {
                 TimeSpan val = ValueElement.Begin;
-                this.textbegin.Text = string.Format("{0}:{1:00}:{2:00},{3}", val.Hours, val.Minutes, val.Seconds, val.Milliseconds.ToString("000").Substring(0, 2));
+                this.textbegin.Text = string.Format("{0}:{1:00}:{2:00},{3}", val.Hours, val.Minutes, val.Seconds, val.Milliseconds.ToString("000")[..2]);
 
             }
 
@@ -846,7 +846,7 @@ namespace NanoTrans
                     textend.Visibility = System.Windows.Visibility.Visible;
 
                 TimeSpan val = ValueElement.End;
-                this.textend.Text = string.Format("{0}:{1:00}:{2:00},{3}", val.Hours, val.Minutes, val.Seconds, val.Milliseconds.ToString("000").Substring(0, 2));
+                this.textend.Text = string.Format("{0}:{1:00}:{2:00},{3}", val.Hours, val.Minutes, val.Seconds, val.Milliseconds.ToString("000")[..2]);
             }
         }
 

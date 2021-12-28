@@ -345,7 +345,7 @@ namespace NanoTrans
                         TimeSpan l1 = new TimeSpan((long)(ratio * length.Ticks));
 
                         TranscriptionPhrase p1 = new TranscriptionPhrase();
-                        p1.Text = p.Text.Substring(0, offs);
+                        p1.Text = p.Text[..offs];
 
                         p1.Begin = p.Begin;
                         p1.End = p1.Begin + l1;
@@ -355,7 +355,7 @@ namespace NanoTrans
                         par1.Add(p1);
 
                         TranscriptionPhrase p2 = new TranscriptionPhrase();
-                        p2.Text = p.Text.Substring(offs);
+                        p2.Text = p.Text[offs..];
                         p2.Begin = p1.End;
                         p2.End = p.End;
 
