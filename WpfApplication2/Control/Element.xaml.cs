@@ -471,8 +471,7 @@ namespace NanoTrans
                 var par = (ValueElement as TranscriptionParagraph);
                 if (par != null)
                 {
-                    string outval;
-                    if (par.Elements.TryGetValue(item[0], out outval))
+                    if (par.Elements.TryGetValue(item[0], out string outval))
                         cb.SelectedItem = outval;
                     else
                         par.Elements.Add(item[0], item[1]);

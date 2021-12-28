@@ -94,8 +94,7 @@ namespace NanoTrans
                 try
                 {
                     //demove temp folders from unexpectedly terminated instances
-                    bool isnew;
-                    using (Mutex m = new Mutex(true, "NanoTransMutex_" + dir.Name, out isnew))
+                    using (Mutex m = new Mutex(true, "NanoTransMutex_" + dir.Name, out bool isnew))
                     {
                         if (isnew)
                         {

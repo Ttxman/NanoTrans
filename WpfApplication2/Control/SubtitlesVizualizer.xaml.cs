@@ -73,8 +73,7 @@ namespace NanoTrans
             p.Add(new TranscriptionPhrase());
             if (el.ValueElement is TranscriptionParagraph)
             {
-                TimeSpan pos;
-                RequestTimePosition(out pos);
+                RequestTimePosition(out TimeSpan pos);
                 el.ValueElement.End = pos;
 
                 if ((el.ValueElement.End - el.ValueElement.Begin) < TimeSpan.FromMilliseconds(100))
@@ -375,8 +374,7 @@ namespace NanoTrans
 
                     if (RequestTimePosition != null)
                     {
-                        TimeSpan pos;
-                        RequestTimePosition(out pos);
+                        RequestTimePosition(out TimeSpan pos);
 
                         par1.End = pos;
                         par2.Begin = pos;
@@ -481,8 +479,7 @@ namespace NanoTrans
                 //when playing try to show next paragraph
                 if (RequestPlaying != null)
                 {
-                    bool playing = false;
-                    RequestPlaying(out playing);
+                    RequestPlaying(out bool playing);
                     if (value != null && playing)
                     {
                         var nval = value.Next();

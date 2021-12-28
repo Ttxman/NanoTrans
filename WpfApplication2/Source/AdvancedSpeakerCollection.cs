@@ -110,9 +110,8 @@ namespace NanoTrans
             }
             else if (s.DataBaseType == DBType.User && s.DBID != null)//some user created it manually
             {
-                Speaker ls;
 
-                if (_slist.TryGetValue(s.DBID, out ls))
+                if (_slist.TryGetValue(s.DBID, out Speaker ls))
                 {
 
                     if (_slist[s.DBID].Synchronized < s.Synchronized)

@@ -143,8 +143,7 @@ namespace NanoTrans
             _transcription.BeginUpdate();
             foreach (var par in _transcription.EnumerateParagraphs())
             {
-                Speaker os;
-                if (pairdict.TryGetValue(par.Speaker, out os))
+                if (pairdict.TryGetValue(par.Speaker, out Speaker os))
                     par.Speaker = os;
             }
             _transcription.EndUpdate();

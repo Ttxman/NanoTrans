@@ -68,8 +68,7 @@ namespace NanoTrans
             get
             {
                 int actual = 0;
-                int ppos, wpos;
-                _soundBuffer.GetCurrentPosition(out ppos,out wpos);
+                _soundBuffer.GetCurrentPosition(out int ppos, out int wpos);
 
                 int pos = (ppos / _buffersize) * _buffersize;
 
@@ -126,8 +125,7 @@ namespace NanoTrans
                         return TimeSpan.Zero;
 
                     int actual = 0;
-                    int ppos, wpos;
-                    _soundBuffer.GetCurrentPosition(out ppos, out wpos);
+                    _soundBuffer.GetCurrentPosition(out int ppos, out int wpos);
                     int pos = (ppos / _buffersize);
 
 
@@ -290,8 +288,7 @@ namespace NanoTrans
             {
                 for (int i = 0; i < 3; i++)
                 {
-                    int timems;
-                    short[] data = _requestproc.Invoke(out timems);
+                    short[] data = _requestproc.Invoke(out int timems);
                     if (data != null && data.Length > 0)
                         WriteNextData(data, timems);
                 }
@@ -323,8 +320,7 @@ namespace NanoTrans
 
         private void RetrieveData()
         {
-            int timems;
-            short[] data = _requestproc.Invoke(out timems);
+            short[] data = _requestproc.Invoke(out int timems);
 
             if (data == null || data.Length == 0)
             {

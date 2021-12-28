@@ -481,7 +481,7 @@ namespace NanoTrans
                 var pars = nfo.GetFiles("*.wav").Where(p => p.Name.StartsWith("paragraph_")).ToArray();
 
                 if (pars.Count() > 0)
-                    index = 1 + (int)pars.Max(p => { int res = 0; int.TryParse(System.IO.Path.GetFileNameWithoutExtension(p.Name.Substring(10)), out res); return res; });
+                    index = 1 + (int)pars.Max(p => { int.TryParse(System.IO.Path.GetFileNameWithoutExtension(p.Name.Substring(10)), out int res); return res; });
 
                 var basename = System.IO.Path.Combine(nfo.FullName, "paragraph_" + index);
                 WavReader.SaveToWav(basename + ".wav", data);
@@ -807,8 +807,7 @@ namespace NanoTrans
             if (pr == null)
                 tag = Transcription.Chapters[0];
 
-            int len;
-            if (Transcription.FindNext(ref tag, ref searchtextoffset, out len, pattern, isregex, CaseSensitive, searchinspeakers))
+            if (Transcription.FindNext(ref tag, ref searchtextoffset, out int len, pattern, isregex, CaseSensitive, searchinspeakers))
             {
                 TranscriptionElement p = tag;
                 waveform1.CaretPosition = p.Begin;
