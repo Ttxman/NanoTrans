@@ -714,7 +714,6 @@ namespace NanoTrans
                 BackgroundGeometryBuilder builder = new BackgroundGeometryBuilder();
 
                 builder.CornerRadius = 1;
-                builder.AlignToMiddleOfPixels = true;
 
                 builder.AddSegment(textView, new TextSegment() { StartOffset = _from, Length = _len });
                 builder.CloseFigure(); // prevent connecting the two segments

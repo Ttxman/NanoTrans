@@ -10,7 +10,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.IO;
 using Microsoft.Win32;
-using Ionic.Zip;
 using System.Linq;
 using System.Configuration;
 using System.Globalization;
@@ -19,16 +18,17 @@ using WPFLocalizeExtension.Engine;
 using NanoTrans.Properties;
 using System.ComponentModel;
 using TranscriptionCore;
+using ICSharpCode.SharpZipLib.Zip;
 
 namespace NanoTrans
 {
     /// <summary>
     /// Interaction logic for WinSetup.xaml
     /// </summary>
-    public partial class WinSetup : Window , INotifyPropertyChanged
+    public partial class WinSetup : Window, INotifyPropertyChanged
     {
 
-        private void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName]string caller = null)
+        private void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string caller = null)
         {
             if (PropertyChanged != null)
                 PropertyChanged(this, new PropertyChangedEventArgs(caller));
@@ -95,7 +95,8 @@ namespace NanoTrans
             {
                 int index = AvailableCultures.Select((c, i) => new { c, i }).FirstOrDefault(p => p.c.DisplayName == LocalizeDictionary.Instance.Culture.DisplayName).i;
                 LocalizationSelection.SelectedItem = preselectionCulture = AvailableCultures[index];
-            }else
+            }
+            else
                 LocalizationBox.Visibility = System.Windows.Visibility.Collapsed;
 
         }
@@ -135,7 +136,7 @@ namespace NanoTrans
         {
             //properties on setup are from very old version and not binded... all items have to be saved manually
             //spaker database
-            Settings.SpeakersDatabasePath= tbSpeakerDBPath.Text;
+            Settings.SpeakersDatabasePath = tbSpeakerDBPath.Text;
 
             //fonts
             try
@@ -222,22 +223,22 @@ namespace NanoTrans
 
         private void GetDictionaryFromZip(Stream s)
         {
-            ZipFile zf = ZipFile.Read(s);
-            var entry = zf.Entries.Where(en => en.FileName.EndsWith(".aff")).ToArray();
+            using ZipFile zf = new ZipFile(s);
+            var entry = zf.Cast<ZipEntry>().Where(en => en.IsFile && en.Name.EndsWith(".aff")).ToArray();
 
             if (entry.Length > 0)
             {
                 var aff = entry[0];
-                var dic = zf.Entries.Where(en => en.FileName == System.IO.Path.GetFileNameWithoutExtension(aff.FileName) + ".dic").FirstOrDefault();
+                var dic = zf.GetEntry(Path.GetFileNameWithoutExtension(aff.Name) + ".dic");
 
                 if (dic != null)
                 {
-                    if (MessageBox.Show(this, string.Format(Properties.Strings.MessageBoxDictionaryConfirmLoad, System.IO.Path.GetFileNameWithoutExtension(aff.FileName)), Properties.Strings.MessageBoxQuestionCaption, MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK)
+                    if (MessageBox.Show(this, string.Format(Properties.Strings.MessageBoxDictionaryConfirmLoad, Path.GetFileNameWithoutExtension(aff.Name)), Properties.Strings.MessageBoxQuestionCaption, MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK)
                     {
-                        var readme = zf.Entries.Where(en => en.FileName.ToLower().Contains("readme")).FirstOrDefault();
+                        var readme = zf.Cast<ZipEntry>().Where(en => en.Name.ToLower().Contains("readme")).FirstOrDefault();
                         if (readme != null)
                         {
-                            string ss = new StreamReader(readme.OpenReader()).ReadToEnd();
+                            string ss = new StreamReader(zf.GetInputStream(readme)).ReadToEnd();
 
                             if (TextWallWindow.ShowWall(true, Properties.Strings.OODictionaryLicenceTitle, ss))
                             {
@@ -253,11 +254,17 @@ namespace NanoTrans
                                 string p = FilePaths.GetWritePath("data\\cs_CZ.aff");
 
                                 using (Stream fs = File.Create(p))
-                                    aff.Extract(fs);
+                                {
+                                    using var ext = zf.GetInputStream(aff);
+                                    ext.CopyTo(fs);
+                                }
                                 p = FilePaths.GetWritePath("data\\cs_CZ.dic");
 
                                 using (Stream fs = File.Create(p))
-                                    dic.Extract(fs);
+                                {
+                                    using var ext = zf.GetInputStream(dic);
+                                    ext.CopyTo(fs);
+                                }
 
                                 SpellChecker.LoadVocabulary();
                                 MessageBox.Show(this, Properties.Strings.MessageBoxDictinaryInstalled, Properties.Strings.MessageBoxInfoCaption, MessageBoxButton.OK, MessageBoxImage.Information);
