@@ -111,8 +111,7 @@ namespace NanoTrans
 
         private void OnPropertyChanged([CallerMemberName]string caller = null)
         {
-            if (PropertyChanged != null)
-                PropertyChanged(this, new PropertyChangedEventArgs(caller));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(caller));
         }
 
         public string Name

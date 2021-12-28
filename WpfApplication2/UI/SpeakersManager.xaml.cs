@@ -52,8 +52,7 @@ namespace NanoTrans
 
         private void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName]string caller = null)
         {
-            if (PropertyChanged != null)
-                PropertyChanged(this, new PropertyChangedEventArgs(caller));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(caller));
         }
 
         public Speaker SelectedSpeaker { get; set; }
@@ -104,8 +103,7 @@ namespace NanoTrans
             set
             {
                 _editable = value;
-                if (PropertyChanged != null)
-                    PropertyChanged(this, new PropertyChangedEventArgs("Editable"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Editable"));
             }
         }
         public string Message
@@ -114,8 +112,7 @@ namespace NanoTrans
             set
             {
                 _message = value;
-                if (PropertyChanged != null)
-                    PropertyChanged(this, new PropertyChangedEventArgs("Message"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Message"));
             }
         }
 
@@ -125,8 +122,7 @@ namespace NanoTrans
             set
             {
                 _messageLabel = value;
-                if (PropertyChanged != null)
-                    PropertyChanged(this, new PropertyChangedEventArgs("MessageLabel"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("MessageLabel"));
             }
         }
 
@@ -141,8 +137,7 @@ namespace NanoTrans
             set
             {
                 _selectmany = value;
-                if (PropertyChanged != null)
-                    PropertyChanged(this, new PropertyChangedEventArgs("SelectMany"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SelectMany"));
             }
         }
 
@@ -152,8 +147,7 @@ namespace NanoTrans
             set
             {
                 _showMiniatures = value;
-                if (PropertyChanged != null)
-                    PropertyChanged(this, new PropertyChangedEventArgs("ShowMiniatures"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ShowMiniatures"));
             }
         }
 
@@ -171,8 +165,7 @@ namespace NanoTrans
             set
             {
                 _speakerProvider = value;
-                if (PropertyChanged != null)
-                    PropertyChanged(this, new PropertyChangedEventArgs("SpeakerProvider"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SpeakerProvider"));
             }
         }
         private void ButtonCancel_Click(object sender, RoutedEventArgs e)

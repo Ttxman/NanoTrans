@@ -119,8 +119,7 @@ namespace NanoTrans
 
             if (actions == null || actions.Length <= 0)
             {
-                if (CollectionChanged != null)
-                    CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset, null, -1));
+                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset, null, -1));
                 return true;
             }
 
@@ -244,10 +243,7 @@ namespace NanoTrans
                     this.Elements.Remove("Online");
                 }
 
-                if (PropertyChanged != null)
-                {
-                    PropertyChanged(this, new PropertyChangedEventArgs("IsOnline"));
-                }
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IsOnline"));
             }
         }
 

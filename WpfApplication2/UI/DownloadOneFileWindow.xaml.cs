@@ -39,8 +39,7 @@ namespace NanoTrans
                 {
                     _TotalBytes = (float)Math.Floor(value/1024f);
                 }
-                if (PropertyChanged != null)
-                    PropertyChanged(this, new PropertyChangedEventArgs("TotalBytes"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("TotalBytes"));
             }
         }
 
@@ -55,8 +54,7 @@ namespace NanoTrans
                 {
                     _Bytes = (float)Math.Floor(value / 1024f);
                 }
-                if (PropertyChanged != null)
-                    PropertyChanged(this, new PropertyChangedEventArgs("BytesDownloaded"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("BytesDownloaded"));
             }
         }
 

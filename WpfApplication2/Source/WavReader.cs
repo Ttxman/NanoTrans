@@ -385,8 +385,7 @@ namespace NanoTrans.Audio
                         {
                             //poslani zpravy s daty bufferu
                             AudioBufferEventArgs e = new AudioBufferEventArgs(this._LoadedData, this._LoadedData.Length, 0, SampleCount / this.Frequency * 1000, Const.ID_BUFFER_WAVEFORMVISIBLE);
-                            if (HaveData != null)
-                                HaveData(this, e); // nacten ramec k zobrazeni a poslani tohoto ramce ven z tridy pomoci e
+                            HaveData?.Invoke(this, e); // nacten ramec k zobrazeni a poslani tohoto ramce ven z tridy pomoci e // nacten ramec k zobrazeni a poslani tohoto ramce ven z tridy pomoci e
                             this._Loaded = true;
                             if (SampleCount + pPocetVzorku2Delta <= pPocetVzorku2 - 1)
                             {
@@ -420,8 +419,7 @@ namespace NanoTrans.Audio
                             temporaryWaveFiles.Add(Path.Combine(TemporaryWAVsPath, pIndexDocasneho.ToString() + ".wav"));
 
                             AudioBufferEventArgs2 e2 = new AudioBufferEventArgs2(pIndexDocasneho, (pIndexDocasneho + 1) * this.delkaDocasnehoWavMS);
-                            if (HaveFileNumber != null)
-                                HaveFileNumber(this, e2);
+                            HaveFileNumber?.Invoke(this, e2);
                             if (Interlocked.CompareExchange(ref _conversionStopper, 1, 1) == 1)
                                 return false;
                             output = new BinaryWriter(new FileStream(temporaryWaveFiles[pIndexDocasneho], FileMode.Create));
@@ -458,8 +456,7 @@ namespace NanoTrans.Audio
                     output.Close();   //zavreni souboru pro zapis dat
                     output = null;
                     AudioBufferEventArgs2 e2 = new AudioBufferEventArgs2(pIndexDocasneho, this.FileLengthMS);
-                    if (HaveFileNumber != null)
-                        HaveFileNumber(this, e2);
+                    HaveFileNumber?.Invoke(this, e2);
                 }
 
                 this._Loaded = true;
@@ -478,15 +475,11 @@ namespace NanoTrans.Audio
                     //pokusne pridano
                     this.SampleCount = i;
 
-                    if (HaveData != null)
-                        HaveData(this, e); // nacten ramec k zobrazeni a poslani tohoto ramce ven z tridy pomoci e
+                    HaveData?.Invoke(this, e); // nacten ramec k zobrazeni a poslani tohoto ramce ven z tridy pomoci e // nacten ramec k zobrazeni a poslani tohoto ramce ven z tridy pomoci e
                 }
                 this.SampleCount = i;
 
-                if (TemporaryWavesDone != null)
-                {
-                    TemporaryWavesDone(this, new EventArgs());
-                }
+                TemporaryWavesDone?.Invoke(this, new EventArgs());
                 return true;
             }
             catch (Exception ex)

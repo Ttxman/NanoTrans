@@ -210,8 +210,7 @@ namespace NanoTrans
             set
             {
                 _speaker1 = value;
-                if (PropertyChanged != null)
-                    PropertyChanged(this, new PropertyChangedEventArgs("Speaker1"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Speaker1"));
             }
         }
 
@@ -225,8 +224,7 @@ namespace NanoTrans
             set
             {
                 _speaker2 = value;
-                if (PropertyChanged != null)
-                    PropertyChanged(this, new PropertyChangedEventArgs("Speaker2"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Speaker2"));
             }
         }
 

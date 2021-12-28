@@ -126,8 +126,7 @@ namespace NanoTrans
             set
             {
                 _filterstring = value;
-                if (PropertyChanged != null)
-                    PropertyChanged(this, new PropertyChangedEventArgs("FilterString"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("FilterString"));
                 if (_api != null)
                 {
                     UpdateOnlineSpeakers();
@@ -144,8 +143,7 @@ namespace NanoTrans
             set
             {
                 _LoadingVisible = value;
-                if (PropertyChanged != null)
-                    PropertyChanged(this, new PropertyChangedEventArgs("LoadingVisible"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("LoadingVisible"));
             }
         }
 
@@ -257,8 +255,7 @@ namespace NanoTrans
             set
             {
                 _view = value;
-                if (PropertyChanged != null)
-                    PropertyChanged(this, new PropertyChangedEventArgs("View"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("View"));
             }
         }
         #region filterproperties
@@ -280,8 +277,7 @@ namespace NanoTrans
             set
             {
                 _showDocument = value;
-                if (PropertyChanged != null)
-                    PropertyChanged(this, new PropertyChangedEventArgs("ShowDocument"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ShowDocument"));
                 ReloadSpeakers();
             }
         }
@@ -292,8 +288,7 @@ namespace NanoTrans
             set
             {
                 _showLocal = value;
-                if (PropertyChanged != null)
-                    PropertyChanged(this, new PropertyChangedEventArgs("ShowLocal"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ShowLocal"));
 
                 ReloadSpeakers();
             }
@@ -305,8 +300,7 @@ namespace NanoTrans
             set
             {
                 _showOnline = value;
-                if (PropertyChanged != null)
-                    PropertyChanged(this, new PropertyChangedEventArgs("ShowOnline"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ShowOnline"));
                 ReloadSpeakers();
             }
         }
@@ -446,8 +440,7 @@ namespace NanoTrans
                 _view.Filter = FilterItems;
             }
 
-            if (PropertyChanged != null)
-                PropertyChanged(this, new PropertyChangedEventArgs("FilterString"));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("FilterString"));
         }
 
         internal async Task<bool> CloseConnection()

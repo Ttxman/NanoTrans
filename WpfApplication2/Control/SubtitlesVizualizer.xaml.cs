@@ -144,8 +144,7 @@ namespace NanoTrans
         void l_MoveUpRequest(object sender, EventArgs e)
         {
             bool playing = false;
-            if (RequestPlaying != null)
-                RequestPlaying(out playing);
+            RequestPlaying?.Invoke(out playing);
 
             if (playing && RequestPlayPause != null)
                 RequestPlayPause();
@@ -195,15 +194,13 @@ namespace NanoTrans
 
         void l_PlayPauseRequest(object sender, EventArgs e)
         {
-            if (PlayPauseRequest != null)
-                PlayPauseRequest(this, null);
+            PlayPauseRequest?.Invoke(this, null);
         }
 
         void l_MoveDownRequest(object sender, EventArgs e)
         {
             bool playing = false;
-            if (RequestPlaying != null)
-                RequestPlaying(out playing);
+            RequestPlaying?.Invoke(out playing);
 
             if (playing && RequestPlayPause != null)
                 RequestPlayPause();
@@ -455,10 +452,7 @@ namespace NanoTrans
                 return;
             ActiveTransctiption = el;
 
-            if (SelectedElementChanged != null)
-            {
-                SelectedElementChanged(this, new EventArgs());
-            }
+            SelectedElementChanged?.Invoke(this, new EventArgs());
         }
 
         public Element ActiveElement
@@ -562,17 +556,13 @@ namespace NanoTrans
 
         void l_SetTimeRequest(TimeSpan obj)
         {
-            if (SetTimeRequest != null)
-                SetTimeRequest(obj);
+            SetTimeRequest?.Invoke(obj);
         }
 
         public event EventHandler ChangeSpeaker;
         void l_ChangeSpeakerRequest(object sender, EventArgs e)
         {
-            if (ChangeSpeaker != null)
-            {
-                ChangeSpeaker(sender, e);
-            }
+            ChangeSpeaker?.Invoke(sender, e);
         }
 
         /// <summary>
@@ -648,8 +638,7 @@ namespace NanoTrans
 
             if (e.Key == Key.Tab)
             {
-                if (PlayPauseRequest != null)
-                    PlayPauseRequest(this, new EventArgs());
+                PlayPauseRequest?.Invoke(this, new EventArgs());
                 e.Handled = true;
 
                 return;

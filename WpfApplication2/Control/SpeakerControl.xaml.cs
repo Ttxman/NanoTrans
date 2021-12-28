@@ -60,14 +60,12 @@ namespace NanoTrans
 
         private void buttonRefresh_Click(object sender, RoutedEventArgs e)
         {
-            if (RevertSpeakerClick != null)
-                RevertSpeakerClick(this.SpeakerContainer);
+            RevertSpeakerClick?.Invoke(this.SpeakerContainer);
         }
 
         private void buttonUpdate_Click(object sender, RoutedEventArgs e)
         {
-            if (SaveSpeakerClick != null)
-                SaveSpeakerClick(this.SpeakerContainer);
+            SaveSpeakerClick?.Invoke(this.SpeakerContainer);
         }
 
         private void ButtonAddAttributeClick(object sender, RoutedEventArgs e)

@@ -61,8 +61,7 @@ namespace NanoTrans
         public static void OnModified(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             SpeakerSmall sender = (SpeakerSmall)d;
-            if (sender.SpeakerModified != null)
-                sender.SpeakerModified();
+            sender.SpeakerModified?.Invoke();
         }
 
         public event Action SpeakerModified;

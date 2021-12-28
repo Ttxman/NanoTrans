@@ -123,8 +123,7 @@ namespace NanoTrans
             {
                 _degreeAfter = (value ?? "");
                 Changed = true;
-                if (PropertyChanged != null)
-                    PropertyChanged(this, new PropertyChangedEventArgs("DegreeAfter"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("DegreeAfter"));
             }
         }
 
@@ -139,8 +138,7 @@ namespace NanoTrans
             {
                 _degreeBefore = (value ?? "");
                 Changed = true;
-                if (PropertyChanged != null)
-                    PropertyChanged(this, new PropertyChangedEventArgs("DegreeBefore"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("DegreeBefore"));
             }
         }
 
@@ -155,10 +153,8 @@ namespace NanoTrans
             {
                 _firstName = (value ?? "");
                 Changed = true;
-                if (PropertyChanged != null)
-                    PropertyChanged(this, new PropertyChangedEventArgs("FirstName"));
-                if (PropertyChanged != null)
-                    PropertyChanged(this, new PropertyChangedEventArgs("FullName"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("FirstName"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("FullName"));
             }
         }
 
@@ -173,8 +169,7 @@ namespace NanoTrans
             set
             {
                 _changed = value;
-                if (PropertyChanged != null)
-                    PropertyChanged(this, new PropertyChangedEventArgs("Changed"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Changed"));
             }
         }
 
@@ -189,8 +184,7 @@ namespace NanoTrans
             {
                 _imgBase64 = value;
                 Changed = true;
-                if (PropertyChanged != null)
-                    PropertyChanged(this, new PropertyChangedEventArgs("ImgBase64"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ImgBase64"));
             }
         }
 
@@ -205,8 +199,7 @@ namespace NanoTrans
             set
             {
                 _isLoading = value;
-                if (PropertyChanged != null)
-                    PropertyChanged(this, new PropertyChangedEventArgs("IsLoading"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IsLoading"));
             }
         }
 
@@ -236,8 +229,7 @@ namespace NanoTrans
             {
                 _language = value;
                 Changed = true;
-                if (PropertyChanged != null)
-                    PropertyChanged(this, new PropertyChangedEventArgs("Language"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Language"));
             }
         }
 
@@ -250,8 +242,7 @@ namespace NanoTrans
             set
             {
                 _marked = value;
-                if (PropertyChanged != null)
-                    PropertyChanged(this, new PropertyChangedEventArgs("Marked"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Marked"));
             }
         }
 
@@ -266,8 +257,7 @@ namespace NanoTrans
             {
                 _pinned = value;
                 Changed = true;
-                if (PropertyChanged != null)
-                    PropertyChanged(this, new PropertyChangedEventArgs("PinnedToDocument"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("PinnedToDocument"));
             }
         }
 
@@ -283,10 +273,8 @@ namespace NanoTrans
             {
                 _middleName = (value ?? "");
                 Changed = true;
-                if (PropertyChanged != null)
-                    PropertyChanged(this, new PropertyChangedEventArgs("MiddleName"));
-                if (PropertyChanged != null)
-                    PropertyChanged(this, new PropertyChangedEventArgs("FullName"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("MiddleName"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("FullName"));
             }
         }
 
@@ -301,10 +289,8 @@ namespace NanoTrans
             {
                 _sex = value;
                 Changed = true;
-                if (PropertyChanged != null)
-                    PropertyChanged(this, new PropertyChangedEventArgs("Sex"));
-                if (PropertyChanged != null)
-                    PropertyChanged(this, new PropertyChangedEventArgs("FullName"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Sex"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("FullName"));
             }
         }
 
@@ -327,10 +313,8 @@ namespace NanoTrans
             {
                 _surName = (value ?? "");
                 Changed = true;
-                if (PropertyChanged != null)
-                    PropertyChanged(this, new PropertyChangedEventArgs("SurName"));
-                if (PropertyChanged != null)
-                    PropertyChanged(this, new PropertyChangedEventArgs("FullName"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SurName"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("FullName"));
             }
         }
 
@@ -340,22 +324,19 @@ namespace NanoTrans
             set
             {
                 _updating = value;
-                if (PropertyChanged != null)
-                    PropertyChanged(this, new PropertyChangedEventArgs("Updating"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Updating"));
             }
         }
         //Attributes
         public void RefreshAttributes()
         {
-            if (PropertyChanged != null)
-                PropertyChanged(this, new PropertyChangedEventArgs("Attributes"));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Attributes"));
         }
 
         public void ReloadSpeaker()
         {
             DiscardChanges();
-            if (PropertyChanged != null)
-                PropertyChanged(this, new PropertyChangedEventArgs(null));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));
 
         }
 

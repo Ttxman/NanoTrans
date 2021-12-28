@@ -57,8 +57,7 @@ namespace NanoTrans
                 if (ValueElement.IsParagraph)
                 {
                     ((TranscriptionParagraph)ValueElement).Language = value;
-                    if (PropertyChanged != null)
-                        PropertyChanged(this, new PropertyChangedEventArgs("ElementLanguage"));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ElementLanguage"));
                 }
             }
 
@@ -441,8 +440,7 @@ namespace NanoTrans
         {
             if (e.ChangedButton == MouseButton.XButton1)
             {
-                if (PlayPauseRequest != null)
-                    PlayPauseRequest(this, new EventArgs());
+                PlayPauseRequest?.Invoke(this, new EventArgs());
                 e.Handled = true;
             }
         }
@@ -635,8 +633,7 @@ namespace NanoTrans
                     ps += EditPhonetics ? ph.Phonetics.Length : ph.Text.Length;
                     if (ps > pos)
                     {
-                        if (SetTimeRequest != null)
-                            SetTimeRequest(ph.Begin);
+                        SetTimeRequest?.Invoke(ph.Begin);
                         editor.TextArea.Caret.Location = t.Value.Location;
                         e.Handled = true;
                         return;
@@ -1244,8 +1241,7 @@ namespace NanoTrans
         private void ButtonSpeaker_Click(object sender, RoutedEventArgs e)
         {
 
-            if (ChangeSpeakerRequest != null)
-                ChangeSpeakerRequest(this, new EventArgs());
+            ChangeSpeakerRequest?.Invoke(this, new EventArgs());
         }
 
         private TimeSpan _higlightedPosition = new TimeSpan(-1);

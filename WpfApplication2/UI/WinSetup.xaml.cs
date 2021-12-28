@@ -30,8 +30,7 @@ namespace NanoTrans
 
         private void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string caller = null)
         {
-            if (PropertyChanged != null)
-                PropertyChanged(this, new PropertyChangedEventArgs(caller));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(caller));
         }
 
         private readonly SpeakerCollection _speakersDatabase;

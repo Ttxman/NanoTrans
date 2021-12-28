@@ -199,11 +199,9 @@ namespace NanoTrans.Properties
 
             private void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName]string caller = null)
             {
-                if (PropertyChanged != null)
-                    PropertyChanged(this, new PropertyChangedEventArgs(caller));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(caller));
 
-                if (FeaturesChanged != null)
-                    FeaturesChanged(this, null);
+                FeaturesChanged?.Invoke(this, null);
 
             }
 

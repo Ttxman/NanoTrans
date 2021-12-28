@@ -25,8 +25,7 @@ namespace NanoTrans
 
         private void OnPropertyChanged([CallerMemberName]string caller = null)
         {
-            if (PropertyChanged != null)
-                PropertyChanged(this, new PropertyChangedEventArgs(caller));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(caller));
         }
 
         public TimeSpan WaveBegin
@@ -202,8 +201,7 @@ namespace NanoTrans
 
 
                         if (_updating == 0)
-                            if (CaretPostionChanged != null)
-                                CaretPostionChanged(this, new TimeSpanEventArgs(value));
+                            CaretPostionChanged?.Invoke(this, new TimeSpanEventArgs(value));
                     });
 
                     OnPropertyChanged();
@@ -470,15 +468,13 @@ namespace NanoTrans
         private int _updating = 0;
         public void BeginUpdate()
         {
-            if (UpdateBegin != null)
-                UpdateBegin(this, new EventArgs());
+            UpdateBegin?.Invoke(this, new EventArgs());
             _updating++;
         }
 
         public void EndUpdate()
         {
-            if (UpdateEnd != null)
-                UpdateEnd(this, new EventArgs());
+            UpdateEnd?.Invoke(this, new EventArgs());
             _updating--;
             if (_updating < 0)
                 _updating = 0;
@@ -495,8 +491,7 @@ namespace NanoTrans
         {
             InvalidateSpeakers();
             InvalidateWaveform();
-            if (PropertyChanged != null)
-                PropertyChanged(this, new PropertyChangedEventArgs(null));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));
         }
 
 
@@ -867,8 +862,7 @@ namespace NanoTrans
             if (Playing && PlayPauseClick != null)
                 PlayPauseClick(this, null);
             TranscriptionParagraph pTag = (sender as Button).Tag as TranscriptionParagraph;
-            if (ParagraphDoubleClick != null)
-                ParagraphDoubleClick(this, new MyTranscriptionElementEventArgs(pTag));
+            ParagraphDoubleClick?.Invoke(this, new MyTranscriptionElementEventArgs(pTag));
 
         }
 
@@ -894,15 +888,13 @@ namespace NanoTrans
         {
 
             TranscriptionParagraph pTag = (sender as Button).Tag as TranscriptionParagraph;
-            if (ParagraphClick != null)
-                ParagraphClick(this, new MyTranscriptionElementEventArgs(pTag));
+            ParagraphClick?.Invoke(this, new MyTranscriptionElementEventArgs(pTag));
 
         }
 
         private void btPrehratZastavit_Click(object sender, RoutedEventArgs e)
         {
-            if (PlayPauseClick != null)
-                PlayPauseClick(this, new RoutedEventArgs(Button.ClickEvent));
+            PlayPauseClick?.Invoke(this, new RoutedEventArgs(Button.ClickEvent));
         }
 
 
@@ -922,8 +914,7 @@ namespace NanoTrans
             if (caretpos < 0)
                 caretpos = 0;
             this.CaretPosition = TimeSpan.FromMilliseconds(caretpos);
-            if (CaretPostionChangedByUser != null)
-                CaretPostionChangedByUser(this, new TimeSpanEventArgs(this.CaretPosition));
+            CaretPostionChangedByUser?.Invoke(this, new TimeSpanEventArgs(this.CaretPosition));
             InvalidateWaveform();
 
             EndUpdate();
@@ -940,8 +931,7 @@ namespace NanoTrans
             wave.BeginMS = wave.EndMS - wave.LengthMS;
 
             this.CaretPosition = TimeSpan.FromMilliseconds(CaretPosition.TotalMilliseconds + wave.LengthMS / 10);
-            if (CaretPostionChangedByUser != null)
-                CaretPostionChangedByUser(this, new TimeSpanEventArgs(this.CaretPosition));
+            CaretPostionChangedByUser?.Invoke(this, new TimeSpanEventArgs(this.CaretPosition));
 
             InvalidateWaveform();
 
@@ -976,8 +966,7 @@ namespace NanoTrans
 
                 TimeSpan tpos = PosToTime(pos);
                 this.CaretPosition = tpos;
-                if (CaretPostionChangedByUser != null)
-                    CaretPostionChangedByUser(this, new TimeSpanEventArgs(this.CaretPosition));
+                CaretPostionChangedByUser?.Invoke(this, new TimeSpanEventArgs(this.CaretPosition));
                 EndUpdate();
             }
             if (Mouse.Captured == myImage)
@@ -1029,8 +1018,7 @@ namespace NanoTrans
 
             if (!updating)
             {
-                if (SliderPositionChanged != null)
-                    SliderPositionChanged(this, new TimeSpanEventArgs(TimeSpan.FromMilliseconds(slMediaPosition.Value)));
+                SliderPositionChanged?.Invoke(this, new TimeSpanEventArgs(TimeSpan.FromMilliseconds(slMediaPosition.Value)));
 
                 BeginUpdate();
             }
