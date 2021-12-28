@@ -91,7 +91,7 @@ namespace NanoTrans
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-        private SpeakersApi _api;
+        private readonly SpeakersApi _api;
 
         private async void Button_Click(object sender, RoutedEventArgs e)
         {

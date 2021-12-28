@@ -387,7 +387,7 @@ namespace NanoTrans
 
 
 
-        private WaveformData wave = new WaveformData(Const.DISPLAY_BUFFER_LENGTH_MS);
+        private readonly WaveformData wave = new WaveformData(Const.DISPLAY_BUFFER_LENGTH_MS);
 
         public event RoutedEventHandler PlayPauseClick;
         public event EventHandler<TimeSpanEventArgs> SliderPositionChanged;
@@ -423,7 +423,7 @@ namespace NanoTrans
         private bool invalidate_waveform = true;
         private bool invalidate_speakers = true;
 
-        private Thread Invalidator;
+        private readonly Thread Invalidator;
         public WaveForm()
         {
 
@@ -670,7 +670,7 @@ namespace NanoTrans
         }
 
 
-        private List<Button> speakerButtons = new List<Button>();
+        private readonly List<Button> speakerButtons = new List<Button>();
         private void iInvalidateSpeakers()
         {
             this.StopDrag();
@@ -1162,10 +1162,8 @@ namespace NanoTrans
         bool seldrag = false;
         bool btndragleft = false;
         bool mouseOverParagraphDrag = false;
-
-
-        HashSet<TranscriptionElement> _changedbegins = new HashSet<TranscriptionElement>();
-        HashSet<TranscriptionElement> _changedends = new HashSet<TranscriptionElement>();
+        readonly HashSet<TranscriptionElement> _changedbegins = new HashSet<TranscriptionElement>();
+        readonly HashSet<TranscriptionElement> _changedends = new HashSet<TranscriptionElement>();
         void pSpeaker_MouseMove(object sender, MouseEventArgs e)
         {
             Button b = sender as Button;
@@ -1335,7 +1333,7 @@ namespace NanoTrans
         Thread bufferProcessThread = null;
         TimeSpan requestedBegin = TimeSpan.Zero;
         TimeSpan requestedEnd = TimeSpan.Zero;
-        private object wavelock = new object();
+        private readonly object wavelock = new object();
         internal void AudioBufferCheck(TimeSpan value, bool force = false)
         {
             TimeSpan half = new TimeSpan(Const.DISPLAY_BUFFER_LENGTH.Ticks / 2);

@@ -18,8 +18,8 @@ namespace NanoTrans
     /// </summary>
     public partial class ExceptionCatchWindow : Window
     {
-        private Window1 _parent;
-        private Exception _e;
+        private readonly Window1 _parent;
+        private readonly Exception _e;
         public ExceptionCatchWindow(Window1 parent, Exception e)
         {
             InitializeComponent();

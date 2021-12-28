@@ -509,7 +509,7 @@ namespace NanoTrans.Audio
             }
         }
 
-        object _AudioDataWriteLocker = new object();
+        readonly object _AudioDataWriteLocker = new object();
 
         public short[] LoadaudioDataBuffer(TimeSpan begin, TimeSpan end)
         {

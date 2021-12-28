@@ -36,7 +36,7 @@ namespace NanoTrans
         public bool Loaded { get; set; }
         public short[] Data;
 
-        private object datalock = new object();
+        private readonly object datalock = new object();
 
 
         public MyBuffer16(long aDelkaBufferuMS)

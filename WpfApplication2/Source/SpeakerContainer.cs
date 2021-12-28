@@ -23,7 +23,7 @@ namespace NanoTrans
         bool _marked = false;
         string _middleName = null;
         Speaker.Sexes? _sex;
-        Speaker _speaker;
+        readonly Speaker _speaker;
         string _surName = null;
         bool _updating = false;
         bool? _pinned = null;
@@ -367,7 +367,7 @@ namespace NanoTrans
             get { return Speaker.Attributes.Except(_RemovedAttributes).Concat(_AddedAttributes).Select(a => new SpeakerAttributeContainer(a)).ToList().AsReadOnly(); }
         }
 
-        List<SpeakerAttribute> _AddedAttributes = new List<SpeakerAttribute>();
+        readonly List<SpeakerAttribute> _AddedAttributes = new List<SpeakerAttribute>();
         internal void AttributesAdd(SpeakerAttribute sa)
         {
             _AddedAttributes.Add(sa);
@@ -375,7 +375,7 @@ namespace NanoTrans
             Changed = true;
         }
 
-        List<SpeakerAttribute> _RemovedAttributes = new List<SpeakerAttribute>();
+        readonly List<SpeakerAttribute> _RemovedAttributes = new List<SpeakerAttribute>();
         internal void AttributesRemove(SpeakerAttribute speakerAttribute)
         {
             _RemovedAttributes.Add(speakerAttribute);

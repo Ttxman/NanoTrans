@@ -34,7 +34,7 @@ namespace NanoTrans
                 PropertyChanged(this, new PropertyChangedEventArgs(caller));
         }
 
-        private SpeakerCollection _speakersDatabase;
+        private readonly SpeakerCollection _speakersDatabase;
 
         internal Settings Settings
         {
@@ -101,7 +101,7 @@ namespace NanoTrans
 
         }
 
-        private CultureInfo preselectionCulture = LocalizeDictionary.Instance.Culture;
+        private readonly CultureInfo preselectionCulture = LocalizeDictionary.Instance.Culture;
 
         static CultureInfo[] _AvailableCultures = null;
         public static CultureInfo[] AvailableCultures

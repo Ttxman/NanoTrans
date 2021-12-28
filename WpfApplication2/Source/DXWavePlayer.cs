@@ -156,14 +156,14 @@ namespace NanoTrans
             }
         }
 
-        bool _playing = false;
-        DirectSound _outputDevice;
-        SecondarySoundBuffer _soundBuffer;
-        AutoResetEvent _synchronizer;
-        Thread _waitThread;
-        DataRequestDelegate _requestproc;
-        SoundBufferDescription _buffDescription;
-        int _buffersize;
+        readonly bool _playing = false;
+        readonly DirectSound _outputDevice;
+        readonly SecondarySoundBuffer _soundBuffer;
+        readonly AutoResetEvent _synchronizer;
+        readonly Thread _waitThread;
+        readonly DataRequestDelegate _requestproc;
+        readonly SoundBufferDescription _buffDescription;
+        readonly int _buffersize;
         int _bfpos = 0;
 
         private static readonly int InternalBufferSizeMultiplier = 10;
@@ -246,7 +246,7 @@ namespace NanoTrans
             }
         }
 
-        Queue<KeyValuePair<int, int>> timestamp = new Queue<KeyValuePair<int, int>>();
+        readonly Queue<KeyValuePair<int, int>> timestamp = new Queue<KeyValuePair<int, int>>();
         private void WriteNextData(short[] data, int timems)
         {
             _soundBuffer.Write(data, _bfpos, LockFlags.None);

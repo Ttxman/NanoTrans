@@ -24,7 +24,8 @@ namespace TrsxV1Plugin
             get;
             set;
         }
-        List<string> _data;
+
+        readonly List<string> _data;
         public SelectFile(List<string> data)
         {
             InitializeComponent();

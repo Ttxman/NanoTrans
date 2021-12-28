@@ -9,7 +9,7 @@ namespace NanoTrans
 {
     public static class CorrectionsGenerator
     {
-        static Tuple<Regex, string[]>[] rules = new[]
+        static readonly Tuple<Regex, string[]>[] rules = new[]
         {
             Tuple.Create(new Regex(@"(\S*)y(\s*)",RegexOptions.Compiled),new []{"$1i$2","$1í$2"}),
             Tuple.Create(new Regex(@"(\S*)ý(\s*)",RegexOptions.Compiled),new []{"$1i$2","$1í$2"}),
@@ -79,7 +79,7 @@ namespace NanoTrans
 
     public class CodeCompletionDataCorretion : ICompletionData
     {
-        string _text;
+        readonly string _text;
         public CodeCompletionDataCorretion(string text)
         {
             _text = text;

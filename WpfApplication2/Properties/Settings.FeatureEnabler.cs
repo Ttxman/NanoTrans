@@ -187,7 +187,7 @@ namespace NanoTrans.Properties
                 }
             }
 
-            Settings _parent;
+            readonly Settings _parent;
             internal Features(Settings parent)
             {
                 _parent = parent;

@@ -23,9 +23,9 @@ namespace NanoTrans
     /// </summary>
     public partial class SpeakerSynchronizer : Window
     {
-        private WPFTranscription _transcription;
-        private AdvancedSpeakerCollection _speakersDatabase;
-        List<SpeakerPair> _pairs;
+        private readonly WPFTranscription _transcription;
+        private readonly AdvancedSpeakerCollection _speakersDatabase;
+        readonly List<SpeakerPair> _pairs;
         public SpeakerSynchronizer()
         {
             InitializeComponent();

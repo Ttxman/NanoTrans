@@ -35,47 +35,47 @@ namespace NanoTrans
     public partial class Window1 : Window
     {
         #region WPF commands...
-        public static RoutedCommand CommandFindDialog = new RoutedCommand();
-        public static RoutedCommand CommandPlayPause = new RoutedCommand();
-        public static RoutedCommand CommandScrollUp = new RoutedCommand();
-        public static RoutedCommand CommandScrollDown = new RoutedCommand();
-        public static RoutedCommand CommandSmallJumpRight = new RoutedCommand();
-        public static RoutedCommand CommandSmallJumpLeft = new RoutedCommand();
-        public static RoutedCommand CommandMaximizeMinimize = new RoutedCommand();
-        public static RoutedCommand CommandShowPanelFoneticTranscription = new RoutedCommand();
-        public static RoutedCommand CommandGeneratePhoneticTranscription = new RoutedCommand();
-        public static RoutedCommand CommandNormalizeParagraph = new RoutedCommand();
-        public static RoutedCommand CommandRemoveNonphonemes = new RoutedCommand();
-        public static RoutedCommand CommandTakeSpeakerSnapshotFromVideo = new RoutedCommand();
-        public static RoutedCommand CommandCreateNewTranscription = new RoutedCommand();
-        public static RoutedCommand CommandOpenTranscription = new RoutedCommand();
-        public static RoutedCommand CommandSaveTranscription = new RoutedCommand();
-        public static RoutedCommand CommandSaveTranscriptionAs = new RoutedCommand();
-        public static RoutedCommand CommandHelp = new RoutedCommand();
-        public static RoutedCommand CommandAbout = new RoutedCommand();
+        public static readonly RoutedCommand CommandFindDialog = new RoutedCommand();
+        public static readonly RoutedCommand CommandPlayPause = new RoutedCommand();
+        public static readonly RoutedCommand CommandScrollUp = new RoutedCommand();
+        public static readonly RoutedCommand CommandScrollDown = new RoutedCommand();
+        public static readonly RoutedCommand CommandSmallJumpRight = new RoutedCommand();
+        public static readonly RoutedCommand CommandSmallJumpLeft = new RoutedCommand();
+        public static readonly RoutedCommand CommandMaximizeMinimize = new RoutedCommand();
+        public static readonly RoutedCommand CommandShowPanelFoneticTranscription = new RoutedCommand();
+        public static readonly RoutedCommand CommandGeneratePhoneticTranscription = new RoutedCommand();
+        public static readonly RoutedCommand CommandNormalizeParagraph = new RoutedCommand();
+        public static readonly RoutedCommand CommandRemoveNonphonemes = new RoutedCommand();
+        public static readonly RoutedCommand CommandTakeSpeakerSnapshotFromVideo = new RoutedCommand();
+        public static readonly RoutedCommand CommandCreateNewTranscription = new RoutedCommand();
+        public static readonly RoutedCommand CommandOpenTranscription = new RoutedCommand();
+        public static readonly RoutedCommand CommandSaveTranscription = new RoutedCommand();
+        public static readonly RoutedCommand CommandSaveTranscriptionAs = new RoutedCommand();
+        public static readonly RoutedCommand CommandHelp = new RoutedCommand();
+        public static readonly RoutedCommand CommandAbout = new RoutedCommand();
 
 
-        public static RoutedCommand CommandNewSection = new RoutedCommand();
-        public static RoutedCommand CommandInsertNewSection = new RoutedCommand();
-        public static RoutedCommand CommandNewChapter = new RoutedCommand();
-        public static RoutedCommand CommandDeleteElement = new RoutedCommand();
-        public static RoutedCommand CommandAssignSpeaker = new RoutedCommand();
-        public static RoutedCommand CommandExportElement = new RoutedCommand();
-        public static RoutedCommand CommandQuickExportElement = new RoutedCommand();
+        public static readonly RoutedCommand CommandNewSection = new RoutedCommand();
+        public static readonly RoutedCommand CommandInsertNewSection = new RoutedCommand();
+        public static readonly RoutedCommand CommandNewChapter = new RoutedCommand();
+        public static readonly RoutedCommand CommandDeleteElement = new RoutedCommand();
+        public static readonly RoutedCommand CommandAssignSpeaker = new RoutedCommand();
+        public static readonly RoutedCommand CommandExportElement = new RoutedCommand();
+        public static readonly RoutedCommand CommandQuickExportElement = new RoutedCommand();
 
-        public static RoutedCommand CommandAssignElementStart = new RoutedCommand();
-        public static RoutedCommand CommandAssignElementEnd = new RoutedCommand();
-        public static RoutedCommand CommandAssignElementTimeSelection = new RoutedCommand();
+        public static readonly RoutedCommand CommandAssignElementStart = new RoutedCommand();
+        public static readonly RoutedCommand CommandAssignElementEnd = new RoutedCommand();
+        public static readonly RoutedCommand CommandAssignElementTimeSelection = new RoutedCommand();
 
 
-        public static RoutedCommand CommandJumpToBegin = new RoutedCommand();
-        public static RoutedCommand CommandJumpToEnd = new RoutedCommand();
+        public static readonly RoutedCommand CommandJumpToBegin = new RoutedCommand();
+        public static readonly RoutedCommand CommandJumpToEnd = new RoutedCommand();
 
-        public static RoutedCommand CommandImportFile = new RoutedCommand();
-        public static RoutedCommand CommandExportFile = new RoutedCommand();
+        public static readonly RoutedCommand CommandImportFile = new RoutedCommand();
+        public static readonly RoutedCommand CommandExportFile = new RoutedCommand();
 
-        public static RoutedCommand CommandUndo = new RoutedCommand();
-        public static RoutedCommand CommandRedo = new RoutedCommand();
+        public static readonly RoutedCommand CommandUndo = new RoutedCommand();
+        public static readonly RoutedCommand CommandRedo = new RoutedCommand();
 
 
         public void InitCommands()

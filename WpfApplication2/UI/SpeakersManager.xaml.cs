@@ -58,17 +58,18 @@ namespace NanoTrans
 
         public Speaker SelectedSpeaker { get; set; }
         public SpeakerContainer SelectedSpeakerContainer { get; set; }
-        SpeakerCollection _documentSpeakers;
+
+        readonly SpeakerCollection _documentSpeakers;
         bool _editable = true;
         bool _changed = false;
-        SpeakerCollection _localSpeakers;
+        readonly SpeakerCollection _localSpeakers;
         string _message = "";
         string _messageLabel = "";
-        Speaker _originalSpeaker = null;
+        readonly Speaker _originalSpeaker = null;
         bool _selectmany = false;
         bool _showMiniatures = true;
         SpeakerManagerViewModel _speakerProvider;
-        WPFTranscription _transcription;
+        readonly WPFTranscription _transcription;
 
         public SpeakersManager(Speaker originalSpeaker, WPFTranscription transcription, SpeakerCollection documentSpeakers, SpeakerCollection localSpeakers = null)
         {

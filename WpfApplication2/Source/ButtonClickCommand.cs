@@ -9,7 +9,7 @@ namespace NanoTrans
 {
     class ButtonClickCommand:ICommand
     {
-        private Button b;
+        private readonly Button b;
         public ButtonClickCommand(Button but)
         {
             b = but;

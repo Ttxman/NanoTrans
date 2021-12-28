@@ -38,12 +38,12 @@ namespace NanoTrans
 
         public static string _trsxschemafile = "TRSXSchema3.xsd";
 
-        private static string _programDirectory;
-        private static bool _writeToAppData;
+        private static readonly string _programDirectory;
+        private static readonly bool _writeToAppData;
 
 
 
-        private static string _AppDataPath;
+        private static readonly string _AppDataPath;
 
         public static string AppDataDirectory
         {

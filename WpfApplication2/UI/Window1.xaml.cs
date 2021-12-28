@@ -110,7 +110,7 @@ namespace NanoTrans
 
         #endregion
         //timer pro posuvnik videa....
-        private DispatcherTimer caretRefreshTimer = new DispatcherTimer();
+        private readonly DispatcherTimer caretRefreshTimer = new DispatcherTimer();
 
         private WPFTranscription _transcription;
         public WPFTranscription Transcription
@@ -139,7 +139,7 @@ namespace NanoTrans
 
         WinHelp helpWindow;                                   //okno s napovedou
 
-        private WavReader _WavReader = null;
+        private readonly WavReader _WavReader = null;
 
 
 
@@ -1867,8 +1867,8 @@ namespace NanoTrans
 
         #region plugins
 
-        List<Plugin> _ImportPlugins = new List<Plugin>();
-        List<Plugin> _ExportPlugins = new List<Plugin>();
+        readonly List<Plugin> _ImportPlugins = new List<Plugin>();
+        readonly List<Plugin> _ExportPlugins = new List<Plugin>();
         private void LoadPlugins()
         {
             string file = FilePaths.GetReadPath(FilePaths.PluginsFile);

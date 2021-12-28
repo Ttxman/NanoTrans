@@ -23,7 +23,7 @@ namespace NanoTrans.Properties
 
         #region colors
 
-        ColorConverter cocon = new ColorConverter();
+        readonly ColorConverter cocon = new ColorConverter();
 
         SolidColorBrush _ParagraphBackground = null;
         public SolidColorBrush ParagraphBackground

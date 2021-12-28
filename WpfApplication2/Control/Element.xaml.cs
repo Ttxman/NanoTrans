@@ -270,7 +270,7 @@ namespace NanoTrans
             }
         }
 
-        static ParagraphAttributes[] all = (ParagraphAttributes[])Enum.GetValues(typeof(ParagraphAttributes));
+        static readonly ParagraphAttributes[] all = (ParagraphAttributes[])Enum.GetValues(typeof(ParagraphAttributes));
 
         private void RepaintAttributes()
         {
@@ -352,7 +352,7 @@ namespace NanoTrans
 
 
 
-        private bool _IsPasiveElement;
+        private readonly bool _IsPasiveElement;
         /// <summary>
         /// creates element, 
         /// </summary>
@@ -447,7 +447,7 @@ namespace NanoTrans
             }
         }
 
-        static List<string[]> customparams = new List<string[]>()
+        static readonly List<string[]> customparams = new List<string[]>()
         {
             new []{"channeltype", "mic", "tel", "other",  "unknown" },
             new []{"sessiontype", "news", "prescribed", "interview","conversation", "other",  "unknown" },
@@ -700,9 +700,9 @@ namespace NanoTrans
 
         public class PositionHighlighter : IBackgroundRenderer
         {
-            int _from;
-            int _len;
-            Pen border;
+            readonly int _from;
+            readonly int _len;
+            readonly Pen border;
             public PositionHighlighter(int from, int len)
             {
                 _from = from;
@@ -739,7 +739,7 @@ namespace NanoTrans
 
         public class CodeCompletionData : ICompletionData
         {
-            object uielement = null;
+            readonly object uielement = null;
             public string uniquepart = null;
             public CodeCompletionData(string text)
             {
@@ -1306,8 +1306,8 @@ namespace NanoTrans
 
     public class SpellChecker : DocumentColorizingTransformer
     {
-        static TextDecorationCollection defaultdecoration;
-        static TextDecorationCollection defaultdecorationSuggestion;
+        static readonly TextDecorationCollection defaultdecoration;
+        static readonly TextDecorationCollection defaultdecorationSuggestion;
 
         //nacteni celeho slovniku z souboru do hash tabulky
         static WordList spell = null;

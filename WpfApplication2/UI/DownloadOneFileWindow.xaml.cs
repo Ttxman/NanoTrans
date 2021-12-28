@@ -88,7 +88,7 @@ namespace NanoTrans
             Close();
         }
 
-        WebClient client = new WebClient();
+        readonly WebClient client = new WebClient();
         private void window_Loaded(object sender, RoutedEventArgs e)
         {
             client.DownloadProgressChanged += (ssender, ee) =>

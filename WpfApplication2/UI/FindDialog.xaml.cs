@@ -26,7 +26,7 @@ namespace NanoTrans
         
         }
 
-        private Window1 _parent;
+        private readonly Window1 _parent;
         public FindDialog(Window1 parent)
         {
             _parent = parent;

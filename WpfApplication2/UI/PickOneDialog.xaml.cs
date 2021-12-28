@@ -19,7 +19,7 @@ namespace NanoTrans
     /// </summary>
     public partial class PickOneDialog : Window
     {
-        List<string> _data;
+        readonly List<string> _data;
         public PickOneDialog(List<string> data, string title)
         {
             InitializeComponent();

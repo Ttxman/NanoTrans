@@ -511,7 +511,7 @@ namespace NanoTrans
             return listbox.ItemContainerGenerator.ContainerFromItem(el).VisualFindChild<Element>();
         }
 
-        private bool ActivatingTranscription = false;
+        private readonly bool ActivatingTranscription = false;
 
         private void ScrollToItem(TranscriptionElement elm)
         {

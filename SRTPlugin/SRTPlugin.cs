@@ -13,8 +13,8 @@ namespace SRTPlugin
     public class SRTPlugin
     {
         //according to wikipedia srt is french format
-        static CultureInfo FRculture = CultureInfo.CreateSpecificCulture("fr-FR");
-        static string SRTdateformat = @"hh\:mm\:ss\,fff";
+        static readonly CultureInfo FRculture = CultureInfo.CreateSpecificCulture("fr-FR");
+        static readonly string SRTdateformat = @"hh\:mm\:ss\,fff";
 
         public static bool Import(Stream input, Transcription storage)
         {

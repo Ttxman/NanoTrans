@@ -154,13 +154,14 @@ namespace NanoTrans
             return true;
         }
 
-        ObservableCollection<ChangeAction[]> _UndoStack = new ObservableCollection<ChangeAction[]>();
+        readonly ObservableCollection<ChangeAction[]> _UndoStack = new ObservableCollection<ChangeAction[]>();
 
         public ObservableCollection<ChangeAction[]> UndoStack
         {
             get { return _UndoStack; }
         }
-        ObservableCollection<ChangeAction[]> _RedoStack = new ObservableCollection<ChangeAction[]>();
+
+        readonly ObservableCollection<ChangeAction[]> _RedoStack = new ObservableCollection<ChangeAction[]>();
 
         public ObservableCollection<ChangeAction[]> RedoStack
         {

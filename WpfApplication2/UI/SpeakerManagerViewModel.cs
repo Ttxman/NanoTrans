@@ -20,17 +20,16 @@ namespace NanoTrans
         private string _filterstring = "";
 
         List<SpeakerContainer> _allSpeakers;
-
-        SpeakerCollection _local;
+        readonly SpeakerCollection _local;
         List<Speaker> _online = new List<Speaker>();
-        SpeakerCollection _document;
-        List<Speaker> _temp = new List<Speaker>();
+        readonly SpeakerCollection _document;
+        readonly List<Speaker> _temp = new List<Speaker>();
 
 
 
         ICollectionView _view;
-        private SpeakersApi _api;
-        private SpeakersManager _window;
+        private readonly SpeakersApi _api;
+        private readonly SpeakersManager _window;
         public SpeakerManagerViewModel(SpeakerCollection documentSpeakers, SpeakerCollection localSpeakers, SpeakersApi api, SpeakersManager window)
         {
             _window = window;
@@ -150,7 +149,7 @@ namespace NanoTrans
             }
         }
 
-        System.Timers.Timer _loadingTimer;
+        readonly System.Timers.Timer _loadingTimer;
         bool _loadingFilterChanged = false;
 
 
@@ -322,7 +321,7 @@ namespace NanoTrans
         int DeferCounter = 0;
         private class Deferer : IDisposable
         {
-            IDisposable viewDefer = null;
+            readonly IDisposable viewDefer = null;
             public Deferer(SpeakerManagerViewModel speakerManagerViewModel)
             {
                 this.speakerManagerViewModel = speakerManagerViewModel;
@@ -334,8 +333,8 @@ namespace NanoTrans
             }
 
             bool disposed = false;
-            object locker = new object();
-            private SpeakerManagerViewModel speakerManagerViewModel;
+            readonly object locker = new object();
+            private readonly SpeakerManagerViewModel speakerManagerViewModel;
             public void Dispose()
             {
                 if (!disposed)
