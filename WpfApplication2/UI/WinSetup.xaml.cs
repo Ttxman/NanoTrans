@@ -242,13 +242,7 @@ namespace NanoTrans
 
                             if (TextWallWindow.ShowWall(true, Properties.Strings.OODictionaryLicenceTitle, ss))
                             {
-
-                                if (SpellChecker.SpellEngine != null)
-                                {
-                                    SpellChecker.SpellEngine.Dispose();
-                                    SpellChecker.SpellEngine = null;
-                                }
-
+                                SpellChecker.SpellEngine = null;
 
                                 File.WriteAllText(FilePaths.GetWritePath("data\\readme_slovniky.txt"), ss);
                                 string p = FilePaths.GetWritePath("data\\cs_CZ.aff");

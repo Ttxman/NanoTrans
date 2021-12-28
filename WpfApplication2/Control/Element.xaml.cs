@@ -22,6 +22,7 @@ using System.IO;
 using System.ComponentModel;
 using NanoTrans.Properties;
 using TranscriptionCore;
+using WeCantSpell.Hunspell;
 
 namespace NanoTrans
 {
@@ -386,12 +387,12 @@ namespace NanoTrans
             };
 
 
-           // var used = editor.TextArea.DefaultInputHandler.CaretNavigation.InputBindings.Select(b => "" + ((KeyBinding)b).Key + ":" + ((KeyBinding)b).Modifiers).ToArray();
+            // var used = editor.TextArea.DefaultInputHandler.CaretNavigation.InputBindings.Select(b => "" + ((KeyBinding)b).Key + ":" + ((KeyBinding)b).Modifiers).ToArray();
 
             List<CommandBinding> toremove = new List<CommandBinding>();
             foreach (var binding in editor.TextArea.DefaultInputHandler.Editing.CommandBindings)
             {
-                if(removeCommands.Contains(binding.Command))
+                if (removeCommands.Contains(binding.Command))
                 {
                     toremove.Add(binding);
                 }
@@ -418,7 +419,7 @@ namespace NanoTrans
                 editor.TextArea.TextView.ElementGenerators.Add(DefaultNonEditableBlockGenerator);
             editor.TextArea.IndentationStrategy = new NoIndentationStrategy();
             editor.Options.InheritWordWrapIndentation = false;
-            
+
 
             if (!_IsPasiveElement)
             {
@@ -440,7 +441,7 @@ namespace NanoTrans
         {
             if (e.ChangedButton == MouseButton.XButton1)
             {
-                if(PlayPauseRequest!=null)
+                if (PlayPauseRequest != null)
                     PlayPauseRequest(this, new EventArgs());
                 e.Handled = true;
             }
@@ -558,7 +559,8 @@ namespace NanoTrans
                             Keyboard.PrimaryDevice,
                             PresentationSource.FromVisual(target),
                             0,
-                            Key.Up) { RoutedEvent = routedEvent }
+                            Key.Up)
+                          { RoutedEvent = routedEvent }
                         );
 
                     }
@@ -570,7 +572,8 @@ namespace NanoTrans
                             Keyboard.PrimaryDevice,
                             PresentationSource.FromVisual(target),
                             0,
-                            Key.Down) { RoutedEvent = routedEvent }
+                            Key.Down)
+                          { RoutedEvent = routedEvent }
                         );
                     }
                     else if (e.Key == Key.Escape)
@@ -596,7 +599,8 @@ namespace NanoTrans
                                 Keyboard.PrimaryDevice,
                                 PresentationSource.FromVisual(target),
                                 0,
-                                Key.Enter) { RoutedEvent = routedEvent }
+                                Key.Enter)
+                              { RoutedEvent = routedEvent }
                             );
                     }
                 };
@@ -871,7 +875,7 @@ namespace NanoTrans
             //TODO: somehow remove the commandbindings from avalon edit, and remove this hack, some commands were found (see constructor)
             // some shortcuts are consumed either by avalonedit, there can be romved in constructor if the corresponding command is found
             // or some shortcuts can be consumed by listbox or other WPF components - there have to be removed elsewhere
-            if ( e.Key == Key.Tab
+            if (e.Key == Key.Tab
                 || (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Shift) && e.Key == Key.Delete)
                 )
             {
@@ -1306,10 +1310,10 @@ namespace NanoTrans
         static TextDecorationCollection defaultdecorationSuggestion;
 
         //nacteni celeho slovniku z souboru do hash tabulky
-        static NHunspell.Hunspell spell = null;
+        static WordList spell = null;
 
 
-        public static NHunspell.Hunspell SpellEngine
+        public static WordList SpellEngine
         {
             get
             {
@@ -1327,7 +1331,7 @@ namespace NanoTrans
             string fdic = FilePaths.GetReadPath(@"data\cs_CZ.dic");
             if (File.Exists(faff) && File.Exists(fdic))
             {
-                spell = new NHunspell.Hunspell(faff, fdic);
+                spell = WordList.CreateFromFiles(faff, fdic);
                 return true;
             }
 
@@ -1388,25 +1392,25 @@ namespace NanoTrans
             p = new System.Windows.Shapes.Path() { Data = g, Stroke = Brushes.Green, StrokeThickness = 0.5, StrokeEndLineCap = PenLineCap.Square, StrokeStartLineCap = PenLineCap.Square };
 
             vb = new VisualBrush(p)
-           {
-               Viewbox = new Rect(0, 0, 6, 4),
-               ViewboxUnits = BrushMappingMode.Absolute,
-               Viewport = new Rect(0, 0, 6, 4),
-               ViewportUnits = BrushMappingMode.Absolute,
-               TileMode = TileMode.Tile
+            {
+                Viewbox = new Rect(0, 0, 6, 4),
+                ViewboxUnits = BrushMappingMode.Absolute,
+                Viewport = new Rect(0, 0, 6, 4),
+                ViewportUnits = BrushMappingMode.Absolute,
+                TileMode = TileMode.Tile
 
-           };
+            };
 
 
 
             td = new TextDecoration()
-           {
-               Location = TextDecorationLocation.Underline,
-               Pen = new Pen(vb, 3),
-               PenThicknessUnit = TextDecorationUnit.Pixel,
-               PenOffsetUnit = TextDecorationUnit.Pixel
+            {
+                Location = TextDecorationLocation.Underline,
+                Pen = new Pen(vb, 3),
+                PenThicknessUnit = TextDecorationUnit.Pixel,
+                PenOffsetUnit = TextDecorationUnit.Pixel
 
-           };
+            };
             tdc.Add(td);
 
             defaultdecorationSuggestion = tdc;
@@ -1418,7 +1422,7 @@ namespace NanoTrans
             if (spell == null)
                 return true;
 
-            if (!Element.wordIgnoreChecker.IsMatch(word) && !spell.Spell(word))
+            if (!Element.wordIgnoreChecker.IsMatch(word) && !spell.Check(word))
             {
                 return false;
             }

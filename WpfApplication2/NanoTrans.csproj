@@ -144,13 +144,13 @@
     <ProjectReference Include="..\..\TranscriptionCore\TranscriptionCore.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="NHunspell" Version="1.2.5554.16953" />
     <PackageReference Include="SharpZipLib" Version="1.3.3" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
     <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.3.261602">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="SharpDX.DirectSound" Version="4.2.0" />
+    <PackageReference Include="WeCantSpell.Hunspell" Version="3.0.1" />
     <PackageReference Include="XAMLMarkupExtensions" Version="2.1.2" />
     <PackageReference Include="Microsoft.Windows.Compatibility" Version="6.0.0" />
     <PackageReference Include="Extended.Wpf.Toolkit" Version="4.2.0" />
