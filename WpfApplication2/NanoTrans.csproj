@@ -54,6 +54,9 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\.editorconfig" Link=".editorconfig" />
+  </ItemGroup>
+  <ItemGroup>
     <Resource Include="icons\nota.png" />
     <Resource Include="TACR\200_LogoSL.jpg" />
   </ItemGroup>
