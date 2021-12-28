@@ -10,7 +10,7 @@ using WPFLocalizeExtension.Engine;
 
 namespace NanoTrans.Properties
 {
-    public sealed partial class Settings
+    internal sealed partial class Settings
     {
 
         #region property changed - 

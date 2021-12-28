@@ -36,7 +36,7 @@ namespace NanoTrans
 
         private SpeakerCollection _speakersDatabase;
 
-        public Settings Settings
+        internal Settings Settings
         {
             get { return Settings.Default; }
         }

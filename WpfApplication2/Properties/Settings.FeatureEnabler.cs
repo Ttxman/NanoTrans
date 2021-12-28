@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace NanoTrans.Properties
 {
-    public sealed partial class Settings
+    internal sealed partial class Settings
     {
 
         private Features _FeatureEnabler = null;

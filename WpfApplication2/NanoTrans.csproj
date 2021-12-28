@@ -30,19 +30,12 @@
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Ionic.Zip, Version=1.9.1.8, Culture=neutral, PublicKeyToken=edbe51ad942a3f5c, processorArchitecture=MSIL">
-      <HintPath>.\Ionic.Zip.dll</HintPath>
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
-    <Reference Include="NHunspell">
-      <HintPath>.\NHunspell.dll</HintPath>
-    </Reference>
-    <Reference Include="WPFToolkit">
-      <HintPath>.\WPFToolkit.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Update="Properties\Setting.User.cs">
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Update="Properties\Settings.FeatureEnabler.cs">
@@ -50,6 +43,10 @@
     </Compile>
     <None Update="NanoTrans.exe.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
   </ItemGroup>
@@ -141,7 +138,7 @@
     <Resource Include="TACR\100_newton.jpg" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\TranscriptionCore\TranscriptionCore.csproj" />
+    <ProjectReference Include="..\TranscriptionCore\TranscriptionCore.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="4.6.97" />
