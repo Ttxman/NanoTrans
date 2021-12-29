@@ -24,7 +24,7 @@ namespace NanoTrans
             set
             {
                 WaitCursor._InstanceCounter = value;
-                StaticPropertyChanged?.Invoke(null, new PropertyChangedEventArgs("Waiting"));
+                StaticPropertyChanged?.Invoke(null, new PropertyChangedEventArgs(nameof(Waiting)));
             }
         }
 

@@ -422,10 +422,8 @@ namespace NanoTrans.OnlineAPI
                 return;
             }
 
-            using (var fileStream = new FileStream(Filename, FileMode.Create, FileAccess.Write))
-            {
-                await resp.Content.CopyToAsync(fileStream);
-            }
+            using var fileStream = new FileStream(Filename, FileMode.Create, FileAccess.Write);
+            await resp.Content.CopyToAsync(fileStream);
         }
 
         internal void LoadTranscription(WPFTranscription transcription)
@@ -462,7 +460,7 @@ namespace NanoTrans.OnlineAPI
             //string what = await trsxsresponse.Content.ReadAsStringAsync();
             if (trsxsresponse.StatusCode != System.Net.HttpStatusCode.OK)
             {
-                string mes = await trsxsresponse.Content.ReadAsStringAsync();
+                _ = await trsxsresponse.Content.ReadAsStringAsync();
                 MessageBox.Show("Problem with download", "Problem with download", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 return;
             }

@@ -80,11 +80,9 @@ namespace SRTPlugin
 
         static IEnumerable<string> ReadLines(Stream input)
         {
-            using (StreamReader sr = new StreamReader(input))
-            {
-                while (!sr.EndOfStream)
-                    yield return sr.ReadLine();
-            }
+            using StreamReader sr = new StreamReader(input);
+            while (!sr.EndOfStream)
+                yield return sr.ReadLine();
         }
 
 

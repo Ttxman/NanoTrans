@@ -48,7 +48,6 @@ namespace NanoTrans
 
         public static void OnLoadingChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            SpeakerSmall sender = (SpeakerSmall)d;
         }
 
         public static readonly DependencyProperty MiniatureVisibleProperty =

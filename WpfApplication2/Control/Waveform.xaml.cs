@@ -110,7 +110,6 @@ namespace NanoTrans
                 long end = (long)wave.SelectionEnd.TotalMilliseconds;
                 if (end < begin)
                 {
-                    long bf = end;
                     end = begin;
                     begin = end;
                 }

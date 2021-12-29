@@ -473,7 +473,7 @@ namespace NanoTrans
                 int index = 0;
                 var pars = nfo.GetFiles("*.wav").Where(p => p.Name.StartsWith("paragraph_")).ToArray();
 
-                if (pars.Count() > 0)
+                if (pars.Length > 0)
                     index = 1 + (int)pars.Max(p => { int.TryParse(System.IO.Path.GetFileNameWithoutExtension(p.Name[10..]), out int res); return res; });
 
                 var basename = System.IO.Path.Combine(nfo.FullName, "paragraph_" + index);
@@ -794,7 +794,7 @@ namespace NanoTrans
 
                 if (VirtualizingListBox.ActiveElement is { })
                 {
-                    VirtualizingListBox.ActiveElement.SetSelection(searchtextoffset, len, 0);
+                    VirtualizingListBox.ActiveElement.SetSelection(searchtextoffset, len);
                     searchtextoffset += len;
                 }
             }

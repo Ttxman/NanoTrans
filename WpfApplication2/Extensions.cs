@@ -189,7 +189,7 @@ namespace NanoTrans
             var oldContext = SynchronizationContext.Current;
             var synch = new ExclusiveSynchronizationContext();
             SynchronizationContext.SetSynchronizationContext(synch);
-            T ret = default(T);
+            T ret = default;
             synch.Post(async _ =>
             {
                 try

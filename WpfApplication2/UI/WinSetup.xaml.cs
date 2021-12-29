@@ -102,7 +102,7 @@ namespace NanoTrans
             {
                 if (_AvailableCultures is null)
                 {
-                    var programLocation = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+                    var programLocation = Path.GetDirectoryName(Environment.ProcessPath);
                     var asname = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name;
                     var resourceFileName = asname + ".resources.dll";
 

@@ -108,7 +108,7 @@ namespace NanoTrans.OnlineAPI
         {
             var apiurl = new Uri(Info.SpeakerAPI_URL, @"?call=updateSpeaker");
             var data = SerializeSpeaker(speaker);
-            var resp = await PostAsync(apiurl, data);
+            _ = await PostAsync(apiurl, data);
             return true;
         }
 

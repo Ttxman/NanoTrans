@@ -105,16 +105,14 @@ namespace NanoTrans
                 {
                     if (Isassembly)
                     {
-                        using (var f = File.OpenRead(sourcefile))
-                        {
-                            var imp = new WPFTranscription();
-                            if (!_importDelegate.Invoke(f, imp))
-                                throw new Exception();
-                            
-                            imp.FileName = sourcefile;
-                            
-                            return imp;
-                        }
+                        using var f = File.OpenRead(sourcefile);
+                        var imp = new WPFTranscription();
+                        if (!_importDelegate.Invoke(f, imp))
+                            throw new Exception();
+
+                        imp.FileName = sourcefile;
+
+                        return imp;
                     }
                     else
                     {

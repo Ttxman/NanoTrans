@@ -103,7 +103,7 @@ namespace NanoTrans
             set
             {
                 _editable = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Editable"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Editable)));
             }
         }
         public string Message
@@ -112,7 +112,7 @@ namespace NanoTrans
             set
             {
                 _message = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Message"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Message)));
             }
         }
 
@@ -122,7 +122,7 @@ namespace NanoTrans
             set
             {
                 _messageLabel = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("MessageLabel"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MessageLabel)));
             }
         }
 
@@ -137,7 +137,7 @@ namespace NanoTrans
             set
             {
                 _selectmany = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SelectMany"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectMany)));
             }
         }
 
@@ -147,7 +147,7 @@ namespace NanoTrans
             set
             {
                 _showMiniatures = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ShowMiniatures"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ShowMiniatures)));
             }
         }
 
@@ -165,7 +165,7 @@ namespace NanoTrans
             set
             {
                 _speakerProvider = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SpeakerProvider"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SpeakerProvider)));
             }
         }
         private void ButtonCancel_Click(object sender, RoutedEventArgs e)
@@ -329,12 +329,10 @@ namespace NanoTrans
         {
             if (spk.IsOnline)
             {
-                using (var wc = new WaitCursor())
-                {
-                    var s = await _transcription.Api.GetSpeaker(spk.Speaker.DBID);
-                    Speaker.MergeFrom(spk.Speaker, s);
-                    spk.ReloadSpeaker();
-                }
+                using var wc = new WaitCursor();
+                var s = await _transcription.Api.GetSpeaker(spk.Speaker.DBID);
+                Speaker.MergeFrom(spk.Speaker, s);
+                spk.ReloadSpeaker();
             }
             else
             {
@@ -510,15 +508,13 @@ namespace NanoTrans
             if (spk.IsOnline)
             {
 
-                using (var wc = new WaitCursor())
-                {
-                    if (spk.Speaker is not ApiSynchronizedSpeaker ss)
-                        return false;
-                    if (ss.IsSaved)
-                        return await _transcription.Api.UpdateSpeaker(ss);
-                    else
-                        return await _transcription.Api.AddSpeaker(ss);
-                }
+                using var wc = new WaitCursor();
+                if (spk.Speaker is not ApiSynchronizedSpeaker ss)
+                    return false;
+                if (ss.IsSaved)
+                    return await _transcription.Api.UpdateSpeaker(ss);
+                else
+                    return await _transcription.Api.AddSpeaker(ss);
             }
 
             return true; ;

@@ -34,9 +34,9 @@ namespace NanoTrans
 
         public static void OnSubtitlesChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            WPFTranscription data = (WPFTranscription)e.NewValue;
-            SubtitlesVizualizer vis = (SubtitlesVizualizer)d;
-            WPFTranscription olddata = e.OldValue as WPFTranscription;
+            //WPFTranscription data = (WPFTranscription)e.NewValue;
+            //SubtitlesVizualizer vis = (SubtitlesVizualizer)d;
+            //WPFTranscription olddata = e.OldValue as WPFTranscription;
         }
 
         public WPFTranscription Transcription
@@ -521,7 +521,7 @@ namespace NanoTrans
         {
             var l = sender as ICSharpCode.AvalonEdit.Editing.TextArea;
             _activetransctiptionSelectionLength = l.Selection.Length;
-            if (l.Selection.Length > 0 && l.Selection.Segments.Count() > 0)
+            if (l.Selection.Length > 0 && l.Selection.Segments.Any())
                 _activetransctiptionSelectionStart = l.Selection.Segments.First().StartOffset;
             else
                 _activetransctiptionSelectionStart = 0;

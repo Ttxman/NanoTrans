@@ -36,7 +36,7 @@ namespace NanoTrans
         private static readonly string _FFmpegFile = "ffmpeg.exe";
 
 
-        public static string _trsxschemafile = "TRSXSchema3.xsd";
+        public static readonly string _trsxschemafile = "TRSXSchema3.xsd";
 
         private static readonly string _programDirectory;
         private static readonly bool _writeToAppData;
@@ -94,18 +94,15 @@ namespace NanoTrans
                 try
                 {
                     //demove temp folders from unexpectedly terminated instances
-                    using (Mutex m = new Mutex(true, "NanoTransMutex_" + dir.Name, out bool isnew))
+                    using Mutex m = new Mutex(true, "NanoTransMutex_" + dir.Name, out bool isnew);
+                    if (isnew)
                     {
-                        if (isnew)
+                        foreach (var f in dir.GetFiles())
                         {
-                            foreach (var f in dir.GetFiles())
-                            {
-                                f.Delete();
-                            }
-
-                            dir.Delete();
+                            f.Delete();
                         }
 
+                        dir.Delete();
                     }
                 }
                 catch

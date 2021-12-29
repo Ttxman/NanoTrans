@@ -204,7 +204,7 @@ namespace NanoTrans
             set
             {
                 _speaker1 = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Speaker1"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Speaker1)));
             }
         }
 
@@ -218,7 +218,7 @@ namespace NanoTrans
             set
             {
                 _speaker2 = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Speaker2"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Speaker2)));
             }
         }
 
@@ -240,7 +240,7 @@ namespace NanoTrans
                 return new SpeakerContainer(value as Speaker);
 
 
-            throw new ArgumentException();
+            throw new ArgumentException(nameof(value));
         }
 
         public object ConvertBack(object value, Type targetType,
@@ -249,7 +249,7 @@ namespace NanoTrans
             if (value is SpeakerContainer container)
                 return container.Speaker;
 
-            throw new ArgumentException();
+            throw new ArgumentException(nameof(value));
         }
     }
 

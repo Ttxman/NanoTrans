@@ -197,7 +197,7 @@ namespace NanoTrans
         /// <returns></returns>
         private async Task<bool> SaveOnlineSpeakersUsavedChanges(IEnumerable<Speaker> unsavedSpeakers, bool useMessagebox = true)
         {
-            if (unsavedSpeakers.Count() <= 0)
+            if (!unsavedSpeakers.Any())
                 return true;
 
             bool update = !useMessagebox;
@@ -254,7 +254,7 @@ namespace NanoTrans
             set
             {
                 _view = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("View"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(View)));
             }
         }
         #region filterproperties
@@ -276,7 +276,7 @@ namespace NanoTrans
             set
             {
                 _showDocument = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ShowDocument"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ShowDocument)));
                 ReloadSpeakers();
             }
         }
@@ -287,7 +287,7 @@ namespace NanoTrans
             set
             {
                 _showLocal = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ShowLocal"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ShowLocal)));
 
                 ReloadSpeakers();
             }
@@ -299,7 +299,7 @@ namespace NanoTrans
             set
             {
                 _showOnline = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ShowOnline"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ShowOnline)));
                 ReloadSpeakers();
             }
         }
@@ -435,7 +435,7 @@ namespace NanoTrans
                 _view.Filter = FilterItems;
             }
 
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("FilterString"));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FilterString)));
         }
 
         internal async Task<bool> CloseConnection()

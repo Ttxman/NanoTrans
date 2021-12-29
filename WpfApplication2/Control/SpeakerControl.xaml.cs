@@ -110,15 +110,12 @@ namespace NanoTrans
         public object Convert(object value, Type targetType,
             object parameter, CultureInfo culture)
         {
-            switch ((Speaker.Sexes)value)
+            return (Speaker.Sexes)value switch
             {
-                case Speaker.Sexes.Female:
-                    return Properties.Strings.SexConversionFemale;
-                case Speaker.Sexes.Male:
-                    return Properties.Strings.SexConversionMale;
-                default:
-                    return "--";
-            }
+                Speaker.Sexes.Female => Strings.SexConversionFemale,
+                Speaker.Sexes.Male => Strings.SexConversionMale,
+                _ => "--",
+            };
         }
     }
 

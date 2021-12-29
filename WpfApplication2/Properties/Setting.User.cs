@@ -430,20 +430,14 @@ namespace NanoTrans.Properties
 
         public Brush GetPAttributeColor(ParagraphAttributes param)
         {
-            switch (param)
+            return param switch
             {
-                default:
-                case ParagraphAttributes.None:
-                    return Brushes.White;
-                case ParagraphAttributes.Background_noise:
-                    return Brushes.DodgerBlue;
-                case ParagraphAttributes.Background_speech:
-                    return Brushes.Chocolate;
-                case ParagraphAttributes.Junk:
-                    return Brushes.Crimson;
-                case ParagraphAttributes.Narrowband:
-                    return Brushes.Olive;
-            }
+                ParagraphAttributes.Background_noise => Brushes.DodgerBlue,
+                ParagraphAttributes.Background_speech => Brushes.Chocolate,
+                ParagraphAttributes.Junk => Brushes.Crimson,
+                ParagraphAttributes.Narrowband => Brushes.Olive,
+                _ => Brushes.White,
+            };
         }
 
 

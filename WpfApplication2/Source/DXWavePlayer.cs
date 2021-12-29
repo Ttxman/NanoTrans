@@ -67,12 +67,11 @@ namespace NanoTrans
         {
             get
             {
-                int actual = 0;
-                _soundBuffer.GetCurrentPosition(out int ppos, out int wpos);
+                _soundBuffer.GetCurrentPosition(out int ppos, out int _);
 
                 int pos = (ppos / _buffersize) * _buffersize;
 
-                actual = ppos - pos;
+                int actual = ppos - pos;
 
 
                 actual /= 2;
@@ -173,7 +172,7 @@ namespace NanoTrans
 
             if (BufferByteSize < 1000)
             {
-                throw new ArgumentOutOfRangeException("BufferByteSize", "minimal size of buffer is 1000 bytes");
+                throw new ArgumentOutOfRangeException(nameof(BufferByteSize), "minimal size of buffer is 1000 bytes");
             }
 
             _buffersize = BufferByteSize;

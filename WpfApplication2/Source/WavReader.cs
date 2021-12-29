@@ -488,7 +488,7 @@ namespace NanoTrans.Audio
                 output = null;
 
                 this._Converted = true; //i pres spadnuti je nacteni ok, doresit preteceni indexu!!!!!!
-                if (!(ex is ThreadAbortException))
+                if (ex is not ThreadAbortException)
                     TemporaryWavesDone?.Invoke(this, new EventArgs());
 
                 return false;
@@ -505,8 +505,6 @@ namespace NanoTrans.Audio
         {
             if (!this.Loaded || begin.TotalMilliseconds >= this.FileLengthMS)
                 return null;
-
-            TimeSpan bufferstart = begin;
             TimeSpan bufferLen = end - begin;
             long aPocatekMS = (long)begin.TotalMilliseconds;
             long aDelkaMS = (long)bufferLen.TotalMilliseconds;
@@ -538,48 +536,46 @@ namespace NanoTrans.Audio
 
                     while (true)
                     {
-                        using (BinaryReader input = new BinaryReader(new FileStream(temporaryWaveFiles[pIndexDocasneho], FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
+                        using BinaryReader input = new BinaryReader(new FileStream(temporaryWaveFiles[pIndexDocasneho], FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
+
+                        pIndexDocasneho++;
+
+                        int pCount = (int)(pNacistDat) * this.SampleSize;
+
+                        byte[] pBuffer = new byte[pCount];
+
+                        input.BaseStream.Seek(pPocatecniIndexVSouboru, SeekOrigin.Begin);
+
+                        bytesLoaded += input.Read(pBuffer, 0, pCount);
+                        input.Close();
+
+                        //prevod do pole nacitanych dat
+
+                        int cnt = (pBuffer.Length / 2 < data.Length - j) ? pBuffer.Length : (data.Length - j) * 2;
+                        Buffer.BlockCopy(pBuffer, 0, data, j * 2, cnt);
+                        j += pBuffer.Length / 2;
+                        if (j >= pPocetVzorkuNacist)
+                            break;
+
+
+                        if (pIndexDocasneho >= temporaryWaveFiles.Count - 1 && !this.Converted)
                         {
+                            var x = new short[bytesLoaded / sizeof(short)];
+                            Buffer.BlockCopy(data, 0, x, 0, (int)bytesLoaded);
+                            return x;
+                        }
 
-                            pIndexDocasneho++;
+                        if (pIndexDocasneho < temporaryWaveFiles.Count)
+                        {
+                            pfi = new FileInfo(temporaryWaveFiles[pIndexDocasneho]);
+                            pPocetVzorkuDocasneho = (pfi.Length - 44) / 2;
+                            pPocatecniIndexVSouboru = 44;
+                            pNacistDat = (int)(pPocetVzorkuDocasneho - pPocatecniIndexVSouboru);
+                        }
+                        else
+                        {
+                            break;
 
-                            int pCount = (int)(pNacistDat) * this.SampleSize;
-
-                            byte[] pBuffer = new byte[pCount];
-
-                            input.BaseStream.Seek(pPocatecniIndexVSouboru, SeekOrigin.Begin);
-
-                            bytesLoaded += input.Read(pBuffer, 0, pCount);
-                            input.Close();
-
-                            //prevod do pole nacitanych dat
-
-                            int cnt = (pBuffer.Length / 2 < data.Length - j) ? pBuffer.Length : (data.Length - j) * 2;
-                            Buffer.BlockCopy(pBuffer, 0, data, j * 2, cnt);
-                            j += pBuffer.Length / 2;
-                            if (j >= pPocetVzorkuNacist)
-                                break;
-
-
-                            if (pIndexDocasneho >= temporaryWaveFiles.Count - 1 && !this.Converted)
-                            {
-                                var x = new short[bytesLoaded / sizeof(short)];
-                                Buffer.BlockCopy(data, 0, x, 0, (int)bytesLoaded);
-                                return x;
-                            }
-
-                            if (pIndexDocasneho < temporaryWaveFiles.Count)
-                            {
-                                pfi = new FileInfo(temporaryWaveFiles[pIndexDocasneho]);
-                                pPocetVzorkuDocasneho = (pfi.Length - 44) / 2;
-                                pPocatecniIndexVSouboru = 44;
-                                pNacistDat = (int)(pPocetVzorkuDocasneho - pPocatecniIndexVSouboru);
-                            }
-                            else
-                            {
-                                break;
-
-                            }
                         }
                     }
 

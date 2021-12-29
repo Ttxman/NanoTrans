@@ -123,7 +123,7 @@ namespace NanoTrans
             {
                 _degreeAfter = value ?? "";
                 Changed = true;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("DegreeAfter"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DegreeAfter)));
             }
         }
 
@@ -138,7 +138,7 @@ namespace NanoTrans
             {
                 _degreeBefore = (value ?? "");
                 Changed = true;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("DegreeBefore"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DegreeBefore)));
             }
         }
 
@@ -153,8 +153,8 @@ namespace NanoTrans
             {
                 _firstName = (value ?? "");
                 Changed = true;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("FirstName"));
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("FullName"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FirstName)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FullName)));
             }
         }
 
@@ -169,7 +169,7 @@ namespace NanoTrans
             set
             {
                 _changed = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Changed"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Changed)));
             }
         }
 
@@ -184,7 +184,7 @@ namespace NanoTrans
             {
                 _imgBase64 = value;
                 Changed = true;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ImgBase64"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ImgBase64)));
             }
         }
 
@@ -199,7 +199,7 @@ namespace NanoTrans
             set
             {
                 _isLoading = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IsLoading"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsLoading)));
             }
         }
 
@@ -229,7 +229,7 @@ namespace NanoTrans
             {
                 _language = value;
                 Changed = true;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Language"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Language)));
             }
         }
 
@@ -242,7 +242,7 @@ namespace NanoTrans
             set
             {
                 _marked = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Marked"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Marked)));
             }
         }
 
@@ -257,7 +257,7 @@ namespace NanoTrans
             {
                 _pinned = value;
                 Changed = true;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("PinnedToDocument"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PinnedToDocument)));
             }
         }
 
@@ -273,8 +273,8 @@ namespace NanoTrans
             {
                 _middleName = (value ?? "");
                 Changed = true;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("MiddleName"));
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("FullName"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MiddleName)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FullName)));
             }
         }
 
@@ -289,8 +289,8 @@ namespace NanoTrans
             {
                 _sex = value;
                 Changed = true;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Sex"));
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("FullName"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Sex)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FullName)));
             }
         }
 
@@ -313,8 +313,8 @@ namespace NanoTrans
             {
                 _surName = (value ?? "");
                 Changed = true;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SurName"));
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("FullName"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SurName)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FullName)));
             }
         }
 
@@ -324,13 +324,13 @@ namespace NanoTrans
             set
             {
                 _updating = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Updating"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Updating)));
             }
         }
         //Attributes
         public void RefreshAttributes()
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Attributes"));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Attributes)));
         }
 
         public void ReloadSpeaker()

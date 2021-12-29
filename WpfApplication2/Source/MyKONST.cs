@@ -13,18 +13,18 @@ namespace NanoTrans
     {
         public const string APP_NAME = "NanoTrans";
 
-        public static int ID_BUFFER_WAVEFORMVISIBLE = 0;
-        public static int ID_BUFFER_TRANSCRBED_ELEMENT = 1;
-        public static int ID_BUFFER_TRANSCRIBED_ELEMENT_PHONETIC = 2;
+        public static readonly int ID_BUFFER_WAVEFORMVISIBLE = 0;
+        public static readonly int ID_BUFFER_TRANSCRBED_ELEMENT = 1;
+        public static readonly int ID_BUFFER_TRANSCRIBED_ELEMENT_PHONETIC = 2;
 
-        public static long TEMPORARY_AUDIO_FILE_LENGTH_MS = 60000;
+        public static readonly long TEMPORARY_AUDIO_FILE_LENGTH_MS = 60000;
 
-        public static int WAVEFORM_CARET_REFRESH_MS = 20;
+        public static readonly int WAVEFORM_CARET_REFRESH_MS = 20;
 
 
-        public static long DISPLAY_BUFFER_LENGTH_MS = 300000;//180000;
-        public static TimeSpan DISPLAY_BUFFER_LENGTH = TimeSpan.FromMilliseconds(DISPLAY_BUFFER_LENGTH_MS);
-        public static long DELKA_PRVNIHO_RAMCE_ZOBRAZOVACIHO_BUFFERU_MS = 120000;
+        public static readonly long DISPLAY_BUFFER_LENGTH_MS = 300000;//180000;
+        public static readonly TimeSpan DISPLAY_BUFFER_LENGTH = TimeSpan.FromMilliseconds(DISPLAY_BUFFER_LENGTH_MS);
+        public static readonly long DELKA_PRVNIHO_RAMCE_ZOBRAZOVACIHO_BUFFERU_MS = 120000;
 
 
         public static string JpgToBase64(BitmapFrame aBMP)

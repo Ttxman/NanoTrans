@@ -465,8 +465,7 @@ namespace NanoTrans
 
         void gridX_MouseUp(object sender, MouseButtonEventArgs e)
         {
-
-            bool cc = ((TextBox)((Grid)sender).Children[0]).Focus();
+            ((TextBox)((Grid)sender).Children[0]).Focus();
         }
 
         #region RclickMEnu
@@ -836,13 +835,10 @@ namespace NanoTrans
 
                 if (Transcription.IsOnline && !useSaveDialog)
                 {
-                    using (var wc = new WaitCursor())
-                    {
-                        var onl = await _api.UploadTranscription(Transcription);
-                        Transcription.Saved = onl;
-                        return onl;
-
-                    }
+                    using var wc = new WaitCursor();
+                    var onl = await _api.UploadTranscription(Transcription);
+                    Transcription.Saved = onl;
+                    return onl;
                 }
                 else if (Transcription.Serialize(savePath, Settings.Default.SaveWholeSpeaker))
                 {
@@ -1734,8 +1730,6 @@ namespace NanoTrans
             }
 
             PlaybackBufferIndex = (int)waveform1.CaretPosition.TotalMilliseconds;
-            List<TranscriptionParagraph> pl = Transcription.ReturnElementsAtTime(waveform1.CaretPosition);
-
             _setCaret = true;
             var list = _transcription.ReturnElementsAtTime(e.Value);
             if (list.Count > 0)
@@ -1834,50 +1828,47 @@ namespace NanoTrans
             string file = FilePaths.GetReadPath(FilePaths.PluginsFile);
             string path = System.IO.Path.GetDirectoryName(file);
 
-            using (var f = File.OpenRead(file))
+            using var f = File.OpenRead(file);
+            var doc = XDocument.Load(f).Element("Plugins");
+            var imports = doc.Element("Import").Elements("Plugin");
+            var exports = doc.Element("Export").Elements("Plugin");
+
+            foreach (var imp in imports.Where(i => i.Attribute("IsAssembly").Value.ToLower() == "true"))
             {
-                var doc = XDocument.Load(f).Element("Plugins");
-                var imports = doc.Element("Import").Elements("Plugin");
-                var exports = doc.Element("Export").Elements("Plugin");
+                var asspath = System.IO.Path.Combine(path, imp.Attribute("File").Value);
+                if (!File.Exists(asspath))
+                    continue;
+                Assembly a = Assembly.LoadFrom(asspath);
+                Type ptype = a.GetType(imp.Attribute("Class").Value);
+                MethodInfo mi = ptype.GetMethod("Import", BindingFlags.Static | BindingFlags.Public);
+                Func<Stream, Transcription, bool> act = (Func<Stream, Transcription, bool>)Delegate.CreateDelegate(typeof(Func<Stream, Transcription, bool>), mi);
 
-                foreach (var imp in imports.Where(i => i.Attribute("IsAssembly").Value.ToLower() == "true"))
-                {
-                    var asspath = System.IO.Path.Combine(path, imp.Attribute("File").Value);
-                    if (!File.Exists(asspath))
-                        continue;
-                    Assembly a = Assembly.LoadFrom(asspath);
-                    Type ptype = a.GetType(imp.Attribute("Class").Value);
-                    MethodInfo mi = ptype.GetMethod("Import", BindingFlags.Static | BindingFlags.Public);
-                    Func<Stream, Transcription, bool> act = (Func<Stream, Transcription, bool>)Delegate.CreateDelegate(typeof(Func<Stream, Transcription, bool>), mi);
+                _ImportPlugins.Add(new Plugin(true, true, imp.Attribute("Mask").Value, null, imp.Attribute("Name").Value, act, null, null));
+            }
 
-                    _ImportPlugins.Add(new Plugin(true, true, imp.Attribute("Mask").Value, null, imp.Attribute("Name").Value, act, null, null));
-                }
-
-                foreach (var imp in imports.Where(i => i.Attribute("IsAssembly").Value.ToLower() == "false"))
-                {
-                    _ImportPlugins.Add(new Plugin(true, false, imp.Attribute("Mask").Value, imp.Attribute("Parameters").Value, imp.Attribute("Name").Value, null, null, imp.Attribute("File").Value));
-                }
+            foreach (var imp in imports.Where(i => i.Attribute("IsAssembly").Value.ToLower() == "false"))
+            {
+                _ImportPlugins.Add(new Plugin(true, false, imp.Attribute("Mask").Value, imp.Attribute("Parameters").Value, imp.Attribute("Name").Value, null, null, imp.Attribute("File").Value));
+            }
 
 
-                foreach (var exp in exports.Where(e => e.Attribute("IsAssembly").Value.ToLower() == "true"))
-                {
-                    var asspath = System.IO.Path.Combine(path, exp.Attribute("File").Value);
-                    if (!File.Exists(asspath))
-                        continue;
+            foreach (var exp in exports.Where(e => e.Attribute("IsAssembly").Value.ToLower() == "true"))
+            {
+                var asspath = System.IO.Path.Combine(path, exp.Attribute("File").Value);
+                if (!File.Exists(asspath))
+                    continue;
 
-                    Assembly a = Assembly.LoadFrom(asspath);
-                    Type ptype = a.GetType(exp.Attribute("Class").Value);
-                    MethodInfo mi = ptype.GetMethod("Export", BindingFlags.Static | BindingFlags.Public);
-                    Func<Transcription, Stream, bool> act = (Func<Transcription, Stream, bool>)Delegate.CreateDelegate(typeof(Func<Transcription, Stream, bool>), mi);
+                Assembly a = Assembly.LoadFrom(asspath);
+                Type ptype = a.GetType(exp.Attribute("Class").Value);
+                MethodInfo mi = ptype.GetMethod("Export", BindingFlags.Static | BindingFlags.Public);
+                Func<Transcription, Stream, bool> act = (Func<Transcription, Stream, bool>)Delegate.CreateDelegate(typeof(Func<Transcription, Stream, bool>), mi);
 
-                    _ExportPlugins.Add(new Plugin(true, true, exp.Attribute("Mask").Value, null, exp.Attribute("Name").Value, null, act, null));
-                }
+                _ExportPlugins.Add(new Plugin(true, true, exp.Attribute("Mask").Value, null, exp.Attribute("Name").Value, null, act, null));
+            }
 
-                foreach (var exp in exports.Where(i => i.Attribute("IsAssembly") is null || i.Attribute("IsAssembly").Value == "false"))
-                {
-                    _ExportPlugins.Add(new Plugin(true, false, exp.Attribute("Mask").Value, exp.Attribute("Parameters").Value, exp.Attribute("Name").Value, null, null, exp.Attribute("File").Value));
-                }
-
+            foreach (var exp in exports.Where(i => i.Attribute("IsAssembly") is null || i.Attribute("IsAssembly").Value == "false"))
+            {
+                _ExportPlugins.Add(new Plugin(true, false, exp.Attribute("Mask").Value, exp.Attribute("Parameters").Value, exp.Attribute("Name").Value, null, null, exp.Attribute("File").Value));
             }
 
         }
@@ -1921,18 +1912,16 @@ namespace NanoTrans
 
         private void MenuItemLanguage_Click(object sender, RoutedEventArgs e)
         {
-            if (VirtualizingListBox.ActiveTransctiption is null || !VirtualizingListBox.ActiveTransctiption.IsParagraph)
+            if (VirtualizingListBox.ActiveTransctiption is not TranscriptionParagraph)
                 return;
-            var par = VirtualizingListBox.ActiveTransctiption as TranscriptionParagraph;
             var l = (string)(sender as MenuItem).Header;
 
             if (l == Speaker.Langs.Last())
                 l = null;
             VirtualizingListBox.ActiveElement.ElementLanguage = l;
-            var prev = VirtualizingListBox.ActiveElement;
             if (VirtualizingListBox.ActiveElement.RefreshSpeakerInfos())
             {
-                prev = VirtualizingListBox.GetVisualForTransctiption(VirtualizingListBox.ActiveTransctiption.Previous());//refresh previous elements
+                var prev = VirtualizingListBox.GetVisualForTransctiption(VirtualizingListBox.ActiveTransctiption.Previous());//refresh previous elements
                 while (prev is { } && prev.RefreshSpeakerInfos())
                     prev = VirtualizingListBox.GetVisualForTransctiption(prev.ValueElement.Previous());
 

@@ -56,7 +56,7 @@ namespace NanoTrans
             {
                 if (ValueElement is TranscriptionParagraph par)
                 {
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ElementLanguage"));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ElementLanguage)));
                 }
             }
 
@@ -888,7 +888,7 @@ namespace NanoTrans
                     {
                         var vl = editor.TextArea.TextView.GetVisualLine(TP);
                         var tl = vl.GetTextLine(editor.TextArea.Caret.VisualColumn);
-                        if (tl == vl.TextLines[vl.TextLines.Count - 1])
+                        if (tl == vl.TextLines[^1])
                         {
                             MoveDownRequest(this, new EventArgs());
                             e.Handled = true;
@@ -1165,8 +1165,7 @@ namespace NanoTrans
         }
 
         int _forcesellength = 0;
-        //int _forceselbegin = 0;
-        public void SetSelection(int offset, int length, int caretoffset)
+        public void SetSelection(int offset, int length)
         {
             _forceCaretpositionOnLoad = -1;
             _forcesellength = 0;
@@ -1191,7 +1190,7 @@ namespace NanoTrans
 
         public void SetCaretOffset(int offset)
         {
-            SetSelection(offset, 0, offset);
+            SetSelection(offset, 0);
         }
 
         public int TextLength
@@ -1295,8 +1294,6 @@ namespace NanoTrans
 
             return false;
         }
-
-        public static HashSet<string> Vocabulary = new HashSet<string>();
 
         static SpellChecker()
         {

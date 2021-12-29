@@ -108,7 +108,6 @@ namespace TrsxV1Plugin
             TranscriptionChapter c = new TranscriptionChapter();
             TranscriptionSection sec = new TranscriptionSection();
 
-            var second = TimeSpan.FromSeconds(0.5);
             TranscriptionParagraph pah = new TranscriptionParagraph();
             List<TranscriptionPhrase> silence = new List<TranscriptionPhrase>();
             TimeSpan sec20 = TimeSpan.FromSeconds(20);

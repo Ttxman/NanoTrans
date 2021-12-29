@@ -41,7 +41,7 @@ namespace NanoTrans
             set
             {
                 _status = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Status"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Status)));
             }
         }
 
@@ -52,7 +52,7 @@ namespace NanoTrans
             set
             {
                 _Service = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Service"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Service)));
             }
         }
 
@@ -63,7 +63,7 @@ namespace NanoTrans
             set
             {
                 _Connected = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Connected"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Connected)));
             }
         }
 

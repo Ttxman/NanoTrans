@@ -171,7 +171,7 @@ namespace NanoTrans
             {
                 _undoing = true;
                 BeginUpdate();
-                var act = _UndoStack[_UndoStack.Count - 1];
+                var act = _UndoStack[^1];
                 _UndoStack.RemoveAt(_UndoStack.Count - 1);
                 for (int i = act.Length - 1; i >= 0; i--)
                 {
@@ -191,7 +191,7 @@ namespace NanoTrans
                 _redoing = true;
                 BeginUpdate();
 
-                var act = _RedoStack[_RedoStack.Count - 1];
+                var act = _RedoStack[^1];
                 _RedoStack.RemoveAt(_RedoStack.Count - 1);
                 for (int i = act.Length - 1; i >= 0; i--)
                 {
@@ -212,17 +212,12 @@ namespace NanoTrans
 
         public NotifyCollectionChangedAction MapEvent(ChangeType action)
         {
-            switch (action)
+            return action switch
             {
-                case ChangeType.Add:
-                    return NotifyCollectionChangedAction.Add;
-                case ChangeType.Remove:
-                    return NotifyCollectionChangedAction.Remove;
-                    //case ChangeType.Replace: //notify does not support replace
-                    //    return NotifyCollectionChangedAction.Replace;
-            }
-
-            return NotifyCollectionChangedAction.Reset;
+                ChangeType.Add => NotifyCollectionChangedAction.Add,
+                ChangeType.Remove => NotifyCollectionChangedAction.Remove,
+                _ => NotifyCollectionChangedAction.Reset,
+            };
         }
 
         bool _isonline = false;
@@ -241,7 +236,7 @@ namespace NanoTrans
                     this.Elements.Remove("Online");
                 }
 
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IsOnline"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsOnline)));
             }
         }
 
