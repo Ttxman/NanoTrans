@@ -182,12 +182,10 @@ namespace NanoTrans
 
             string path = e.Parameter as string;
 
-            var imp = ImportTranscription(path);
-
-            if (imp != null)
+            if (ImportTranscription(path) is { } imp)
                 LoadTranscription(imp);
             else
-                MessageBox.Show(Properties.Strings.MessageBoxImportError, Properties.Strings.MessageBoxErrorCaption, MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(Strings.MessageBoxImportError, Strings.MessageBoxErrorCaption, MessageBoxButton.OK, MessageBoxImage.Error);
 
         }
 
@@ -196,15 +194,15 @@ namespace NanoTrans
             string[] masks = _ImportPlugins.Select(p => p.Mask).ToArray();
             string[] filetypes = masks.SelectMany(m => m.Split('|').Where((p, i) => i % 2 == 1).SelectMany(ex => ex.Split(';'))).Distinct().ToArray();
 
-            string allfilesMask = string.Format(Properties.Strings.FileDialogLoadImportFilter, string.Join(";", filetypes));
+            string allfilesMask = string.Format(Strings.FileDialogLoadImportFilter, string.Join(";", filetypes));
             OpenFileDialog opf = new OpenFileDialog();
             opf.CheckFileExists = true;
             opf.CheckPathExists = true;
             opf.Filter = string.Join("|", new[] { allfilesMask }.Concat(masks));
-            opf.Title = Properties.Strings.FileDialogLoadImportTitle;
+            opf.Title = Strings.FileDialogLoadImportTitle;
             bool filedialogopened = false;
 
-            if (filepath != null)
+            if (filepath is { })
             {
                 opf.FilterIndex = 1;
                 filedialogopened = true;
@@ -243,10 +241,8 @@ namespace NanoTrans
                     trans = _ImportPlugins[opf.FilterIndex - 2].ExecuteImport(opf.FileName);
                 }
 
-                if (trans != null)
-                {
+                if (trans is { })
                     trans.FileName += ".trsx";
-                }
             }
 
             return trans;
@@ -260,7 +256,7 @@ namespace NanoTrans
             string[] masks = _ExportPlugins.Select(p => p.Mask).ToArray();
 
             SaveFileDialog sf = new SaveFileDialog();
-            if (Transcription.FileName != null)
+            if (Transcription.FileName is { })
                 sf.InitialDirectory = System.IO.Path.GetDirectoryName(System.IO.Path.GetFullPath(Transcription.FileName));
             sf.FileName = System.IO.Path.GetFileNameWithoutExtension(Transcription.FileName);
 
@@ -298,7 +294,7 @@ namespace NanoTrans
         }
         private void CAssignElementStart(object sender, ExecutedRoutedEventArgs e)
         {
-            if (VirtualizingListBox.ActiveTransctiption == null)
+            if (VirtualizingListBox.ActiveTransctiption is null)
                 return;
 
             if (WarnIfElementIsShort(VirtualizingListBox.ActiveTransctiption.End, waveform1.CaretPosition))
@@ -310,7 +306,7 @@ namespace NanoTrans
 
         private void CAssignElementEnd(object sender, ExecutedRoutedEventArgs e)
         {
-            if (VirtualizingListBox.ActiveTransctiption == null)
+            if (VirtualizingListBox.ActiveTransctiption is null)
                 return;
 
             if (WarnIfElementIsShort(VirtualizingListBox.ActiveTransctiption.Begin, waveform1.CaretPosition))
@@ -321,7 +317,7 @@ namespace NanoTrans
         }
         private void CAssignElementTimeSelection(object sender, ExecutedRoutedEventArgs e)
         {
-            if (VirtualizingListBox.ActiveTransctiption == null)
+            if (VirtualizingListBox.ActiveTransctiption is null)
                 return;
 
             if (WarnIfElementIsShort(waveform1.SelectionBegin, waveform1.SelectionEnd))
@@ -349,12 +345,11 @@ namespace NanoTrans
         {
             if (VirtualizingListBox.ActiveTransctiption != null)
             {
-                if (VirtualizingListBox.ActiveTransctiption.IsParagraph)
+                if (VirtualizingListBox.ActiveTransctiption is TranscriptionParagraph p)
                 {
-                    TranscriptionParagraph p = (TranscriptionParagraph)VirtualizingListBox.ActiveTransctiption;
                     int idx = p.ParentIndex;
                     TranscriptionSection sec = (TranscriptionSection)p.Parent;
-                    TranscriptionSection s = new TranscriptionSection(Properties.Strings.DefaultSectionText);
+                    TranscriptionSection s = new TranscriptionSection(Strings.DefaultSectionText);
                     for (int i = idx; i < sec.Children.Count; i++)
                         s.Add(sec[i]);
 
@@ -367,7 +362,7 @@ namespace NanoTrans
                 }
                 else if (VirtualizingListBox.ActiveTransctiption.IsSection)
                 {
-                    var s = new TranscriptionSection(Properties.Strings.DefaultSectionText);
+                    var s = new TranscriptionSection(Strings.DefaultSectionText);
                     s.Children.AddRange(VirtualizingListBox.ActiveTransctiption.Children);
                     VirtualizingListBox.ActiveTransctiption.Children.Clear();
                     VirtualizingListBox.ActiveTransctiption.Parent.Insert(VirtualizingListBox.ActiveTransctiption.ParentIndex, s);
@@ -376,7 +371,7 @@ namespace NanoTrans
                 }
                 else if (VirtualizingListBox.ActiveTransctiption.IsChapter)
                 {
-                    var s = new TranscriptionSection(Properties.Strings.DefaultSectionText);
+                    var s = new TranscriptionSection(Strings.DefaultSectionText);
                     VirtualizingListBox.ActiveTransctiption.Insert(0, s);
                     VirtualizingListBox.ActiveTransctiption = s;
                     VirtualizingListBox.Reset();
@@ -385,8 +380,8 @@ namespace NanoTrans
         }
         private void CNewChapter(object sender, ExecutedRoutedEventArgs e)
         {
-            TranscriptionChapter c = new TranscriptionChapter(Properties.Strings.DefaultChapterText);
-            TranscriptionSection s = new TranscriptionSection(Properties.Strings.DefaultSectionText);
+            TranscriptionChapter c = new TranscriptionChapter(Strings.DefaultChapterText);
+            TranscriptionSection s = new TranscriptionSection(Strings.DefaultSectionText);
             TranscriptionParagraph p = new TranscriptionParagraph();
             p.Add(new TranscriptionPhrase());
             Transcription.Add(c);
@@ -396,10 +391,8 @@ namespace NanoTrans
         }
         private void CDeleteElement(object sender, ExecutedRoutedEventArgs e)
         {
-            if (VirtualizingListBox.ActiveTransctiption != null && VirtualizingListBox.ActiveTransctiption.Parent != null)
-            {
-                VirtualizingListBox.ActiveTransctiption.Parent.Remove(VirtualizingListBox.ActiveTransctiption);
-            }
+            if (VirtualizingListBox.ActiveTransctiption is { } atran && atran.Parent is { } parent)
+                parent.Remove(atran);
         }
 
         double? smwidth = null;
@@ -410,13 +403,13 @@ namespace NanoTrans
         private void CAssignSpeaker(object sender, ExecutedRoutedEventArgs e)
         {
             TranscriptionParagraph tpr = null;
-            if (sender is TranscriptionParagraph)
-                tpr = (TranscriptionParagraph)sender;
+            if (sender is TranscriptionParagraph paragraph)
+                tpr = paragraph;
             else
                 tpr = VirtualizingListBox.ActiveTransctiption as TranscriptionParagraph;
 
             var mgr = new SpeakersManager(tpr.Speaker, Transcription, Transcription.Speakers, SpeakersDatabase) { MessageLabel = Properties.Strings.mainWindowSpeakersManagerSelectedParagraphMessage, Message = VirtualizingListBox.ActiveTransctiption.Text };
-            if (smwidth != null && smheight != null && smleft != null && smtop != null)
+            if (smwidth is { } && smheight is { } && smleft is { } && smtop is { })
             {
                 mgr.Width = smwidth.Value;
                 mgr.Height = smheight.Value;
@@ -424,7 +417,7 @@ namespace NanoTrans
                 mgr.Top = smtop.Value;
             }
 
-            if (mgr.ShowDialog() == true && mgr.SelectedSpeaker != null)
+            if (mgr.ShowDialog() == true && mgr.SelectedSpeaker is { })
             {
                 Transcription.BeginUpdate();
                 var origspk = tpr.Speaker;
@@ -436,7 +429,7 @@ namespace NanoTrans
 
                 var replaced = AdvancedSpeakerCollection.SynchronizedAdd(Transcription.Speakers, mgr.SelectedSpeaker);
 
-                if (replaced != null)
+                if (replaced is { })
                 {
                     foreach (var p in Transcription.EnumerateParagraphs().Where(p => p.Speaker == replaced))
                         p.Speaker = mgr.SelectedSpeaker;
@@ -469,7 +462,7 @@ namespace NanoTrans
                 TranscriptionParagraph par = VirtualizingListBox.ActiveTransctiption as TranscriptionParagraph;
                 var data = _WavReader.LoadaudioDataBuffer(par.Begin, par.End);
 
-                if (FilePaths.QuickSaveDirectory == null || !Directory.Exists(FilePaths.QuickSaveDirectory))
+                if (FilePaths.QuickSaveDirectory is null || !Directory.Exists(FilePaths.QuickSaveDirectory))
                 {
                     MessageBox.Show(Properties.Strings.QuickSavePathNotSpecifiedError, Properties.Strings.QuickSavePathNotSpecifiedError, MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
@@ -532,7 +525,7 @@ namespace NanoTrans
 
         private void CFindDialogExecute(object sender, ExecutedRoutedEventArgs e)
         {
-            if (_findDialog == null || !_findDialog.IsLoaded || !_findDialog.IsVisible)
+            if (_findDialog is null || !_findDialog.IsLoaded || !_findDialog.IsVisible)
             {
                 _findDialog = new FindDialog(this);
                 _findDialog.Owner = this;
@@ -547,10 +540,10 @@ namespace NanoTrans
 
         private void CPlayPauseExecute(object sender, ExecutedRoutedEventArgs e)
         {
-            if (MWP == null)
+            if (MWP is null)
                 InitializeAudioPlayer();
 
-            if (MWP == null)
+            if (MWP is null)
                 return;
 
             if (_playing)
@@ -629,14 +622,10 @@ namespace NanoTrans
         {
             UpdateLayout();
             HitTestResult res = VisualTreeHelper.HitTest(VirtualizingListBox, new Point(0, 5));
-            if (res.VisualHit != null)
+            if (res.VisualHit?.VisualFindParent<Element>() is { } e)
             {
-                Element e = res.VisualHit.VisualFindParent<Element>();
-                if (e != null)
-                {
-                    e.editor.Focus();
-                    e.editor.CaretOffset = 0;
-                }
+                e.editor.Focus();
+                e.editor.CaretOffset = 0;
             }
         }
 
@@ -751,16 +740,9 @@ namespace NanoTrans
 
         private async void CSaveTranscription(object sender, ExecutedRoutedEventArgs e)
         {
-            if (Transcription != null)
+            if (Transcription is { })
             {
-                if (Transcription.FileName != null)
-                {
-                    await SaveTranscription(false, Transcription.FileName);
-                }
-                else
-                {
-                    await SaveTranscription(true, Transcription.FileName);
-                }
+                await SaveTranscription(Transcription?.FileName is { });
             }
         }
 
@@ -769,7 +751,7 @@ namespace NanoTrans
             if (!Settings.Default.FeatureEnabler.LocalEdit)
                 return;
 
-            await SaveTranscription(true, "");
+            await SaveTranscription(true);
         }
 
         private void CAbout(object sender, ExecutedRoutedEventArgs e)
@@ -779,7 +761,7 @@ namespace NanoTrans
 
         private void CHelp(object sender, ExecutedRoutedEventArgs e)
         {
-            if (helpWindow == null || !helpWindow.IsLoaded)
+            if (helpWindow is null || !helpWindow.IsLoaded)
             {
                 helpWindow = new WinHelp();
                 helpWindow.Show();
@@ -794,18 +776,15 @@ namespace NanoTrans
             //    e.editor.SelectionLength = 0;
             //}
 
-            if (VirtualizingListBox.ActiveTransctiption == null)
+            if (VirtualizingListBox.ActiveTransctiption is null)
+            {
                 if (_transcription.Chapters.Count > 0)
-                {
                     VirtualizingListBox.ActiveTransctiption = _transcription.Chapters[0];
-                }
                 else
                     return;
-            TranscriptionElement tag = VirtualizingListBox.ActiveTransctiption;
+            }
 
-            TranscriptionElement pr = tag;
-            if (pr == null)
-                tag = Transcription.Chapters[0];
+            TranscriptionElement tag = VirtualizingListBox.ActiveTransctiption ?? Transcription.Chapters[0];
 
             if (Transcription.FindNext(ref tag, ref searchtextoffset, out int len, pattern, isregex, CaseSensitive, searchinspeakers))
             {
@@ -813,7 +792,7 @@ namespace NanoTrans
                 waveform1.CaretPosition = p.Begin;
                 VirtualizingListBox.ActiveTransctiption = p;
 
-                if (VirtualizingListBox.ActiveElement != null)
+                if (VirtualizingListBox.ActiveElement is { })
                 {
                     VirtualizingListBox.ActiveElement.SetSelection(searchtextoffset, len, 0);
                     searchtextoffset += len;
@@ -847,8 +826,7 @@ namespace NanoTrans
             switch (e.Key)
             {
                 case Key.F10:
-                    if (e != null)
-                        e.Handled = true;
+                    e.Handled = true;
                     break;
                 default:
                     break;

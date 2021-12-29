@@ -12,7 +12,7 @@ namespace NanoTrans
     public static class Const
     {
         public const string APP_NAME = "NanoTrans";
-        
+
         public static int ID_BUFFER_WAVEFORMVISIBLE = 0;
         public static int ID_BUFFER_TRANSCRBED_ELEMENT = 1;
         public static int ID_BUFFER_TRANSCRIBED_ELEMENT_PHONETIC = 2;
@@ -36,7 +36,7 @@ namespace NanoTrans
                 //BmpBitmapEncoder encoder = new BmpBitmapEncoder();
                 encoder.Frames.Add(aBMP);
                 MemoryStream ms = new MemoryStream();
-                
+
                 //Convert.ToBase64String
                 encoder.Save(ms);
                 byte[] pPole = new byte[ms.Length];
@@ -56,7 +56,9 @@ namespace NanoTrans
 
         public static BitmapImage Base64ToJpg(string aStringBase64)
         {
-            if (aStringBase64 == null || aStringBase64 == "") return null;
+            if (string.IsNullOrEmpty(aStringBase64))
+                return null;
+
             BitmapImage bi;
             try
             {

@@ -20,7 +20,7 @@ namespace NanoTrans.OnlineAPI
         { 
             get
             {
-                if (_TrsxDownloadURL == null)
+                if (_TrsxDownloadURL is null)
                     return null;
 
                 if (!_TrsxDownloadURL.IsAbsoluteUri)
@@ -40,7 +40,7 @@ namespace NanoTrans.OnlineAPI
         {
             get
             {
-                if (_TrsxUploadURL == null)
+                if (_TrsxUploadURL is null)
                     return null;
 
                 if (!_TrsxUploadURL.IsAbsoluteUri)

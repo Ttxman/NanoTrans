@@ -34,7 +34,7 @@ namespace NanoTrans
         {
             _window = window;
             _api = api;
-            if (_api != null)
+            if (_api is { })
             {
                 _loadingTimer = new System.Timers.Timer(1000);
                 _loadingTimer.AutoReset = false;
@@ -44,7 +44,7 @@ namespace NanoTrans
 
             this._document = documentSpeakers;
             this._local = localSpeakers;
-            
+
             _showOnline = Settings.Default.SpeakerManagerShowOnline;
             _showLocal = Settings.Default.SpeakerManagerShowLocal;
             _showDocument = Settings.Default.SpeakerManagerShowDocument;
@@ -76,16 +76,16 @@ namespace NanoTrans
             {
                 var all = new List<SpeakerContainer>();
 
-                if (_document != null && ShowDocument)
+                if (_document is { } && ShowDocument)
                     all.AddRange(_document.Select(s => new SpeakerContainer(_document, s)));
 
-                if (_local != null && ShowLocal)
+                if (_local is { } && ShowLocal)
                     all.AddRange(_local.Select(s => new SpeakerContainer(_local, s)));
 
-                if (_online != null && ShowOnline)
+                if (_online is { } && ShowOnline)
                     all.AddRange(_online.Select(s => new SpeakerContainer(s)));
 
-                if (_temp != null)
+                if (_temp is { })
                     all.AddRange(_temp.Select(s => new SpeakerContainer(s)));
 
 
@@ -126,11 +126,10 @@ namespace NanoTrans
             set
             {
                 _filterstring = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("FilterString"));
-                if (_api != null)
-                {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FilterString)));
+                if (_api is { })
                     UpdateOnlineSpeakers();
-                }
+
                 UpdateFilters();
             }
         }
@@ -143,7 +142,7 @@ namespace NanoTrans
             set
             {
                 _LoadingVisible = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("LoadingVisible"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(LoadingVisible)));
             }
         }
 
@@ -167,7 +166,7 @@ namespace NanoTrans
             if (_lastFilterString != _filterstring)
             {
                 _loadingFilterChanged = true;
-                if (_filterstring != null && _filterstring.Length > 1 && !_loadingTimer.Enabled)
+                if (_filterstring is { } && _filterstring.Length > 1 && !_loadingTimer.Enabled)
                 {
                     _loadingTimer.Start();
                     _api.Cancel();
@@ -268,7 +267,7 @@ namespace NanoTrans
         /// </summary>
         public bool IsOnline
         {
-            get { return _api != null; }
+            get { return _api is { }; }
         }
 
         public bool ShowDocument
@@ -371,9 +370,7 @@ namespace NanoTrans
             _document.Remove(s);
             _temp.Remove(s);
 
-            var cont = _allSpeakers.FirstOrDefault(sc => sc.Speaker == s);
-
-            if (cont != null)
+            if (_allSpeakers.FirstOrDefault(sc => sc.Speaker == s) is { } cont)
             {
                 _allSpeakers.Remove(cont);
                 Refresh();
@@ -403,10 +400,8 @@ namespace NanoTrans
 
         private bool FilterItems(object item)
         {
-            SpeakerContainer cont = item as SpeakerContainer;
-
             bool res = false;
-            if (cont == null)
+            if (item is not SpeakerContainer cont)
                 return false;
 
             if (_showDocument && _document.Contains(cont.Speaker))
@@ -445,10 +440,8 @@ namespace NanoTrans
 
         internal async Task<bool> CloseConnection()
         {
-            if (_api != null)
-            {
+            if (_api is { })
                 return await SaveOnlineSpeakersUsavedChanges(_allSpeakers.Where(sc => sc.IsOnline && sc.Changed).Select(sc => sc.Speaker));
-            }
 
             return true;
         }

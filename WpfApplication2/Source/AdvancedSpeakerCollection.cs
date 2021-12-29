@@ -71,7 +71,7 @@ namespace NanoTrans
 
         public override bool Remove(Speaker item)
         {
-            if (item.DBType == DBType.File || item.DBID == null)
+            if (item.DBType == DBType.File || item.DBID is null)
                 return false;
 
             _slist.Remove(item.DBID);
@@ -108,9 +108,8 @@ namespace NanoTrans
 
                 return ss;
             }
-            else if (s.DataBaseType == DBType.User && s.DBID != null)//some user created it manually
+            else if (s.DataBaseType == DBType.User && s.DBID is { })//some user created it manually
             {
-
                 if (_slist.TryGetValue(s.DBID, out Speaker ls))
                 {
 
@@ -134,16 +133,16 @@ namespace NanoTrans
         public static Speaker SynchronizedAdd(SpeakerCollection speakers, Speaker s)
         {
 
-            var found = speakers.FirstOrDefault(sp=>sp.DBID == s.DBID);
+            var found = speakers.FirstOrDefault(sp => sp.DBID == s.DBID);
 
-            if (found == null)
+            if (found is null)
             {
                 speakers.Add(s);
-                
+
             }
             else
             {
-                if(found.Synchronized < s.Synchronized)
+                if (found.Synchronized < s.Synchronized)
                 {
                     speakers.Remove(found);
                     speakers.Add(s);

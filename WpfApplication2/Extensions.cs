@@ -19,18 +19,17 @@ namespace NanoTrans
         /// <param name="child">A direct or indirect child of the queried item.</param>
         /// <returns>The first parent item that matches the submitted type parameter. 
         /// If not matching item can be found, a null reference is being returned.</returns>
-        public static T VisualFindParent<T>(this DependencyObject child)
-          where T : DependencyObject
+        public static T VisualFindParent<T>(this DependencyObject child) where T : DependencyObject
         {
             // get parent item
             DependencyObject parentObject = VisualTreeHelper.GetParent(child);
 
             // we’ve reached the end of the tree
-            if (parentObject == null) return null;
+            if (parentObject is null)
+                return null;
 
             // check if the parent matches the type we’re looking for
-            T parent = parentObject as T;
-            if (parent != null)
+            if (parentObject is T parent)
             {
                 return parent;
             }
@@ -46,27 +45,27 @@ namespace NanoTrans
           where T : DependencyObject
         {
 
-            if (parent == null)
+            if (parent is null)
                 return null;
+
             int cnt = VisualTreeHelper.GetChildrenCount(parent);
             for (int i = 0; i < cnt; i++)
             {
                 DependencyObject childobject = VisualTreeHelper.GetChild(parent, i);
-                if (childobject == null)
+                if (childobject is null)
                     continue;
 
-                T child = childobject as T;
-                if (child != null)
+                if (childobject is T child)
                     return child;
             }
 
             for (int i = 0; i < cnt; i++)
             {
                 DependencyObject childobject = VisualTreeHelper.GetChild(parent, i);
-                if (childobject == null)
+                if (childobject is null)
                     continue;
-                var val = VisualFindChild<T>(childobject);
-                if (val != null)
+
+                if (VisualFindChild<T>(childobject) is { } val)
                     return val;
             }
 
@@ -92,20 +91,20 @@ namespace NanoTrans
             for (int i = 0; i < cnt; i++)
             {
                 DependencyObject childobject = VisualTreeHelper.GetChild(parent, i);
-                if (childobject == null)
+                if (childobject is null)
                     continue;
-                T child = childobject as T;
-                if (child != null)
+
+                if (childobject is T child)
                     yield return child;
             }
 
             for (int i = 0; i < cnt; i++)
             {
                 DependencyObject childobject = VisualTreeHelper.GetChild(parent, i);
-                if (childobject == null)
+                if (childobject is null)
                     continue;
-                var val = VisualFindChildren<T>(childobject);
 
+                var val = VisualFindChildren<T>(childobject);
                 foreach (var v in val)
                     yield return v;
             }
@@ -117,8 +116,7 @@ namespace NanoTrans
                                      where ItemContainer : DependencyObject
         {
             // ItemContainer - can be ListViewItem, or TreeViewItem and so on(depends on control)
-            ItemContainer obj = GetContainerAtPoint<ItemContainer>(control, p);
-            if (obj == null)
+            if (GetContainerAtPoint<ItemContainer>(control, p) is not { } obj)
                 return null;
 
             return control.ItemContainerGenerator.ItemFromContainer(obj);
@@ -127,12 +125,12 @@ namespace NanoTrans
         public static ItemContainer GetContainerAtPoint<ItemContainer>(this ItemsControl control, Point p)
                                  where ItemContainer : DependencyObject
         {
-            HitTestResult result = VisualTreeHelper.HitTest(control, p);
-            if (result == null)
+            if (VisualTreeHelper.HitTest(control, p) is not { } result)
                 return null;
+
             DependencyObject obj = result.VisualHit;
 
-            while (VisualTreeHelper.GetParent(obj) != null && !(obj is ItemContainer))
+            while (VisualTreeHelper.GetParent(obj) is { } && obj is not ItemContainer)
             {
                 obj = VisualTreeHelper.GetParent(obj);
             }
@@ -254,10 +252,10 @@ namespace NanoTrans
                             task = items.Dequeue();
                         }
                     }
-                    if (task != null)
+                    if (task is { })
                     {
                         task.Item1(task.Item2);
-                        if (InnerException != null) // the method threw an exeption
+                        if (InnerException is { }) // the method threw an exeption
                         {
                             throw new AggregateException("AsyncHelpers.Run method threw an exception.", InnerException);
                         }

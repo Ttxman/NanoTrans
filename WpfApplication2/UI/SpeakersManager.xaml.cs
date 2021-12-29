@@ -50,7 +50,7 @@ namespace NanoTrans
     public partial class SpeakersManager : Window, INotifyPropertyChanged
     {
 
-        private void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName]string caller = null)
+        private void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string caller = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(caller));
         }
@@ -82,12 +82,12 @@ namespace NanoTrans
             SpeakerProvider = new SpeakerManagerViewModel(new SpeakerCollection(documentSpeakers.Concat(transcription.EnumerateParagraphs().Select(p => p.Speaker)).Where(s => s != Speaker.DefaultSpeaker).Distinct()), localSpeakers, transcription.Api, this);
 
             var ss = SpeakerProvider.GetContainerForSpeaker(originalSpeaker);
-            if (ss != null)
+            if (ss is { })
                 ss.Marked = true;
             SpeakersBox.SelectedValue = ss;
             SpeakersBox.ScrollIntoView(SpeakersBox.SelectedItem);
 
-            if (_transcription.Api != null)
+            if (_transcription.Api is { })
             {
                 SpeakerProvider.ShowLocal = false;
                 SpeakerProvider.ShowOnline = true;
@@ -183,7 +183,7 @@ namespace NanoTrans
         private void ButtonOK_Click(object sender, RoutedEventArgs e)
         {
 
-            if (SelectedSpeakerContainer != null)
+            if (SelectedSpeakerContainer is { })
             {
                 if (CheckChanges(SelectedSpeakerContainer) == MessageBoxResult.Cancel)
                     return;
@@ -252,11 +252,8 @@ namespace NanoTrans
                     {
                         foreach (var s in speakers)
                         {
-                            if (_documentSpeakers != null)
-                                _documentSpeakers.RemoveSpeaker(s);
-                            if (_localSpeakers != null)
-                                _localSpeakers.RemoveSpeaker(s);
-
+                            _documentSpeakers?.RemoveSpeaker(s);
+                            _localSpeakers?.RemoveSpeaker(s);
 
                             SpeakerProvider.DeleteSpeaker(s);
                         }
@@ -285,7 +282,7 @@ namespace NanoTrans
         {
             get
             {
-                return NewSpeaker == null;
+                return NewSpeaker is null;
             }
 
         }
@@ -399,16 +396,9 @@ namespace NanoTrans
                 }
             }
 
-            if (SpeakersBox.SelectedItem == null)
-            {
-                SelectedSpeaker = null;
-                SelectedSpeakerContainer = null;
-            }
-            else
-            {
-                SelectedSpeakerContainer = (SpeakerContainer)SpeakersBox.SelectedItem;
-                SelectedSpeaker = SelectedSpeakerContainer.Speaker;
-            }
+
+            SelectedSpeakerContainer = SpeakersBox.SelectedItem as SpeakerContainer;
+            SelectedSpeaker = SelectedSpeakerContainer?.Speaker;
         }
 
         private MessageBoxResult CheckChanges(SpeakerContainer sc)
@@ -424,9 +414,8 @@ namespace NanoTrans
             {
                 bool saved = AsyncHelpers.RunSync(() => TrySaveSpeaker(sc));
                 if (!saved)
-                {
                     result = MessageBoxResult.No;
-                }else
+                else
                     return MessageBoxResult.Yes;
             }
 
@@ -454,7 +443,7 @@ namespace NanoTrans
         bool preventDoublecheck = false;
         private void manager_Closing(object sender, CancelEventArgs e)
         {
-            if (SelectedSpeakerContainer != null)
+            if (SelectedSpeakerContainer is { })
             {
                 if (CheckChanges(SelectedSpeakerContainer) == MessageBoxResult.Cancel)
                 {
@@ -523,8 +512,7 @@ namespace NanoTrans
 
                 using (var wc = new WaitCursor())
                 {
-                    ApiSynchronizedSpeaker ss = spk.Speaker as ApiSynchronizedSpeaker;
-                    if (ss == null)
+                    if (spk.Speaker is not ApiSynchronizedSpeaker ss)
                         return false;
                     if (ss.IsSaved)
                         return await _transcription.Api.UpdateSpeaker(ss);
@@ -576,9 +564,9 @@ namespace NanoTrans
 
         private void ButtonOKAll_Click(object sender, RoutedEventArgs e)
         {
-            if (SpeakersBox.SelectedValue != null)
+            if (SpeakersBox.SelectedValue is { })
             {
-                if (SelectedSpeakerContainer != null)
+                if (SelectedSpeakerContainer is { })
                 {
                     if (CheckChanges(SelectedSpeakerContainer) == MessageBoxResult.Cancel)
                     {

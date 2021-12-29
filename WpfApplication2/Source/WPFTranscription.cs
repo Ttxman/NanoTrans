@@ -35,33 +35,34 @@ namespace NanoTrans
         {
             //on some remote data storage this can be more effective than lot of small direct reads by XMLTextReader
             #region copy stream to internal buffer
-            
-            byte[] bfr = new byte[32*1024];
+
+            byte[] bfr = new byte[32 * 1024];
             int read = 0;
 
-            int initsize = 500*1024;
+            int initsize = 500 * 1024;
             MemoryStream bufferStream;
             try
             {
                 initsize = (int)stream.Length;
-            }finally
+            }
+            finally
             {
                 bufferStream = new MemoryStream(initsize);
             }
 
-            while((read = stream.Read(bfr,0,bfr.Length)) > 0)
-                bufferStream.Write(bfr,0,read);
-            
+            while ((read = stream.Read(bfr, 0, bfr.Length)) > 0)
+                bufferStream.Write(bfr, 0, read);
+
             bufferStream.Seek(0, SeekOrigin.Begin);
 
             #endregion
 
 #if DEBUG
             #region validation
-            
+
             XmlSchemaSet schemas = new XmlSchemaSet();
             XNamespace xNamespace = XNamespace.Get("http://www.ite.tul.cz/TRSXSchema3.xsd");
-            using (var s = File.Open(FilePaths.TrsxSchemaPath,FileMode.Open,FileAccess.Read,FileShare.Read))
+            using (var s = File.Open(FilePaths.TrsxSchemaPath, FileMode.Open, FileAccess.Read, FileShare.Read))
                 schemas.Add(null, XmlReader.Create(s));
 
             XDocument doc = XDocument.Load(bufferStream);
@@ -74,8 +75,8 @@ namespace NanoTrans
                 xElement.Name = xNamespace + xElement.Name.LocalName;
             }
 
-            
-            doc.Validate(schemas, (o,e) => 
+
+            doc.Validate(schemas, (o, e) =>
             {
                 System.Diagnostics.Debug.WriteLine(string.Format("{0}", e.Message));
             });
@@ -117,7 +118,7 @@ namespace NanoTrans
 
             Saved = false;
 
-            if (actions == null || actions.Length <= 0)
+            if (actions is null || actions.Length <= 0)
             {
                 CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset, null, -1));
                 return true;
@@ -126,14 +127,14 @@ namespace NanoTrans
             if (!_undoing)
             {
                 _UndoStack.Add(actions);
-                if(!_redoing)
+                if (!_redoing)
                     _RedoStack.Clear();
             }
             else
                 _RedoStack.Add(actions);
 
             actions = actions.Where(a => a.ChangeType != ChangeType.Modify && a.ChangedElement.GetType() != typeof(TranscriptionPhrase)).ToArray();
-            if (CollectionChanged != null && actions.Length > 0)
+            if (CollectionChanged is { } && actions.Length > 0)
             {
                 var ev = MapEvent(actions[0].ChangeType);
                 if (actions.Length > 5 || ev == NotifyCollectionChangedAction.Reset)
@@ -143,10 +144,7 @@ namespace NanoTrans
                 else
                 {
                     foreach (var a in actions)
-                    {
                         CollectionChanged(this, new NotifyCollectionChangedEventArgs(MapEvent(a.ChangeType), a.ChangedElement, a.ChangeAbsoluteIndex));
-                    }
-                    
                 }
             }
 
@@ -173,9 +171,9 @@ namespace NanoTrans
             {
                 _undoing = true;
                 BeginUpdate();
-                var act = _UndoStack[_UndoStack.Count-1];
+                var act = _UndoStack[_UndoStack.Count - 1];
                 _UndoStack.RemoveAt(_UndoStack.Count - 1);
-                for (int i = act.Length-1; i >=0; i--)
+                for (int i = act.Length - 1; i >= 0; i--)
                 {
                     act[i].Revert(this);
                 }
@@ -193,7 +191,7 @@ namespace NanoTrans
                 _redoing = true;
                 BeginUpdate();
 
-                var act = _RedoStack[_RedoStack.Count-1];
+                var act = _RedoStack[_RedoStack.Count - 1];
                 _RedoStack.RemoveAt(_RedoStack.Count - 1);
                 for (int i = act.Length - 1; i >= 0; i--)
                 {
@@ -220,8 +218,8 @@ namespace NanoTrans
                     return NotifyCollectionChangedAction.Add;
                 case ChangeType.Remove:
                     return NotifyCollectionChangedAction.Remove;
-                //case ChangeType.Replace: //notify does not support replace
-                //    return NotifyCollectionChangedAction.Replace;
+                    //case ChangeType.Replace: //notify does not support replace
+                    //    return NotifyCollectionChangedAction.Replace;
             }
 
             return NotifyCollectionChangedAction.Reset;
@@ -258,11 +256,10 @@ namespace NanoTrans
             }
             set
             {
-                if (value == null)
+                if (value is null)
                 {
                     var elm = Meta.Element("OnlineInfo");
-                    if (elm != null)
-                        elm.Remove();
+                    elm?.Remove();
                 }
                 Meta.SetElementValue("OnlineInfo", JObject.FromObject(value).ToString());
             }

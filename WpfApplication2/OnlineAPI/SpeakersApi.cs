@@ -176,9 +176,9 @@ namespace NanoTrans.OnlineAPI
             data.Remove("id");
             var resp = await PostAsync(apiurl, data);
             string json = await (resp).Content.ReadAsStringAsync();
-            var jo = (JObject)JObject.Parse(json);
+            var jo = JObject.Parse(json);
 
-            if (jo["id"] == null)
+            if (jo["id"] is null)
             {
                 MessageBox.Show("save faled", "Update Failed", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
@@ -285,12 +285,12 @@ namespace NanoTrans.OnlineAPI
         {
 
             var owner = Application.Current.MainWindow;
-            if (Info == null)
+            if (Info is null)
                 await this.LoadInfo();
 
             if (Info.API2)
             {
-                if (this is OnlineAPI.SpeakersApi2)
+                if (this is SpeakersApi2)
                     await DownloadTranscription();
                 return true;
             }
@@ -307,12 +307,12 @@ namespace NanoTrans.OnlineAPI
             string json = await _client.GetStringAsync(Url);
             _info = JsonConvert.DeserializeObject<OnlineTranscriptionInfo>(json);
 
-            if (_info.TrsxDownloadURL == null)
+            if (_info.TrsxDownloadURL is null)
             {
                 var data = JObject.Parse(json);
-                if (data["result"] != null) //API2 .. i should separate them better
+                if (data["result"] is { } dres) //API2 .. i should separate them better
                 {
-                    _info = JsonConvert.DeserializeObject<OnlineTranscriptionInfo>(data["result"].ToString());
+                    _info = JsonConvert.DeserializeObject<OnlineTranscriptionInfo>(dres.ToString());
                     _info.API2 = true;
                 }
             }
@@ -339,7 +339,7 @@ namespace NanoTrans.OnlineAPI
 
         private void CheckForErrors(JObject resultJson)
         {
-            if (resultJson["valid"] == null || !resultJson["valid"].ToObject<bool>())
+            if (resultJson["valid"] is { } valid && !valid.ToObject<bool>())
             {
                 throw new ApiException(resultJson.ToString());
             }

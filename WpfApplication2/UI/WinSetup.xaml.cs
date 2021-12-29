@@ -48,25 +48,20 @@ namespace NanoTrans
             //audio
             cbOutputAudioDevices.Items.Clear();
             string[] devices = DXWavePlayer.DeviceNamesOUT;
-            if (devices != null)
-            {
-                foreach (string s in devices)
-                {
-                    cbOutputAudioDevices.Items.Add(s);
-                }
-            }
+
+            foreach (string s in devices)
+                cbOutputAudioDevices.Items.Add(s);
+
             if (Settings.OutputDeviceIndex < cbOutputAudioDevices.Items.Count) cbOutputAudioDevices.SelectedIndex = Settings.OutputDeviceIndex;
 
 
             string path = Settings.SpeakersDatabasePath;
             try
             {
-                if (!path.Contains(":")) //absolute
-                {
+                if (!Path.IsPathRooted(path)) //absolute
                     path = Settings.SpeakersDatabasePath;
-                }
-                path = new FileInfo(path).FullName;
 
+                path = new FileInfo(path).FullName;
             }
             finally
             {
@@ -90,24 +85,22 @@ namespace NanoTrans
             if (val >= UpDownJump.Minimum.Value && val <= UpDownJump.Maximum.Value)
                 UpDownJump.Value = val;
 
-            if (AvailableCultures != null && AvailableCultures.Length <= 1)
+            if (AvailableCultures is { } && AvailableCultures.Length <= 1)
             {
                 int index = AvailableCultures.Select((c, i) => new { c, i }).FirstOrDefault(p => p.c.DisplayName == LocalizeDictionary.Instance.Culture.DisplayName).i;
-                LocalizationSelection.SelectedItem = preselectionCulture = AvailableCultures[index];
+                LocalizationSelection.SelectedItem = AvailableCultures[index];
             }
             else
-                LocalizationBox.Visibility = System.Windows.Visibility.Collapsed;
+                LocalizationBox.Visibility = Visibility.Collapsed;
 
         }
 
-        private readonly CultureInfo preselectionCulture = LocalizeDictionary.Instance.Culture;
-
-        static CultureInfo[] _AvailableCultures = null;
+        static CultureInfo[]? _AvailableCultures = null;
         public static CultureInfo[] AvailableCultures
         {
             get
             {
-                if (_AvailableCultures == null)
+                if (_AvailableCultures is null)
                 {
                     var programLocation = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
                     var asname = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name;
@@ -123,9 +116,9 @@ namespace NanoTrans
 
         private void LocalizationSelection_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (LocalizationSelection.SelectedItem != null)
+            if (LocalizationSelection.SelectedItem is CultureInfo cnfo)
             {
-                LocalizeDictionary.Instance.Culture = (CultureInfo)LocalizationSelection.SelectedItem;
+                LocalizeDictionary.Instance.Culture = cnfo;
                 Settings.Locale = LocalizeDictionary.Instance.Culture.IetfLanguageTag;
 
             }
@@ -160,15 +153,16 @@ namespace NanoTrans
 
         private void ButtonLoadSpeakersDatabase_Click(object sender, RoutedEventArgs e)
         {
-            var fileDialog = new Microsoft.Win32.SaveFileDialog();
+            var fileDialog = new SaveFileDialog();
             fileDialog.OverwritePrompt = false;
             fileDialog.Title = Properties.Strings.FileDialogLoadSpeakersDatabaseTitle;
             fileDialog.Filter = string.Format(Properties.Strings.FileDialogLoadSpeakersDatabaseFilter, "*.xml", "*.xml");
 
             FileInfo fi = new FileInfo(Settings.SpeakersDatabasePath);
-            if (fi != null && fi.Directory.Exists)
+            if (fi.Directory.Exists)
                 fileDialog.InitialDirectory = fi.DirectoryName;
-            else fileDialog.InitialDirectory = FilePaths.DefaultDirectory;
+            else
+                fileDialog.InitialDirectory = FilePaths.DefaultDirectory;
 
             fileDialog.FilterIndex = 1;
 
@@ -194,10 +188,8 @@ namespace NanoTrans
         {
             string URL = ConfigurationManager.AppSettings["OODictionarySource"];
             Stream s = DownloadOneFileWindow.DownloadFile(URL);
-            if (s == null)
-            {
-                MessageBox.Show(this, Properties.Strings.MessageBoxDictionaryDownloadError, Properties.Strings.MessageBoxDictionaryDownloadErrorCaption, MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
+            if (s is null)
+                MessageBox.Show(this, Strings.MessageBoxDictionaryDownloadError, Strings.MessageBoxDictionaryDownloadErrorCaption, MessageBoxButton.OK, MessageBoxImage.Warning);
             else
                 GetDictionaryFromZip(s);
         }
@@ -230,12 +222,12 @@ namespace NanoTrans
                 var aff = entry[0];
                 var dic = zf.GetEntry(Path.GetFileNameWithoutExtension(aff.Name) + ".dic");
 
-                if (dic != null)
+                if (dic is { })
                 {
                     if (MessageBox.Show(this, string.Format(Properties.Strings.MessageBoxDictionaryConfirmLoad, Path.GetFileNameWithoutExtension(aff.Name)), Properties.Strings.MessageBoxQuestionCaption, MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK)
                     {
                         var readme = zf.Cast<ZipEntry>().Where(en => en.Name.ToLower().Contains("readme")).FirstOrDefault();
-                        if (readme != null)
+                        if (readme is { })
                         {
                             string ss = new StreamReader(zf.GetInputStream(readme)).ReadToEnd();
 
@@ -275,16 +267,16 @@ namespace NanoTrans
 
     public class CollapseOnNullConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter,
-               System.Globalization.CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value == null)
-                return System.Windows.Visibility.Collapsed;
-            else
-                return System.Windows.Visibility.Visible;
+            return value switch
+            {
+                null => Visibility.Collapsed,
+                _ => Visibility.Visible
+            };
         }
-        public object ConvertBack(object value, Type targetType, object parameter,
-               System.Globalization.CultureInfo culture)
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotSupportedException("unexpected Convertback");
         }
@@ -292,16 +284,15 @@ namespace NanoTrans
 
     public class CollapseOnNotNullConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter,
-               System.Globalization.CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value != null)
-                return System.Windows.Visibility.Collapsed;
-            else
-                return System.Windows.Visibility.Visible;
+            return value switch
+            {
+                { } => Visibility.Collapsed,
+                _ => Visibility.Visible
+            };
         }
-        public object ConvertBack(object value, Type targetType, object parameter,
-               System.Globalization.CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotSupportedException("unexpected Convertback");
         }

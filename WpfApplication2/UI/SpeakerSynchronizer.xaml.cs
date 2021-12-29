@@ -48,8 +48,8 @@ namespace NanoTrans
             //Join speakers from document with speakers from localDB by fullname and order pairs
             var first = _pairs
                 .Join(_speakersDatabase, p => p.Speaker1.Speaker.FullName.ToLower(), s => s.FullName.ToLower(), (sp, s) => new { document = sp, local = s })
-                .GroupBy(s=>s.document)
-                .Select(g=>g.First())
+                .GroupBy(s => s.document)
+                .Select(g => g.First())
                 .OrderBy(s => s.local.Surname)
                 .ThenBy(s => s.local.FirstName)
                 .ThenBy(s => s.local.MiddleName);
@@ -80,9 +80,7 @@ namespace NanoTrans
 
         private void SpeakerSmall_MouseMove(object sender, MouseEventArgs e)
         {
-            var ss = sender as SpeakerSmall;
-
-            if (ss != null && e.LeftButton == MouseButtonState.Pressed)
+            if (sender is SpeakerSmall ss && e.LeftButton == MouseButtonState.Pressed)
             {
                 DragDrop.DoDragDrop(ss, ss.SpeakerContainer, DragDropEffects.Copy);
             }
@@ -90,7 +88,7 @@ namespace NanoTrans
 
         private void SpeakerSmall_Drop(object sender, DragEventArgs e)
         {
-            if (sender != null && e.AllowedEffects.HasFlag(DragDropEffects.Copy) && e.Data.GetData(typeof(SpeakerContainer)) != null)
+            if (sender is { } && e.AllowedEffects.HasFlag(DragDropEffects.Copy) && e.Data.GetData(typeof(SpeakerContainer)) != null)
             {
                 SpeakerSmall ss = (sender as UIElement).VisualFindChild<SpeakerSmall>();
                 e.Effects = DragDropEffects.Copy;
@@ -102,7 +100,7 @@ namespace NanoTrans
 
         private void SpeakerSmall_DragOver(object sender, DragEventArgs e)
         {
-            if (e.AllowedEffects.HasFlag(DragDropEffects.Copy) && e.Data.GetData(typeof(SpeakerContainer)) != null)
+            if (e.AllowedEffects.HasFlag(DragDropEffects.Copy) && e.Data.GetData(typeof(SpeakerContainer)) is { })
             {
                 e.Effects = DragDropEffects.Copy;
             }
@@ -115,21 +113,18 @@ namespace NanoTrans
 
         private void SpeakerSmall_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            var ss = sender as SpeakerSmall;
-            if (sender != null && e.ChangedButton == MouseButton.Left)
-            {
+            if (sender is SpeakerSmall ss && e.ChangedButton == MouseButton.Left)
                 speakerControl.SpeakerContainer = ss.SpeakerContainer;
-            }
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            var cleardicts = _pairs.Where(p => p.Speaker2 == null).Count();
+            var cleardicts = _pairs.Where(p => p.Speaker2 is null).Count();
             if (cleardicts > 0)
             {
                 if (MessageBox.Show("Chcete v lokální databázi vytvořit nové položky pro všechny nepřiřazené mluvčí?", "automatické vytváření mluvčích", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                 {
-                    foreach (var p in _pairs.Where(pa => pa.Speaker2 == null))
+                    foreach (var p in _pairs.Where(pa => pa.Speaker2 is null))
                     {
                         var n = new SpeakerContainer(p.Speaker1.Speaker.Copy());
                         n.Speaker.DataBaseType = DBType.User;
@@ -139,7 +134,7 @@ namespace NanoTrans
                 }
             }
 
-            var pairdict = _pairs.Where(p => p.Speaker2 != null).ToDictionary(p => p.Speaker1.Speaker, p => (p.Speaker2 == null) ? null : p.Speaker2.Speaker);
+            var pairdict = _pairs.Where(p => p.Speaker2 is { }).ToDictionary(p => p.Speaker1.Speaker, p => p.Speaker2?.Speaker);
             _transcription.BeginUpdate();
             foreach (var par in _transcription.EnumerateParagraphs())
             {
@@ -155,12 +150,12 @@ namespace NanoTrans
             this.DialogResult = true;
             Close();
 
-           
+
         }
 
         private void MenuItemClearPairing_Click(object sender, RoutedEventArgs e)
         {
-            if (listdocument.SelectedValue != null)
+            if (listdocument.SelectedValue is { })
             {
                 ((SpeakerPair)listdocument.SelectedValue).Speaker2 = null;
             }
@@ -238,8 +233,9 @@ namespace NanoTrans
         public object Convert(object value, Type targetType,
             object parameter, CultureInfo culture)
         {
-            if (value == null)
+            if (value is null)
                 return null;
+
             if (value is Speaker)
                 return new SpeakerContainer(value as Speaker);
 
@@ -250,8 +246,8 @@ namespace NanoTrans
         public object ConvertBack(object value, Type targetType,
             object parameter, CultureInfo culture)
         {
-            if (value is SpeakerContainer)
-                return ((SpeakerContainer)value).Speaker;
+            if (value is SpeakerContainer container)
+                return container.Speaker;
 
             throw new ArgumentException();
         }
@@ -261,7 +257,7 @@ namespace NanoTrans
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return value == null ? Visibility.Collapsed : Visibility.Visible;
+            return value is null ? Visibility.Collapsed : Visibility.Visible;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

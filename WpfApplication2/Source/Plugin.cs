@@ -88,7 +88,7 @@ namespace NanoTrans
 
         public WPFTranscription ExecuteImport(string sourcefile = null)
         {
-            if (sourcefile == null)
+            if (sourcefile is null)
             {
                 OpenFileDialog opf = new OpenFileDialog();
                 opf.CheckFileExists = true;
@@ -153,7 +153,7 @@ namespace NanoTrans
 
         public void ExecuteExport(Transcription data, string destfile = null)
         {
-            if (destfile == null)
+            if (destfile is null)
             {
                 SaveFileDialog sf = new SaveFileDialog();
 

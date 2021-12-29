@@ -46,7 +46,7 @@ namespace NanoTrans
     public partial class Window1 : Window, System.ComponentModel.INotifyPropertyChanged
     {
 
-        private void OnPropertyChanged([CallerMemberName]string caller = null)
+        private void OnPropertyChanged([CallerMemberName] string caller = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(caller));
         }
@@ -117,10 +117,10 @@ namespace NanoTrans
             get { return _transcription; }
             set
             {
-                if (_transcription != null)
+                if (_transcription is { })
                     _transcription.ContentChanged -= _transcription_ContentChanged;
                 _transcription = value;
-                if (_transcription != null)
+                if (_transcription is { })
                     _transcription.ContentChanged += _transcription_ContentChanged;
                 OnPropertyChanged();
 
@@ -129,7 +129,7 @@ namespace NanoTrans
 
         void _transcription_ContentChanged(object sender, TranscriptionElement.TranscriptionElementChangedEventArgs e)
         {
-            if (e.ActionsTaken.Any(a => !(a.ChangedElement is TranscriptionPhrase)))
+            if (e.ActionsTaken.Any(a => a.ChangedElement is not TranscriptionPhrase))
                 waveform1.InvalidateSpeakers();
         }
 
@@ -178,12 +178,12 @@ namespace NanoTrans
 
                 if (value)
                 {
-                    if (MWP == null)
+                    if (MWP is null)
                         InitializeAudioPlayer();
                 }
                 else
                 {
-                    if (MWP != null)
+                    if (MWP is { })
                         MWP.Pause();
                 }
 
@@ -286,26 +286,19 @@ namespace NanoTrans
             }
 
             //set window position, size and state
-            if (Settings.Default.WindowsPosition != null)
+            if (Settings.Default.WindowsPosition.X >= 0 && Settings.Default.WindowsPosition.Y >= 0)
             {
-                if (Settings.Default.WindowsPosition.X >= 0 && Settings.Default.WindowsPosition.Y >= 0)
-                {
-                    this.WindowStartupLocation = WindowStartupLocation.Manual;
-                    this.Left = Settings.Default.WindowsPosition.X;
-                    this.Top = Settings.Default.WindowsPosition.Y;
-                }
+                this.WindowStartupLocation = WindowStartupLocation.Manual;
+                this.Left = Settings.Default.WindowsPosition.X;
+                this.Top = Settings.Default.WindowsPosition.Y;
             }
-            if (Settings.Default.WindowSize != null)
+            if (Settings.Default.WindowSize.Width >= 50 && Settings.Default.WindowSize.Height >= 50)
             {
-                if (Settings.Default.WindowSize.Width >= 50 && Settings.Default.WindowSize.Height >= 50)
-                {
-                    this.Width = Settings.Default.WindowSize.Width;
-                    this.Height = Settings.Default.WindowSize.Height;
-                }
+                this.Width = Settings.Default.WindowSize.Width;
+                this.Height = Settings.Default.WindowSize.Height;
             }
 
             this.WindowState = Settings.Default.WindowState;
-
         }
 
         private void menuItemWave1_SetStartToCursor_Click(object sender, RoutedEventArgs e)
@@ -320,7 +313,7 @@ namespace NanoTrans
             TimeSpan delta = waveform1.CaretPosition - te.Begin;
 
 
-            while (te != null)
+            while (te is { })
             {
                 te.Begin += delta;
                 te.End += delta;
@@ -328,7 +321,7 @@ namespace NanoTrans
                 te = te.Next();
             }
             te = VirtualizingListBox.ActiveElement.ValueElement;
-            if (pre != null && pre.End == te.Begin - delta && pre.IsParagraph && te.IsParagraph)
+            if (pre is { } && pre.End == te.Begin - delta && pre.IsParagraph && te.IsParagraph)
                 pre.End += delta;
 
             waveform1.InvalidateSpeakers();
@@ -336,30 +329,28 @@ namespace NanoTrans
 
         private void menuItemX9_substract50msClick(object sender, RoutedEventArgs e)
         {
-            TranscriptionElement te = VirtualizingListBox.ActiveElement.ValueElement;
+            if (VirtualizingListBox.ActiveElement.ValueElement is not TranscriptionElement ve)
+                return;
             TimeSpan ms50 = TimeSpan.Zero - TimeSpan.FromMilliseconds(50);
-            while (te != null)
+            foreach (var te in ve.EnumerateNext())
             {
                 te.Begin += ms50;
                 te.End += ms50;
-
-                te = te.Next();
             }
 
             waveform1.InvalidateSpeakers();
-
         }
 
         private void menuItemX8_add50msClick(object sender, RoutedEventArgs e)
         {
-            TranscriptionElement te = VirtualizingListBox.ActiveElement.ValueElement;
+            if (VirtualizingListBox.ActiveElement.ValueElement is not TranscriptionElement ve)
+                return;
+
             TimeSpan ms50 = TimeSpan.FromMilliseconds(50);
-            while (te != null)
+            foreach (var te in ve.EnumerateNext())
             {
                 te.Begin += ms50;
                 te.End += ms50;
-
-                te = te.Next();
             }
             waveform1.InvalidateSpeakers();
         }
@@ -367,39 +358,40 @@ namespace NanoTrans
         short[] ReadAudioDataFromWaveform(out int beginMS)
         {
             beginMS = -1;
-            if (MWP != null)
+            if (MWP is null)
+                return Array.Empty<short>();
+
+            if (_playing && _WavReader.Loaded)
             {
-                if (_playing && _WavReader.Loaded)
+                TimeSpan limitEndMS = new TimeSpan(-1);
+                if (PlayingSelection)
                 {
-                    TimeSpan limitEndMS = new TimeSpan(-1);
-                    if (PlayingSelection)
-                    {
-                        limitEndMS = waveform1.SelectionEnd;
-                    }
-
-
-                    if (MWP.PlayPosition >= _WavReader.FileLength)
-                    {
-                        if (!PlayingSelection)
-                        {
-                            Playing = false;
-                            SetCaretPosition(_WavReader.FileLength);
-                            PlaybackBufferIndex = 0;
-                        }
-                        else
-                        {
-                            PlaybackBufferIndex = (int)waveform1.SelectionBegin.TotalMilliseconds;
-                        }
-                    }
-
-                    short[] bfr = waveform1.GetAudioData(TimeSpan.FromMilliseconds(PlaybackBufferIndex), TimeSpan.FromMilliseconds(150), limitEndMS);
-                    beginMS = PlaybackBufferIndex;
-                    PlaybackBufferIndex += 150;
-
-                    return bfr;
+                    limitEndMS = waveform1.SelectionEnd;
                 }
+
+
+                if (MWP.PlayPosition >= _WavReader.FileLength)
+                {
+                    if (!PlayingSelection)
+                    {
+                        Playing = false;
+                        SetCaretPosition(_WavReader.FileLength);
+                        PlaybackBufferIndex = 0;
+                    }
+                    else
+                    {
+                        PlaybackBufferIndex = (int)waveform1.SelectionBegin.TotalMilliseconds;
+                    }
+                }
+
+                short[] bfr = waveform1.GetAudioData(TimeSpan.FromMilliseconds(PlaybackBufferIndex), TimeSpan.FromMilliseconds(150), limitEndMS);
+                beginMS = PlaybackBufferIndex;
+                PlaybackBufferIndex += 150;
+
+                return bfr;
             }
-            return new short[0];
+
+            return Array.Empty<short>();
         }
 
         private void oWav_ReportConversionProgress(object sender, EventArgs e)
@@ -410,7 +402,7 @@ namespace NanoTrans
 
         private void oWav_TemporaryWavesDone(object sender, EventArgs e)
         {
-            waveform1.Dispatcher.Invoke(new Action(delegate()
+            waveform1.Dispatcher.Invoke(new Action(delegate ()
             {
                 waveform1.AutomaticProgressHighlight = true;
             }));
@@ -556,8 +548,7 @@ namespace NanoTrans
                     return;//cancel
 
 
-                if (Transcription == null)
-                    Transcription = new WPFTranscription();
+                Transcription ??= new WPFTranscription();
 
                 bool loadedsucessfuly = false;
 
@@ -648,7 +639,7 @@ namespace NanoTrans
             }
 
 
-            if (trans != null)
+            if (trans is { })
             {
 
                 if (trans.IsOnline)
@@ -729,12 +720,12 @@ namespace NanoTrans
 
         private void TryLoadVideoFile()
         {
-            if (Transcription.VideoFileName != null && Transcription.FileName != null)
+            if (Transcription.VideoFileName is { } && Transcription.FileName is { })
             {
                 FileInfo fi = new FileInfo(Transcription.FileName);
                 string pVideoFile = fi.Directory.FullName + "\\" + Transcription.VideoFileName;
                 FileInfo fi2 = new FileInfo(pVideoFile);
-                if (fi2.Exists && (meVideo.Source == null || meVideo.Source.AbsolutePath.ToUpper() != pVideoFile.ToUpper()))
+                if (fi2.Exists && (meVideo.Source is null || meVideo.Source.AbsolutePath.ToUpper() != pVideoFile.ToUpper()))
                 {
                     LoadVideo(pVideoFile);
                 }
@@ -747,7 +738,7 @@ namespace NanoTrans
             {
                 await LoadAudioOnline();
             }
-            else if (!string.IsNullOrEmpty(Transcription.MediaURI) && Transcription.FileName != null)
+            else if (!string.IsNullOrEmpty(Transcription.MediaURI) && Transcription.FileName is { })
             {
                 FileInfo fiA = new FileInfo(Transcription.MediaURI);
                 string pAudioFile = fiA.FullName;
@@ -770,7 +761,7 @@ namespace NanoTrans
         /// <returns>true when save was sucessful; false when user cancels or on error when saving</returns>
         private async Task<bool> TrySaveUnsavedChanges()
         {
-            if (Transcription == null || Transcription.Saved || (Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift)
+            if (Transcription is null || Transcription.Saved || (Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift)
                 return true;
 
             MessageBoxResult mbr = MessageBox.Show(Properties.Strings.MessageBoxSaveBeforeClosing, Properties.Strings.MessageBoxQuestionCaption, MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
@@ -779,7 +770,7 @@ namespace NanoTrans
                 return false;
 
             if (mbr == MessageBoxResult.Yes)
-                if (!await SaveTranscription(string.IsNullOrWhiteSpace(Transcription.FileName), Transcription.FileName))
+                if (!await SaveTranscription(string.IsNullOrWhiteSpace(Transcription.FileName)))
                     return false;//error during save
 
             return true;
@@ -797,8 +788,7 @@ namespace NanoTrans
 
             foreach (Speaker i in Transcription.Speakers)
             {
-                Speaker ss = SpeakersDatabase.SynchronizeSpeaker(i);
-                if (ss != null)
+                if (SpeakersDatabase.SynchronizeSpeaker(i) is { } ss)
                 {
                     if (i.PinnedToDocument)//pin to this document
                         ss.PinnedToDocument = true;
@@ -820,7 +810,7 @@ namespace NanoTrans
                 Transcription.Speakers.Add(item);
         }
 
-        public async Task<bool> SaveTranscription(bool useSaveDialog, string jmenoSouboru)
+        public async Task<bool> SaveTranscription(bool useSaveDialog)
         {
             try
             {
@@ -917,7 +907,7 @@ namespace NanoTrans
             long delta = (long)waveform1.WaveLength.TotalMilliseconds; //waveform length in ms
 
             TimeSpan playpos = waveform1.CaretPosition;
-            if (_playing && MWP != null)
+            if (_playing && MWP is { })
             {
                 playpos = MWP.PlayPosition;
                 if (PlayingSelection && playpos < waveform1.SelectionBegin)
@@ -953,8 +943,7 @@ namespace NanoTrans
                     playpos = waveform1.CaretPosition;
 
                     Playing = true;
-                    if (MWP != null)
-                        MWP.Play(MWP.PlaySpeed);
+                    MWP?.Play(MWP.PlaySpeed);
 
                 }
                 else
@@ -1145,11 +1134,7 @@ namespace NanoTrans
         {
             try
             {
-                if (MWP != null)
-                {
-                    MWP.Dispose();
-                    MWP = null;
-                }
+                MWP?.Dispose();
                 MWP = new DXWavePlayer(Settings.Default.OutputDeviceIndex, 4800, ReadAudioDataFromWaveform);
                 return true;
             }
@@ -1267,8 +1252,7 @@ namespace NanoTrans
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (Pedalthread != null)
-                Pedalthread.Abort();
+            Pedalthread?.Abort();
 
             var res = AsyncHelpers.RunSync(() => TrySaveUnsavedChanges());
 
@@ -1288,21 +1272,17 @@ namespace NanoTrans
                     catch { };
             }
 
-            if (MWP != null)
-            {
-                MWP.Dispose();
-                MWP = null;
-            }
+            MWP?.Dispose();
+            MWP = null;
 
 
             _WavReader.Stop();
 
-            if (_api != null)
-                _api.Cancel();
+            _api?.Cancel();
 
             FilePaths.DeleteTemp();
 
-            if (PedalProcess != null && !PedalProcess.HasExited)
+            if (PedalProcess is { } && !PedalProcess.HasExited)
                 PedalProcess.Kill();
 
 
@@ -1316,7 +1296,7 @@ namespace NanoTrans
 
         private bool TrySaveSpeakersDatabase()
         {
-            if (SpeakersDatabase != null && Settings.Default.FeatureEnabler.LocalSpeakers)
+            if (SpeakersDatabase is { } && Settings.Default.FeatureEnabler.LocalSpeakers)
             {
 
                 try
@@ -1392,11 +1372,12 @@ namespace NanoTrans
             {
                 //asynchronous spellcecking vocabluary load
                 Thread t = new Thread(
-                    delegate()
+                    delegate ()
                     {
                         SpellChecker.LoadVocabulary();
                     }
-                    ) { Name = "Spellchecking_Load" };
+                    )
+                { Name = "Spellchecking_Load" };
                 t.Start();
 
             }
@@ -1421,7 +1402,7 @@ namespace NanoTrans
             string path = null;
             bool import = false;
             bool online = false;
-            if (App.Startup_ARGS != null && App.Startup_ARGS.Length > 0)
+            if (App.Startup_ARGS.Length > 0)
             {
                 if (App.Startup_ARGS[0] == "-i")
                 {
@@ -1437,7 +1418,7 @@ namespace NanoTrans
                     path = App.Startup_ARGS[0];
             }
 
-            if (path == null)
+            if (path is null)
             {
                 await NewTranscription();
             }
@@ -1463,29 +1444,12 @@ namespace NanoTrans
                 else
                 {
                     await OpenTranscription(false, path);
-#if MINIMAL
-                    Transcription.MediaURI = @"http://demo.ite.tul.cz/audio_cro/51b5752ca802563ad80020d1.mp4";
-                    _api = new SpeakersApi2("https://demo.ite.tul.cz/speechlab/cro_1968_1988_trsx07/api/speakers?", this);
-                    _api.Info = new OnlineTranscriptionInfo()
-                    {
-                        TrsxUploadURL = new Uri("https://demo.ite.tul.cz/speechlab/cro_1968_1988_trsx07/api/speakers"),
-                        SpeakerAPI_URL = new Uri("https://demo.ite.tul.cz/speechlab/cro_1968_1988_trsx07/api/speakers"),
-
-                    };                    
-
-                    _api.LoadTranscription(Transcription);
-
-                    await _api.UpdateTranscriptionSpeakers();
-                    LoadOnlineSetting();
-
-
-#endif
                 }
             }
 
-            VirtualizingListBox.RequestTimePosition += delegate(out TimeSpan value) { value = waveform1.CaretPosition; };
-            VirtualizingListBox.RequestPlaying += delegate(out bool value) { value = Playing; };
-            VirtualizingListBox.RequestPlayPause += delegate() { CommandPlayPause.Execute(null, null); };
+            VirtualizingListBox.RequestTimePosition += delegate (out TimeSpan value) { value = waveform1.CaretPosition; };
+            VirtualizingListBox.RequestPlaying += delegate (out bool value) { value = Playing; };
+            VirtualizingListBox.RequestPlayPause += delegate () { CommandPlayPause.Execute(null, null); };
         }
 
 
@@ -1509,7 +1473,7 @@ namespace NanoTrans
         Process PedalProcess = null;
 
         //init tool to handle pedals (foot control)
-        
+
         private void PedalsInit()
         {
             string pedalsexe = FilePaths.PedalPath;
@@ -1558,7 +1522,8 @@ namespace NanoTrans
                         Pedalthread = null;
                     }
 
-                })) { Name = "Pedals" };
+                }))
+                { Name = "Pedals" };
 
                 p.Exited += (sender, e) =>
                 {
@@ -1670,15 +1635,11 @@ namespace NanoTrans
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            if (VirtualizingListBox.ActiveElement != null)
+            if (VirtualizingListBox.ActiveElement is { } focusedel)
             {
-                Element focusedel = VirtualizingListBox.ActiveElement;
-                if (focusedel != null)
-                {
-                    ICSharpCode.AvalonEdit.TextEditor focused = focusedel.editor;
-                    string insert = "[" + ((Button)sender).Content + "]";
-                    focused.Document.Insert(focused.CaretOffset, insert);
-                }
+                ICSharpCode.AvalonEdit.TextEditor focused = focusedel.editor;
+                string insert = "[" + ((Button)sender).Content + "]";
+                focused.Document.Insert(focused.CaretOffset, insert);
             }
         }
 
@@ -1743,10 +1704,10 @@ namespace NanoTrans
                 }
             }
 
-            if (VirtualizingListBox.ActiveTransctiption == null || VirtualizingListBox.ActiveTransctiption.Begin > e.Value || VirtualizingListBox.ActiveTransctiption.End < e.Value)
+            if (VirtualizingListBox.ActiveTransctiption is null || VirtualizingListBox.ActiveTransctiption.Begin > e.Value || VirtualizingListBox.ActiveTransctiption.End < e.Value)
             {
                 var list = _transcription.ReturnElementsAtTime(e.Value);
-                if (list != null && list.Count > 0)
+                if (list.Count > 0)
                 {
                     if (VirtualizingListBox.ActiveTransctiption != list[0])
                     {
@@ -1777,7 +1738,7 @@ namespace NanoTrans
 
             _setCaret = true;
             var list = _transcription.ReturnElementsAtTime(e.Value);
-            if (list != null && list.Count > 0)
+            if (list.Count > 0)
             {
                 if (VirtualizingListBox.ActiveTransctiption != list[0])
                     VirtualizingListBox.ActiveTransctiption = list[0];
@@ -1819,7 +1780,7 @@ namespace NanoTrans
 
         private void VirtualizingListBox_SelectedElementChanged(object sender, EventArgs e)
         {
-            if (VirtualizingListBox.ActiveTransctiption == null)
+            if (VirtualizingListBox.ActiveTransctiption is null)
                 return;
 
             phoneticTranscription.ValueElement = VirtualizingListBox.ActiveTransctiption;
@@ -1912,7 +1873,7 @@ namespace NanoTrans
                     _ExportPlugins.Add(new Plugin(true, true, exp.Attribute("Mask").Value, null, exp.Attribute("Name").Value, null, act, null));
                 }
 
-                foreach (var exp in exports.Where(i => i.Attribute("IsAssembly") == null || i.Attribute("IsAssembly").Value == "false"))
+                foreach (var exp in exports.Where(i => i.Attribute("IsAssembly") is null || i.Attribute("IsAssembly").Value == "false"))
                 {
                     _ExportPlugins.Add(new Plugin(true, false, exp.Attribute("Mask").Value, exp.Attribute("Parameters").Value, exp.Attribute("Name").Value, null, null, exp.Attribute("File").Value));
                 }
@@ -1929,8 +1890,7 @@ namespace NanoTrans
             {
                 try
                 {
-                    TranscriptionParagraph p = Transcription.Chapters[0].Sections[0].Paragraphs[0];
-                    while (p != null)
+                    foreach (var p in Transcription.EnumerateParagraphs())
                     {
                         for (int i = p.Phrases.Count - 1; i >= 0; i--)
                         {
@@ -1940,27 +1900,13 @@ namespace NanoTrans
                             }
                             else
                             {
-                                var ms = Element.ignoredGroup.Matches(p.Phrases[i].Text).Cast<Match>().ToArray();
-                                if (ms.Length > 0)
-                                {
-                                    int from = 0;
-                                    string s = "";
-                                    foreach (var m in ms)
-                                    {
-                                        int copy = m.Index - from;
-                                        if (copy > 0)
-                                            s += p.Phrases[i].Text.Substring(from, copy);
-                                        from = m.Index + m.Length;
-                                    }
+                                var text = p.Phrases[i].Text;
+                                var rtext = Element.ignoredGroup.Replace(text, "");
 
-                                    if (from < p.Phrases[i].Text.Length)
-                                        s += p.Phrases[i].Text[from..];
-
-                                    p.Phrases[i].Text = s;
-                                }
+                                if (text != rtext)
+                                    p.Phrases[i].Text = rtext;
                             }
                         }
-                        p = (TranscriptionParagraph)p.NextSibling();
                     }
                     VirtualizingListBox.Reset();
 
@@ -1975,7 +1921,7 @@ namespace NanoTrans
 
         private void MenuItemLanguage_Click(object sender, RoutedEventArgs e)
         {
-            if (VirtualizingListBox.ActiveTransctiption == null || !VirtualizingListBox.ActiveTransctiption.IsParagraph)
+            if (VirtualizingListBox.ActiveTransctiption is null || !VirtualizingListBox.ActiveTransctiption.IsParagraph)
                 return;
             var par = VirtualizingListBox.ActiveTransctiption as TranscriptionParagraph;
             var l = (string)(sender as MenuItem).Header;
@@ -1987,11 +1933,11 @@ namespace NanoTrans
             if (VirtualizingListBox.ActiveElement.RefreshSpeakerInfos())
             {
                 prev = VirtualizingListBox.GetVisualForTransctiption(VirtualizingListBox.ActiveTransctiption.Previous());//refresh previous elements
-                while (prev != null && prev.RefreshSpeakerInfos())
+                while (prev is { } && prev.RefreshSpeakerInfos())
                     prev = VirtualizingListBox.GetVisualForTransctiption(prev.ValueElement.Previous());
 
                 prev = VirtualizingListBox.GetVisualForTransctiption(VirtualizingListBox.ActiveTransctiption.Next());//refresh next elements
-                while (prev != null && prev.RefreshSpeakerInfos())
+                while (prev is { } && prev.RefreshSpeakerInfos())
                     prev = VirtualizingListBox.GetVisualForTransctiption(prev.ValueElement.Next());
 
             }
@@ -2069,7 +2015,7 @@ namespace NanoTrans
 
         private void VirtualizingListBox_PlayPauseRequest(object sender, EventArgs e)
         {
-            CommandPlayPause.Execute(null,null);
+            CommandPlayPause.Execute(null, null);
         }
 
     }

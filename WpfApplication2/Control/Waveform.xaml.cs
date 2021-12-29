@@ -23,7 +23,7 @@ namespace NanoTrans
     public partial class WaveForm : UserControl, INotifyPropertyChanged
     {
 
-        private void OnPropertyChanged([CallerMemberName]string caller = null)
+        private void OnPropertyChanged([CallerMemberName] string caller = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(caller));
         }
@@ -156,11 +156,8 @@ namespace NanoTrans
                     if (speakerButtons.Count > 0)
                     {
                         var lbut = speakerButtons.LastOrDefault();
-                        if (lbut != null && Dispatcher.CheckAccess()) //when called from nonUI thread you cannot access .Tag, .Actualwidth etc.. ignore
+                        if (lbut?.Tag is TranscriptionParagraph lpar && Dispatcher.CheckAccess()) //when called from nonUI thread you cannot access .Tag, .Actualwidth etc.. ignore
                         {
-
-                            var lpar = lbut.Tag as TranscriptionParagraph;
-
                             var wavepart = new TimeSpan((WaveEnd - WaveBegin).Ticks / 3);
                             var realend = PosToTime(lbut.Margin.Left + lbut.ActualWidth);
                             var realbegin = PosToTime(lbut.Margin.Left);
@@ -675,7 +672,8 @@ namespace NanoTrans
                 Transcription transc = _subtitlesData;
                 //   WaveformData currentWave = wave;
 
-                if (transc == null) return;
+                if (transc is null)
+                    return;
                 //    if (currentWave == null) return;
 
                 foreach (Button pL in speakerButtons)
@@ -728,14 +726,17 @@ namespace NanoTrans
 
                                     speaker.Background = Properties.Settings.Default.WaveformSpeakerBackground;
                                     Speaker pSpeaker = pParagraph.Speaker;
-                                    string pText = "";
-                                    if (pSpeaker != null) pText = pSpeaker.FullName;
+
                                     speaker.Visibility = Visibility.Visible;
                                     speaker.BringIntoView();
                                     speaker.Focusable = false;
                                     speaker.IsTabStop = false;
                                     speaker.Cursor = Cursors.Arrow;
-                                    if (pText != null && pText != "") speaker.ToolTip = speaker.Content;
+
+                                    var pText = pSpeaker?.FullName ?? "";
+                                    if (pText != "")
+                                        speaker.ToolTip = speaker.Content;
+
                                     speaker.Tag = pParagraph;
                                     speaker.Click += new RoutedEventHandler(pSpeaker_Click);
                                     speaker.MouseDoubleClick += new MouseButtonEventHandler(pSepaker_MouseDoubleClick);
@@ -804,7 +805,7 @@ namespace NanoTrans
                     {
                         next = this.speakerButtons[i + 1].Tag as TranscriptionParagraph;
                     }
-                    if (previous != null && previous.End > pPar.Begin && speakerButtons[i - 1].Margin.Top < 5)
+                    if (previous is { } && previous.End > pPar.Begin && speakerButtons[i - 1].Margin.Top < 5)
                     {
                         wavegrid.Children.Add(pSpeaker);
 
@@ -859,11 +860,11 @@ namespace NanoTrans
 
         void pSepaker_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            if (Playing && PlayPauseClick != null)
-                PlayPauseClick(this, null);
+            if (Playing)
+                PlayPauseClick?.Invoke(this, null);
+
             TranscriptionParagraph pTag = (sender as Button).Tag as TranscriptionParagraph;
             ParagraphDoubleClick?.Invoke(this, new MyTranscriptionElementEventArgs(pTag));
-
         }
 
 
@@ -871,9 +872,8 @@ namespace NanoTrans
 
         void pSpeaker_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            if (sender is Button)
+            if (sender is Button sndr)
             {
-                Button sndr = (Button)sender;
                 double width = sndr.Width - 10;
                 (sndr.Content as DockPanel).Width = (width > 0.0) ? width : 0.0;
             }
@@ -1044,12 +1044,12 @@ namespace NanoTrans
 
             CaretPosition = TimeSpan.FromMilliseconds(e.NewValue);
 
-            if (CaretPostionChangedByUser != null && !updating)
-                CaretPostionChangedByUser(this, new TimeSpanEventArgs(this.CaretPosition));
-
+            if (!updating)
+                CaretPostionChangedByUser?.Invoke(this, new TimeSpanEventArgs(this.CaretPosition));
 
             if (!updating)
                 EndUpdate();
+
             InvalidateWaveform();
         }
 
@@ -1085,7 +1085,7 @@ namespace NanoTrans
 
         private void grid1_Unloaded(object sender, RoutedEventArgs e)
         {
-            if (Invalidator != null && Invalidator.IsAlive)
+            if (Invalidator is { } && Invalidator.IsAlive)
                 Invalidator.Interrupt();
         }
 
@@ -1183,12 +1183,12 @@ namespace NanoTrans
 
 
             TranscriptionElement current = b.Tag as TranscriptionElement;
-            TranscriptionElement previous = (bp == null) ? null : bp.Tag as TranscriptionElement;
-            TranscriptionElement next = (bn == null) ? null : bn.Tag as TranscriptionElement;
+            TranscriptionElement previous = bp?.Tag as TranscriptionElement;
+            TranscriptionElement next = bn?.Tag as TranscriptionElement;
 
             int section = current.Parent.ParentIndex;
-            int previousSection = (bp == null) ? -10 : previous.Parent.ParentIndex;
-            int nextSection = (bn == null) ? -10 : next.Parent.ParentIndex;
+            int previousSection = (bp is null) ? -10 : previous.Parent.ParentIndex;
+            int nextSection = (bn is null) ? -10 : next.Parent.ParentIndex;
 
 
             if (btndrag)
@@ -1205,7 +1205,7 @@ namespace NanoTrans
                     if (te - ts < TimeSpan.FromMilliseconds(100))
                         return;
 
-                    if ((bp != null && bmarginl < bp.Margin.Left + bp.ActualWidth) || mouseOverParagraphDrag) //kolize
+                    if ((bp is { } && bmarginl < bp.Margin.Left + bp.ActualWidth) || mouseOverParagraphDrag) //kolize
                     {
                         if (section == previousSection)
                         {
@@ -1236,7 +1236,7 @@ namespace NanoTrans
                     if (ts <= PosToTime(b.Margin.Left) + TimeSpan.FromMilliseconds(100))
                         return;
 
-                    if ((bn != null && b.Margin.Left + b.ActualWidth > bn.Margin.Left) || mouseOverParagraphDrag)
+                    if ((bn is { } && b.Margin.Left + b.ActualWidth > bn.Margin.Left) || mouseOverParagraphDrag)
                     {
                         if (section == nextSection)
                         {
@@ -1277,8 +1277,7 @@ namespace NanoTrans
                 Transcription.BeginUpdate();
                 foreach (var button in speakerButtons)
                 {
-                    var elm = button.Tag as TranscriptionElement;
-                    if (elm == null)
+                    if (button.Tag is not TranscriptionElement elm)
                         continue;
                     if (_changedbegins.Contains(elm))
                     {
@@ -1344,14 +1343,14 @@ namespace NanoTrans
 
             if ((
                 (value > innercheckE || value < innercheckB)  //nevejdeme se do nacteneho
-                && (bufferProcessThread == null || (value > outercheckE || value < outercheckB)))
+                && (bufferProcessThread is null || (value > outercheckE || value < outercheckB)))
                 || force
                 ) // nenacitame, nebo se nevejdeme se ani do nacitaneho
             {
 
                 lock (wavelock)
                 {
-                    if (bufferProcessThread != null)
+                    if (bufferProcessThread is { })
                     {
                         bufferProcessThread.Abort();
                         bufferProcessThread = null;
@@ -1380,45 +1379,42 @@ namespace NanoTrans
                 requestedBegin = begin;
                 requestedEnd = end;
 
-                if (DataRequestCallBack != null)
+                if (DataRequestCallBack is null)
+                    return;
+
+                lock (wavelock) //vytvareni noveho delegata pocka pokud se uz nastavuje stary
                 {
-                    lock (wavelock) //vytvareni noveho delegata pocka pokud se uz nastavuje stary
+                    requestedBegin = begin;
+                    requestedEnd = end;
+                    bufferProcessThread = new Thread(delegate ()
                     {
-                        requestedBegin = begin;
-                        requestedEnd = end;
-                        bufferProcessThread = new Thread(delegate()
+                        short[] data = this.DataRequestCallBack(begin, end);
+                        lock (wavelock)
                         {
-                            short[] data = this.DataRequestCallBack(begin, end);
-                            lock (wavelock)
+                            if (data is { })
                             {
-                                if (data != null)
-                                {
-                                    var len = data.Length / 16; //ms
-                                    end = begin + TimeSpan.FromMilliseconds(len);
-                                }
-                                wave.audioBuffer.CopyDataToBuffer(data, (long)begin.TotalMilliseconds, (long)(end.TotalMilliseconds));
-                                bufferProcessThread = null;
+                                var len = data.Length / 16; //ms
+                                end = begin + TimeSpan.FromMilliseconds(len);
                             }
+                            wave.audioBuffer.CopyDataToBuffer(data, (long)begin.TotalMilliseconds, (long)(end.TotalMilliseconds));
+                            bufferProcessThread = null;
+                        }
 
-                            if (AutomaticProgressHighlight)
+                        if (AutomaticProgressHighlight)
+                        {
+                            this.Dispatcher.Invoke((Action)(() =>
                             {
-                                this.Dispatcher.Invoke((Action)(() =>
-                                {
-                                    slMediaPosition.SelectionStart = begin.TotalMilliseconds;
-                                    slMediaPosition.SelectionEnd = end.TotalMilliseconds;
-                                }));
+                                slMediaPosition.SelectionStart = begin.TotalMilliseconds;
+                                slMediaPosition.SelectionEnd = end.TotalMilliseconds;
+                            }));
 
-                            }
+                        }
 
-                            InvalidateWaveform();
-                        });
-                        bufferProcessThread.Name = "waveform.bufferProcessThread.";
-                    }
-                    bufferProcessThread.Start();
-
+                        InvalidateWaveform();
+                    });
+                    bufferProcessThread.Name = "waveform.bufferProcessThread.";
                 }
-
-
+                bufferProcessThread.Start();
             }
 
         }

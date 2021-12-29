@@ -16,8 +16,7 @@ namespace NanoTrans.Properties
         {
             get
             {
-                if (_FeatureEnabler == null)
-                    _FeatureEnabler = new Features(this);
+                _FeatureEnabler ??= new Features(this);
                 return _FeatureEnabler;
             }
         }
@@ -197,7 +196,7 @@ namespace NanoTrans.Properties
 
             public event EventHandler FeaturesChanged;
 
-            private void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName]string caller = null)
+            private void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string caller = null)
             {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(caller));
 

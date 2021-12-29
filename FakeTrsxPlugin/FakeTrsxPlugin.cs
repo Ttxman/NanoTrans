@@ -12,10 +12,10 @@ namespace FakeTrsxPlugin
     {
         public static bool Import(Stream input, Transcription storage)
         {
-            if (input is FileStream)
+            if (input is FileStream stream)
             { 
                 storage.Add(new TranscriptionParagraph());
-                storage.MediaURI = ((FileStream)input).Name;
+                storage.MediaURI = stream.Name;
                 return true;
             }
             return false;

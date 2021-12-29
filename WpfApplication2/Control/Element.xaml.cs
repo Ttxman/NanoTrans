@@ -44,9 +44,9 @@ namespace NanoTrans
         {
             get
             {
-                if (ValueElement != null && ValueElement.IsParagraph)
+                if (ValueElement is TranscriptionParagraph par)
                 {
-                    return ((TranscriptionParagraph)ValueElement).Language;
+                    return par.Language;
                 }
                 else
                     return "";
@@ -54,9 +54,8 @@ namespace NanoTrans
 
             set
             {
-                if (ValueElement.IsParagraph)
+                if (ValueElement is TranscriptionParagraph par)
                 {
-                    ((TranscriptionParagraph)ValueElement).Language = value;
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ElementLanguage"));
                 }
             }
@@ -72,11 +71,11 @@ namespace NanoTrans
             var res = Element.RefreshSpeakerButton(this, this.ValueElement as TranscriptionParagraph);
 
             var be = BindingOperations.GetBindingExpressionBase(buttonSpeaker, Button.ContentProperty);
-            if (be != null)
+            if (be is { })
                 be.UpdateTarget();
 
             be = BindingOperations.GetBindingExpressionBase(textBlockLanguage, TextBlock.TextProperty);
-            if (be != null)
+            if (be is { })
                 be.UpdateTarget();
 
             return res;
@@ -84,12 +83,12 @@ namespace NanoTrans
 
         private static bool RefreshSpeakerButton(Element el, TranscriptionParagraph val)
         {
-            if (val == null)
+            if (val is null)
                 return false;
+
             var currentvis = el.buttonSpeaker.Visibility;
             var setvis = Visibility.Visible;
-            var previous = val.PreviousSibling() as TranscriptionParagraph;
-            if (previous != null && val != null)
+            if (val?.PreviousSibling() is TranscriptionParagraph previous)
                 if (val.Speaker == previous.Speaker && val.Language == previous.Language)
                     setvis = Visibility.Collapsed;
 
@@ -109,41 +108,28 @@ namespace NanoTrans
             Element el = (Element)d;
             TranscriptionElement val = (TranscriptionElement)e.NewValue;
 
-            if (el.EditPhonetics && val != null && !val.IsParagraph)
-            {
+            if (el.EditPhonetics && !val.IsParagraph)
                 val = null;
-            }
 
-            if (e.OldValue != null)
-            {
+            if (e.OldValue is { })
                 ((TranscriptionElement)e.OldValue).ContentChanged -= el.val_ContentChanged;
-            }
 
 
             el.IsEnabled = val != null;
 
 
             el.updating = true;
-            if (val != null)
-                el.Text = (el.EditPhonetics) ? val.Phonetics : val.Text;
-            else
-                el.Text = "";
+
+            el.Text = (el.EditPhonetics) ? val.Phonetics : val.Text;
+            el.Text ??= "";
+
             el.updating = false;
 
-
             if (el.DisableAutomaticElementVisibilityChanges)
-            {
                 return;
-            }
 
 
-            Type t = null;
-
-            if (e.NewValue != null)
-            {
-                t = e.NewValue.GetType();
-            }
-
+            Type t = e.NewValue?.GetType();
 
             if (t == typeof(TranscriptionParagraph))
             {
@@ -193,7 +179,7 @@ namespace NanoTrans
             }
 
             el.DataContext = val;
-            if (val != null)
+            if (val is { })
             {
                 val.ContentChanged += el.val_ContentChanged;
 
@@ -212,10 +198,10 @@ namespace NanoTrans
             Element el = this;
 
             //phrase changes
-            if (el.ValueElement is TranscriptionParagraph && e.ActionsTaken.Any(a => a.ChangedElement.Parent != null && a.ChangedElement.Parent == el.ValueElement))
+            if (el.ValueElement is TranscriptionParagraph && e.ActionsTaken.Any(a => a.ChangedElement.Parent is { } prnt && prnt == el.ValueElement))
                 el.TextualContentChanged();
 
-            if (el == null || el.ValueElement == null || !e.ActionsTaken.Any(a => a.ChangedElement == el.ValueElement))
+            if (el?.ValueElement is null || !e.ActionsTaken.Any(a => a.ChangedElement == el.ValueElement))
                 return;
 
             if (e.ActionsTaken.Any(a => a is TextAction))
@@ -276,8 +262,7 @@ namespace NanoTrans
             if (_IsPasiveElement)
                 return;
 
-            TranscriptionParagraph par = ValueElement as TranscriptionParagraph;
-            if (par == null)
+            if (ValueElement is not TranscriptionParagraph par)
                 return;
 
             if (this.stackPanelAttributes.Children.Count != all.Length - 1)
@@ -318,8 +303,7 @@ namespace NanoTrans
         void attributes_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             //int i = ((sender as Rectangle).Parent as StackPanel).Children.IndexOf(sender as UIElement) + 1;
-            TranscriptionParagraph par = ValueElement as TranscriptionParagraph;
-            if (par != null)
+            if (ValueElement is TranscriptionParagraph par)
             {
                 ParagraphAttributes attr = (ParagraphAttributes)(sender as Rectangle).Tag;
 
@@ -467,9 +451,7 @@ namespace NanoTrans
                 cb.Width = 65;
                 cb.Focusable = false;
 
-
-                var par = (ValueElement as TranscriptionParagraph);
-                if (par != null)
+                if (ValueElement is TranscriptionParagraph par)
                 {
                     if (par.Elements.TryGetValue(item[0], out string outval))
                         cb.SelectedItem = outval;
@@ -484,7 +466,7 @@ namespace NanoTrans
         {
             if (!Settings.Default.ShowCustomParams)
                 return;
-            if (customparams == null || customparams.Count == 0 || ValueElement == null)
+            if (customparams.Count == 0 || ValueElement is null)
                 return;
 
             CustomParams.Children.Clear();
@@ -496,10 +478,9 @@ namespace NanoTrans
 
         void cb_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var cb = sender as ComboBox;
-            if (cb != null && ValueElement.IsParagraph)
+            if (sender is ComboBox cb && ValueElement is TranscriptionParagraph par)
             {
-                ((TranscriptionParagraph)ValueElement).Elements[(string)cb.ToolTip] = (string)cb.SelectedItem;
+                par.Elements[(string)cb.ToolTip] = (string)cb.SelectedItem;
             }
         }
 
@@ -520,93 +501,93 @@ namespace NanoTrans
 
         private void RaiseCorrector(TextArea ta)
         {
-            if (ta != null)
+            if (ta is null)
+                return;
+
+            if (ta.Selection.Length <= 0)
+                return;
+            string selection = ta.Document.Text.Substring(ta.Selection.SurroundingSegment.Offset, ta.Selection.Length);
+
+            if (selection.Length == 0)
+                return;
+
+            var corrs = CorrectionsGenerator.GetCorrections(selection);
+            if (corrs.Count() <= 1)
+                return;
+
+            completionWindow = new CompletionWindow(editor.TextArea);
+
+            completionWindow.ResizeMode = ResizeMode.NoResize;
+
+            IList<ICompletionData> data = completionWindow.CompletionList.CompletionData;
+            foreach (string s in corrs)
+                data.Add(new CodeCompletionDataCorretion(s));
+
+
+
+            Visual target = completionWindow;    // Target element
+            var routedEvent = Keyboard.KeyDownEvent; // Event to send
+            bool closenotcorrect = false;
+            completionWindow.KeyDown += (object sender, KeyEventArgs e) =>
             {
-                if (ta.Selection.Length <= 0)
-                    return;
-                string selection = ta.Document.Text.Substring(ta.Selection.SurroundingSegment.Offset, ta.Selection.Length);
-
-                if (selection.Length == 0)
-                    return;
-
-                var corrs = CorrectionsGenerator.GetCorrections(selection);
-                if (corrs.Count() <= 1)
-                    return;
-
-                completionWindow = new CompletionWindow(editor.TextArea);
-
-                completionWindow.ResizeMode = ResizeMode.NoResize;
-
-                IList<ICompletionData> data = completionWindow.CompletionList.CompletionData;
-                foreach (string s in corrs)
-                    data.Add(new CodeCompletionDataCorretion(s));
-
-
-
-                Visual target = completionWindow;    // Target element
-                var routedEvent = Keyboard.KeyDownEvent; // Event to send
-                bool closenotcorrect = false;
-                completionWindow.KeyDown += (object sender, KeyEventArgs e) =>
+                if (e.Key == Key.Q)
                 {
-                    if (e.Key == Key.Q)
-                    {
-                        e.Handled = true;
-                        completionWindow.RaiseEvent(
+                    e.Handled = true;
+                    completionWindow.RaiseEvent(
+                      new KeyEventArgs(
+                        Keyboard.PrimaryDevice,
+                        PresentationSource.FromVisual(target),
+                        0,
+                        Key.Up)
+                      { RoutedEvent = routedEvent }
+                    );
+
+                }
+                else if (e.Key == Key.W)
+                {
+                    e.Handled = true;
+                    completionWindow.RaiseEvent(
+                      new KeyEventArgs(
+                        Keyboard.PrimaryDevice,
+                        PresentationSource.FromVisual(target),
+                        0,
+                        Key.Down)
+                      { RoutedEvent = routedEvent }
+                    );
+                }
+                else if (e.Key == Key.Escape)
+                {
+                    closenotcorrect = true;
+                }
+            };
+
+
+            completionWindow.Show();
+            completionWindow.Focus();
+
+            completionWindow.LostKeyboardFocus +=
+            (sender, e) =>
+            {
+                if (completionWindow is null)
+                    return;
+
+                if (!completionWindow.IsKeyboardFocusWithin && !closenotcorrect && completionWindow.CompletionList.SelectedItem is { })
+                {
+                    completionWindow.RaiseEvent(
                           new KeyEventArgs(
                             Keyboard.PrimaryDevice,
                             PresentationSource.FromVisual(target),
                             0,
-                            Key.Up)
+                            Key.Enter)
                           { RoutedEvent = routedEvent }
                         );
+                }
+            };
 
-                    }
-                    else if (e.Key == Key.W)
-                    {
-                        e.Handled = true;
-                        completionWindow.RaiseEvent(
-                          new KeyEventArgs(
-                            Keyboard.PrimaryDevice,
-                            PresentationSource.FromVisual(target),
-                            0,
-                            Key.Down)
-                          { RoutedEvent = routedEvent }
-                        );
-                    }
-                    else if (e.Key == Key.Escape)
-                    {
-                        closenotcorrect = true;
-                    }
-                };
-
-
-                completionWindow.Show();
-                completionWindow.Focus();
-
-                completionWindow.LostKeyboardFocus +=
-                (sender, e) =>
-                {
-                    if (completionWindow == null)
-                        return;
-
-                    if (!completionWindow.IsKeyboardFocusWithin && !closenotcorrect && completionWindow != null && completionWindow.CompletionList.SelectedItem != null)
-                    {
-                        completionWindow.RaiseEvent(
-                              new KeyEventArgs(
-                                Keyboard.PrimaryDevice,
-                                PresentationSource.FromVisual(target),
-                                0,
-                                Key.Enter)
-                              { RoutedEvent = routedEvent }
-                            );
-                    }
-                };
-
-                completionWindow.Closing += delegate
-                {
-                    completionWindow = null;
-                };
-            }
+            completionWindow.Closing += delegate
+            {
+                completionWindow = null;
+            };
         }
 
         void TextView_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -623,9 +604,8 @@ namespace NanoTrans
             if (!t.HasValue)
                 return;
             int pos = editor.Document.GetLineByNumber(t.Value.Line).Offset + t.Value.Column;
-            if (t.HasValue && ValueElement != null && ValueElement.IsParagraph)
+            if (ValueElement is TranscriptionParagraph p)
             {
-                TranscriptionParagraph p = (TranscriptionParagraph)ValueElement;
                 int ps = 0;
                 foreach (var ph in p.Phrases)
                 {
@@ -646,25 +626,20 @@ namespace NanoTrans
         public static readonly SpellChecker DefaultSpellchecker = new SpellChecker();
         public static readonly NonEditableBlockGenerator DefaultNonEditableBlockGenerator = new NonEditableBlockGenerator();
 
-        private PositionHighlighter BackgroundHiglighter = null;
+        private PositionHighlighter? BackgroundHiglighter = null;
 
         void TextArea_TextEntered(object sender, TextCompositionEventArgs e)
         {
-            if (completionWindow != null)
+            if (completionWindow is null)
+                return;
+
+            if (completionWindow.CompletionList.ListBox.SelectedItem is CodeCompletionData cd)
             {
-                if (completionWindow.CompletionList.ListBox.SelectedItem != null)
-                {
-                    CodeCompletionData cd = (CodeCompletionData)completionWindow.CompletionList.ListBox.SelectedItem;
+                int offset = editor.TextArea.Caret.Offset;
+                string entered = editor.TextArea.Document.GetText(completionWindow.StartOffset, offset - completionWindow.StartOffset);
 
-                    int offset = editor.TextArea.Caret.Offset;
-                    string entered = editor.TextArea.Document.GetText(completionWindow.StartOffset, offset - completionWindow.StartOffset);
-
-                    if (cd.uniquepart == entered)
-                    {
-                        completionWindow.CompletionList.RequestInsertion(new EventArgs());
-                    }
-                }
-
+                if (cd.uniquepart == entered)
+                    completionWindow.CompletionList.RequestInsertion(new EventArgs());
             }
         }
 
@@ -718,11 +693,8 @@ namespace NanoTrans
                 builder.AddSegment(textView, new TextSegment() { StartOffset = _from, Length = _len });
                 builder.CloseFigure(); // prevent connecting the two segments
 
-                Geometry geometry = builder.CreateGeometry();
-                if (geometry != null)
-                {
+                if (builder.CreateGeometry() is Geometry geometry)
                     drawingContext.DrawGeometry(Brushes.LightGreen, border, geometry);
-                }
             }
 
             public KnownLayer Layer
@@ -825,45 +797,39 @@ namespace NanoTrans
 
         private void BeginChanged(object sender, EventArgs value)
         {
-            if (ValueElement != null)
-            {
-                TimeSpan val = ValueElement.Begin;
-                this.textbegin.Text = string.Format("{0}:{1:00}:{2:00},{3}", val.Hours, val.Minutes, val.Seconds, val.Milliseconds.ToString("000")[..2]);
+            if (ValueElement is null)
+                return;
 
-            }
+            TimeSpan val = ValueElement.Begin;
+            this.textbegin.Text = string.Format("{0}:{1:00}:{2:00},{3}", val.Hours, val.Minutes, val.Seconds, val.Milliseconds.ToString("000")[..2]);
 
         }
 
         private void EndChanged(object sender, EventArgs value)
         {
-            if (ValueElement != null)
-            {
-                if (!ValueElement.IsParagraph)
-                    textend.Visibility = System.Windows.Visibility.Collapsed;
-                else if (ValueElement.End <= ValueElement.Begin)
-                    textend.Visibility = System.Windows.Visibility.Hidden;
-                else
-                    textend.Visibility = System.Windows.Visibility.Visible;
+            if (ValueElement is null)
+                return;
+            if (!ValueElement.IsParagraph)
+                textend.Visibility = System.Windows.Visibility.Collapsed;
+            else if (ValueElement.End <= ValueElement.Begin)
+                textend.Visibility = System.Windows.Visibility.Hidden;
+            else
+                textend.Visibility = System.Windows.Visibility.Visible;
 
-                TimeSpan val = ValueElement.End;
-                this.textend.Text = string.Format("{0}:{1:00}:{2:00},{3}", val.Hours, val.Minutes, val.Seconds, val.Milliseconds.ToString("000")[..2]);
-            }
+            TimeSpan val = ValueElement.End;
+            this.textend.Text = string.Format("{0}:{1:00}:{2:00},{3}", val.Hours, val.Minutes, val.Seconds, val.Milliseconds.ToString("000")[..2]);
         }
 
         private void checkBox1_Checked(object sender, RoutedEventArgs e)
         {
-            if (ValueElement is TranscriptionParagraph)
-            {
-                ((TranscriptionParagraph)ValueElement).trainingElement = true;
-            }
+            if (ValueElement is TranscriptionParagraph paragraph)
+                paragraph.trainingElement = true;
         }
 
         private void checkBox1_Unchecked(object sender, RoutedEventArgs e)
         {
-            if (ValueElement is TranscriptionParagraph)
-            {
-                ((TranscriptionParagraph)ValueElement).trainingElement = false;
-            }
+            if (ValueElement is TranscriptionParagraph paragraph)
+                paragraph.trainingElement = false;
         }
 
         private void editor_PreviewKeyDown(object sender, KeyEventArgs e)
@@ -888,14 +854,10 @@ namespace NanoTrans
 
             this.OnPreviewKeyDown(e);
 
-            if (ValueElement == null || e.Handled)
+            if (ValueElement is not TranscriptionParagraph par || e.Handled)
                 return;
 
-
-            TranscriptionParagraph par = ValueElement as TranscriptionParagraph;
-
-
-            if ((Keyboard.Modifiers & ModifierKeys.Control) != 0 && completionWindow == null) //TODO: vyhodit korekce ven
+            if ((Keyboard.Modifiers & ModifierKeys.Control) != 0 && completionWindow is null) //TODO: vyhodit korekce ven
             {
                 if (e.Key == Key.Q || e.Key == Key.W)
                 {
@@ -908,7 +870,7 @@ namespace NanoTrans
                 if ((e.Key == Key.Up))
                 {
                     int TP = editor.TextArea.Document.GetLocation(editor.SelectionStart + editor.SelectionLength).Line;
-                    if (TP == 1 && MoveUpRequest != null)
+                    if (TP == 1 && MoveUpRequest is { })
                     {
                         var vl = editor.TextArea.TextView.GetVisualLine(1);
                         var tl = vl.GetTextLine(editor.TextArea.Caret.VisualColumn);
@@ -922,7 +884,7 @@ namespace NanoTrans
                 else if ((e.Key == Key.Down))
                 {
                     int TP = editor.TextArea.Document.GetLocation(editor.SelectionStart + editor.SelectionLength).Line;
-                    if (TP == editor.Document.LineCount && MoveDownRequest != null)
+                    if (TP == editor.Document.LineCount && MoveDownRequest is { })
                     {
                         var vl = editor.TextArea.TextView.GetVisualLine(TP);
                         var tl = vl.GetTextLine(editor.TextArea.Caret.VisualColumn);
@@ -935,7 +897,7 @@ namespace NanoTrans
                 }
                 else if (e.Key == Key.Right)
                 {
-                    if (editor.CaretOffset == editor.Document.TextLength && MoveRightRequest != null)
+                    if (editor.CaretOffset == editor.Document.TextLength && MoveRightRequest is { })
                     {
                         MoveRightRequest(this, new EventArgs());
                         e.Handled = true;
@@ -944,7 +906,7 @@ namespace NanoTrans
                 }
                 else if (e.Key == Key.Left)
                 {
-                    if (editor.CaretOffset == 0 && MoveLeftRequest != null)
+                    if (editor.CaretOffset == 0 && MoveLeftRequest is { })
                     {
                         MoveLeftRequest(this, new EventArgs());
                         e.Handled = true;
@@ -959,7 +921,7 @@ namespace NanoTrans
 
             if (e.Key == Key.Back && editor.SelectionLength == 0)
             {
-                if (editor.CaretOffset == 0 && MergeWithPreviousRequest != null)
+                if (editor.CaretOffset == 0 && MergeWithPreviousRequest is { })
                 {
                     MergeWithPreviousRequest(this, new EventArgs());
                     e.Handled = true;
@@ -969,7 +931,7 @@ namespace NanoTrans
             }
             else if (e.Key == Key.Delete && editor.SelectionLength == 0)
             {
-                if (editor.CaretOffset == editor.Document.TextLength && MergeWithnextRequest != null)
+                if (editor.CaretOffset == editor.Document.TextLength && MergeWithnextRequest is { })
                 {
                     MergeWithnextRequest(this, new EventArgs());
                     e.Handled = true;
@@ -980,9 +942,9 @@ namespace NanoTrans
             {
                 if (editor.SelectionLength == 0)
                 {
-                    if (editor.CaretOffset == editor.Document.TextLength && editor.CaretOffset != 0 && NewRequest != null)
+                    if (editor.CaretOffset == editor.Document.TextLength && editor.CaretOffset != 0 && NewRequest is { })
                         NewRequest(this, new EventArgs());
-                    else if (editor.CaretOffset != 0 & SplitRequest != null)
+                    else if (editor.CaretOffset != 0 & SplitRequest is { })
                         SplitRequest(this, new EventArgs());
                 }
                 e.Handled = true;
@@ -1057,10 +1019,10 @@ namespace NanoTrans
 
         void Document_Changed(object sender, DocumentChangeEventArgs e)
         {
-            if (ValueElement == null || updating)
+            if (ValueElement is null || updating)
                 return;
 
-            if (!(ValueElement is TranscriptionParagraph))
+            if (ValueElement is not TranscriptionParagraph)
             {
                 _TextChangedByUser = true;
                 ValueElement.Text = editor.Text;
@@ -1249,12 +1211,13 @@ namespace NanoTrans
             set
             {
                 _higlightedPosition = value;
-                if (BackgroundHiglighter != null)
+                if (BackgroundHiglighter is { })
                     editor.TextArea.TextView.BackgroundRenderers.Remove(BackgroundHiglighter);
                 BackgroundHiglighter = null;
-                if (value < TimeSpan.Zero || ValueElement == null || !ValueElement.IsParagraph || value < ValueElement.Begin || value > ValueElement.End)
+
+                if (value < TimeSpan.Zero || ValueElement is not TranscriptionParagraph p || value < p.Begin || value > p.End)
                     return;
-                TranscriptionParagraph p = (TranscriptionParagraph)ValueElement;
+
                 int pos = 0;
                 foreach (TranscriptionPhrase ph in p.Phrases)
                 {
@@ -1294,7 +1257,7 @@ namespace NanoTrans
 
         private void UserControl_Unloaded(object sender, RoutedEventArgs e)
         {
-            if (this.ValueElement != null)
+            if (this.ValueElement is { })
                 this.ValueElement.ContentChanged -= val_ContentChanged;
         }
     }
@@ -1414,20 +1377,18 @@ namespace NanoTrans
 
         public static bool Checkword(string word)
         {
-            if (spell == null)
+            if (spell is null)
                 return true;
 
             if (!Element.wordIgnoreChecker.IsMatch(word) && !spell.Check(word))
-            {
                 return false;
-            }
 
             return true;
         }
 
         protected override void ColorizeLine(DocumentLine line)
         {
-            if (spell == null)
+            if (spell is null)
                 return;
 
             int lineStartOffset = line.Offset;
@@ -1469,8 +1430,8 @@ namespace NanoTrans
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            if (value is TranscriptionParagraph)
-                return new TextBlock() { Text = (((TranscriptionParagraph)value).Speaker ?? Speaker.DefaultSpeaker).FullName };
+            if (value is TranscriptionParagraph paragraph)
+                return new TextBlock() { Text = (paragraph.Speaker ?? Speaker.DefaultSpeaker).FullName };
 
             return "";
         }

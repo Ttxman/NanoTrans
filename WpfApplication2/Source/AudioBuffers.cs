@@ -44,7 +44,7 @@ namespace NanoTrans
             this.Loaded = false;
             this._StartMS = 0;
             this._EndMS = 0;
-            lock(datalock)
+            lock (datalock)
                 Data = new short[(int)aDelkaBufferuMS * (1600 / 1000)];
         }
 
@@ -56,8 +56,7 @@ namespace NanoTrans
                 this._StartMS = beginMS;
                 this._EndMS = endMS;
 
-                if (data == null)
-                    data = new short[0];
+                data ??= Array.Empty<short>();
 
                 lock (datalock)
                 {
@@ -78,7 +77,7 @@ namespace NanoTrans
         {
             try
             {
-                if (data != null && data.Length > 0)
+                if (data is { } && data.Length > 0)
                 {
                     lock (datalock)
                     {
@@ -120,7 +119,7 @@ namespace NanoTrans
 
 
                 long sampleCount = lengthMS * (16000 / 1000);
-                int fromSample = (int)(beginMS - this.StartMS) * (16000/ 1000);
+                int fromSample = (int)(beginMS - this.StartMS) * (16000 / 1000);
                 short[] pole = new short[sampleCount];
 
                 long endIndex = -1;

@@ -30,7 +30,7 @@ namespace NanoTrans
 
         private async void buttonSaveAndRestart_Click(object sender, RoutedEventArgs e)
         {
-            await _parent.SaveTranscription(true, _parent.Transcription.FileName);
+            await _parent.SaveTranscription(true);
             System.Diagnostics.Process.Start(Application.ResourceAssembly.Location);
             Application.Current.Shutdown();
         }

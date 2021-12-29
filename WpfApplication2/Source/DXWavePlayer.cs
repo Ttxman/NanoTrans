@@ -121,7 +121,7 @@ namespace NanoTrans
             {
                 lock (this)
                 {
-                    if (timestamp == null || timestamp.Count == 0)
+                    if (timestamp is null || timestamp.Count == 0)
                         return TimeSpan.Zero;
 
                     int actual = 0;
@@ -233,8 +233,7 @@ namespace NanoTrans
             {
                 _disposed = true;
 
-
-                if (_waitThread != null && _waitThread.IsAlive)
+                if (_waitThread is { } && _waitThread.IsAlive)
                 {
                     _soundBuffer.Stop();
                     _waitThread.Interrupt();
@@ -284,12 +283,12 @@ namespace NanoTrans
             ClearBuffer();
             _bfpos = 0;
 
-            if (_requestproc != null)
+            if (_requestproc is { })
             {
                 for (int i = 0; i < 3; i++)
                 {
                     short[] data = _requestproc.Invoke(out int timems);
-                    if (data != null && data.Length > 0)
+                    if (data is { } && data.Length > 0)
                         WriteNextData(data, timems);
                 }
             }
@@ -322,7 +321,7 @@ namespace NanoTrans
         {
             short[] data = _requestproc.Invoke(out int timems);
 
-            if (data == null || data.Length == 0)
+            if (data is null || data.Length == 0)
             {
                 Pause();
             }

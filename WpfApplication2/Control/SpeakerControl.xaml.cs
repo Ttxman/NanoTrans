@@ -76,8 +76,7 @@ namespace NanoTrans
 
         private void ButtonRemoveAttributeClick(object sender, RoutedEventArgs e)
         {
-            var a = AttributeList.SelectedItem as SpeakerAttributeContainer;
-            if (a != null)
+            if (AttributeList.SelectedItem is SpeakerAttributeContainer a)
             {
                 SpeakerContainer.AttributesRemove(a.SpeakerAttribute);
             }
@@ -179,7 +178,7 @@ namespace NanoTrans
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return value == null ? false : true;
+            return value is not null;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

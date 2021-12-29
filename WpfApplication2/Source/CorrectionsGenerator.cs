@@ -48,9 +48,9 @@ namespace NanoTrans
         };
 
 
-        public static IEnumerable<string>GetCorrections(string data)
+        public static IEnumerable<string> GetCorrections(string data)
         {
-              return GetCorrectionPermutations(data).Where(w=> w.Split(' ').All(one=>SpellChecker.Checkword(one)));
+            return GetCorrectionPermutations(data).Where(w => w.Split(' ').All(one => SpellChecker.Checkword(one)));
         }
 
 
@@ -60,7 +60,7 @@ namespace NanoTrans
 
             foreach (var item in rules)
             {
-                if (item.Item2 == null || item.Item2.Length < 1)
+                if (item.Item2 is null || item.Item2.Length < 1)
                     continue;
                 Regex pattern = item.Item1;
 

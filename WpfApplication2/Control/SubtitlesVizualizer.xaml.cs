@@ -71,7 +71,7 @@ namespace NanoTrans
             Element el = (Element)sender;
             TranscriptionParagraph p = new TranscriptionParagraph();
             p.Add(new TranscriptionPhrase());
-            if (el.ValueElement is TranscriptionParagraph)
+            if (el.ValueElement is TranscriptionParagraph paragraph)
             {
                 RequestTimePosition(out TimeSpan pos);
                 el.ValueElement.End = pos;
@@ -87,7 +87,7 @@ namespace NanoTrans
                 p.Begin = el.ValueElement.Parent.End;
 
 
-                p.Speaker = ((TranscriptionParagraph)el.ValueElement).Speaker;
+                p.Speaker = paragraph.Speaker;
                 el.ValueElement.Parent.Insert(el.ValueElement.ParentIndex + 1, p);
             }
             else if (el.ValueElement is TranscriptionSection)
@@ -111,33 +111,29 @@ namespace NanoTrans
 
         void l_MoveRightRequest(object sender, EventArgs e)
         {
-            Element el = (Element)sender;
-            var next = el.ValueElement.Next();
-            if (next != null)
-            {
-                this.Dispatcher.Invoke(() =>
-                {
-                    listbox.ScrollIntoView(next);
-                    var n = listbox.ItemContainerGenerator.ContainerFromItem(next).VisualFindChild<Element>();
-                    n.SetCaretOffset(0);
-                }, DispatcherPriority.Background);
+            if (sender is not Element el || el.ValueElement.Next() is not { } next)
+                return;
 
-            }
+            this.Dispatcher.Invoke(() =>
+            {
+                listbox.ScrollIntoView(next);
+                var n = listbox.ItemContainerGenerator.ContainerFromItem(next).VisualFindChild<Element>();
+                n.SetCaretOffset(0);
+            }, DispatcherPriority.Background);
         }
 
         void l_MoveLeftRequest(object sender, EventArgs e)
         {
-            Element el = (Element)sender;
-            var prev = el.ValueElement.Previous();
-            if (prev != null)
+            if (sender is not Element el || el.ValueElement.Previous() is not { } prev)
+                return;
+
+            this.Dispatcher.Invoke(() =>
             {
-                this.Dispatcher.Invoke(() =>
-                {
-                    listbox.ScrollIntoView(prev);
-                    var n = listbox.ItemContainerGenerator.ContainerFromItem(prev).VisualFindChild<Element>();
-                    n.SetCaretOffset(n.TextLength);
-                }, DispatcherPriority.Background);
-            }
+                listbox.ScrollIntoView(prev);
+                var n = listbox.ItemContainerGenerator.ContainerFromItem(prev).VisualFindChild<Element>();
+                n.SetCaretOffset(n.TextLength);
+            }, DispatcherPriority.Background);
+
         }
 
         void l_MoveUpRequest(object sender, EventArgs e)
@@ -145,16 +141,14 @@ namespace NanoTrans
             bool playing = false;
             RequestPlaying?.Invoke(out playing);
 
-            if (playing && RequestPlayPause != null)
-                RequestPlayPause();
+            if (playing)
+                RequestPlayPause?.Invoke();
 
-            Element el = (Element)sender;
-            TranscriptionElement tr = el.ValueElement;
-            if (tr == null)
+            if (sender is not Element el || el.ValueElement is not { } tr)
                 return;
+
             TextViewPosition twpos = el.editor.TextArea.Caret.Position;
-            var prev = tr.Previous();
-            if (prev != null)
+            if (tr.Previous() is { } prev)
             {
                 this.Dispatcher.Invoke(() =>
                 {
@@ -187,8 +181,8 @@ namespace NanoTrans
                 }, DispatcherPriority.Background);
             }
 
-            if (playing && RequestPlayPause != null)
-                RequestPlayPause();
+            if (playing)
+                RequestPlayPause?.Invoke();
         }
 
         void l_PlayPauseRequest(object sender, EventArgs e)
@@ -201,18 +195,15 @@ namespace NanoTrans
             bool playing = false;
             RequestPlaying?.Invoke(out playing);
 
-            if (playing && RequestPlayPause != null)
-                RequestPlayPause();
+            if (playing)
+                RequestPlayPause?.Invoke();
 
-            Element el = (Element)sender;
-            TranscriptionElement tr = el.ValueElement;
-
-            if (tr == null)
+            if (sender is not Element el || el.ValueElement is not { } tr)
                 return;
+
             TextViewPosition twpos = el.editor.TextArea.Caret.Position;
 
-            var next = tr.Next();
-            if (next != null)
+            if (tr.Next() is { } next)
             {
                 this.Dispatcher.Invoke(() =>
                 {
@@ -241,8 +232,8 @@ namespace NanoTrans
                 }, DispatcherPriority.Background);
             }
 
-            if (playing && RequestPlayPause != null)
-                RequestPlayPause();
+            if (playing)
+                RequestPlayPause?.Invoke();
         }
 
 
@@ -306,10 +297,8 @@ namespace NanoTrans
         {
 
             Element el = (Element)sender;
-            if (el.ValueElement is TranscriptionParagraph)
+            if (el.ValueElement is TranscriptionParagraph par)
             {
-
-                TranscriptionParagraph par = (TranscriptionParagraph)el.ValueElement;
                 par.Parent.BeginUpdate();
                 TimeSpan end = par.End;
                 TranscriptionParagraph par2 = new TranscriptionParagraph();
@@ -367,19 +356,17 @@ namespace NanoTrans
 
                     }
                     sum += p.Text.Length;
-                }//for
+                }
 
                 if (!Keyboard.Modifiers.HasFlag(ModifierKeys.Control))//TODO: the keyboard check should be somewhere else?
                 {
-
-                    if (RequestTimePosition != null)
+                    if (RequestTimePosition is { })
                     {
                         RequestTimePosition(out TimeSpan pos);
 
                         par1.End = pos;
                         par2.Begin = pos;
                     }
-
                 }
 
                 var parent = par.Parent;
@@ -426,11 +413,10 @@ namespace NanoTrans
 
         private bool FixPosTryRestore()
         {
-            if (_FixPosElm == null)
+            if (_FixPosElm is null)
                 return false;
 
-            var prevc = listbox.ItemContainerGenerator.ContainerFromItem(_FixPosElm) as ListBoxItem;
-            if (prevc == null)
+            if (listbox.ItemContainerGenerator.ContainerFromItem(_FixPosElm) is not ListBoxItem prevc)
                 return false;
 
             var cpos = prevc.TransformToAncestor(_scrollViewer).Transform(new Point(0, 0));
@@ -446,8 +432,9 @@ namespace NanoTrans
         void l_GotFocus(object sender, RoutedEventArgs e)
         {
             var el = (sender as Element).ValueElement;
-            if (_activeTranscription == el || el == null)
+            if (_activeTranscription == el || el is null)
                 return;
+
             ActiveTransctiption = el;
 
             SelectedElementChanged?.Invoke(this, new EventArgs());
@@ -475,25 +462,14 @@ namespace NanoTrans
                 if (listbox.SelectedValue != value)
                     listbox.SelectedValue = value;
 
-
-                //when playing try to show next paragraph
-                if (RequestPlaying != null)
+                if (RequestPlaying is { })
                 {
                     RequestPlaying(out bool playing);
-                    if (value != null && playing)
-                    {
-                        var nval = value.Next();
-                        if (nval != null)
-                        {
-                            Dispatcher.Invoke(() => listbox.ScrollIntoView(nval), DispatcherPriority.Background);
-                        }
-                    }
+                    if (playing && value?.Next() is { } nval)
+                        Dispatcher.Invoke(() => listbox.ScrollIntoView(nval), DispatcherPriority.Background);
                 }
 
-
                 Dispatcher.Invoke(() => listbox.ScrollIntoView(value), DispatcherPriority.Background);
-
-
             }
         }
 
@@ -506,7 +482,7 @@ namespace NanoTrans
 
         private void ScrollToItem(TranscriptionElement elm)
         {
-            if (_scrollViewer == null)
+            if (_scrollViewer is null)
                 return;
 
             listbox.SelectedItem = elm;
@@ -610,23 +586,22 @@ namespace NanoTrans
 
         private void listbox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (ActiveElement != null)
+            if (ActiveElement is null)
+                return;
+
+            if (ActiveElement.ValueElement != listbox.SelectedItem)
             {
-                if (ActiveElement.ValueElement != listbox.SelectedItem)
-                {
-                    ActiveTransctiption = listbox.SelectedItem as TranscriptionElement;
-                    return;
-                }
+                ActiveTransctiption = listbox.SelectedItem as TranscriptionElement;
+                return;
+            }
 
-                if (!ActiveElement.editor.IsFocused)
-                {
-                    foreach (var elm in _scrollViewer.VisualFindChildren<Element>())
-                        elm.editor.Select(0, 0);
+            if (!ActiveElement.editor.IsFocused)
+            {
+                foreach (var elm in _scrollViewer.VisualFindChildren<Element>())
+                    elm.editor.Select(0, 0);
 
 
-                    ActiveElement.editor.Focus();
-                }
-
+                ActiveElement.editor.Focus();
             }
         }
 
@@ -641,7 +616,7 @@ namespace NanoTrans
                 return;
             }
 
-            if (ActiveElement == null)
+            if (ActiveElement is null)
                 return;
 
             var trans = ActiveElement.TransformToAncestor(listbox);
@@ -655,22 +630,18 @@ namespace NanoTrans
                 Dispatcher.Invoke(() =>
                 {
                     TranscriptionElement elm = null;
-                    var elmc = listbox.ItemContainerGenerator.ContainerFromItem(Transcription.Last()) as ListBoxItem;
 
-                    if (elmc != null)
+                    if (listbox.ItemContainerGenerator.ContainerFromItem(Transcription.Last()) is ListBoxItem elmc)
                     {
                         var pnt = elmc.TransformToAncestor(listbox).Transform(new Point(0, 0));
                         if (pnt.Y < listbox.ActualHeight)
                             elm = Transcription.Last();
                     }
 
-                    if (elm == null)
-                        elm = listbox.GetObjectAtPoint<ListBoxItem>(topleft) as TranscriptionElement;
+                    elm ??= listbox.GetObjectAtPoint<ListBoxItem>(topleft) as TranscriptionElement;
+                    elm ??= listbox.GetObjectAtPoint<ListBoxItem>(new Point(5, 5)) as TranscriptionElement;
 
-                    if (elm == null)
-                        elm = listbox.GetObjectAtPoint<ListBoxItem>(new Point(5, 5)) as TranscriptionElement;
-
-                    if (elm != null)
+                    if (elm is { })
                     {
                         ActiveTransctiption = elm;
                         ActiveElement.SetCaretOffset(0);
@@ -687,22 +658,18 @@ namespace NanoTrans
                 Dispatcher.Invoke(() =>
                 {
                     TranscriptionElement elm = null;
-                    var elmc = listbox.ItemContainerGenerator.ContainerFromItem(Transcription.First()) as ListBoxItem;
 
-                    if (elmc != null)
+                    if (listbox.ItemContainerGenerator.ContainerFromItem(Transcription.First()) is ListBoxItem elmc)
                     {
                         var pnt = elmc.TransformToAncestor(listbox).Transform(new Point(elmc.ActualWidth - 1, elmc.ActualHeight - 1));
                         if (pnt.Y > 0)
                             elm = Transcription.First();
                     }
 
-                    if (elm == null)
-                        elm = listbox.GetObjectAtPoint<ListBoxItem>(topleft) as TranscriptionElement;
+                    elm ??= listbox.GetObjectAtPoint<ListBoxItem>(topleft) as TranscriptionElement;
+                    elm ??= listbox.GetObjectAtPoint<ListBoxItem>(new Point(5, 5)) as TranscriptionElement;
 
-                    if (elm == null)
-                        elm = listbox.GetObjectAtPoint<ListBoxItem>(new Point(5, 5)) as TranscriptionElement;
-
-                    if (elm != null)
+                    if (elm is null)
                     {
                         ActiveTransctiption = elm;
                         ActiveElement.SetCaretOffset(0);

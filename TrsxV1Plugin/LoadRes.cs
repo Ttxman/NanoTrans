@@ -74,7 +74,7 @@ namespace TrsxV1Plugin
             ORTO = segment.First(l => l.StartsWith("ORTO:"))[6..];
 
             var ortop = segment.FirstOrDefault(l => l.StartsWith("ORTOTP:"));
-            if (ortop != null)
+            if (ortop is { })
                 ORTOTP = ortop[8..].Split('|').ToArray();
         }
 
@@ -98,7 +98,7 @@ namespace TrsxV1Plugin
                 TranscriptionPhrase ph = new TranscriptionPhrase();
                 ph.Text = orto[i].Trim() + " ";
                 if (orto[i].Length == 0) //empty words
-                    ph.Text = ""; 
+                    ph.Text = "";
                 ph.Phonetics = PRON[i];
                 ph.Begin = START[i];
                 ph.End = STOP[i];
@@ -116,7 +116,7 @@ namespace TrsxV1Plugin
             while (phrazes.Count > 0)
             {
                 string tt = phrazes[0].Text.Trim();
-                if (string.IsNullOrWhiteSpace(tt) ||( tt.First() == '[' && tt.Last() == ']'))//nerecova udalost
+                if (string.IsNullOrWhiteSpace(tt) || (tt.First() == '[' && tt.Last() == ']'))//nerecova udalost
                 {
                     silence.Add(phrazes[0]);
                     TimeSpan begin;
@@ -200,10 +200,8 @@ namespace TrsxV1Plugin
             {
                 {
                     TranscriptionPhrase ph = (TranscriptionPhrase)sec[0][0];
-                    while (ph != null)
+                    while (ph is { })
                     {
-                        var parent = ph.Parent;
-
                         var ph2 = (TranscriptionPhrase)ph.NextSibling();
 
                         string t = ph.Text.Trim();

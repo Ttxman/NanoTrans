@@ -15,7 +15,7 @@ namespace NanoTrans.Properties
 
         #region property changed - 
 
-        private void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName]string caller = null)
+        private void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string caller = null)
         {
             base.OnPropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(caller));
         }
@@ -30,8 +30,7 @@ namespace NanoTrans.Properties
         {
             get
             {
-                if (_ParagraphBackground == null)
-                    _ParagraphBackground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(this.ParagraphBackgroundStore));
+                _ParagraphBackground ??= new SolidColorBrush((Color)ColorConverter.ConvertFromString(this.ParagraphBackgroundStore));
 
                 return _ParagraphBackground;
             }
@@ -42,15 +41,13 @@ namespace NanoTrans.Properties
                 OnPropertyChanged();
             }
         }
-        
+
         SolidColorBrush _SectionBackground;
         public SolidColorBrush SectionBackground
         {
             get
             {
-                if (_SectionBackground == null)
-                    _SectionBackground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(this.SectionBackgroundStore));
-
+                _SectionBackground ??= new SolidColorBrush((Color)ColorConverter.ConvertFromString(this.SectionBackgroundStore));
                 return _SectionBackground;
             }
             set
@@ -60,14 +57,13 @@ namespace NanoTrans.Properties
                 OnPropertyChanged();
             }
         }
-        
+
         SolidColorBrush _ChapterBackground;
         public SolidColorBrush ChapterBackground
         {
             get
             {
-                if (_ChapterBackground == null)
-                    _ChapterBackground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(this.ChapterBackgroundStore));
+                _ChapterBackground ??= new SolidColorBrush((Color)ColorConverter.ConvertFromString(this.ChapterBackgroundStore));
 
                 return _ChapterBackground;
             }
@@ -78,14 +74,13 @@ namespace NanoTrans.Properties
                 OnPropertyChanged();
             }
         }
-        
+
         SolidColorBrush _ActiveParagraphBackground;
         public SolidColorBrush ActiveParagraphBackground
         {
             get
             {
-                if (_ActiveParagraphBackground == null)
-                    _ActiveParagraphBackground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(this.ActiveParagraphBackgroundStore));
+                _ActiveParagraphBackground ??= new SolidColorBrush((Color)ColorConverter.ConvertFromString(this.ActiveParagraphBackgroundStore));
 
                 return _ActiveParagraphBackground;
             }
@@ -102,8 +97,7 @@ namespace NanoTrans.Properties
         {
             get
             {
-                if (_PhoneticParagraphBackground == null)
-                    _PhoneticParagraphBackground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(this.PhoneticParagraphBackgroundStore));
+                _PhoneticParagraphBackground ??= new SolidColorBrush((Color)ColorConverter.ConvertFromString(this.PhoneticParagraphBackgroundStore));
 
                 return _PhoneticParagraphBackground;
             }
@@ -120,8 +114,7 @@ namespace NanoTrans.Properties
         {
             get
             {
-                if (_PhoneticParagraphDisabledBackground == null)
-                    _PhoneticParagraphDisabledBackground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(this.PhoneticParagraphDisabledBackgroundStore));
+                _PhoneticParagraphDisabledBackground ??= new SolidColorBrush((Color)ColorConverter.ConvertFromString(this.PhoneticParagraphDisabledBackgroundStore));
 
                 return _PhoneticParagraphDisabledBackground;
             }
@@ -135,9 +128,9 @@ namespace NanoTrans.Properties
 
         #endregion
 
-        public double SlowedPlaybackSpeed 
-        { 
-            get 
+        public double SlowedPlaybackSpeed
+        {
+            get
             {
                 return this.SlowedPlaybackSpeedStore;
             }
@@ -187,7 +180,7 @@ namespace NanoTrans.Properties
             {
                 if (_SpeakerAttributteCategories == null)
                 {
-                    _SpeakerAttributteCategories = NanoTrans.Properties.Strings.GlobalDefaultSpeakerAttributes.Split(',').Concat(NanoTrans.Properties.Settings.Default.AdditionalSpeakerAttributeCategories.Split(new[]{','}, StringSplitOptions.RemoveEmptyEntries)).ToArray();
+                    _SpeakerAttributteCategories = NanoTrans.Properties.Strings.GlobalDefaultSpeakerAttributes.Split(',').Concat(NanoTrans.Properties.Settings.Default.AdditionalSpeakerAttributeCategories.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)).ToArray();
                 }
 
                 return _SpeakerAttributteCategories;
@@ -201,7 +194,7 @@ namespace NanoTrans.Properties
         }
 
 
-        public double SetupTextFontSize 
+        public double SetupTextFontSize
         {
             get { return SetupTextFontSizeStore; }
             set
@@ -233,12 +226,12 @@ namespace NanoTrans.Properties
             }
         }
 
- 
 
 
 
 
-        public bool SaveWholeSpeaker 
+
+        public bool SaveWholeSpeaker
         {
             get
             {
@@ -271,7 +264,7 @@ namespace NanoTrans.Properties
         {
             get
             {
-                return VideoPanelVisible? VideoPanelWidthStore : 0;
+                return VideoPanelVisible ? VideoPanelWidthStore : 0;
             }
 
             set
@@ -297,7 +290,7 @@ namespace NanoTrans.Properties
 
 
         public System.Windows.Point WindowsPosition
-         {
+        {
             get
             {
                 return WindowsPositionStore;
@@ -459,9 +452,7 @@ namespace NanoTrans.Properties
         {
             get
             {
-                if (_WaveformBackground == null)
-                    _WaveformBackground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(this.WaveformBackgroundStore));
-
+                _WaveformBackground ??= new SolidColorBrush((Color)ColorConverter.ConvertFromString(this.WaveformBackgroundStore));
                 return _WaveformBackground;
             }
             set
@@ -477,9 +468,7 @@ namespace NanoTrans.Properties
         {
             get
             {
-                if (_WaveformForeground == null)
-                    _WaveformForeground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(this.WaveformForegroundStore));
-
+                _WaveformForeground ??= new SolidColorBrush((Color)ColorConverter.ConvertFromString(this.WaveformForegroundStore));
                 return _WaveformForeground;
             }
             set
@@ -495,9 +484,7 @@ namespace NanoTrans.Properties
         {
             get
             {
-                if (_WaveformTimelineBackground == null)
-                    _WaveformTimelineBackground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(this.WaveformTimelineBackgroundStore));
-
+                _WaveformTimelineBackground ??= new SolidColorBrush((Color)ColorConverter.ConvertFromString(this.WaveformTimelineBackgroundStore));
                 return _WaveformTimelineBackground;
             }
             set
@@ -513,9 +500,7 @@ namespace NanoTrans.Properties
         {
             get
             {
-                if (_WaveformSpeakerBackground == null)
-                    _WaveformSpeakerBackground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(this.WaveformSpeakerBackgroundStore));
-
+                _WaveformSpeakerBackground ??= new SolidColorBrush((Color)ColorConverter.ConvertFromString(this.WaveformSpeakerBackgroundStore));
                 return _WaveformSpeakerBackground;
             }
             set
@@ -532,9 +517,7 @@ namespace NanoTrans.Properties
         {
             get
             {
-                if (_ParagraphBegin == null)
-                    _ParagraphBegin = new SolidColorBrush((Color)ColorConverter.ConvertFromString(this.ParagraphBeginColorStore));
-
+                _ParagraphBegin ??= new SolidColorBrush((Color)ColorConverter.ConvertFromString(this.ParagraphBeginColorStore));
                 return _ParagraphBegin;
             }
             set
@@ -552,9 +535,7 @@ namespace NanoTrans.Properties
         {
             get
             {
-                if (_ParagraphEnd == null)
-                    _ParagraphEnd = new SolidColorBrush((Color)ColorConverter.ConvertFromString(this.ParagraphEndColorStore));
-
+                _ParagraphEnd ??= new SolidColorBrush((Color)ColorConverter.ConvertFromString(this.ParagraphEndColorStore));
                 return _ParagraphEnd;
             }
             set
@@ -570,9 +551,7 @@ namespace NanoTrans.Properties
         {
             get
             {
-                if (_WaveformBlockMarkColorStore == null)
-                    _WaveformBlockMarkColorStore = new SolidColorBrush((Color)ColorConverter.ConvertFromString(this.WaveformBlockMarkColorStore));
-
+                _WaveformBlockMarkColorStore ??= new SolidColorBrush((Color)ColorConverter.ConvertFromString(this.WaveformBlockMarkColorStore));
                 return _WaveformBlockMarkColorStore;
             }
             set

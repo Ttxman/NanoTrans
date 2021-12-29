@@ -14,7 +14,7 @@ namespace NanoTrans
     public partial class App : Application
     {
 
-        public static string[] Startup_ARGS;
+        public static string[] Startup_ARGS = Array.Empty<string>();
         private void Application_Startup(object sender, StartupEventArgs e)
         {
            Startup_ARGS = e.Args;

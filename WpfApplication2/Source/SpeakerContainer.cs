@@ -13,18 +13,18 @@ namespace NanoTrans
     public class SpeakerContainer : INotifyPropertyChanged
     {
         public SpeakerCollection SpeakerColletion;
-        string _degreeAfter = null;
-        string _degreeBefore = null;
-        string _firstName = null;
+        string? _degreeAfter = null;
+        string? _degreeBefore = null;
+        string? _firstName = null;
         bool _changed = false;
-        string _imgBase64 = null;
+        string? _imgBase64 = null;
         bool _isLoading = false;
         string _language;
         bool _marked = false;
-        string _middleName = null;
+        string? _middleName = null;
         Speaker.Sexes? _sex;
         readonly Speaker _speaker;
-        string _surName = null;
+        string? _surName = null;
         bool _updating = false;
         bool? _pinned = null;
 
@@ -55,25 +55,25 @@ namespace NanoTrans
             MiddleName = MiddleName.Trim();
             SurName = SurName.Trim();
 
-            if (_degreeAfter != null)
+            if (_degreeAfter is { })
                 _speaker.DegreeAfter = _degreeAfter;
-            if (_degreeBefore != null)
+            if (_degreeBefore is { })
                 _speaker.DegreeBefore = _degreeBefore;
-            if (_firstName != null)
+            if (_firstName is { })
                 _speaker.FirstName = _firstName;
-            if (_imgBase64 != null)
+            if (_imgBase64 is { })
                 _speaker.ImgBase64 = _imgBase64;
-            if (_language != null)
+            if (_language is { })
                 _speaker.DefaultLang = _language;
-            if (_pinned != null)
+            if (_pinned is { })
                 _speaker.PinnedToDocument = _pinned.Value;
-            if (_middleName != null)
+            if (_middleName is { })
                 _speaker.MiddleName = _middleName;
-            if (_sex != null)
+            if (_sex is { })
                 _speaker.Sex = _sex.Value;
-            if (_surName != null)
+            if (_surName is { })
                 _speaker.Surname = _surName;
-            if (_pinned != null)
+            if (_pinned is { })
                 _speaker.PinnedToDocument = _pinned.Value;
 
 
@@ -121,7 +121,7 @@ namespace NanoTrans
 
             set
             {
-                _degreeAfter = (value ?? "");
+                _degreeAfter = value ?? "";
                 Changed = true;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("DegreeAfter"));
             }

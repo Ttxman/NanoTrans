@@ -299,7 +299,7 @@ namespace NanoTrans.Audio
                 this._FileLengthMS = (long)WavReader.ReturnAudioLength(aCesta).TotalMilliseconds;
 
 
-                if (aCesta == null || aCestaDocasnychWAV == null || FileLengthMS <= 0)
+                if (aCesta is null || aCestaDocasnychWAV is null || FileLengthMS <= 0)
                     return false; //chybne nastaveni nebo delka souboru k prevodu
 
                 this.TemporaryWAVsPath = aCestaDocasnychWAV;
@@ -364,7 +364,7 @@ namespace NanoTrans.Audio
                 long j = 0; //pomocna pro indexaci v souborech
 
                 Stream outstream = prPrevod.StandardOutput.BaseStream;
-                for (i = 0; pPocetNactenych > 0; )
+                for (i = 0; pPocetNactenych > 0;)
                 {
                     //Termination
                     if (Interlocked.CompareExchange(ref _conversionStopper, 1, 1) == 1)
@@ -447,7 +447,7 @@ namespace NanoTrans.Audio
                 prPrevod.Close();
                 prPrevod = null;
                 this._FileLengthMS = (long)((float)(pPocetNactenychVzorkuCelkem) / (this.Frequency / 1000));
-                if (output != null)
+                if (output is { })
                 {
                     //zapsani skutecne hlavicky WAV
                     output.Seek(0, SeekOrigin.Begin);
@@ -484,21 +484,18 @@ namespace NanoTrans.Audio
             }
             catch (Exception ex)
             {
-                if (output != null)
-                {
-                    output.Close();
-                    output = null;
-                }
+                output?.Close();
+                output = null;
+
                 this._Converted = true; //i pres spadnuti je nacteni ok, doresit preteceni indexu!!!!!!
-                if (TemporaryWavesDone != null && !(ex is ThreadAbortException))
-                    TemporaryWavesDone(this, new EventArgs());
+                if (!(ex is ThreadAbortException))
+                    TemporaryWavesDone?.Invoke(this, new EventArgs());
 
                 return false;
             }
             finally
             {
-                if (output != null)
-                    output.Dispose();
+                output?.Dispose();
             }
         }
 
@@ -607,13 +604,13 @@ namespace NanoTrans.Audio
             {
 
                 //zruseni procesu prevodu souboru na wav
-                if (prPrevod != null && !prPrevod.HasExited)
+                if (prPrevod is { } && !prPrevod.HasExited)
                 {
                     prPrevod.Kill();
                 }
 
                 //zruseni threadu
-                if (this.tPrevodNaDocasneSoubory != null && this.tPrevodNaDocasneSoubory.ThreadState == System.Threading.ThreadState.Running)
+                if (tPrevodNaDocasneSoubory?.ThreadState == System.Threading.ThreadState.Running)
                 {
                     Interlocked.Exchange(ref _conversionStopper, 1);
                     lock (_AudioDataWriteLocker)
@@ -630,7 +627,7 @@ namespace NanoTrans.Audio
                 }
 
                 //zruseni procesu prevodu souboru na wav
-                if (prPrevod != null && !prPrevod.HasExited)
+                if (prPrevod is { } && !prPrevod.HasExited)
                 {
                     prPrevod.WaitForExit();
                     prPrevod = null;
@@ -640,7 +637,7 @@ namespace NanoTrans.Audio
 
                 lock (_AudioDataWriteLocker)
                 {
-                    if (TempPath != null)//cleanup
+                    if (TempPath is { })//cleanup
                     {
                         DirectoryInfo di = new DirectoryInfo(this.TempPath);
                         if (di.Exists)

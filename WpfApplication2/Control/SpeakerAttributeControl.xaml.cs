@@ -41,10 +41,8 @@ namespace NanoTrans
         {
             SpeakerAttributeControl ac = (SpeakerAttributeControl)d;
 
-            if (ac._oldb != null)
-            {
+            if (ac._oldb is { })
                 BindingOperations.ClearBinding(ac, IsChangedProperty);
-            }
 
             ac._oldb = new Binding("Changed")
             {
@@ -61,7 +59,7 @@ namespace NanoTrans
             set
             {
                 SetValue(IsChangedProperty, value);
-                
+
             }
         }
 
@@ -109,7 +107,7 @@ namespace NanoTrans
             }
         }
 
-        private void OnPropertyChanged([CallerMemberName]string caller = null)
+        private void OnPropertyChanged([CallerMemberName] string caller = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(caller));
         }
